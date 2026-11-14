@@ -48,82 +48,8 @@
 | `core/evidence_rules.json`·`core/evidence_sources.json` | **사용** (근거 슬롯 키·`detail` 매개변수·원전 원문 대조, W25) | core |
 | 엔진 gRPC API (`engine.proto`) | **사용** (검사기 생성 코드 `tools/gen_proto.sh`, #144) | core |
 
-## 현재 상태 (2026-11-05, writing 세션 작성)
-* 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
-* **W0 완료**(PR #36), 원국 개인 해석 슬롯(PR #73), 로마자 표기 정리(PR #77), IA 슬롯 정렬(PR #132), IA v2(PR #138), ci-gate 1단계(PR #145), 공용 ui 문구(PR #155), 오늘·근거 시트 문구(PR #162), IA v3(PR #185), drift·근거 슬롯(PR #228), W1 전 정리(PR #230), LLM 판정(PR #235), W1-1 오늘 화면(PR #249), W1-2 사주·개인 해석(PR #254)이 main에 있습니다.
-* **검수 회차2 새 슬롯, 12운성 뜻, 행운 색, 원전 순서**(drift #940, #893, #925, #928, #946, #951, #955, 라운드 R36 `artifacts/2026-11-10-round-R36.md`, W64): IA 새 ui 슬롯 8자리 원고, 행운 색 수 "검정", 12운성 뜻 12개(용어 범주 `twelve_stage`), 원전 줄 순서 뜻, 원문, 출처. 미리보기 입력 확인과 질문 떼기 슬롯 상한은 design 측정 전이라 `null`입니다. server는 용어 범주와 시드(Issue), 원전 순서(#952).
-* **행운 색 둘인 날과 집중 시간 낮과 밤**(drift #978, 라운드 R37 `artifacts/2026-11-11-round-R37.md`, W65): 색 칩 둘인 날 문장 2벌, 집중 시간 낮과 밤 문장, 근거 6개, 새 원전 22편, 조후 24칸 원문과 뜻(core #1010, #1012). 집중 시간에는 원전에 없는 성질(집중 등)을 붙이지 않고, "옛 책" 대신 "원전"을 씁니다. 칩 이름표는 design #982 뒤, 낮과 밤 이유 문장은 #971.
-* **질문 뗀 자리 권유 글자 정정**(W66): `diaryEditGuideAttach` "무엇을 쓸지 고민인가요?"(design V102 사용자 문구), "질문 추가"는 스크린리더 hint 키 `diaryEditGuideAttachHint`로.
-* **행운 색 둘인 날 시트와 길한 시간**(#1017, drift #1019, 라운드 R38 `artifacts/2026-11-12-round-R38.md`, W67): IA 새 ui 슬롯 10자리, 시간 시트 제목 "낮의 길한 시간", "밤의 길한 시간", 칩 이름 "길한 시간". 색 둘인 날 두 풀이는 R37 문장 그대로. 띠 칸 en 시진 이름은 design 판단 대기.
-* **행운 색, 방위, 숫자의 오행 관계 문장**(#1132, D130, drift #1151, 라운드 R48 `artifacts/2026-11-13-round-R48.md`, W78): 식별자 슬롯 `daily.color_relation`, `daily.direction_relation`, `daily.number_relation`(server가 `relation`으로 고름). 子, 妻, 鬼 색은 "오늘은 다르게 읽는 자리에 있어요" 두 문장, 숫자는 "숫자 중에서". server 키 고르기는 #1153, 상한은 design #1157(네 줄, ko 92, en 156, ja 76, drift #1158).
-* **구매 화면 청약철회 제한 고지**(#1125, D129, 라운드 R47 `artifacts/2026-11-13-round-R47.md`, W77): `adFreeLegalNotice`를 합니다체 두 문장으로(청약철회가 제한될 수 있음, 약관과 처리방침 안내). 공적 고지는 해요체를 쓰지 않음.
-* **동의 화면 만 14세 이상 항목**(#1113, D127 ④, 라운드 R46 `artifacts/2026-11-13-round-R46.md`, W76): `consentRequiredLabelAge` "(필수) 만 14세 이상입니다". 문서 값 이름은 server가 정함.
-* **만세력 기준 줄 일간 표기**(#1095, 라운드 R45 `artifacts/2026-11-13-round-R45.md`, W75): 뒤붙이 틀 `sajuChartManseBasisStemSuffix({stemName},{reading})`. ko 庚(경금), en 庚 (Gyeonggeum), ja 庚（かのえ）. app은 독음 틀 대신 이 틀로 바꿈.
-* **도화 중립과 마무리 줄 대상**(#1081, #1090, drift #1088, 라운드 R44 `artifacts/2026-11-13-round-R44.md`, W74): 도화 원고를 매력과 이성 구설을 함께로. 마무리 줄은 확정 일곱에 도화, 공망, 양인, 괴강을 더한 열하나에 붙이고 화개는 붙이지 않음(`ui.shinsal.weighing` structure). proto 생성 코드 재생성(집중 시간 `hours`).
-* **행운 색 두 칸 칸 순서**(#1073, W73): 스크린리더 `todayLuckyPairPosition` "{total}개 중 {index}번째"(en `{index} of {total}`, ja 「{total}つのうち{index}つ目」).
-* **간지 독음**(#1069, 라운드 R43 `artifacts/2026-11-13-round-R43.md`, 비교 페이지 같은 이름 `-questions.html`, W72): glossary `stem_reading`, `branch_reading`(ko 갑, ja きのえ 훈독, en Gap 한국어 로마자), 잇는 틀 `ui.ganji.reading`(`ganjiReading`, `ganjiReadingSuffix`). app은 이름 대신 이 값으로 바꾸고, server는 시드 재생성.
-* **빈 상태 두 안내**(#1059, design #1058 V123, drift #1062, #1068, 라운드 R42 `artifacts/2026-11-12-round-R42.md`, W71): 광고 제거 상품 없음 `adFreeUnavailableBody` "지금은 광고 제거권을 구매할 수 없어요.", IA 밖 `ui.explain.term-empty` `explainSheetTermEmpty` "이 용어의 풀이를 준비하고 있어요."(뜻 원고가 빠진 용어에서만 나와 준비 중이라고 씀).
-* **D124 신살 원고**(#1030, 라운드 R40 `artifacts/2026-11-12-round-R40.md`, W70): 원국 신살 13개, 오늘 태그 셋, 덕일, 원전 16편의 3개 언어 원고. 원진 한자 元嗔(표준국어대사전), ja 元辰, 金與禄, 陰差陽錯. 흉 신살 마무리 문장 `shinsalWeighingNote`(R41, `artifacts/2026-11-12-round-R41.md`).
-* **D124 신살 계약 따라잡기**(drift #1038, core #1037, W69): 원국 신살 13개와 오늘 태그 셋, 덕일 풀이 슬롯 `explain.day_virtue`, 근거와 원전 16편의 키를 열고 원고는 `pending`(#1030). 한자는 원문 표기(원진 元辰, 금여록 金轝祿은 #1030에서 다시 묻기), 괴강 罡은 앱 글꼴에 없음.
-* **행운 칩 시트 본문에 내 값과 오늘 값**(#971, 라운드 R39 `artifacts/2026-11-12-round-R39.md`, W68): 색(하나인 날), 방향, 숫자 본문에 바탕 오행, 방위 오행이나 지지, 오늘 천간을 넣었습니다. 이유 문장(`reason.*`)은 행운 칩 시트에 나오지 않아 본문을 고쳤습니다. 집중 시간과 색 둘인 날 문장은 R37 그대로입니다.
-* **태그 칩 문구 삭제**(#886, W63): 컴포넌트 6.0.0에서 `tag-chip`이 빠져 `ui.tag-chip.label`과 키 넷을 지움.
-* **원전 원문 정자, 억부 근거 틀**(#871, #870, W62): `evidence.source` 원문 134구절을 정자로(앱 한자 글꼴 안), ko `basis.yongsin/eokbu` "힘이" 겹침 고침.
-* **용어 "일간" 뜻**(#863, F-019, 라운드 R35 `artifacts/2026-11-08-round-R35.md`, W61): 용어 id `role.day_master`의 값 이름, 한자, 뜻 3개 언어 원고. server 시드 반영은 server 몫입니다.
-* **DS1 2단계 화면 낱말**(#857, #850, D113, drift #855, 라운드 R34 `artifacts/2026-11-07-round-R34.md`, W60): IA 새 ui 슬롯 `explain-sheet.tag.diary-link`, `today.event.title`(그날 시트와 같은 키), IA 밖 슬롯 5개(12운성 자리 글자, 대운 세운 기간, 회고 낱말, 사주 기운 시트 이름 칸, 질문 바꾸기)와 띠 표 빈 칸 키, design 5.0.0 상한, 편수 삭제 둘. 신강약 알약은 IA에서 빠져(#860) 넣지 않았습니다.
-* **대표 태그 없는 날 한 줄**(#840, D112, drift #842, 라운드 R33 `artifacts/2026-11-06-round-R33.md`, W59): IA 새 ui 슬롯 `today.featured.empty` "오늘은 두드러진 사주 기운이 없어요." 3개 언어 원고. 새 슬롯 상한은 design 측정 전이라 `null`입니다.
-* **로그인 덧붙임**(#830, D111, drift #831, 라운드 R32 `artifacts/2026-11-06-round-R32.md`, W58): IA 새 ui 슬롯 `login.save.note`(첫 풀이를 거쳐 온 경우에만) "로그인하시면 방금 본 풀이를 이어서 볼 수 있어요." 3개 언어 원고. 새 슬롯 상한은 design 측정 전이라 `null`입니다.
-* **일지 충과 월지 충, 태그 근거와 원전**(#813 마지막 몫, #821, 라운드 R31 `artifacts/2026-11-06-round-R31.md`, W57): 태그 이름 "일지 충", "월지 충"과 보조 문장, 질문, 뜻, `calendar.very_good` "아주 잘 풀리는 날", `basis.tags/*` 12개, 새 `source.*` 10개(삼명통회, 적천수)를 3개 언어로 채워 #821의 pending을 모두 풀었습니다. 원전이 없는 근거는 새 슬롯 `evidence.no_source`(키 `no_source.<rule_id>`)가 원전 칸을 채우고, 지금은 십성 몰림 태그 하나입니다(D108 ④). 나머지 빈 원전은 원전 구역을 그리지 않습니다. server 그리기는 #827.
-* **IA v5 원고**(#813, 라운드 R30 `artifacts/2026-11-05-round-R30.md`, W56): IA v5 새 ui 슬롯 44개의 3개 언어 원고(오늘 섹션 제목, 날짜 틀, 사주 표 한 줄 설명 일곱, 태그 시트, 범례와 길흉 규칙 시트, 일기 버튼, 알림 시각 안내, 회고 안내). 로그인 화면은 경로로 나누지 않고 제목 "명리일기", 설명 "로그인하시면 매일 내 사주에 맞춘 풀이를 드릴게요."(F-029). 그날 시트 일기 버튼 "{date} 일기 쓰기", 출생 정보 줄 시진 칸 `ui.birth-info.row`. 새 슬롯 상한은 design 측정 전이라 `null`입니다.
-* **IA v5, core 2026.11.0, DS1 따라잡기**(drift #811, #813 틀, #807, #821, W55): IA v5 새 ui 슬롯 44개의 키와 틀(원고는 `pending`, 사용자 확정 ko 문구 12개만 채움), 새 content 자리는 기존 슬롯 `ia`로, IA에서 빠진 4자리는 `ia`에서만 뗌. `*.big_change` 원고 삭제, 일지 충과 월지 충, `calendar.very_good`, `basis.tags/*` 12개, 새 `source.*` 10개는 `pending`. 근거 아이콘 스크린리더 이름 `depthLinkEvidence`("{subject} 근거 보기"), 새 `ui.keyboard.dismiss`, design 4.0.0 상한. 주간 고정 자료는 엔진 2026.11.0으로 다시 만들었습니다.
-* **문의하기와 문의 화면 원고**(#745·#752, D102, 라운드 R28 `artifacts/2026-11-04-round-R28.md`·R29 `artifacts/2026-11-04-round-R29.md`, W53·W54): 설정 줄 "문의하기", IA 문의 화면 `contact` 8개 슬롯(`slots/ui/contact.yaml`, 제목은 `app-bar.yaml`)과 IA 밖 `ui.contact.error`, 구매 내역 안내 "결제한 상품이 보이지 않으면 문의하기로 알려 주세요.". 기기 메일 앱 방식은 계정 id를 사용자가 지울 수 있어 앱 안 화면으로 바뀌었습니다(#750 → D102). 함께 보내는 정보 고지는 합니다체입니다. 새 슬롯 상한은 design 측정 전이라 `null`입니다.
-* **app 임시 문구와 ATT 본문**(#331·#697, 라운드 R26 `artifacts/2026-11-03-round-R26.md`, W51, 검사기 v0.13.0): app 임시 키 33개를 IA 밖 `ui.*` 슬롯 10개로 옮겼습니다(설정 줄 "알림 시각", 약관 줄, 출생지 기본값 "한국 기준", 사주 탭 "원국"·"만세력과 대운", 표 머리, 꼬리표, 스크린리더 이름, 행운 칩과 공유 이미지 이름). 근거 시트 제목은 두 화면이 같이 쓰는 "풀이의 근거", 개인 해석이 없는 자리는 "이 자리는 따로 풀이한 내용이 없어요.". glossary `twelve_stage` 12개(개인 해석 문장과 같은 표기). ATT 본문 `iosTrackingUsageDescription`(`ui.system.tracking`, app이 `InfoPlist.strings`에 옮김). ja 만세력을 「万年暦」로 고쳤습니다(W24). 새 슬롯 상한은 design #723 값으로 채웠고(W52, 라운드 R27), en 탭 이름은 상한에 맞춰 "Calendar and cycles"로 줄였습니다.
-* **W1-3 용어·근거 완료**(계획 `plans/2026-10-28-w1-3-terms-evidence.md`, 라운드 R23~R25, W47~W49, 검사기 v0.12.0): 용어 뜻 62개, glossary 값 이름 35개(천간 갑목~계수, 십성, 십성 묶음, 신살, 천간합·지지합·충·형), 근거 문장 `evidence.basis` 24개(매개변수 종류를 glossary 범주·`text`·`number`로), 원전 출처 `evidence.source` 124개(궁통보감 「대목」 + core `quote` + 원문이 말한 것만 옮긴 뜻)를 3개 언어로 채웠습니다. 세 언어 `mlw judge` 의심은 ko 용어 뜻 2건(R23에서 정함)뿐입니다. 비워 둔 원고는 슬롯 `pending`(warn)으로 적고 CI `mlw check`에서 `--partial`을 뺐습니다(ja glossary 3개만, W24). 조후표와 원문이 어긋나는 칸은 core #625. 태그라인은 "오늘 일진을 내 사주에 맞춰 풀어 주는 일기"(`guide/store-copy.md`, 공유 이미지와 같음).
-* **알림 채널 이름과 윤달 사주 줄**(#614·#587, drift #574, 라운드 R22 `artifacts/2026-10-28-round-R22.md`, W46): IA 새 슬롯 `system-push.channel.morning` "오늘 풀이 알림", 계정 합치기 사주 줄 윤달 키 `accountChoiceSajuLeap`·`accountChoiceSajuNoTimeLeap`(design V48), design 3.2.0 상한 `profile-edit.recalc.notice`.
-* **업데이트 사유별 문구와 drift #574**(#355, 라운드 R21 `artifacts/2026-10-28-round-R21.md`, W45): `force-update.notice.body`에 동의 문서 사유 키 `forceUpdateNoticeBodyConsent`("새 약관을 확인하려면 업데이트가 필요해요.")를 더했고 app이 사유로 고릅니다(슬롯 `select`). 제목과 기존 사유 문구는 그대로입니다. design 3.1.0 상한을 광고 제거 버튼 둘과 기간 고지에 넣었습니다(#564 후속 끝).
-* **D93 대시·가운뎃점 금지와 광고 제거 새 슬롯**(#546·#548, drift #551, 라운드 R20 `artifacts/2026-10-27-round-R20.md`, W44, 검사기 v0.11.0): 새 규칙 `style.S9`가 모든 원고에서 U+2014, U+2013, U+00B7을 막습니다(ja `・`는 대상 아님). ARB 16개 키와 ko 콘텐츠 2개를 쉼표, "와/과", en " to "로 고쳤습니다. IA 새 슬롯 `ad-free.buy.cta`("구매하기"), `ad-free.offer.period`("1개월, 자동 결제 없음"), `adFreeOfferPrice`는 `{price}`만. 한 줄에 값을 구분 글자로 잇지 않고 레이아웃으로 나눠 `purchaseMetaSeparator`를 지웠습니다. 두 새 슬롯 상한과 구매 줄 배치는 design에 요청했습니다(#564).
-* **맺음 검사 없앰**(W43, 검사기 v0.10.0): `style.S3`·`style.S8`과 슬롯 `register`를 지우고, 맺음 현황 명령 `mlw endings`(화면별 해요체·합니다체 분포, 막지 않음)를 더했습니다. 맺음은 쓸 때 문장마다 고릅니다. 라운드 R18(`artifacts/2026-10-23-round-R18.md`): 계산 기준 화면의 규칙 문장과 계정 삭제 확인의 고지 문장을 합니다체로 바꿨습니다(키 이름 그대로). 라운드 R19(`artifacts/2026-10-23-round-R19.md`): 합치기·일기 삭제 확인, 합치기 설명의 지워지는 고지, 온보딩·출생지·프로필 수정의 계산 안내 문장을 합니다체로 바꿨고 엔진 안내는 그대로 뒀습니다.
-* **합치기 토큰 오류**(#482, REST draft.15, 라운드 R17 `artifacts/2026-10-23-round-R17.md`, W42): `merge.token_invalid` 문구 `errorMergeTokenInvalid`("가져올 계정을 다시 인증해 주세요")를 더하고, code가 없어진 `errorAuthIdentityPendingDeletion`을 지웠습니다. `merge.same_account`·`merge.no_account`는 `account-merge.not-other.body`(`Self`·`None`)가 맡습니다.
-* **D85·D86·D88 원고**(drift #479, #482·#487·#495, 라운드 R15 `artifacts/2026-10-23-round-R15.md`, W40): IA 새 슬롯 10개(인증 수단 연결 거절, 합치기 입구·인증·합칠 계정 없음, 구매 내역, 미리보기 다시 입력, 대운수)와 구매 줄 낱말·상품 이름, `ad-free.restore.cta` 삭제, 합치기 제목·설명·묶음 이름, 계정 삭제 안내(보관 고지), 시간 모름 안내(시주를 뺀 계산). 맺음은 슬롯 `register`로 나눕니다(W40, 검사기 v0.9.0). design #509(라운드 R16, W41): 합칠 다른 계정은 "가져올 계정", 요약 상자 `ui.account-merge.summary`, 구매 줄 `ui.purchase.status`·`ui.purchase.meta`·`ui.purchase.product`. `account-merge.cta.cancel`은 IA에서 빠져 지웠습니다(#511).
-* **REST draft.14 오류 문구**(#468, 라운드 R14 `artifacts/2026-10-22-round-R14.md`, W39): `ui.error.code`에 인증 수단 오류 키 5개를 더했고, `merge.token_invalid`는 `accountMergeError`를 썼습니다(→ W42). 따로 쓰던 "수단"을 "인증 수단"으로 바꿨습니다(기존 키 세 개의 문구).
-* **ui 원고의 조사**(spec `specs/2026-10-22-ui-josa-design.md`, 계획 `plans/2026-10-22-ui-josa.md`, W38): ko ui 원고에 조사 표기를 쓸 수 있고, ARB 생성 때 ICU `select`(`pJosa`)로 펼칩니다. app은 `josaClass`로 채웁니다(호칭·조사 규칙 v1.2, 검사기 v0.8.0). 원고에 처음 쓰는 것은 app의 `josaClass` 완료 보고 뒤입니다.
-* **계정 합치기 원고 보완·상한**(design #441, drift #443, 라운드 R13 `artifacts/2026-10-22-round-R13.md`): `lengths.md` 2.7.0 상한을 D82 슬롯에 넣고, 떼기 확인을 제목·본문 키로 나눴습니다(`loginMethodsUnlinkConfirmBody`). 수단 줄은 `social-login-button` connected(`loginMethodsRowConnected` "연결됨", `loginMethodsRowLink` 삭제), "현재 계정", 사주 요약 슬롯 `ui.account-merge.saju`, 수단 구분자, 합치기 오류는 `dialog`. 확인 창의 "기본 선택은 취소"를 지웠습니다(V41). ja 카카오 라벨 "Login with Kakao"(16자)가 새 상한 15자를 넘어 design에 다시 재 달라고 했습니다(#446). 그 전에는 `mlw check`가 막힙니다.
-* **D83 ② 상한 문구**(#425, 라운드 R12 `artifacts/2026-10-22-round-R12.md`, W37): 상한을 채운 날의 쓰는 입구 `todayGuideCtaFull`·`daySheetDiaryWriteCtaFull`·`diaryListPickDateConfirmFull`과 오류 `errorDiaryDayFull`("충분히 썼어요", 상한 수치 없음). 이미 쓴 날의 버튼을 "새 일기 쓰기"로 바꿨습니다. `errorDiaryDateTaken`은 server가 `diary.date_taken`을 없애고 app이 쓰지 않게 되면 지웁니다.
-* **D82·D83 원고**(#388·#409, 라운드 R11 `artifacts/2026-10-22-round-R11.md`, W36): 로그인 수단·계정 합치기 IA ui 슬롯 13개(`slots/ui/account.yaml`, app-bar 제목 2개는 `app-bar.yaml`)의 키와 3개 언어 원고, LINE·Google 로그인 라벨(제공자 가이드 문구), IA 밖 `ui.*` 4개(제공자 이름·연결 동작, 합칠 계정 요약, 합치기 실패, 설정 줄). D83: 쓰는 입구는 언제나 새 일기라 `todayGuideCtaWritten`·`diaryListPickDateConfirm`을 쓰기 문구로, `daySheetDiaryOpen`을 편수 머리(`count`)로 바꾸고 `daySheetDiaryWriteCtaWritten`을 더했습니다. W36: 안내·확인 문구는 막는 말 대신 남는 것·필요한 것. drift #413(PR #416)은 생성 ARB 갱신. 상한은 design 측정 전이라 `null`입니다.
-* **IA D77 따라잡기**(PR #279, W33, #278·#275 일부): IA ui 슬롯 9개를 `ia` 필드로 담고(ARB 키 이름 그대로), `ui.event-edit.form`의 버튼·안내 4개를 키별 슬롯으로 나눴습니다. 일기 저장 버튼·삭제 toast 원고(`diaryEditSave`·`diaryViewDeleted`).
-* **검사 범위 정리**(PR #369, D81, W35, #361): `writing.yml`에 `mode` 입력(`own`·`drift`·`gate`), `drift`·`gate`는 계약 검사만(`pytest -m contract`·`mlw check`·`gen-docs --check`·proto 대조). 테스트 세션 캐시로 전체 테스트 42초 → 14초.
-* **생일 음력 입력 문구**(PR #328, W34, #313): 양력 확인 줄 `datePickerSolarConfirm({date})`, 음력 안내를 월 휠 윤달 방식으로 고침, 윤달 체크 `leapMonth` 삭제.
-* **기본 깊이 설정 삭제**(PR #326, D79, #317·#323): 설정 이름·설명과 설정에만 쓰던 단계 이름(요약·원리) 원고를 3개 언어에서 지우고 W15를 개정했습니다. `depthExplain`(풀이 시트 접근성 라벨)·`depthLinkEvidence`는 남깁니다. design이 `lengths.md`에서 해당 행을 지우고 `ui.depth.explain`을 상한 없음으로 둔 것을 따라잡았습니다(PR #371, #372).
-* **규칙 정합성 점검·남은 ui 원고**(PR #297, D78, #283·#268·#260·#275): W20 개정(D77 예외), 원어민 검수는 보강 단계(D70), 가이드 질문 W31 ③ 기준을 voice-tone에, 사용 계약 행 정리. 오류 문구 `errorCityNotFound`·`errorTimezoneInvalid`, 윤달 초하루 표지 `dayCellLeapNewMoon`(en `L{month}.1`은 칸 폭 때문에 한 글자 표지), 일기 보기 아이콘 라벨과 태그 칩 틀·길흉 낱말.
-* **jev 판정 평가**(PR #263, `artifacts/2026-10-20-jev-evaluation.md`, W32): `mlw judge` 본 판정은 `claude -p` 그대로입니다. jev는 갈린 문장 17건 중 15건이 오탐이었습니다. `--shadow jev`와 기록은 남깁니다. `claude -p`도 사람이 문제로 본 문장을 많이 놓쳐, W1-3 라운드에서 judge 표시와 사용자 선택을 함께 봅니다.
-* **W1-2 사주·개인 해석**(PR #254, 계획 `plans/2026-10-16-w1-2-chart.md`, W31, #52·#237)
-  * 명식(`chart.*` 24)·원국 개인 해석(`personal.*` 60)과 그 문장에 끼우는 값 이름 조각 35개(element·color·place·role·strength·luck·part, W1-3에서 당김)의 3개 언어 원고. ja 조각은 W24 용어 표기 그대로이고, 閑神·極身弱·極身強은 D97로 채웠습니다(W50).
-  * 라운드 R10(`artifacts/2026-10-17-round-R10.md`, W31): 개인 해석 둘째 문장은 오행 역할 사실, 오행 목·화·토·금·수, 역할 "나와 잘 맞는 기운"류. 가이드 질문 기준 ①②(과거형, 전제 없음) 확정과 3개 언어 23건 반영.
-  * #237 오류 문구 3건(`ui.error.code`).
-* **W1-1 오늘 화면·엔진 안내**(PR #249, spec `specs/2026-10-16-w1-content-design.md`, 계획 `plans/2026-10-16-w1-1-today.md`, W28~W30, #232·#240)
-  * 오늘 화면 content 슬롯(총운·가이드·카드·태그·이유·달력)과 새 엔진 안내 슬롯 `system.notice`의 3개 언어 원고(en·ja는 원어민 검수 전 초안). 오늘 화면 대표 태그 뜻은 `term.tag.*`(D76).
-  * 라운드 R9(`artifacts/2026-10-16-round-R9.md`): 총운 state만 호칭, 보조 문장 토큰 없음. 가이드 질문 기준·태그라인은 보류.
-  * `mlw judge --shadow jev`(W30)와 첫 라운드 판정 쌍 `artifacts/judge-shadow/`. 대체 가능성 평가는 위 jev 판정 평가(W32). jev 키는 저장소 밖 `${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/writing/shared/typesafe.key`(D98 대장 K7).
-* **LLM 판정 명령**(PR #235, W27): `mlw judge`가 `judge: llm` slop 규칙을 루브릭으로 `claude -p`에 물어 의심 문장을 `warn`으로 표시합니다(로컬 1차 거르기, 막지 않음, CI 밖). 사용법은 `guide/review-procedure.md`.
-* **W1 전 정리**(PR #230, W26, #191·#217·#226)
-  * design 글자 수 상한(`docs/identity/design/lengths.md`)을 슬롯 91개에 넣었습니다. 상한 없음은 `unbounded`, 확인 창은 키별 상한 `key_max_length`입니다. 테스트가 lengths.md와 대조합니다.
-  * 달력·일정 공용 문구(`ui.calendar.nav`·`ui.day-cell.a11y`·`ui.event-row.label`·`ui.event-edit.form`)와 일정 요약 키 `todayEventSummaryNextAt`·`AllPast`.
-  * 용어 한자 표기 `content/hanja.yaml`(63개)과 검사(`hanja.*`).
-* **drift·근거 슬롯·서머타임**(PR #228, W25): 근거 슬롯 키를 core 근거 목록으로 채우고 검사기가 대조(`evidence.*`), app-bar 제목 24개, 서머타임 경도 키, 옛 키 `calcBasisLongitudeBody` 제거.
-* **IA v3·D70~D72**(PR #185, W24): IA v3 ui 슬롯 3개, 출생 시간대별 경도 키, glossary ja 근거 표기(91개, 閑神·極身弱·極身強은 비움), D72 규칙 `style.S7`.
-* **공용 ui 문구·ICU plural**(PR #155, spec `specs/2026-10-15-ui-leftovers-design.md`, 계획 `plans/2026-10-15-ui-leftovers.md`, W22): 공용 ui 슬롯(`slots/ui/common.yaml`), glossary 지지·날의 성격·방향 이름(`content/<lang>/glossary.yaml`, ARB로도 나감), ICU plural(`icu.plural`, ui 원고만), glossary ARB 내보내기(`arb.duplicate_key`). `writing.yml`은 ci-gate만 부릅니다(#148).
-* **IA 슬롯 정렬**(spec `specs/2026-10-13-ia-slots-design.md`, 계획 `plans/2026-10-13-ia-slots.md`)
-  * IA의 모든 자리를 슬롯 명세에 담고, 검사기가 `docs/ia/screens.json`과 대조합니다(`ia.*`). IA ui 자리는 203개입니다(IA v5로 44개 더하고 `today.evidence.link`가 빠짐, D102로 문의 화면 8개 더함, #614로 알림 채널 이름 더함, #548로 구매 버튼과 기간 고지 더함, IA v4, app-bar 제목 PR #205, D77 9개와 날짜 시트 버튼 #298, D82 13개, D85·D86·D88 10개 포함, D79로 기본 깊이 설명, D88로 구매 복원 버튼, #511로 합치지 않기 버튼 빠짐).
-  * 슬롯 명세 필드 `ia`·`components`·`select`·`vocative`, 값 종류 `text`(W20). ui 키는 IA id의 lowerCamelCase + 숫자·상태 이름(#90). D77로 IA에 올린 기존 문구는 키를 바꾸지 않고 `ui.*` 슬롯에 `ia`로 적습니다(W20 개정, W33).
-  * ui 원고는 `content/<lang>/ui.yaml`(en·ja는 원어민 검수 전 초안), ARB는 `generated/arb/app_<lang>.arb`(`mlw gen-docs`). 용어 한자는 언어와 상관없이 `content/hanja.yaml` 한 벌입니다.
-  * 호칭·조사 규칙: 호칭 덩어리와 생략(W18, #69), 용어 id 77개와 `[[글자|용어 id]]`(W19).
-  * 라운드 R8로 브랜드·정책 ui 문구와 앱 이름(ko 명리일기, en Myungli Diary, ja 命理日記)을 정했습니다(W17).
-  * #54 글자 수 상한을 반영했습니다. 근거 슬롯 셋은 core 목록을 기다리는 키 없는 틀입니다(W21).
-* 산출물 위치
-  * 가이드: `guide/` (보이스·톤, 검수 절차, 호칭·조사)
-  * 규칙: `rules/` (slop, limits, style, josa)
-  * 슬롯 명세: `slots/_schema.yaml`, `slots/content/`, `slots/ui/`
-  * 검사기: `tools/` (`mlw`), 원고: `content/<lang>/`
-  * 생성 문서: `generated/`(슬롯 목록, IA 대응표, ARB 등), 라운드 기록: `artifacts/`, 설계·결정: `specs/`, `plans/`, `decisions.md`
+
+## 검사 방법
 * 검사기는 저장소 루트에서 실행합니다: `uv run --project docs/identity/writing/tools mlw <check | gen-docs | check-arb | judge>`.
   * 원고 검사: `mlw check docs/identity/writing/content`(W1 원고가 다 차서 `--partial` 없이 돌립니다. 일부러 비워 둔 원고는 슬롯 `pending`, W49). 슬롯 `params`를 `core/message_params.json`과, 근거 슬롯 키를 `core/evidence_*.json`과, 슬롯 자리를 IA와 대조합니다.
   * `engine.proto`가 바뀌면 `tools/gen_proto.sh`로 생성 코드를 다시 만듭니다(CI가 차이를 막습니다).
@@ -134,20 +60,30 @@
     * 검사기 코드를 고쳤을 때: `docs/identity/writing/tools`에서 `uv run pytest -q tests/test_<모듈>.py`, PR 전에 `uv run pytest -q`(전체 약 15초)와 `uv run ruff check .`·`uv run mypy src`
     * 계약(IA·core JSON·proto·design `lengths.md`)이 바뀌었을 때: `uv run pytest -q -m contract`와 위 원고 검사. CI `drift`·`gate`도 이 범위만 돕니다(`writing.yml`)
     * 테스트는 한 실행 안에서 같은 원고 읽기와 묶음 검사 결과를 다시 씁니다(`tests/session_cache.py`, 키는 파일 내용 해시). 공유 원고를 고치는 테스트는 `tmp_path` 사본을 쓰고, 고치면 세션 끝 확인이 실패합니다
-* 결정은 W1~W56입니다(`decisions.md`). 지휘가 정한 것 중 writing에 닿는 것: D57(문장 유형은 총운 슬롯만), D59(콘텐츠 렌더는 server, ARB는 app), D60(evidence 잠금), D62(아침 알림 호칭 없음), D66(server 웹 페이지 문구도 content 슬롯), D70~D72(ja 용어 근거, 계산 기준 표현, 부정 신호와 잠금), D74(공개 저장소), D76(오늘 화면 대표 태그 칩), D77(ui 문구를 IA 슬롯으로 둘지의 기준), D78(규칙 정합성 점검: 일부 처리 Issue는 `참고 #`, D77 문구는 ARB 키 유지), D93(사용자에게 보이는 글에 긴 대시·범위 대시·가운뎃점 금지, `style.S9`).
+
+## 산출물 위치
+* 가이드: `guide/` (보이스·톤, 검수 절차, 호칭·조사)
+* 규칙: `rules/` (slop, limits, style, josa)
+* 슬롯 명세: `slots/_schema.yaml`, `slots/content/`, `slots/ui/`
+* 검사기: `tools/` (`mlw`), 원고: `content/<lang>/`
+  * ui 원고는 `content/<lang>/ui.yaml`(en·ja는 원어민 검수 전 초안), ARB는 `generated/arb/app_<lang>.arb`(`mlw gen-docs`). 용어 한자는 언어와 상관없이 `content/hanja.yaml` 한 벌입니다.
+  * ui 키는 IA id의 lowerCamelCase + 숫자·상태 이름(#90). D77로 IA에 올린 기존 문구는 키를 바꾸지 않고 `ui.*` 슬롯에 `ia`로 적습니다(W20 개정, W33).
+  * 글자 수 상한은 design `lengths.md` 값이고 테스트가 대조합니다(W26). 상한 없음은 `unbounded`, 확인 창은 키별 상한 `key_max_length`, design 측정 전은 `null`입니다.
+* 생성 문서: `generated/`(슬롯 목록, IA 대응표, ARB 등), 라운드 기록: `artifacts/`, 설계·결정: `specs/`, `plans/`, `decisions.md`
+* 결정은 `decisions.md`(W#)입니다. 통째로 대체된 결정의 원문은 `decisions-history.md`에 있습니다. 지휘가 정한 것 중 writing에 닿는 것: D57(문장 유형은 총운 슬롯만), D59(콘텐츠 렌더는 server, ARB는 app), D60(evidence 잠금), D62(아침 알림 호칭 없음), D66(server 웹 페이지 문구도 content 슬롯), D70~D72(ja 용어 근거, 계산 기준 표현, 부정 신호와 잠금), D74(공개 저장소), D76(오늘 화면 대표 태그 칩), D77(ui 문구를 IA 슬롯으로 둘지의 기준), D78(규칙 정합성 점검: 일부 처리 Issue는 `참고 #`, D77 문구는 ARB 키 유지), D93(사용자에게 보이는 글에 긴 대시·범위 대시·가운뎃점 금지, `style.S9`).
 * 요청함은 GitHub Issues입니다(D44, `docs/workflow.md` §5.2).
+
+## 현재 상태
+* 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
+* 여기에는 진행 중인 일(브랜치, 열린 PR, 막힌 것)만 적고, 병합하면 지웁니다(`docs/workflow.md` §3 마무리 2번). 병합된 일의 경과는 PR 본문, `decisions.md`, git에 있습니다.
+* **진행 중:** H1 기준 문서 정리(#1167, D131), 브랜치 `writing/h1-slimming-1167`.
 
 ## 다음 할 일
 1. **열린 `drift` Issue가 있으면 먼저 맞춥니다**(`gh issue list --label drift --label to:writing`, `docs/workflow.md` §6.1).
-2. **R31 후속**: server가 `no_source.<rule_id>`를 그리는지 봅니다(#827). design 상한이 나오면 IA v5 새 슬롯의 `null`을 채웁니다. IA v5 새 슬롯과 `login.save.note`, DS1 2단계 새 슬롯(`ui.saju.luck-period`, `ui.my-saju.record`, `ui.tag-sheet.sentence-kind`)이 대상입니다. `explain-sheet.tag.diary-link`, `tag-sheet.diary.cta`, `today.event.title`은 design 6.0.0 상한을 넣었습니다(drift #884).
-3. **문의 화면 후속**: design 3.4.0 상한을 넣었습니다(#763, drift #773). app이 새 키(#746 구현)를 가져가는지 봅니다.
-4. **W51 후속**: app이 R26 원고를 가져갔다고 보고하는지 봅니다(#331, #697). ATT 본문은 AdMob IDFA 안내 게시 문구와 어긋나지 않는지 확인이 남았습니다(사용자가 콘솔에서 확인).
-5. **ui 조사 후속**: app이 `josaClass`를 구현했다고 보고하면, 회피 때문에 어색해진 ui 문구부터 조사 표기로 고칩니다(키마다 app에 알림).
-6. **D82·D83 후속**: app이 D82·D83 키 변화(`daySheetDiaryOpen({count})`, `loginMethodsRowLink` 삭제, `loginMethodsUnlinkConfirmBody` 등, #418)를 따라잡는지 봅니다. `errorDiaryDateTaken`은 app이 쓰지 않게 되면 지웁니다.
-7. **W1-2는 PR #254로 병합됐습니다(지휘 2026-10-20).** server는 사주·개인 해석 원고를 시드에 넣습니다. app은 오류 문구 3건을 씁니다(#237).
-8. **#217 후속:** app이 `todayEventSummary`·`todayEventSummaryDone`을 쓰지 않는다고 알려 주면 writing이 지웁니다. server는 `content/hanja.yaml`로 `Glossary.hanja`를 채웁니다.
-9. **W1-3 후속**: core #625(조후표와 원문이 어긋나는 칸) 답이 오면 해당 `source.*` 뜻 문장을 다시 씁니다. server CI(`server.yml`)의 `mlw check --partial`은 server가 뺄 수 있다고 알립니다. 근거 basis 매개변수 종류가 바뀌어(W48) server 시드가 새 원고를 쓰는지 봅니다. en 지장간 자리 표기("year hidden stem"), R9-15 재성 가이드(W31 ② 전제 기준) 재출제는 그대로 남습니다.
-10. **보낸 요청의 응답을 기다립니다.**
-   - server #129(호칭 생략·용어 id·새 슬롯), #55(조사 렌더러·시드 CI)
-   - 지휘 #158 코멘트: 용어집의 忌神 읽기 통일(きじん). 閑神·極身弱·極身強은 D97로 채움(W50, #639)
-11. **지휘 확인 대상**: 출시 전 `evidence-sheet.lock.reward`의 AdMob 보상 고지 문구(라운드 R8-4 선택에 "끝까지"가 없음)를 다시 봅니다.
+2. **`null` 상한 채우기:** design 상한이 나오면 슬롯 `max_length`의 `null`을 채웁니다. IA v5 새 슬롯, `login.save.note`, DS1 2단계 새 슬롯(`ui.saju.luck-period`, `ui.my-saju.record`, `ui.tag-sheet.sentence-kind`), 미리보기 입력 확인과 질문 떼기 슬롯(W64)이 대상입니다.
+3. **W51 후속:** ATT 본문은 AdMob IDFA 안내 게시 문구와 어긋나지 않는지 확인이 남았습니다(사용자가 콘솔에서 확인).
+4. **ui 조사 후속:** app이 `josaClass`를 구현했습니다(#570). 회피 때문에 어색해진 ui 문구부터 조사 표기로 고칩니다(키마다 app에 알림).
+5. **쓰지 않는 키 정리:** `errorDiaryDateTaken`은 app이 쓰지 않게 되면 지웁니다(D83). app이 `todayEventSummary`·`todayEventSummaryDone`을 쓰지 않는다고 알려 주면 지웁니다(#217).
+6. **server 확인:** server CI(`server.yml`)의 `mlw check --partial`은 server가 뺄 수 있다고 알립니다. 근거 basis 매개변수 종류가 바뀌어(W48) server 시드가 새 원고를 쓰는지 봅니다. server는 `content/hanja.yaml`로 `Glossary.hanja`를 채웁니다.
+7. **재출제 대기:** en 지장간 자리 표기("year hidden stem"), R9-15 재성 가이드(W31 ② 전제 기준).
+8. **지휘 확인 대상:** 출시 전 `evidence-sheet.lock.reward`의 AdMob 보상 고지 문구(라운드 R8-4 선택에 "끝까지"가 없음)를 다시 봅니다.
