@@ -2840,21 +2840,30 @@ def _token_contract_version():
 
 def test_contract_list_rows_name_current_versions():
     # 판 문자열은 VERSION과 토큰 README에서 읽습니다. 판을 올릴 때 고칠 곳은 test_contract_version_is_* 한 곳
-    contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
+    # 목록 행은 버전과 상태 한 줄이고, 바뀐 내용은 CHANGELOG.md의 계약별 절에 있습니다(D131).
+    contracts_dir = DESIGN_DIR.parents[2] / "docs" / "contracts"
+    contracts = (contracts_dir / "README.md").read_text(encoding="utf-8")
     component_row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     token_row = next(line for line in contracts.splitlines() if line.startswith("| 디자인 토큰 "))
     assert f"| {VERSION} |" in component_row and f"| {_token_contract_version()} |" in token_row
+    changelog = (contracts_dir / "CHANGELOG.md").read_text(encoding="utf-8")
+    component_changes = _changelog_section(changelog, "컴포넌트 명세")
+    token_changes = _changelog_section(changelog, "디자인 토큰")
     for name in ("color.ohaeng.metal.border", "color.ohaeng.water.border", "color.ohaeng.<오행>.glyph"):
-        assert name in token_row.split("1.5.0:", 1)[1], name
+        assert name in token_changes.split("1.5.0:", 1)[1], name
     documents = load_documents(COMPONENTS_DIR)
     specified = sum(len(documents[name]["components"]) for name in components.GROUPS)
     elements_count = len(documents["elements"]["elements"])
     patterns = len(documents["interaction"]["patterns"])
-    tail = component_row.split(f"{VERSION}:", 1)[1]
-    assert f"IA 컴포넌트 {specified}개" in tail and f"요소 {elements_count}개" in tail and f"패턴 {patterns}개" in tail
-    assert "IA 컴포넌트 43개" not in tail and "57개" not in tail  # 앞 판 문장의 옛 숫자를 옮기지 않음
+    # 지금 판 항목만 읽어, 앞 판 문장의 옛 숫자를 지금 판 숫자로 잘못 읽지 않습니다.
+    current = re.split(r"\b\d+\.\d+\.\d+:", component_changes.split(f"{VERSION}:", 1)[1], maxsplit=1)[0]
+    assert f"IA 컴포넌트 {specified}개" in current and f"요소 {elements_count}개" in current and f"패턴 {patterns}개" in current
     for name in ("color.calendar.level", "color.fill.soft", "color.verdict.track", "color.highlight.bg"):
-        assert name in token_row.split("1.4.0:", 1)[1], name
+        assert name in token_changes.split("1.4.0:", 1)[1], name
+
+
+def _changelog_section(changelog: str, title: str) -> str:
+    return changelog.split(f"\n## {title}", 1)[1].split("\n## ", 1)[0]
 
 
 def test_unused_ohaeng_cell_mini_is_removed():
