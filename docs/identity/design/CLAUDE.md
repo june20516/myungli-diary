@@ -32,7 +32,7 @@
 ## 현재 상태
 진행 중인 일만 적고, 병합하면 지웁니다(`docs/workflow.md` §3 마무리 2번). 병합된 일의 경과는 PR 본문, 결정 행([`decisions.md`](decisions.md)), git에 있습니다.
 
-* **H1 기준 문서 정리 #1168** (브랜치 `design/h1-doc-slimming-1168`, D131): 이 파일의 병합된 경과를 지우고, 통째로 대체된 결정 V35 원문을 [`decisions-history.md`](decisions-history.md)로 옮김. 이 파일이 크기 상한 아래로 내려와 docs-check가 면제를 지우라는 오류를 내며, 면제는 지휘가 지움.
+* **H1 기준 문서 정리 #1168** (브랜치 `design/h1-doc-slimming-1168`, PR #1172, D131): 이 파일의 병합된 경과를 지우고, 통째로 대체된 결정 V35 원문을 [`decisions-history.md`](decisions-history.md)로 옮김. 이 파일이 크기 상한 아래로 내려와 docs-check가 면제를 지우라는 오류를 내며, 면제는 지휘가 지움.
 
 ## 기준 문서와 도구
 * 시각 정체성: [`visual-identity.md`](visual-identity.md)(시각에 관해서는 비공개 기록 06을 대체). 색 값의 출처는 [`tools/palette.py`](tools/palette.py)(`--check`로 대비 검사).
