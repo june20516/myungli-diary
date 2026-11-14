@@ -654,14 +654,23 @@ def check_size_limits(root: Path) -> list[str]:
             problems.append(f"{relative}: 상한표의 파일이 없습니다. 경로가 바뀌었으면 SIZE_LIMITS를 고치세요(H1, D131)")
             continue
         size = path.stat().st_size
-        if relative in SIZE_EXEMPT:
-            if size <= limit:
-                problems.append(f"{relative}: {size}바이트로 상한 {limit}바이트 안입니다. SIZE_EXEMPT에서 면제를 지우세요(H1, D131)")
-        elif size > limit:
+        if relative not in SIZE_EXEMPT and size > limit:
             problems.append(
                 f"{relative}: {size}바이트, 상한 {limit}바이트. 경과를 history 파일로 옮기거나 병합된 현재 상태를 지우세요(H1, D131)"
             )
     return problems
+
+
+def size_exemption_warnings(root: Path) -> list[str]:
+    """면제 중인데 상한 안인 파일. 단위가 자기 파일을 줄인 PR을 막지 않도록 실패가 아닌 경고로 알리고, 지휘가 면제를 지웁니다."""
+    warnings = []
+    for relative in sorted(SIZE_EXEMPT & SIZE_LIMITS.keys()):
+        path = root / relative
+        if path.is_file() and path.stat().st_size <= SIZE_LIMITS[relative]:
+            warnings.append(
+                f"경고: {relative}: {path.stat().st_size}바이트로 상한 {SIZE_LIMITS[relative]}바이트 안입니다. 지휘가 SIZE_EXEMPT에서 면제를 지우세요(H1, D131)"
+            )
+    return warnings
 
 
 def main(argv: list[str]) -> int:
@@ -670,6 +679,8 @@ def main(argv: list[str]) -> int:
         check_links(root) + check_artifacts(root) + check_decision_ids(root) + check_ledger_ids(root) + check_user_impact(root) + check_ia(root)
         + check_ideas(root) + check_review_items(root) + check_ja_terms(root) + check_size_limits(root)
     )
+    for warning in size_exemption_warnings(root):
+        print(warning)
     if problems:
         print("\n".join(problems))
         return 1

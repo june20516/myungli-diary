@@ -5,6 +5,10 @@
 ## 범위
 출생 정보로 원국을 세우고, 일진 × 원국(D13)으로 데일리·월간 판정을 계산해 gRPC로 반환하는 **상태 없는** 엔진입니다. 문장은 만들지 않습니다(D27). 메시지 키, 매개변수, 근거만 반환합니다.
 
+구현된 것: 달력 계산(`calendar_core`, 한국 음력 KST 계산 포함), 원국(사주팔자·십성·지장간·12운성·대운·세운·신살), 신강·신약과 용신, 데일리 규칙(날의 성격·컬러·방향·숫자·집중 시간·합충형·태그·총운·가이드), 월간 캘린더, 원국 개인 해석(`personal_readings`, D60), 출생 시진 RPC(`GetBirthHour`, D58), 엔진 정보 RPC(`GetInfo`), 음력 변환 RPC(`ConvertLunarDate`, #164), gRPC 서버(`uv run python -m myungli_engine`, 포트는 `--port` → `PORT` → 50051, gRPC health checking 포함), 컨테이너 이미지(`core/Dockerfile`, #34).
+
+알려진 한계는 결정 로그 C5(대운 시작 나이 sect=1), C17(KASI 대조 범위 밖은 미검증), C18(1900년 1월 월간은 `OUT_OF_RANGE`)과 엔진 spec §15(Phase 2로 미룬 것)에 있습니다. 판정별 근거 원전 배치는 C8, C28, C35, C36입니다.
+
 ## 고칠 수 있는 곳
 `core/`, `proto/myungli/engine/`, `proto/buf.yaml`, `.github/workflows/core.yml`, GitHub Issues(요청·보고 작성, `gh issue list --label to:core`).
 그 밖은 읽기만 합니다. 바꿔야 하면 `from:core` Issue로 요청합니다. 세션을 끝낼 때는 `docs/workflow.md` §3의 마무리 체크리스트를 따릅니다.
@@ -12,7 +16,7 @@
 ## 계약을 바꿀 때
 공개 저장소(D74)·세션 시작 시 drift 우선·병합 주체는 루트 `CLAUDE.md` 공통 규칙을 따릅니다. core에 해당하는 것만 적습니다.
 * core는 계약을 **주는 쪽**입니다(`ci-gate`의 core 검사는 받는 계약이 없어 `own`(또는 `ci-gate.yml`만 바뀐 PR에서 `gate`)으로만 돌고, `drift`는 없습니다). 계약만 바꾼 PR은 받는 쪽(server·writing) 검사가 실패해도 경고로 병합되고, `ci-gate`가 받는 쪽 앞으로 `drift` Issue를 엽니다(D73, `docs/workflow.md` §6.1). 하위 호환을 깨는 변경은 `kind:notice`로 따로 알립니다.
-* 계약 버전과 상태는 [`docs/contracts/README.md`](../docs/contracts/README.md)에만 적습니다. 아래 계약을 바꾸거나 `ruleset_version`·`engine_version`을 올리는 PR에서 그 표의 core 행(엔진 gRPC API, 메시지 키 목록, `source_ref`, 엔진 버전 표기, 메시지 키별 매개변수, 근거 규칙 목록, 근거 원전 목록, 계산 규칙 지도)을 직접 고칩니다.
+* 계약 버전과 상태는 [`docs/contracts/README.md`](../docs/contracts/README.md)에만 적습니다. 아래 계약을 바꾸거나 `ruleset_version`·`engine_version`을 올리는 PR에서 그 표의 core 행(엔진 gRPC API, 메시지 키 목록, `source_ref`, 엔진 버전 표기, 메시지 키별 매개변수, 근거 규칙 목록, 근거 원전 목록, 계산 규칙 지도)의 버전과 상태 한 줄을 직접 고치고, 바뀐 내용은 [`docs/contracts/CHANGELOG.md`](../docs/contracts/CHANGELOG.md)의 그 계약 절 맨 위에 적습니다(D131 ③).
 
 ## 계약
 | 계약 | 역할 | 사용하는 쪽 |
@@ -39,11 +43,11 @@
 | 원전 근거 자료 | `core/docs/references/` |
 | 계산 규칙 지도 (#988, 규칙을 바꾸면 함께 고침) | `core/docs/rules-map/rules_map.toml` → `core/rules_map.json` |
 | core 내부 결정 로그 | `core/docs/decisions.md` (현재 C1~C44, 번호 `C1`부터) |
+| 대체된 core 결정의 원문 | `core/docs/decisions-history.md` |
 | 위키 검토 이력 | `core/docs/engine-logic-wiki-review.md` |
 | 관련 루트 결정 | `docs/decisions.md`의 D5~D10, D13~D14, D19~D21, D24~D27, D29~D32, D34, D41, D56, D58, D60, D63, D65, D71, D73, D74, D78, D108, D124, D125, D130 |
 
-## 현재 상태 (엔진 MVP 완료, 원국 개인 해석·음력 변환·근거 목록 추가, 2026-10-21)
-* **구현 범위:** 달력 계산(`calendar_core`, 한국 음력 KST 계산 포함), 원국(사주팔자·십성·지장간·12운성·대운·세운·신살), 신강·신약과 용신, 데일리 규칙(날의 성격·컬러·방향·숫자·집중 시간·합충형·태그·총운·가이드), 월간 캘린더, 원국 개인 해석(`personal_readings`, D60), 출생 시진 RPC(`GetBirthHour`, D58), 엔진 정보 RPC(`GetInfo`), 음력 변환 RPC(`ConvertLunarDate`, #164), gRPC 서버(`uv run python -m myungli_engine`, 포트는 `--port` → `PORT` → 50051, gRPC health checking 포함), 컨테이너 이미지(`core/Dockerfile`, #34).
+## 검사 방법
 * **테스트 층:** 단위, 통합(gRPC), 불변 조건, 회귀 스냅샷(원국 10개 x 데일리 30일, 원국 4개의 원국·대운·세운과 월간), KASI 천문 골든, 기준 앱 만세력 골든, 분포 보정 확인. 기본은 `uv run pytest -q -m "not slow"`이고 slow는 보정 확인(`calibration`)과 KASI 골든(`kasi`) 두 묶음입니다. CI는 `.github/workflows/core.yml`이고, 범위(`mode`)와 시점은 `README.md` "테스트와 검사" 절에 있습니다(D81).
 * **반복 중 빠른 경로(로컬):** 바꾼 패키지의 테스트만 돌리고, PR 전에 기본 테스트 전체를 한 번 돌립니다. `tests/unit/`은 `src/myungli_engine/`의 패키지 구조를 따릅니다.
   ```bash
@@ -53,18 +57,14 @@
   uv run pytest -q tests/snapshots                   # 판정 출력이 바뀌는 변경(규칙·상수·근거 데이터)
   git diff --name-only $(git merge-base origin/main HEAD) | python3 -I tools/slow_scope.py   # 커밋하지 않은 변경까지 보고 돌릴 slow 묶음의 표지 식을 냄
   ```
-* **제공 계약:** 위 "계약" 표. 버전과 상태는 `docs/contracts/README.md`의 core 행에 있습니다.
-* **알려진 한계:**
-  * KASI 대조 범위 밖은 미검증입니다: 절기 2000~2028년, 음력 1900~2050년. 그 밖의 지원 범위(1900-01-31 ~ 2099-12-31)는 같은 알고리즘으로 계산합니다.
-  * 대운 시작 나이는 `sect=1`(시진 단위)이라 정밀값보다 최대 약 10일 크게 나와 정수 경계를 넘을 수 있습니다(C5).
-  * 1900년 1월 월간 요청은 `OUT_OF_RANGE`입니다(지원 범위가 1900-01-31부터).
-  * 공통 근거 `five_elements#balance_principle`(C8)은 이제 용신 억부의 실제 근거로만 씁니다. 개인 해석, 총운 본문, 십성 묶음 가이드 질문은 그 용어의 원전 조목을, 집중 시간은 『協紀辨方書』 조목을, 달력 길흉은 빈 `source_ref`를 냅니다(#998, C35, C36). 태그는 태그 전용 원전을 쓰고, 원전이 없는 태그(십성 쏠림)는 `source_ref`가 빈 값입니다(C28).
-  * `tag.gwiin_day` 보조 태그는 실제로 나오지 않습니다. 귀인의 날은 늘 천을귀인 신살 태그가 함께 붙기 때문입니다(2026-11-05 확인, 기존 동작).
-  * Phase 2로 미룬 것: spec §15(합화, 통관·병약·격국 용신, 목적별 택일, 야자시 옵션, 대운 시각화 데이터, 일기 감성 코멘트).
+
+## 현재 상태
+진행 중인 일(브랜치, 열린 PR, 막힌 것)만 적고, 병합하면 지웁니다(D131 ③).
+* 없음.
 
 ## 다음 할 일
 1. 새 작업은 `docs/workflow.md` §6대로 `origin/main`에서 새 브랜치로 시작합니다.
-2. 남은 요청은 `gh issue list --label to:core`로 봅니다. 2026-10-21 기준:
+2. 남은 요청은 `gh issue list --label to:core`로 봅니다.
    * **#59-2:** 회귀 스냅샷 분할은 #804에서도 하지 않았습니다(2026-11-05 사용자 결정). 하게 되면 값 변경 없는 이동만 담은 단독 PR로 하고, 규칙 변경 PR은 스냅샷 변경을 필드 경로별 개수로 요약합니다.
    * 엔진 배포 workflow(`deploy-engine.yml`)는 server가 맡습니다(D65). core는 이미지(`core/Dockerfile`)와 실행 조건(`README.md` "컨테이너" 절, #79)을 맡고, 바꿀 때는 `to:server` Issue로 알립니다.
 3. server가 실제 엔진을 호출하며 발견하는 계약 문제는 `to:core` Issue로 받아 처리합니다. 출력이 달라지는 변경은 `ruleset_version`을 올립니다(`README.md`의 절차).

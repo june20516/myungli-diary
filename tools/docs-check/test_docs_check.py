@@ -738,11 +738,35 @@ class SizeLimitTest(RepoTestCase):
         write(self.root, "docs/a.md", "x" * 11)
         self.assertEqual(self.check({"docs/a.md": 10}, frozenset({"docs/a.md"})), [])
 
-    def test_exempt_within_limit_asks_to_remove_exemption(self) -> None:
+    def warnings(self, limits: dict[str, int], exempt: frozenset[str]) -> list[str]:
+        with mock.patch.object(docs_check, "SIZE_LIMITS", limits), mock.patch.object(
+            docs_check, "SIZE_EXEMPT", exempt
+        ):
+            return docs_check.size_exemption_warnings(self.root)
+
+    def test_exempt_within_limit_is_not_a_problem(self) -> None:
+        # 단위가 자기 파일을 줄인 PR이 지휘 소유 면제 목록 때문에 막히지 않게 합니다.
         write(self.root, "docs/a.md", "x" * 10)
-        problems = self.check({"docs/a.md": 10}, frozenset({"docs/a.md"}))
-        self.assertEqual(len(problems), 1)
-        self.assertIn("면제를 지우세요", problems[0])
+        self.assertEqual(self.check({"docs/a.md": 10}, frozenset({"docs/a.md"})), [])
+
+    def test_exempt_within_limit_warns_to_remove_exemption(self) -> None:
+        write(self.root, "docs/a.md", "x" * 10)
+        warnings = self.warnings({"docs/a.md": 10}, frozenset({"docs/a.md"}))
+        self.assertEqual(len(warnings), 1)
+        self.assertIn("면제를 지우세요", warnings[0])
+
+    def test_exempt_over_limit_does_not_warn(self) -> None:
+        write(self.root, "docs/a.md", "x" * 11)
+        self.assertEqual(self.warnings({"docs/a.md": 10}, frozenset({"docs/a.md"})), [])
+
+    def test_main_returns_zero_and_prints_warning_only(self) -> None:
+        write(self.root, "docs/a.md", "x" * 10)
+        with mock.patch.object(docs_check, "SIZE_LIMITS", {"docs/a.md": 10}), mock.patch.object(
+            docs_check, "SIZE_EXEMPT", frozenset({"docs/a.md"})
+        ), mock.patch("builtins.print") as printed:
+            self.assertEqual(docs_check.main(["docs_check", str(self.root)]), 0)
+        output = "\n".join(str(call.args[0]) for call in printed.call_args_list)
+        self.assertIn("면제를 지우세요", output)
 
     def test_exempt_path_not_in_limits_reports(self) -> None:
         write(self.root, "docs/a.md", "x")
