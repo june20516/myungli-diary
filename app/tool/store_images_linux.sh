@@ -9,7 +9,8 @@
 # 글은 writing 원고(listing.json)입니다. 글이 글 자리를 넘으면 실패합니다(store.json caption.overflow).
 #
 # 결과는 저장소 밖 산출물 폴더(기본 app/.local/store-images, STORE_OUT으로 바꿈)에 둡니다. 언제든 다시 만들 수
-# 있어 저장소에 넣지 않습니다. 콘솔 업로드는 지휘가 합니다.
+# 있어 저장소에 넣지 않습니다. 콘솔 업로드는 지휘가 합니다. 기기 시간대는 데모 시나리오와 같은 Asia/Seoul입니다
+# (일기 시각처럼 기기 시간대로 보이는 값).
 # * <언어>/appStore/<순서>-<장면>.png 1320×2868
 # * <언어>/play/<순서>-<장면>.png 1080×1920
 # * play-feature-graphic.png 1024×500(세 언어 같은 한 장)
@@ -47,6 +48,7 @@ mkdir -p "$out_dir"
 docker run --rm --platform "$platform" \
   -e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)" -e WANT_FLUTTER="$version" \
   -e MYUNGLI_STORE=1 \
+  -e TZ=Asia/Seoul \
   -v "$repo_root:/src:ro" \
   -v "$out_dir:/out" \
   "$image" bash -euo pipefail -c '
