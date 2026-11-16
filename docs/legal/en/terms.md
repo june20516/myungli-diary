@@ -39,7 +39,7 @@ The Company may temporarily suspend the Service when there is an unavoidable rea
 ## Article 7 (Advertising)
 
 1. The Company may show ads on Service screens to users who do not have an ad-free pass.
-2. Users can unlock the day's basis and interpretation by watching a rewarded ad to the end. The unlocked content can be viewed until midnight of that day in the user's current time zone.
+2. Users can unlock the basis and interpretation by watching a rewarded ad to the end. The unlocked content can be viewed for 2 hours from when the ad is watched to the end.
 3. Transactions related to products or services offered by advertisers in ads are between the user and the advertiser, and the Company is not responsible for such transactions.
 
 ## Article 8 (Ad-free Pass)
