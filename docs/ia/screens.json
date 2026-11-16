@@ -1615,7 +1615,7 @@
     {
      "id": "evidence-sheet.unlock.until",
      "source": "ui",
-     "role": "열려 있는 동안 시트 제목 옆 꼬리표. 언제까지 열려 있는지 알림. 열린 이유별 두 문구: 광고 한 편이면 그날 자정까지, 광고 제거권이면 기간 끝 날짜(매개변수 `date`)(D118 ①)"
+     "role": "열려 있는 동안 시트 제목 옆 꼬리표. 언제까지 열려 있는지 알림. 열린 이유별 두 문구: 광고 한 편이면 끝 시각(광고를 본 때부터 2시간, 매개변수 `time`, D132), 광고 제거권이면 기간 끝 날짜(매개변수 `date`)(D118 ①)"
     },
     {
      "id": "evidence-sheet.unlock.failed",
@@ -3041,7 +3041,7 @@
    "tab": null,
    "presentation": "system",
    "auth": "member",
-   "purpose": "AdMob 보상형 광고 전면 재생입니다. 끝까지 보면 server가 확인(SSV)한 뒤 오늘 자정까지 근거·해석이 열립니다. 닫으면 아무것도 바뀌지 않습니다",
+   "purpose": "AdMob 보상형 광고 전면 재생입니다. 끝까지 보면 server가 확인(SSV)한 뒤 그때부터 2시간 동안 근거·해석이 열립니다(D132). 닫으면 아무것도 바뀌지 않습니다",
    "depths": [],
    "states": [],
    "slots": [],
