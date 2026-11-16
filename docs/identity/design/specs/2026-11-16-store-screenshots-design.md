@@ -78,7 +78,8 @@
 * 글은 넣지 않습니다. 세 언어에 같은 한 장을 씁니다(워드마크는 한글, 언어별 앱 이름은 스토어가 글로 보여 줌).
 
 ## 9. 검사 (`tools/store.py`)
-* 장면의 IA 화면 id와 상태가 `docs/ia/screens.json`에 있음.
+* 장면의 IA 화면 id가 `docs/ia/screens.json`에 있음.
+* (화면, 상태, 시나리오) 조합이 app 렌더 사례 `app/test/screenshots/screens_test.dart`의 `_Shot`에 있음. 상태 이름(`default`, `unlocked`)은 IA 상태 목록이 아니라 이 사례의 이름입니다.
 * fixture 시나리오가 `app/fixtures/<시나리오>/`에 있음.
 * 장면 순서 번호가 1부터 빈틈없고 6장(Play 2~8, App Store 10 이하).
 * 크기: App Store 1320×2868, Play 긴 변 ≤ 짧은 변의 2배, 짧은 변 ≥ 1080, 그래픽 이미지 1024×500.
