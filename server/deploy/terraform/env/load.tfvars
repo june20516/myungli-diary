@@ -5,12 +5,13 @@ project_id = "myungli-diary-load"
 # project_number는 Firebase 콘솔의 Project number이고 FIREBASE_PROJECT_NUMBER가 됩니다(2026-11-04 gcloud projects describe로 대조).
 project_number      = "244522770563"
 environment         = "staging"
-sql_tier            = "db-custom-1-3840"
+sql_tier            = "db-g1-small"
 deletion_protection = false
-# 용량 값은 prod와 같게 둡니다(2회차 동일 환경, S143). min_instances도 prod와 같은 1입니다.
-min_instances = 1
-# prod와 같은 tier라 max_connections 표의 3.75~6GB 행 100입니다(S133). 첫 회차에 SHOW max_connections로 확인합니다.
-sql_max_connections = 100
+# 용량 값은 prod와 같게 둡니다(2회차 동일 환경, S143). D135로 prod가 바뀌어 min_instances 0, SQL도 prod와 같습니다(S163).
+# 다음 회차 전에 #903에서 prod 용량을 정하면 이 값도 함께 바꿉니다.
+min_instances = 0
+# prod와 같은 tier라 max_connections 표의 small 행 50입니다(S133, S163).
+sql_max_connections = 50
 # 측정 중 배치가 끼지 않게 Scheduler를 켜지 않습니다. precompute는 warm 회차 전에 손으로 돌립니다(L1 plan §3).
 scheduler_enabled    = false
 uptime_check_enabled = false

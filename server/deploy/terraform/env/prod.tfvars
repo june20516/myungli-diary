@@ -1,13 +1,14 @@
 # prod (#607). ANDROID_CERT_SHA256은 Play 앱 서명 지문만 둡니다.
 # GOOGLE_CLIENT_IDS는 web, iOS, Android client입니다. debug Android client는 staging에만 둡니다(#607).
-project_id          = "myungli-diary"
-project_number      = "21526308173"
-environment         = "prod"
-sql_tier            = "db-custom-1-3840"
+project_id     = "myungli-diary"
+project_number = "21526308173"
+environment    = "prod"
+# I4 전까지 prod는 스토어 URL(처리방침, 약관, 지원)을 내주는 최소 구성입니다(D135, S163). 출시 용량은 I4 2주 전 점검(#903)에서 정합니다.
+sql_tier            = "db-g1-small"
 deletion_protection = true
-min_instances       = 1
-# db-custom-1-3840(3.75GB)은 Cloud SQL max_connections 표의 3.75~6GB 행 100입니다(S133).
-sql_max_connections = 100
+min_instances       = 0
+# db-g1-small(1.7GB)은 Cloud SQL max_connections 표의 small 행 50입니다(S133, S163). 바꾼 뒤 SHOW max_connections로 확인합니다.
+sql_max_connections = 50
 # 공개 주소가 아직 server에 연결되지 않아(GET /health 404, 2026-11-04) uptime check는 출시 연결 때 켭니다(S133).
 uptime_check_enabled = false
 test_login_enabled   = false
