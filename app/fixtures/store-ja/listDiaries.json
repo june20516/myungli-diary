@@ -1,0 +1,107 @@
+{
+  "status": 200,
+  "body": {
+    "items": [
+      {
+        "id": "7b1c2a54-3d0e-4f6a-9b21-5e8f40c1a001",
+        "date": "2026-10-12",
+        "createdAt": "2026-10-12T11:40:00Z",
+        "excerpt": "久しぶりに連絡をくれた友だちとランチをした。話が長引いて午後の予定がずれたけれど、気分は良かった。",
+        "featuredTags": [
+          {
+            "key": "harmony",
+            "polarity": "good"
+          },
+          {
+            "key": "ten_god_rush.inseong",
+            "polarity": "good"
+          }
+        ],
+        "allTags": [
+          {
+            "key": "harmony",
+            "polarity": "good"
+          },
+          {
+            "key": "ten_god_rush.inseong",
+            "polarity": "good"
+          }
+        ]
+      },
+      {
+        "id": "7b1c2a54-3d0e-4f6a-9b21-5e8f40c1a002",
+        "date": "2026-10-08",
+        "createdAt": "2026-10-08T22:15:00Z",
+        "excerpt": "朝の空気が急に冷たくなった。上着をもう一枚持って出た。",
+        "featuredTags": [
+          {
+            "key": "harmony",
+            "polarity": "good"
+          },
+          {
+            "key": "dohwa",
+            "polarity": "neutral"
+          }
+        ],
+        "allTags": [
+          {
+            "key": "harmony",
+            "polarity": "good"
+          },
+          {
+            "key": "dohwa",
+            "polarity": "neutral"
+          }
+        ]
+      },
+      {
+        "id": "7b1c2a54-3d0e-4f6a-9b21-5e8f40c1a003",
+        "date": "2026-10-05",
+        "createdAt": "2026-10-05T13:05:00Z",
+        "excerpt": "後回しにしていた片づけを終えた。机が広くなると心も軽くなった。",
+        "featuredTags": [
+          {
+            "key": "clash",
+            "polarity": "bad"
+          }
+        ],
+        "allTags": [
+          {
+            "key": "clash",
+            "polarity": "bad"
+          },
+          {
+            "key": "yeokma",
+            "polarity": "neutral"
+          }
+        ]
+      },
+      {
+        "id": "7b1c2a54-3d0e-4f6a-9b21-5e8f40c1a004",
+        "date": "2026-10-02",
+        "createdAt": "2026-10-02T10:30:00Z",
+        "excerpt": "会議で意見が分かれた。もう一度考えて、明日あらためて話すことにした。",
+        "featuredTags": [
+          {
+            "key": "harmony",
+            "polarity": "good"
+          },
+          {
+            "key": "gongmang",
+            "polarity": "bad"
+          }
+        ],
+        "allTags": [
+          {
+            "key": "harmony",
+            "polarity": "good"
+          },
+          {
+            "key": "gongmang",
+            "polarity": "bad"
+          }
+        ]
+      }
+    ]
+  }
+}

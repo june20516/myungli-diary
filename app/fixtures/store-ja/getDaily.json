@@ -1,0 +1,776 @@
+{
+  "status": 200,
+  "body": {
+    "cards": {
+      "color": {
+        "element": "water",
+        "role": "yongsin",
+        "text": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "忌神の日には滞っ"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "五行にはそれぞれ"
+                  }
+                ]
+              }
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "原典は、五行の色"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "五行の正色は水が"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "color.ordinary_day",
+          "reactable": false,
+          "slot": "daily.color",
+          "text": {
+            "segments": [
+              {
+                "text": "あなたの命式に必要な水の気に合わせて、今日は黒がよく合います。"
+              }
+            ]
+          },
+          "todayReason": {
+            "segments": [
+              {
+                "text": "あなたの命式を助ける気の色を選んだからです。"
+              }
+            ]
+          },
+          "variant": "single"
+        }
+      },
+      "direction": {
+        "direction": "nw",
+        "text": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "普通の日なので、"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "北は水、南は火、"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "direction.day_kind.ordinary.mo",
+          "reactable": false,
+          "slot": "daily.direction_relation",
+          "text": {
+            "segments": [
+              {
+                "text": "あなたの命式に必要な水の気を生じる金の方位、北西の方角がよいです。"
+              }
+            ]
+          },
+          "todayReason": {
+            "segments": [
+              {
+                "text": "暦の吉方位のうち、あなたの命式を後押しする気の方位を選んだからです。"
+              }
+            ]
+          },
+          "variant": "single"
+        }
+      },
+      "focusTime": {
+        "fallback": false,
+        "hours": [
+          {
+            "branch": "jin",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T09:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-13T07:30:00+09:00"
+          },
+          {
+            "branch": "sa",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T11:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-13T09:30:00+09:00"
+          },
+          {
+            "branch": "o",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T13:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-13T11:30:00+09:00"
+          },
+          {
+            "branch": "mi",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T15:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-13T13:30:00+09:00"
+          },
+          {
+            "branch": "shin",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T17:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-13T15:30:00+09:00"
+          },
+          {
+            "branch": "yu",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T19:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-13T17:30:00+09:00"
+          },
+          {
+            "branch": "sul",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T21:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-13T19:30:00+09:00"
+          }
+        ],
+        "picks": [
+          {
+            "branch": "shin",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T17:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-13T15:30:00+09:00"
+          }
+        ],
+        "text": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "今日の日柱を助け"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "時は日の用である"
+                  }
+                ]
+              }
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "生まれ年の天干を"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "昔の人は皆、生ま"
+                  }
+                ]
+              }
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "択日の原典が黄道"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "日から時を起こす"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "focus_time.day",
+          "reactable": false,
+          "slot": "daily.focus_time",
+          "text": {
+            "segments": [
+              {
+                "text": "大事なことはこの時間にするとよいです。"
+              }
+            ]
+          },
+          "variant": "single"
+        }
+      },
+      "nightFocusTime": {
+        "fallback": false,
+        "hours": [
+          {
+            "branch": "hae",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T23:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-13T21:30:00+09:00"
+          },
+          {
+            "branch": "ja",
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "branch": "yu",
+              "stem": "sin"
+            },
+            "end": "2026-10-14T01:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-13T23:30:00+09:00"
+          },
+          {
+            "branch": "chuk",
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "branch": "yu",
+              "stem": "sin"
+            },
+            "end": "2026-10-14T03:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-14T01:30:00+09:00"
+          },
+          {
+            "branch": "in",
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "branch": "yu",
+              "stem": "sin"
+            },
+            "end": "2026-10-14T05:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-14T03:30:00+09:00"
+          },
+          {
+            "branch": "myo",
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "branch": "yu",
+              "stem": "sin"
+            },
+            "end": "2026-10-14T07:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-14T05:30:00+09:00"
+          }
+        ],
+        "picks": [
+          {
+            "branch": "chuk",
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "branch": "yu",
+              "stem": "sin"
+            },
+            "end": "2026-10-14T03:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-14T01:30:00+09:00"
+          }
+        ],
+        "text": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "今日の日柱を助け"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "時は日の用である"
+                  }
+                ]
+              }
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "生まれ年の天干を"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "昔の人は皆、生ま"
+                  }
+                ]
+              }
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "択日の原典が黄道"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "日から時を起こす"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "focus_time.night",
+          "reactable": false,
+          "slot": "daily.focus_time",
+          "text": {
+            "segments": [
+              {
+                "text": "夜にすることがあるなら、この時間がよいです。"
+              }
+            ]
+          },
+          "variant": "single"
+        }
+      },
+      "number": {
+        "number": 1,
+        "text": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "今日の色と同じ五"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "五行にはそれぞれ"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "number.ordinary_day",
+          "reactable": false,
+          "slot": "daily.number",
+          "text": {
+            "segments": [
+              {
+                "text": "水の数字のうち、今日の天干庚に合わせて1を選びました。"
+              }
+            ]
+          },
+          "todayReason": {
+            "segments": [
+              {
+                "text": "今日の色と同じ気の数のうち、今日の天干の陰陽に合う数を選んだからです。"
+              }
+            ]
+          },
+          "variant": "single"
+        }
+      }
+    },
+    "characterReason": {
+      "messageKey": "character.reason.ordinary_day",
+      "reactable": false,
+      "slot": "character.reason",
+      "text": {
+        "segments": [
+          {
+            "text": "特に助ける気も妨げる気もない、普通の日です。"
+          }
+        ]
+      },
+      "variant": "single"
+    },
+    "date": "2026-10-13",
+    "dayKind": "ordinary_day",
+    "dayPillar": {
+      "branch": "shin",
+      "stem": "gyeong"
+    },
+    "dayStemTenGod": "bigyeon",
+    "dayStemTenGodGroup": "bigyeop",
+    "dayVirtues": [],
+    "evidenceAccess": "locked",
+    "fortune": {
+      "head": {
+        "evidencePreview": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "今日は普通の日で"
+                }
+              ]
+            },
+            "source": {
+              "segments": [
+                {
+                  "text": "陽刃、比肩、敗財"
+                }
+              ]
+            }
+          },
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "夏か冬に生まれ、"
+                }
+              ]
+            },
+            "source": {
+              "segments": [
+                {
+                  "text": "四月生まれの庚の"
+                }
+              ]
+            }
+          }
+        ],
+        "messageKey": "fortune.ordinary_day.bigyeop",
+        "reactable": true,
+        "slot": "daily.fortune.head",
+        "text": {
+          "segments": [
+            {
+              "text": "人に合わせるより、自分のペースで進めてみてください。"
+            }
+          ]
+        },
+        "todayReason": {
+          "segments": [
+            {
+              "text": "今日の天干があなたの日干と出会う関係が、この気にあたるからです。"
+            }
+          ]
+        },
+        "variant": "advice"
+      },
+      "tag": {
+        "evidencePreview": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "今日付いたタグの"
+                }
+              ]
+            },
+            "source": {
+              "segments": [
+                {
+                  "text": "合とは和すことで"
+                }
+              ]
+            }
+          },
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "夏か冬に生まれ、"
+                }
+              ]
+            },
+            "source": {
+              "segments": [
+                {
+                  "text": "四月生まれの庚の"
+                }
+              ]
+            }
+          }
+        ],
+        "messageKey": "fortune.tag.harmony",
+        "reactable": true,
+        "slot": "daily.fortune.tag",
+        "text": {
+          "segments": [
+            {
+              "text": "先延ばしにした契約や約束を、今日決めてみてください。"
+            }
+          ]
+        },
+        "todayReason": {
+          "segments": [
+            {
+              "text": "今日の干支があなたの命式と出会い、このタグが一緒に入ったからです。"
+            }
+          ]
+        },
+        "variant": "advice"
+      }
+    },
+    "guide": {
+      "evidencePreview": [
+        {
+          "basis": {
+            "segments": [
+              {
+                "text": "今日付いたタグが"
+              }
+            ]
+          },
+          "source": {
+            "segments": [
+              {
+                "text": "合とは和すことで"
+              }
+            ]
+          }
+        }
+      ],
+      "messageKey": "guide.harmony",
+      "reactable": false,
+      "slot": "daily.guide",
+      "text": {
+        "segments": [
+          {
+            "text": "今日気持ちが通じ合った会話があれば、書いてみませんか？"
+          }
+        ]
+      },
+      "variant": "1"
+    },
+    "guideCandidates": [
+      {
+        "evidencePreview": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "今日付いたタグが"
+                }
+              ]
+            },
+            "source": {
+              "segments": [
+                {
+                  "text": "合とは和すことで"
+                }
+              ]
+            }
+          }
+        ],
+        "messageKey": "guide.harmony",
+        "reactable": false,
+        "slot": "daily.guide",
+        "text": {
+          "segments": [
+            {
+              "text": "今日気持ちが通じ合った会話があれば、書いてみませんか？"
+            }
+          ]
+        },
+        "variant": "1"
+      },
+      {
+        "evidencePreview": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "今日付いたタグが"
+                }
+              ]
+            },
+            "source": {
+              "segments": [
+                {
+                  "text": "合とは和すことで"
+                }
+              ]
+            }
+          }
+        ],
+        "messageKey": "guide.harmony",
+        "reactable": false,
+        "slot": "daily.guide",
+        "text": {
+          "segments": [
+            {
+              "text": "今日一緒にいてよかった人はいましたか？"
+            }
+          ]
+        },
+        "variant": "2"
+      },
+      {
+        "evidencePreview": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "今日付いたタグが"
+                }
+              ]
+            }
+          }
+        ],
+        "messageKey": "guide.ten_god_rush.bigyeop",
+        "reactable": false,
+        "slot": "daily.guide",
+        "text": {
+          "segments": [
+            {
+              "text": "今日最後まで守りたかった自分の考えを書いてみませんか？"
+            }
+          ]
+        },
+        "variant": "1"
+      },
+      {
+        "evidencePreview": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "今日付いたタグが"
+                }
+              ]
+            },
+            "source": {
+              "segments": [
+                {
+                  "text": "陽刃、比肩、敗財"
+                }
+              ]
+            }
+          }
+        ],
+        "messageKey": "guide.ten_god.bigyeop",
+        "reactable": false,
+        "slot": "daily.guide",
+        "text": {
+          "segments": [
+            {
+              "text": "今日一緒に過ごした人がいたら、その話を書いてみませんか？"
+            }
+          ]
+        },
+        "variant": "1"
+      }
+    ],
+    "lunar": {
+      "day": 3,
+      "isLeapMonth": false,
+      "month": 9
+    },
+    "notices": [],
+    "relations": [
+      {
+        "kind": "branch_hap",
+        "natalPosition": "month_branch",
+        "suppressed": false
+      },
+      {
+        "kind": "hyeong",
+        "natalPosition": "month_branch",
+        "suppressed": false
+      }
+    ],
+    "rulesetVersion": "2026.11.9",
+    "tags": {
+      "all": [
+        "harmony",
+        "ten_god_rush.bigyeop",
+        "gongmang",
+        "yeokma",
+        "gosin"
+      ],
+      "featured": [
+        {
+          "key": "harmony",
+          "polarity": "good"
+        },
+        {
+          "key": "ten_god_rush.bigyeop",
+          "polarity": "neutral"
+        }
+      ]
+    }
+  }
+}

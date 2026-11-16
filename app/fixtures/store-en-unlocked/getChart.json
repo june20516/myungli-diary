@@ -1,0 +1,2284 @@
+{
+  "status": 200,
+  "body": {
+    "daeun": {
+      "forward": false,
+      "periods": [
+        {
+          "branchTenGod": "pyeonin",
+          "pillar": {
+            "branch": "jin",
+            "stem": "gyeong"
+          },
+          "startAge": 3,
+          "startAgeKorean": 4,
+          "startYear": 1993,
+          "stemTenGod": "bigyeon",
+          "twelveStage": "yang"
+        },
+        {
+          "branchTenGod": "jeongjae",
+          "pillar": {
+            "branch": "myo",
+            "stem": "gi"
+          },
+          "startAge": 13,
+          "startAgeKorean": 14,
+          "startYear": 2003,
+          "stemTenGod": "jeongin",
+          "twelveStage": "tae"
+        },
+        {
+          "branchTenGod": "pyeonjae",
+          "pillar": {
+            "branch": "in",
+            "stem": "mu"
+          },
+          "startAge": 23,
+          "startAgeKorean": 24,
+          "startYear": 2013,
+          "stemTenGod": "pyeonin",
+          "twelveStage": "jeol"
+        },
+        {
+          "branchTenGod": "jeongin",
+          "pillar": {
+            "branch": "chuk",
+            "stem": "jeong"
+          },
+          "startAge": 33,
+          "startAgeKorean": 34,
+          "startYear": 2023,
+          "stemTenGod": "jeonggwan",
+          "twelveStage": "myo"
+        },
+        {
+          "branchTenGod": "sanggwan",
+          "pillar": {
+            "branch": "ja",
+            "stem": "byeong"
+          },
+          "startAge": 43,
+          "startAgeKorean": 44,
+          "startYear": 2033,
+          "stemTenGod": "pyeongwan",
+          "twelveStage": "sa"
+        },
+        {
+          "branchTenGod": "siksin",
+          "pillar": {
+            "branch": "hae",
+            "stem": "eul"
+          },
+          "startAge": 53,
+          "startAgeKorean": 54,
+          "startYear": 2043,
+          "stemTenGod": "jeongjae",
+          "twelveStage": "byeong"
+        },
+        {
+          "branchTenGod": "pyeonin",
+          "pillar": {
+            "branch": "sul",
+            "stem": "gap"
+          },
+          "startAge": 63,
+          "startAgeKorean": 64,
+          "startYear": 2053,
+          "stemTenGod": "pyeonjae",
+          "twelveStage": "soe"
+        },
+        {
+          "branchTenGod": "geopjae",
+          "pillar": {
+            "branch": "yu",
+            "stem": "gye"
+          },
+          "startAge": 73,
+          "startAgeKorean": 74,
+          "startYear": 2063,
+          "stemTenGod": "sanggwan",
+          "twelveStage": "jewang"
+        },
+        {
+          "branchTenGod": "bigyeon",
+          "pillar": {
+            "branch": "shin",
+            "stem": "im"
+          },
+          "startAge": 83,
+          "startAgeKorean": 84,
+          "startYear": 2073,
+          "stemTenGod": "siksin",
+          "twelveStage": "geonrok"
+        },
+        {
+          "branchTenGod": "jeongin",
+          "pillar": {
+            "branch": "mi",
+            "stem": "sin"
+          },
+          "startAge": 93,
+          "startAgeKorean": 94,
+          "startYear": 2083,
+          "stemTenGod": "geopjae",
+          "twelveStage": "gwandae"
+        }
+      ],
+      "startMonths": 2,
+      "startYears": 3
+    },
+    "elementWeights": [
+      {
+        "element": "wood",
+        "weight": 0.6
+      },
+      {
+        "element": "fire",
+        "weight": 3.3
+      },
+      {
+        "element": "earth",
+        "weight": 2.55
+      },
+      {
+        "element": "metal",
+        "weight": 2.9
+      },
+      {
+        "element": "water",
+        "weight": 1.15
+      }
+    ],
+    "evidenceAccess": "unlocked",
+    "gongmang": [
+      "shin",
+      "yu"
+    ],
+    "hiddenStems": [
+      {
+        "position": "year_branch",
+        "stems": [
+          {
+            "stem": "jeong",
+            "tenGod": "jeonggwan"
+          },
+          {
+            "stem": "gi",
+            "tenGod": "jeongin"
+          }
+        ]
+      },
+      {
+        "position": "month_branch",
+        "stems": [
+          {
+            "stem": "byeong",
+            "tenGod": "pyeongwan"
+          },
+          {
+            "stem": "gyeong",
+            "tenGod": "bigyeon"
+          },
+          {
+            "stem": "mu",
+            "tenGod": "pyeonin"
+          }
+        ]
+      },
+      {
+        "position": "day_branch",
+        "stems": [
+          {
+            "stem": "mu",
+            "tenGod": "pyeonin"
+          },
+          {
+            "stem": "eul",
+            "tenGod": "jeongjae"
+          },
+          {
+            "stem": "gye",
+            "tenGod": "sanggwan"
+          }
+        ]
+      },
+      {
+        "position": "hour_branch",
+        "stems": [
+          {
+            "stem": "gi",
+            "tenGod": "jeongin"
+          },
+          {
+            "stem": "jeong",
+            "tenGod": "jeonggwan"
+          },
+          {
+            "stem": "eul",
+            "tenGod": "jeongjae"
+          }
+        ]
+      }
+    ],
+    "ilganBody": {
+      "messageKey": "ilgan.body.gyeong",
+      "reactable": false,
+      "slot": "chart.ilgan_body",
+      "text": {
+        "segments": [
+          {
+            "text": "When you believe something is right, you tend to act on it right away. In moments that call for a decision, your readiness stands out."
+          }
+        ]
+      },
+      "variant": "single"
+    },
+    "ilganHead": {
+      "messageKey": "ilgan.head.gyeong",
+      "reactable": false,
+      "slot": "chart.ilgan_head",
+      "text": {
+        "segments": [
+          {
+            "text": "Sky, you're like solid metal that's yet to be shaped."
+          }
+        ]
+      },
+      "variant": "single"
+    },
+    "notices": [],
+    "personalReadings": [
+      {
+        "kind": "day_master",
+        "position": "day_stem",
+        "text": {
+          "segments": [
+            {
+              "text": "In your chart, "
+            },
+            {
+              "term": "stem.gyeong",
+              "text": "Gyeonggeum"
+            },
+            {
+              "text": " is on the strong side. "
+            },
+            {
+              "term": "element.water",
+              "text": "Water"
+            },
+            {
+              "text": " energy helps keep you balanced, so it's good to stay close to it and ease off "
+            },
+            {
+              "term": "element.earth",
+              "text": "Earth"
+            },
+            {
+              "text": " energy."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "year_stem",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.bigyeon",
+              "text": "Bigyeon"
+            },
+            {
+              "text": " in your year stem, the strength of people who walk alongside you is part of your foundation. The element here, "
+            },
+            {
+              "term": "element.metal",
+              "text": "Metal"
+            },
+            {
+              "text": ", is a good support."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "year_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.jeonggwan",
+              "text": "Jeonggwan"
+            },
+            {
+              "text": " in your year branch, the strength to keep promises and take on responsibility is well rooted. The element here, "
+            },
+            {
+              "term": "element.fire",
+              "text": "Fire"
+            },
+            {
+              "text": ", is a neutral one."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "month_stem",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.geopjae",
+              "text": "Geopjae"
+            },
+            {
+              "text": " in your month stem, you have a streak of growing alongside others through friendly rivalry. The element here, "
+            },
+            {
+              "term": "element.metal",
+              "text": "Metal"
+            },
+            {
+              "text": ", is a good support."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "month_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.pyeongwan",
+              "text": "Pyeongwan"
+            },
+            {
+              "text": " in your month branch, you have the strength to hold on and push through when pressure comes. The element here, "
+            },
+            {
+              "term": "element.fire",
+              "text": "Fire"
+            },
+            {
+              "text": ", is a neutral one."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "day_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.pyeonin",
+              "text": "Pyeonin"
+            },
+            {
+              "text": " in your day branch, you tend to dig deep with a view all your own. The element here, "
+            },
+            {
+              "term": "element.earth",
+              "text": "Earth"
+            },
+            {
+              "text": ", is not a great fit."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "hour_stem",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.sanggwan",
+              "text": "Sanggwan"
+            },
+            {
+              "text": " in your hour stem, a gift for expressing things in fresh ways, beyond the usual mold, comes through. The element here, "
+            },
+            {
+              "term": "element.water",
+              "text": "Water"
+            },
+            {
+              "text": ", is a good fit for you."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "hour_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.jeongin",
+              "text": "Jeongin"
+            },
+            {
+              "text": " in your hour branch, the strength to learn and accept help is part of your foundation. The element here, "
+            },
+            {
+              "term": "element.earth",
+              "text": "Earth"
+            },
+            {
+              "text": ", is not a great fit."
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "hidden_ten_god",
+        "position": "year_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.jeonggwan",
+              "text": "Jeonggwan"
+            },
+            {
+              "text": " in your year hidden stem, the strength to keep promises and take on responsibility is well rooted. The element here, "
+            },
+            {
+              "term": "element.fire",
+              "text": "Fire"
+            },
+            {
+              "text": ", is a neutral one."
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "hidden_ten_god",
+        "position": "year_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.jeongin",
+              "text": "Jeongin"
+            },
+            {
+              "text": " in your year hidden stem, the strength to learn and accept help is part of your foundation. The element here, "
+            },
+            {
+              "term": "element.earth",
+              "text": "Earth"
+            },
+            {
+              "text": ", is not a great fit."
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "hidden_ten_god",
+        "position": "month_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.pyeongwan",
+              "text": "Pyeongwan"
+            },
+            {
+              "text": " in your month hidden stem, you have the strength to hold on and push through when pressure comes. The element here, "
+            },
+            {
+              "term": "element.fire",
+              "text": "Fire"
+            },
+            {
+              "text": ", is a neutral one."
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "hidden_ten_god",
+        "position": "month_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.bigyeon",
+              "text": "Bigyeon"
+            },
+            {
+              "text": " in your month hidden stem, the strength of people who walk alongside you is part of your foundation. The element here, "
+            },
+            {
+              "term": "element.metal",
+              "text": "Metal"
+            },
+            {
+              "text": ", is a good support."
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "hidden_ten_god",
+        "position": "month_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.pyeonin",
+              "text": "Pyeonin"
+            },
+            {
+              "text": " in your month hidden stem, you tend to dig deep with a view all your own. The element here, "
+            },
+            {
+              "term": "element.earth",
+              "text": "Earth"
+            },
+            {
+              "text": ", is not a great fit."
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "hidden_ten_god",
+        "position": "day_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.pyeonin",
+              "text": "Pyeonin"
+            },
+            {
+              "text": " in your day hidden stem, you tend to dig deep with a view all your own. The element here, "
+            },
+            {
+              "term": "element.earth",
+              "text": "Earth"
+            },
+            {
+              "text": ", is not a great fit."
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "hidden_ten_god",
+        "position": "day_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.jeongjae",
+              "text": "Jeongjae"
+            },
+            {
+              "text": " in your day hidden stem, a habit of saving bit by bit and looking after your household is well rooted. The element here, "
+            },
+            {
+              "term": "element.wood",
+              "text": "Wood"
+            },
+            {
+              "text": ", is a neutral one."
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "hidden_ten_god",
+        "position": "day_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.sanggwan",
+              "text": "Sanggwan"
+            },
+            {
+              "text": " in your day hidden stem, a gift for expressing things in fresh ways, beyond the usual mold, comes through. The element here, "
+            },
+            {
+              "term": "element.water",
+              "text": "Water"
+            },
+            {
+              "text": ", is a good fit for you."
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "hidden_ten_god",
+        "position": "hour_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.jeongin",
+              "text": "Jeongin"
+            },
+            {
+              "text": " in your hour hidden stem, the strength to learn and accept help is part of your foundation. The element here, "
+            },
+            {
+              "term": "element.earth",
+              "text": "Earth"
+            },
+            {
+              "text": ", is not a great fit."
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "hidden_ten_god",
+        "position": "hour_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.jeonggwan",
+              "text": "Jeonggwan"
+            },
+            {
+              "text": " in your hour hidden stem, the strength to keep promises and take on responsibility is well rooted. The element here, "
+            },
+            {
+              "term": "element.fire",
+              "text": "Fire"
+            },
+            {
+              "text": ", is a neutral one."
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "hidden_ten_god",
+        "position": "hour_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.jeongjae",
+              "text": "Jeongjae"
+            },
+            {
+              "text": " in your hour hidden stem, a habit of saving bit by bit and looking after your household is well rooted. The element here, "
+            },
+            {
+              "term": "element.wood",
+              "text": "Wood"
+            },
+            {
+              "text": ", is a neutral one."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "twelve_stage",
+        "position": "year_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "In your year branch, your energy is at the Mogyok stage, a place for trying this and that to get a feel for things. The element here, "
+            },
+            {
+              "term": "element.fire",
+              "text": "Fire"
+            },
+            {
+              "text": ", is a neutral one."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "twelve_stage",
+        "position": "month_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "In your month branch, your energy is at the Jangsaeng stage, a place where something new sprouts and grows. The element here, "
+            },
+            {
+              "term": "element.fire",
+              "text": "Fire"
+            },
+            {
+              "text": ", is a neutral one."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "twelve_stage",
+        "position": "day_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "In your day branch, your energy is at the Yang stage, a place for getting ready step by step, without hurrying. The element here, "
+            },
+            {
+              "term": "element.earth",
+              "text": "Earth"
+            },
+            {
+              "text": ", is not a great fit."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "twelve_stage",
+        "position": "hour_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "In your hour branch, your energy is at the Gwandae stage, a place where confidence builds and you step forward. The element here, "
+            },
+            {
+              "term": "element.earth",
+              "text": "Earth"
+            },
+            {
+              "text": ", is not a great fit."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "hour_branch",
+        "shinsal": "cheoneul_gwiin",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "shinsal.cheoneul_gwiin",
+              "text": "Cheoneul Gwiin"
+            },
+            {
+              "text": " in your hour branch, you're likely to meet people who reach out when times are hard. The element here, "
+            },
+            {
+              "term": "element.earth",
+              "text": "Earth"
+            },
+            {
+              "text": ", is not a great fit."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "day_branch",
+        "shinsal": "hwagae",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "shinsal.hwagae",
+              "text": "Hwagae"
+            },
+            {
+              "text": " in your day branch, your heart is drawn to study or art you can dive into on your own. The element here, "
+            },
+            {
+              "term": "element.earth",
+              "text": "Earth"
+            },
+            {
+              "text": ", is not a great fit."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "month_stem",
+        "shinsal": "cheondeok",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "shinsal.cheondeok",
+              "text": "Cheondeok Gwiin"
+            },
+            {
+              "text": " in your month stem, even hard times tend to ease and turn toward good. The element here, "
+            },
+            {
+              "term": "element.metal",
+              "text": "Metal"
+            },
+            {
+              "text": ", is a good support."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "year_stem",
+        "shinsal": "woldeok",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "shinsal.woldeok",
+              "text": "Woldeok Gwiin"
+            },
+            {
+              "text": " in your year stem, unlucky energy tends to settle rather than spread. The element here, "
+            },
+            {
+              "term": "element.metal",
+              "text": "Metal"
+            },
+            {
+              "text": ", is a good support."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "day_stem",
+        "shinsal": "woldeok",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "shinsal.woldeok",
+              "text": "Woldeok Gwiin"
+            },
+            {
+              "text": " in your day stem, unlucky energy tends to settle rather than spread. The element here, "
+            },
+            {
+              "term": "element.metal",
+              "text": "Metal"
+            },
+            {
+              "text": ", is a good support."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "day_branch",
+        "shinsal": "gwasuk",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "shinsal.gwasuk",
+              "text": "Gwasuk"
+            },
+            {
+              "text": " in your day branch, family ties may thin, so it helps to show your feelings to close people first. The element here, "
+            },
+            {
+              "term": "element.earth",
+              "text": "Earth"
+            },
+            {
+              "text": ", is not a great fit."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "day_branch",
+        "shinsal": "goegang",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "shinsal.goegang",
+              "text": "Goegang"
+            },
+            {
+              "text": " in your day branch, your energy is strong and you decide fast. Good and blocked times may split sharply, so it helps to pace yourself. The element here, "
+            },
+            {
+              "term": "element.earth",
+              "text": "Earth"
+            },
+            {
+              "text": ", is not a great fit."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "day_branch",
+        "shinsal": "sipak_daepae",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "shinsal.sipak_daepae",
+              "text": "Sipak Daepae"
+            },
+            {
+              "text": " in your day branch, the seat of your natural fortune is empty, so it helps to leave some room when handling money. The element here, "
+            },
+            {
+              "term": "element.earth",
+              "text": "Earth"
+            },
+            {
+              "text": ", is not a great fit."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "month_branch",
+        "shinsal": "amrok",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "shinsal.amrok",
+              "text": "Amrok"
+            },
+            {
+              "text": " in your month branch, help tends to come from places you can't see. The element here, "
+            },
+            {
+              "term": "element.fire",
+              "text": "Fire"
+            },
+            {
+              "text": ", is a neutral one."
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.bigyeon",
+              "text": "Bigyeon"
+            },
+            {
+              "text": " in the stem of this 10-year luck cycle, it's a period when more people tend to join you and you look after your own share. The element it brings, "
+            },
+            {
+              "term": "element.metal",
+              "text": "Metal"
+            },
+            {
+              "text": ", is a good support."
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.pyeonin",
+              "text": "Pyeonin"
+            },
+            {
+              "text": " in the branch of this 10-year luck cycle, it's a period of getting deeply absorbed in unusual studies or ideas. The element it brings, "
+            },
+            {
+              "term": "element.earth",
+              "text": "Earth"
+            },
+            {
+              "text": ", is not a great fit."
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "In this 10-year luck cycle, your energy is at the Yang stage, a period for building strength without hurrying. The element of this cycle, "
+            },
+            {
+              "term": "element.earth",
+              "text": "Earth"
+            },
+            {
+              "text": ", is not a great fit."
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.jeongin",
+              "text": "Jeongin"
+            },
+            {
+              "text": " in the stem of this 10-year luck cycle, it's a period when you learn more and lean on others more. The element it brings, "
+            },
+            {
+              "term": "element.earth",
+              "text": "Earth"
+            },
+            {
+              "text": ", is not a great fit."
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.jeongjae",
+              "text": "Jeongjae"
+            },
+            {
+              "text": " in the branch of this 10-year luck cycle, it's a period for saving steadily and building a stable household. The element it brings, "
+            },
+            {
+              "term": "element.wood",
+              "text": "Wood"
+            },
+            {
+              "text": ", is a neutral one."
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "In this 10-year luck cycle, your energy is at the Tae stage, a period when new plans are just taking shape. The element of this cycle, "
+            },
+            {
+              "term": "element.wood",
+              "text": "Wood"
+            },
+            {
+              "text": ", is a neutral one."
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.pyeonin",
+              "text": "Pyeonin"
+            },
+            {
+              "text": " in the stem of this 10-year luck cycle, it's a period of getting deeply absorbed in unusual studies or ideas. The element it brings, "
+            },
+            {
+              "term": "element.earth",
+              "text": "Earth"
+            },
+            {
+              "text": ", is not a great fit."
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.pyeonjae",
+              "text": "Pyeonjae"
+            },
+            {
+              "text": " in the branch of this 10-year luck cycle, it's a period of moving widely and coming across chances. The element it brings, "
+            },
+            {
+              "term": "element.wood",
+              "text": "Wood"
+            },
+            {
+              "text": ", is a neutral one."
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "In this 10-year luck cycle, your energy is at the Jeol stage, a period for closing out old currents and turning in a new direction. The element of this cycle, "
+            },
+            {
+              "term": "element.wood",
+              "text": "Wood"
+            },
+            {
+              "text": ", is a neutral one."
+            }
+          ]
+        }
+      },
+      {
+        "index": 3,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.jeonggwan",
+              "text": "Jeonggwan"
+            },
+            {
+              "text": " in the stem of this 10-year luck cycle, it's a period when responsibility, standing, and recognition tend to come your way. The element it brings, "
+            },
+            {
+              "term": "element.fire",
+              "text": "Fire"
+            },
+            {
+              "text": ", is a neutral one."
+            }
+          ]
+        }
+      },
+      {
+        "index": 3,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.jeongin",
+              "text": "Jeongin"
+            },
+            {
+              "text": " in the branch of this 10-year luck cycle, it's a period when you learn more and lean on others more. The element it brings, "
+            },
+            {
+              "term": "element.earth",
+              "text": "Earth"
+            },
+            {
+              "text": ", is not a great fit."
+            }
+          ]
+        }
+      },
+      {
+        "index": 3,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "In this 10-year luck cycle, your energy is at the Myo stage, a period for gathering in and wrapping up what you've started. The element of this cycle, "
+            },
+            {
+              "term": "element.earth",
+              "text": "Earth"
+            },
+            {
+              "text": ", is not a great fit."
+            }
+          ]
+        }
+      },
+      {
+        "index": 4,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.pyeongwan",
+              "text": "Pyeongwan"
+            },
+            {
+              "text": " in the stem of this 10-year luck cycle, your duties may grow heavier, making it a good period to build the strength to hold on. The element it brings, "
+            },
+            {
+              "term": "element.fire",
+              "text": "Fire"
+            },
+            {
+              "text": ", is a neutral one."
+            }
+          ]
+        }
+      },
+      {
+        "index": 4,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.sanggwan",
+              "text": "Sanggwan"
+            },
+            {
+              "text": " in the branch of this 10-year luck cycle, it's a good period to share your new ideas with others. The element it brings, "
+            },
+            {
+              "term": "element.water",
+              "text": "Water"
+            },
+            {
+              "text": ", is a good fit for you."
+            }
+          ]
+        }
+      },
+      {
+        "index": 4,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "In this 10-year luck cycle, your energy is at the Sa stage, a period for deepening your thinking more than your outside work. The element of this cycle, "
+            },
+            {
+              "term": "element.water",
+              "text": "Water"
+            },
+            {
+              "text": ", is a good fit for you."
+            }
+          ]
+        }
+      },
+      {
+        "index": 5,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.jeongjae",
+              "text": "Jeongjae"
+            },
+            {
+              "text": " in the stem of this 10-year luck cycle, it's a period for saving steadily and building a stable household. The element it brings, "
+            },
+            {
+              "term": "element.wood",
+              "text": "Wood"
+            },
+            {
+              "text": ", is a neutral one."
+            }
+          ]
+        }
+      },
+      {
+        "index": 5,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.siksin",
+              "text": "Siksin"
+            },
+            {
+              "text": " in the branch of this 10-year luck cycle, it's a good period to enjoy and pursue what you want to do. The element it brings, "
+            },
+            {
+              "term": "element.water",
+              "text": "Water"
+            },
+            {
+              "text": ", is a good fit for you."
+            }
+          ]
+        }
+      },
+      {
+        "index": 5,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "In this 10-year luck cycle, your energy is at the Byeong stage, a good period to care for your body and mind rather than push too hard. The element of this cycle, "
+            },
+            {
+              "term": "element.water",
+              "text": "Water"
+            },
+            {
+              "text": ", is a good fit for you."
+            }
+          ]
+        }
+      },
+      {
+        "index": 6,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.pyeonjae",
+              "text": "Pyeonjae"
+            },
+            {
+              "text": " in the stem of this 10-year luck cycle, it's a period of moving widely and coming across chances. The element it brings, "
+            },
+            {
+              "term": "element.wood",
+              "text": "Wood"
+            },
+            {
+              "text": ", is a neutral one."
+            }
+          ]
+        }
+      },
+      {
+        "index": 6,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.pyeonin",
+              "text": "Pyeonin"
+            },
+            {
+              "text": " in the branch of this 10-year luck cycle, it's a period of getting deeply absorbed in unusual studies or ideas. The element it brings, "
+            },
+            {
+              "term": "element.earth",
+              "text": "Earth"
+            },
+            {
+              "text": ", is not a great fit."
+            }
+          ]
+        }
+      },
+      {
+        "index": 6,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "In this 10-year luck cycle, your energy is at the Soe stage, a period for slowing down and drawing on experience. The element of this cycle, "
+            },
+            {
+              "term": "element.earth",
+              "text": "Earth"
+            },
+            {
+              "text": ", is not a great fit."
+            }
+          ]
+        }
+      },
+      {
+        "index": 7,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.sanggwan",
+              "text": "Sanggwan"
+            },
+            {
+              "text": " in the stem of this 10-year luck cycle, it's a good period to share your new ideas with others. The element it brings, "
+            },
+            {
+              "term": "element.water",
+              "text": "Water"
+            },
+            {
+              "text": ", is a good fit for you."
+            }
+          ]
+        }
+      },
+      {
+        "index": 7,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.geopjae",
+              "text": "Geopjae"
+            },
+            {
+              "text": " in the branch of this 10-year luck cycle, it's a period that tends to bring more to compete for and more to share. The element it brings, "
+            },
+            {
+              "term": "element.metal",
+              "text": "Metal"
+            },
+            {
+              "text": ", is a good support."
+            }
+          ]
+        }
+      },
+      {
+        "index": 7,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "In this 10-year luck cycle, your energy is at the Jewang stage, a period when your strength is at its fullest. The element of this cycle, "
+            },
+            {
+              "term": "element.metal",
+              "text": "Metal"
+            },
+            {
+              "text": ", is a good support."
+            }
+          ]
+        }
+      },
+      {
+        "index": 8,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.siksin",
+              "text": "Siksin"
+            },
+            {
+              "text": " in the stem of this 10-year luck cycle, it's a good period to enjoy and pursue what you want to do. The element it brings, "
+            },
+            {
+              "term": "element.water",
+              "text": "Water"
+            },
+            {
+              "text": ", is a good fit for you."
+            }
+          ]
+        }
+      },
+      {
+        "index": 8,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.bigyeon",
+              "text": "Bigyeon"
+            },
+            {
+              "text": " in the branch of this 10-year luck cycle, it's a period when more people tend to join you and you look after your own share. The element it brings, "
+            },
+            {
+              "term": "element.metal",
+              "text": "Metal"
+            },
+            {
+              "text": ", is a good support."
+            }
+          ]
+        }
+      },
+      {
+        "index": 8,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "In this 10-year luck cycle, your energy is at the Geonrok stage, a period of standing on your own and doing your share. The element of this cycle, "
+            },
+            {
+              "term": "element.metal",
+              "text": "Metal"
+            },
+            {
+              "text": ", is a good support."
+            }
+          ]
+        }
+      },
+      {
+        "index": 9,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.geopjae",
+              "text": "Geopjae"
+            },
+            {
+              "text": " in the stem of this 10-year luck cycle, it's a period that tends to bring more to compete for and more to share. The element it brings, "
+            },
+            {
+              "term": "element.metal",
+              "text": "Metal"
+            },
+            {
+              "text": ", is a good support."
+            }
+          ]
+        }
+      },
+      {
+        "index": 9,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.jeongin",
+              "text": "Jeongin"
+            },
+            {
+              "text": " in the branch of this 10-year luck cycle, it's a period when you learn more and lean on others more. The element it brings, "
+            },
+            {
+              "term": "element.earth",
+              "text": "Earth"
+            },
+            {
+              "text": ", is not a great fit."
+            }
+          ]
+        }
+      },
+      {
+        "index": 9,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "In this 10-year luck cycle, your energy is at the Gwandae stage, a period when confidence builds and you step forward. The element of this cycle, "
+            },
+            {
+              "term": "element.earth",
+              "text": "Earth"
+            },
+            {
+              "text": ", is not a great fit."
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.sanggwan",
+              "text": "Sanggwan"
+            },
+            {
+              "text": " in the stem of this yearly luck cycle, it's a good period to share your new ideas with others. The element it brings, "
+            },
+            {
+              "term": "element.water",
+              "text": "Water"
+            },
+            {
+              "text": ", is a good fit for you."
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.pyeonjae",
+              "text": "Pyeonjae"
+            },
+            {
+              "text": " in the stem of this yearly luck cycle, it's a period of moving widely and coming across chances. The element it brings, "
+            },
+            {
+              "term": "element.wood",
+              "text": "Wood"
+            },
+            {
+              "text": ", is a neutral one."
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.jeongjae",
+              "text": "Jeongjae"
+            },
+            {
+              "text": " in the stem of this yearly luck cycle, it's a period for saving steadily and building a stable household. The element it brings, "
+            },
+            {
+              "term": "element.wood",
+              "text": "Wood"
+            },
+            {
+              "text": ", is a neutral one."
+            }
+          ]
+        }
+      },
+      {
+        "index": 3,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.pyeongwan",
+              "text": "Pyeongwan"
+            },
+            {
+              "text": " in the stem of this yearly luck cycle, your duties may grow heavier, making it a good period to build the strength to hold on. The element it brings, "
+            },
+            {
+              "term": "element.fire",
+              "text": "Fire"
+            },
+            {
+              "text": ", is a neutral one."
+            }
+          ]
+        }
+      },
+      {
+        "index": 4,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.jeonggwan",
+              "text": "Jeonggwan"
+            },
+            {
+              "text": " in the stem of this yearly luck cycle, it's a period when responsibility, standing, and recognition tend to come your way. The element it brings, "
+            },
+            {
+              "term": "element.fire",
+              "text": "Fire"
+            },
+            {
+              "text": ", is a neutral one."
+            }
+          ]
+        }
+      },
+      {
+        "index": 5,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.pyeonin",
+              "text": "Pyeonin"
+            },
+            {
+              "text": " in the stem of this yearly luck cycle, it's a period of getting deeply absorbed in unusual studies or ideas. The element it brings, "
+            },
+            {
+              "term": "element.earth",
+              "text": "Earth"
+            },
+            {
+              "text": ", is not a great fit."
+            }
+          ]
+        }
+      },
+      {
+        "index": 6,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.jeongin",
+              "text": "Jeongin"
+            },
+            {
+              "text": " in the stem of this yearly luck cycle, it's a period when you learn more and lean on others more. The element it brings, "
+            },
+            {
+              "term": "element.earth",
+              "text": "Earth"
+            },
+            {
+              "text": ", is not a great fit."
+            }
+          ]
+        }
+      },
+      {
+        "index": 7,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.bigyeon",
+              "text": "Bigyeon"
+            },
+            {
+              "text": " in the stem of this yearly luck cycle, it's a period when more people tend to join you and you look after your own share. The element it brings, "
+            },
+            {
+              "term": "element.metal",
+              "text": "Metal"
+            },
+            {
+              "text": ", is a good support."
+            }
+          ]
+        }
+      },
+      {
+        "index": 8,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.geopjae",
+              "text": "Geopjae"
+            },
+            {
+              "text": " in the stem of this yearly luck cycle, it's a period that tends to bring more to compete for and more to share. The element it brings, "
+            },
+            {
+              "term": "element.metal",
+              "text": "Metal"
+            },
+            {
+              "text": ", is a good support."
+            }
+          ]
+        }
+      },
+      {
+        "index": 9,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "With "
+            },
+            {
+              "term": "ten_god.siksin",
+              "text": "Siksin"
+            },
+            {
+              "text": " in the stem of this yearly luck cycle, it's a good period to enjoy and pursue what you want to do. The element it brings, "
+            },
+            {
+              "term": "element.water",
+              "text": "Water"
+            },
+            {
+              "text": ", is a good fit for you."
+            }
+          ]
+        }
+      }
+    ],
+    "pillars": {
+      "day": {
+        "branch": "jin",
+        "stem": "gyeong"
+      },
+      "hour": {
+        "branch": "mi",
+        "stem": "gye"
+      },
+      "month": {
+        "branch": "sa",
+        "stem": "sin"
+      },
+      "year": {
+        "branch": "o",
+        "stem": "gyeong"
+      }
+    },
+    "rulesetVersion": "2026.11.9",
+    "seun": [
+      {
+        "pillar": {
+          "branch": "myo",
+          "stem": "gye"
+        },
+        "relationsWithNatal": [],
+        "tenGod": "sanggwan",
+        "year": 2023
+      },
+      {
+        "pillar": {
+          "branch": "jin",
+          "stem": "gap"
+        },
+        "relationsWithNatal": [
+          "hyeong"
+        ],
+        "tenGod": "pyeonjae",
+        "year": 2024
+      },
+      {
+        "pillar": {
+          "branch": "sa",
+          "stem": "eul"
+        },
+        "relationsWithNatal": [
+          "stem_hap"
+        ],
+        "tenGod": "jeongjae",
+        "year": 2025
+      },
+      {
+        "pillar": {
+          "branch": "o",
+          "stem": "byeong"
+        },
+        "relationsWithNatal": [
+          "stem_hap",
+          "branch_hap",
+          "hyeong"
+        ],
+        "tenGod": "pyeongwan",
+        "year": 2026
+      },
+      {
+        "pillar": {
+          "branch": "mi",
+          "stem": "jeong"
+        },
+        "relationsWithNatal": [
+          "branch_hap"
+        ],
+        "tenGod": "jeonggwan",
+        "year": 2027
+      },
+      {
+        "pillar": {
+          "branch": "shin",
+          "stem": "mu"
+        },
+        "relationsWithNatal": [
+          "stem_hap",
+          "branch_hap",
+          "hyeong"
+        ],
+        "tenGod": "pyeonin",
+        "year": 2028
+      },
+      {
+        "pillar": {
+          "branch": "yu",
+          "stem": "gi"
+        },
+        "relationsWithNatal": [
+          "branch_hap"
+        ],
+        "tenGod": "jeongin",
+        "year": 2029
+      },
+      {
+        "pillar": {
+          "branch": "sul",
+          "stem": "gyeong"
+        },
+        "relationsWithNatal": [
+          "chung",
+          "hyeong"
+        ],
+        "tenGod": "bigyeon",
+        "year": 2030
+      },
+      {
+        "pillar": {
+          "branch": "hae",
+          "stem": "sin"
+        },
+        "relationsWithNatal": [
+          "chung"
+        ],
+        "tenGod": "geopjae",
+        "year": 2031
+      },
+      {
+        "pillar": {
+          "branch": "ja",
+          "stem": "im"
+        },
+        "relationsWithNatal": [
+          "chung"
+        ],
+        "tenGod": "siksin",
+        "year": 2032
+      }
+    ],
+    "shinsal": [
+      {
+        "kind": "cheoneul_gwiin",
+        "position": "hour_branch",
+        "positions": [
+          "hour_branch"
+        ]
+      },
+      {
+        "kind": "hwagae",
+        "position": "day_branch",
+        "positions": [
+          "day_branch"
+        ]
+      },
+      {
+        "kind": "cheondeok",
+        "position": "month_stem",
+        "positions": [
+          "month_stem"
+        ]
+      },
+      {
+        "kind": "woldeok",
+        "position": "year_stem",
+        "positions": [
+          "year_stem"
+        ]
+      },
+      {
+        "kind": "woldeok",
+        "position": "day_stem",
+        "positions": [
+          "day_stem"
+        ]
+      },
+      {
+        "kind": "gwasuk",
+        "position": "day_branch",
+        "positions": [
+          "day_branch"
+        ]
+      },
+      {
+        "kind": "goegang",
+        "position": "day_branch",
+        "positions": [
+          "day_stem",
+          "day_branch"
+        ]
+      },
+      {
+        "kind": "sipak_daepae",
+        "position": "day_branch",
+        "positions": [
+          "day_stem",
+          "day_branch"
+        ]
+      },
+      {
+        "kind": "amrok",
+        "position": "month_branch",
+        "positions": [
+          "month_branch"
+        ]
+      }
+    ],
+    "strength": {
+      "level": "strong",
+      "score": 51.904762
+    },
+    "tenGods": [
+      {
+        "position": "year_stem",
+        "tenGod": "bigyeon"
+      },
+      {
+        "position": "year_branch",
+        "tenGod": "jeonggwan"
+      },
+      {
+        "position": "month_stem",
+        "tenGod": "geopjae"
+      },
+      {
+        "position": "month_branch",
+        "tenGod": "pyeongwan"
+      },
+      {
+        "position": "day_branch",
+        "tenGod": "pyeonin"
+      },
+      {
+        "position": "hour_stem",
+        "tenGod": "sanggwan"
+      },
+      {
+        "position": "hour_branch",
+        "tenGod": "jeongin"
+      }
+    ],
+    "twelveStages": [
+      {
+        "position": "year_branch",
+        "stage": "mokyok"
+      },
+      {
+        "position": "month_branch",
+        "stage": "jangsaeng"
+      },
+      {
+        "position": "day_branch",
+        "stage": "yang"
+      },
+      {
+        "position": "hour_branch",
+        "stage": "gwandae"
+      }
+    ],
+    "yongsin": {
+      "basis": {
+        "messageKey": "yongsin.method.johu",
+        "reactable": false,
+        "slot": "chart.yongsin_method",
+        "text": {
+          "segments": [
+            {
+              "text": "Your birth season runs notably hot or cold, so your "
+            },
+            {
+              "term": "role.yongsin",
+              "text": "Yongsin"
+            },
+            {
+              "text": " is the element that evens it out."
+            }
+          ]
+        },
+        "variant": "single"
+      },
+      "gisin": "earth",
+      "huisin": "metal",
+      "johuStem": "im",
+      "method": "johu",
+      "tonggwan": "metal",
+      "yongsin": "water"
+    },
+    "yongsinSummary": {
+      "messageKey": "yongsin.summary",
+      "reactable": false,
+      "slot": "chart.yongsin_summary",
+      "text": {
+        "segments": [
+          {
+            "text": "The element that fits you well is "
+          },
+          {
+            "term": "element.water",
+            "text": "Water"
+          },
+          {
+            "text": ", and its color is black. Try keeping it close through clothes or small items."
+          }
+        ]
+      },
+      "variant": "single"
+    }
+  }
+}

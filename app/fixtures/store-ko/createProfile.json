@@ -1,0 +1,32 @@
+{
+  "status": 200,
+  "body": {
+    "profile": {
+      "birth": {
+        "calendar": "solar",
+        "date": {
+          "day": 15,
+          "month": 5,
+          "year": 1990
+        },
+        "gender": "female",
+        "isLeapMonth": false,
+        "place": {
+          "status": "not_asked"
+        },
+        "time": {
+          "status": "known",
+          "value": "14:30"
+        },
+        "timezone": "Asia/Seoul"
+      },
+      "currentTimezone": "Asia/Seoul",
+      "honorific": "하늘",
+      "language": "ko",
+      "notification": {
+        "status": "not_asked"
+      }
+    },
+    "warnings": []
+  }
+}

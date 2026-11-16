@@ -1,0 +1,938 @@
+{
+  "status": 200,
+  "body": {
+    "cards": {
+      "color": {
+        "element": "water",
+        "role": "yongsin",
+        "text": {
+          "evidence": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "On a Day to go gently, we based your lucky color on the element that reconnects a blocked flow, and on other days on your "
+                  },
+                  {
+                    "term": "role.yongsin",
+                    "text": "Yongsin"
+                  },
+                  {
+                    "text": " element. Your lucky direction follows this base element as it is."
+                  }
+                ]
+              },
+              "detail": {
+                "day_kind": "ORDINARY_DAY",
+                "element": "WATER",
+                "role": "YONGSIN"
+              },
+              "ruleId": "color/lucky_element",
+              "source": {
+                "segments": [
+                  {
+                    "text": "Each element has its true color: Water is black, Fire is red, Wood is blue-green, and Earth is yellow.\n推其形色，則水黑、火赤、木青、土黃，此正色也。及其變易，則不然。常以生旺從正色，死絶從母色，成形冠帶從妻色，病敗從鬼色，旺墓從子色。\nGungtong Bogam, 五行總論"
+                  }
+                ]
+              },
+              "sourceRef": "gungtong-bogam/five_elements#color"
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "The classics hold that an element's color changes with the stage it sits in that day. Today Water sits at Jangsaeng on the branch 申, so we chose black. Your direction doesn't change this way and follows the base element."
+                  }
+                ]
+              },
+              "detail": {
+                "base_element": "WATER",
+                "day_branch": "申",
+                "element": "WATER",
+                "shift": "JEONG",
+                "twelve_stage": "JANGSAENG"
+              },
+              "ruleId": "color/shift",
+              "source": {
+                "segments": [
+                  {
+                    "text": "The true colors are black for water, red for fire, blue-green for wood, white for metal and yellow for earth, but when they change, growth and peak follow the true color, death and severance the color of the element that gives birth to it, formation and capping the color of the element it overcomes, sickness and decay the color of the element that overcomes it, and the tomb after the peak the color of the element it gives birth to.\n推其形色則水黑火赤木青金白土黃此正色也及其變易則不然常以生旺從正色死絶從母色成形冠帶從妻色病敗從鬼色旺墓從子色\nSammyeong Tonghoe, 論五行"
+                  }
+                ]
+              },
+              "sourceRef": "sammyeong-tonghoe/five_elements#color_change"
+            }
+          ],
+          "messageKey": "color.ordinary_day",
+          "reactable": false,
+          "slot": "daily.color",
+          "text": {
+            "segments": [
+              {
+                "text": "Your chart needs Water energy, so black suits you today."
+              }
+            ]
+          },
+          "todayReason": {
+            "segments": [
+              {
+                "text": "We chose the color of the energy that supports your chart."
+              }
+            ]
+          },
+          "variant": "single"
+        }
+      },
+      "direction": {
+        "direction": "nw",
+        "text": {
+          "evidence": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "Since it's an Ordinary day, from the day's lucky directions we chose Northwest, which matches Metal, your "
+                  },
+                  {
+                    "term": "role.huisin",
+                    "text": "Huisin"
+                  },
+                  {
+                    "text": " element."
+                  }
+                ]
+              },
+              "detail": {
+                "day_branch": "申",
+                "day_kind": "ORDINARY_DAY",
+                "deity": "XI",
+                "direction": "NW",
+                "element": "METAL"
+              },
+              "ruleId": "direction/ordinary_deity_huisin",
+              "source": {
+                "segments": [
+                  {
+                    "text": "The north gives rise to Water, the south to Fire, the east to Wood, the west to Metal, and the center to Earth.\n北方陰極而生寒，寒生水。南方陽極而生熱，熱生火。東方陽散以泄而生風，風生木。西方陰止以收而生燥，燥生金。中央陰陽交而生溫，溫生土。其相生也所以相維，其相剋也所以相制，此之謂有倫。\nGungtong Bogam, 五行總論"
+                  }
+                ]
+              },
+              "sourceRef": "gungtong-bogam/five_elements#direction"
+            }
+          ],
+          "messageKey": "direction.day_kind.ordinary.mo",
+          "reactable": false,
+          "slot": "daily.direction_relation",
+          "text": {
+            "segments": [
+              {
+                "text": "Head Northwest, the way of Metal, which generates the Water energy your chart needs."
+              }
+            ]
+          },
+          "todayReason": {
+            "segments": [
+              {
+                "text": "Of the calendar's lucky directions, we chose the one of the energy that backs up your chart."
+              }
+            ]
+          },
+          "variant": "single"
+        }
+      },
+      "focusTime": {
+        "fallback": false,
+        "hours": [
+          {
+            "branch": "jin",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T09:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-13T07:30:00+09:00"
+          },
+          {
+            "branch": "sa",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T11:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-13T09:30:00+09:00"
+          },
+          {
+            "branch": "o",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T13:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-13T11:30:00+09:00"
+          },
+          {
+            "branch": "mi",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T15:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-13T13:30:00+09:00"
+          },
+          {
+            "branch": "shin",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T17:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-13T15:30:00+09:00"
+          },
+          {
+            "branch": "yu",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T19:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-13T17:30:00+09:00"
+          },
+          {
+            "branch": "sul",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T21:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-13T19:30:00+09:00"
+          }
+        ],
+        "picks": [
+          {
+            "branch": "shin",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T17:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-13T15:30:00+09:00"
+          }
+        ],
+        "text": {
+          "evidence": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We favored hours that support today's day pillar or join with it, and left out hours that clash with it."
+                  }
+                ]
+              },
+              "detail": {
+                "day_pillar": "庚申",
+                "hour_branch": "SHIN",
+                "period": "DAY"
+              },
+              "ruleId": "focus_time/day_relation",
+              "source": {
+                "segments": [
+                  {
+                    "text": "The hour serves the day, so all that matters is whether it supports the day: if it shares the energy of the day stem or branch or forms a three-way or six-way union with the day branch, it is lucky, and rather than following every lucky and unlucky spirit of the hour, only Gwiin, Rok and Ma count as lucky.\n時者日之用也全在幇扶日辰或與日支干比和或與日支三合六合即吉時家吉凶神不必盡拘惟貴人祿馬為吉\nHyeopgi Byeonbangseo, 用時法"
+                  }
+                ]
+              },
+              "sourceRef": "xieji-bianfang/hours#use_hour"
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We favored hours that support or join with the heavenly stem of your birth year, and avoided hours that clash with your birth year."
+                  }
+                ]
+              },
+              "detail": {
+                "birth_year": "庚午",
+                "hour_branch": "SHIN",
+                "period": "DAY"
+              },
+              "ruleId": "focus_time/birth_year",
+              "source": {
+                "segments": [
+                  {
+                    "text": "People of old all looked at the heavenly stem of the birth year, choosing times that join with its officer or wealth, act as its peer or seal, sit at its growth stage, or bring its Rok, Ma and Gwiin, without clashing with or overcoming the birth chart.\n古人皆論生年之天干或合官或合財或比肩或印綬或四長生或取祿馬貴人不衝命尅命\nHyeopgi Byeonbangseo, 論相主"
+                  }
+                ]
+              },
+              "sourceRef": "xieji-bianfang/hours#birth_year"
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We also checked whether the hour is one the classic almanac marks as a lucky Hwangdo hour."
+                  }
+                ]
+              },
+              "detail": {
+                "hour_branch": "SHIN",
+                "huangdao": "false",
+                "period": "DAY"
+              },
+              "ruleId": "focus_time/huangdao",
+              "source": {
+                "segments": [
+                  {
+                    "text": "When counting hours from the day, on a Ja day Cheongnyong starts at the Sin hour and Myeongdang falls at the Yu hour, and the rest follow in order.\n日起時則子日申時起青龍酉時為明堂依次順數\nHyeopgi Byeonbangseo, 黃道黑道"
+                  }
+                ]
+              },
+              "sourceRef": "xieji-bianfang/hours#huangdao"
+            }
+          ],
+          "messageKey": "focus_time.day",
+          "reactable": false,
+          "slot": "daily.focus_time",
+          "text": {
+            "segments": [
+              {
+                "text": "This is a good time for important things."
+              }
+            ]
+          },
+          "variant": "single"
+        }
+      },
+      "nightFocusTime": {
+        "fallback": false,
+        "hours": [
+          {
+            "branch": "hae",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T23:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-13T21:30:00+09:00"
+          },
+          {
+            "branch": "ja",
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "branch": "yu",
+              "stem": "sin"
+            },
+            "end": "2026-10-14T01:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-13T23:30:00+09:00"
+          },
+          {
+            "branch": "chuk",
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "branch": "yu",
+              "stem": "sin"
+            },
+            "end": "2026-10-14T03:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-14T01:30:00+09:00"
+          },
+          {
+            "branch": "in",
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "branch": "yu",
+              "stem": "sin"
+            },
+            "end": "2026-10-14T05:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-14T03:30:00+09:00"
+          },
+          {
+            "branch": "myo",
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "branch": "yu",
+              "stem": "sin"
+            },
+            "end": "2026-10-14T07:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-14T05:30:00+09:00"
+          }
+        ],
+        "picks": [
+          {
+            "branch": "chuk",
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "branch": "yu",
+              "stem": "sin"
+            },
+            "end": "2026-10-14T03:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-14T01:30:00+09:00"
+          }
+        ],
+        "text": {
+          "evidence": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We favored hours that support today's day pillar or join with it, and left out hours that clash with it."
+                  }
+                ]
+              },
+              "detail": {
+                "day_pillar": "辛酉",
+                "hour_branch": "CHUK",
+                "period": "NIGHT"
+              },
+              "ruleId": "focus_time/day_relation",
+              "source": {
+                "segments": [
+                  {
+                    "text": "The hour serves the day, so all that matters is whether it supports the day: if it shares the energy of the day stem or branch or forms a three-way or six-way union with the day branch, it is lucky, and rather than following every lucky and unlucky spirit of the hour, only Gwiin, Rok and Ma count as lucky.\n時者日之用也全在幇扶日辰或與日支干比和或與日支三合六合即吉時家吉凶神不必盡拘惟貴人祿馬為吉\nHyeopgi Byeonbangseo, 用時法"
+                  }
+                ]
+              },
+              "sourceRef": "xieji-bianfang/hours#use_hour"
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We favored hours that support or join with the heavenly stem of your birth year, and avoided hours that clash with your birth year."
+                  }
+                ]
+              },
+              "detail": {
+                "birth_year": "庚午",
+                "hour_branch": "CHUK",
+                "period": "NIGHT"
+              },
+              "ruleId": "focus_time/birth_year",
+              "source": {
+                "segments": [
+                  {
+                    "text": "People of old all looked at the heavenly stem of the birth year, choosing times that join with its officer or wealth, act as its peer or seal, sit at its growth stage, or bring its Rok, Ma and Gwiin, without clashing with or overcoming the birth chart.\n古人皆論生年之天干或合官或合財或比肩或印綬或四長生或取祿馬貴人不衝命尅命\nHyeopgi Byeonbangseo, 論相主"
+                  }
+                ]
+              },
+              "sourceRef": "xieji-bianfang/hours#birth_year"
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We also checked whether the hour is one the classic almanac marks as a lucky Hwangdo hour."
+                  }
+                ]
+              },
+              "detail": {
+                "hour_branch": "CHUK",
+                "huangdao": "false",
+                "period": "NIGHT"
+              },
+              "ruleId": "focus_time/huangdao",
+              "source": {
+                "segments": [
+                  {
+                    "text": "When counting hours from the day, on a Ja day Cheongnyong starts at the Sin hour and Myeongdang falls at the Yu hour, and the rest follow in order.\n日起時則子日申時起青龍酉時為明堂依次順數\nHyeopgi Byeonbangseo, 黃道黑道"
+                  }
+                ]
+              },
+              "sourceRef": "xieji-bianfang/hours#huangdao"
+            }
+          ],
+          "messageKey": "focus_time.night",
+          "reactable": false,
+          "slot": "daily.focus_time",
+          "text": {
+            "segments": [
+              {
+                "text": "If you have something to do at night, this is a good time."
+              }
+            ]
+          },
+          "variant": "single"
+        }
+      },
+      "number": {
+        "number": 1,
+        "text": {
+          "evidence": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "Of the two Hado numbers for Water, the same element as your lucky color, we chose the odd one if today's heavenly stem 庚 is yang and the even one if it's yin."
+                  }
+                ]
+              },
+              "detail": {
+                "day_stem": "庚",
+                "element": "WATER",
+                "number": "1",
+                "parity": "odd"
+              },
+              "ruleId": "number/hado",
+              "source": {
+                "segments": [
+                  {
+                    "text": "Each element has a number: Water is 1, Fire is 2, Wood is 3, Metal is 4, and Earth is 5.\n其數則水一、火二、木三、金四、土五。生旺加倍，死絶減半。\nGungtong Bogam, 五行總論"
+                  }
+                ]
+              },
+              "sourceRef": "gungtong-bogam/five_elements#number"
+            }
+          ],
+          "messageKey": "number.ordinary_day",
+          "reactable": false,
+          "slot": "daily.number",
+          "text": {
+            "segments": [
+              {
+                "text": "Of the Water numbers, 1 fits today's heavenly stem Gyeonggeum."
+              }
+            ]
+          },
+          "todayReason": {
+            "segments": [
+              {
+                "text": "Of the numbers that share today's color energy, we chose the one that matches the yin or yang of today's heavenly stem."
+              }
+            ]
+          },
+          "variant": "single"
+        }
+      }
+    },
+    "characterReason": {
+      "messageKey": "character.reason.ordinary_day",
+      "reactable": false,
+      "slot": "character.reason",
+      "text": {
+        "segments": [
+          {
+            "text": "An ordinary day, with no particular energy helping or holding you back."
+          }
+        ]
+      },
+      "variant": "single"
+    },
+    "date": "2026-10-13",
+    "dayKind": "ordinary_day",
+    "dayPillar": {
+      "branch": "shin",
+      "stem": "gyeong"
+    },
+    "dayStemTenGod": "bigyeon",
+    "dayStemTenGodGroup": "bigyeop",
+    "dayVirtues": [],
+    "evidenceAccess": "unlocked",
+    "fortune": {
+      "head": {
+        "evidence": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "Today is marked Ordinary day, and today's heavenly stem counts as Bigyeon to your Day Master, so we chose today's main reading based on these two."
+                }
+              ]
+            },
+            "detail": {
+              "day_kind": "ORDINARY_DAY",
+              "group": "BIGYEOP",
+              "ten_god": "BIGYEON"
+            },
+            "ruleId": "fortune/day_kind",
+            "source": {
+              "segments": [
+                {
+                  "text": "Yangin, Bigyeon, Paejae and Geonrok have different names but are really one family of the same energy.\n余按陽刃比肩敗財建祿名雖不同實一家同氣之神\nSammyeong Tonghoe, 論建祿"
+                }
+              ]
+            },
+            "sourceRef": "sammyeong-tonghoe/personal#ten_god.geonrok"
+          },
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "You were born in summer or winter and your chart runs too hot or too cold, so we set your "
+                },
+                {
+                  "term": "role.yongsin",
+                  "text": "Yongsin"
+                },
+                {
+                  "text": " by the Johu method, which evens out temperature. The element that fits your Day Master in the 巳 month follows the Johu table of Gungtong Bogam."
+                }
+              ]
+            },
+            "detail": {
+              "month_branch": "巳",
+              "share": "0.3143",
+              "threshold": "0.3000"
+            },
+            "ruleId": "yongsin/johu",
+            "source": {
+              "segments": [
+                {
+                  "text": "For a Gyeonggeum Day Master born in the fourth month, Byeonghwa does not melt metal, so the flames are no threat and Byeonghwa can be used too, but Imsu must come first to reach balance; hence metal born in summer welcomes earth.\n丙不鎔金，故不畏火炎，丙亦可作用，但先壬水，方得中和，故曰羣金生夏，喜用勾陳。\nGungtong Bogam, 四月庚"
+                }
+              ]
+            },
+            "sourceRef": "gungtong-bogam/johu_evidence#庚.巳"
+          }
+        ],
+        "messageKey": "fortune.ordinary_day.bigyeop",
+        "reactable": true,
+        "slot": "daily.fortune.head",
+        "text": {
+          "segments": [
+            {
+              "text": "Work at your own pace instead of matching others."
+            }
+          ]
+        },
+        "todayReason": {
+          "segments": [
+            {
+              "text": "This energy comes from how today's heavenly stem relates to your Day Master."
+            }
+          ]
+        },
+        "variant": "advice"
+      },
+      "tag": {
+        "evidence": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "We chose the line under today's main reading based on the top tag of the day."
+                }
+              ]
+            },
+            "detail": {
+              "day_kind": "ORDINARY_DAY",
+              "featured": "tag.harmony",
+              "group": "BIGYEOP",
+              "ten_god": "BIGYEON"
+            },
+            "ruleId": "fortune/tag",
+            "source": {
+              "segments": [
+                {
+                  "text": "Hap means getting along: when yin and yang get along, their energies join on their own.\n夫合者，和也，乃陰陽相和，其氣自合。\nSammyeong Tonghoe, 論支元六合"
+                }
+              ]
+            },
+            "sourceRef": "sammyeong-tonghoe/tags#branch_hap"
+          },
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "You were born in summer or winter and your chart runs too hot or too cold, so we set your "
+                },
+                {
+                  "term": "role.yongsin",
+                  "text": "Yongsin"
+                },
+                {
+                  "text": " by the Johu method, which evens out temperature. The element that fits your Day Master in the 巳 month follows the Johu table of Gungtong Bogam."
+                }
+              ]
+            },
+            "detail": {
+              "month_branch": "巳",
+              "share": "0.3143",
+              "threshold": "0.3000"
+            },
+            "ruleId": "yongsin/johu",
+            "source": {
+              "segments": [
+                {
+                  "text": "For a Gyeonggeum Day Master born in the fourth month, Byeonghwa does not melt metal, so the flames are no threat and Byeonghwa can be used too, but Imsu must come first to reach balance; hence metal born in summer welcomes earth.\n丙不鎔金，故不畏火炎，丙亦可作用，但先壬水，方得中和，故曰羣金生夏，喜用勾陳。\nGungtong Bogam, 四月庚"
+                }
+              ]
+            },
+            "sourceRef": "gungtong-bogam/johu_evidence#庚.巳"
+          }
+        ],
+        "messageKey": "fortune.tag.harmony",
+        "reactable": true,
+        "slot": "daily.fortune.tag",
+        "text": {
+          "segments": [
+            {
+              "text": "Set a date for the contract or plan you've put off."
+            }
+          ]
+        },
+        "todayReason": {
+          "segments": [
+            {
+              "text": "Today's day pillar meets your chart, and this tag comes in with it."
+            }
+          ]
+        },
+        "variant": "advice"
+      }
+    },
+    "guide": {
+      "evidence": [
+        {
+          "basis": {
+            "segments": [
+              {
+                "text": "We chose today's question from the top tag of the day if there is one, and if not, from Bigyeop, the group today's heavenly stem falls into for your Day Master."
+              }
+            ]
+          },
+          "detail": {
+            "basis": "tag.harmony",
+            "ten_god": "BIGYEON"
+          },
+          "ruleId": "guide/question",
+          "source": {
+            "segments": [
+              {
+                "text": "Hap means getting along: when yin and yang get along, their energies join on their own.\n夫合者，和也，乃陰陽相和，其氣自合。\nSammyeong Tonghoe, 論支元六合"
+              }
+            ]
+          },
+          "sourceRef": "sammyeong-tonghoe/tags#branch_hap"
+        }
+      ],
+      "messageKey": "guide.harmony",
+      "reactable": false,
+      "slot": "daily.guide",
+      "text": {
+        "segments": [
+          {
+            "text": "If a conversation clicked today, how about writing it down?"
+          }
+        ]
+      },
+      "variant": "1"
+    },
+    "guideCandidates": [
+      {
+        "evidence": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "We chose today's question from the top tag of the day if there is one, and if not, from Bigyeop, the group today's heavenly stem falls into for your Day Master."
+                }
+              ]
+            },
+            "detail": {
+              "basis": "tag.harmony",
+              "ten_god": "BIGYEON"
+            },
+            "ruleId": "guide/question",
+            "source": {
+              "segments": [
+                {
+                  "text": "Hap means getting along: when yin and yang get along, their energies join on their own.\n夫合者，和也，乃陰陽相和，其氣自合。\nSammyeong Tonghoe, 論支元六合"
+                }
+              ]
+            },
+            "sourceRef": "sammyeong-tonghoe/tags#branch_hap"
+          }
+        ],
+        "messageKey": "guide.harmony",
+        "reactable": false,
+        "slot": "daily.guide",
+        "text": {
+          "segments": [
+            {
+              "text": "If a conversation clicked today, how about writing it down?"
+            }
+          ]
+        },
+        "variant": "1"
+      },
+      {
+        "evidence": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "We chose today's question from the top tag of the day if there is one, and if not, from Bigyeop, the group today's heavenly stem falls into for your Day Master."
+                }
+              ]
+            },
+            "detail": {
+              "basis": "tag.harmony",
+              "ten_god": "BIGYEON"
+            },
+            "ruleId": "guide/question",
+            "source": {
+              "segments": [
+                {
+                  "text": "Hap means getting along: when yin and yang get along, their energies join on their own.\n夫合者，和也，乃陰陽相和，其氣自合。\nSammyeong Tonghoe, 論支元六合"
+                }
+              ]
+            },
+            "sourceRef": "sammyeong-tonghoe/tags#branch_hap"
+          }
+        ],
+        "messageKey": "guide.harmony",
+        "reactable": false,
+        "slot": "daily.guide",
+        "text": {
+          "segments": [
+            {
+              "text": "Was there someone who was good company today?"
+            }
+          ]
+        },
+        "variant": "2"
+      },
+      {
+        "evidence": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "We chose today's question from the top tag of the day if there is one, and if not, from Bigyeop, the group today's heavenly stem falls into for your Day Master."
+                }
+              ]
+            },
+            "detail": {
+              "basis": "tag.ten_god_rush.bigyeop",
+              "ten_god": "BIGYEON"
+            },
+            "ruleId": "guide/question",
+            "sourceRef": ""
+          }
+        ],
+        "messageKey": "guide.ten_god_rush.bigyeop",
+        "reactable": false,
+        "slot": "daily.guide",
+        "text": {
+          "segments": [
+            {
+              "text": "How about writing down a view you wanted to hold on to today?"
+            }
+          ]
+        },
+        "variant": "1"
+      },
+      {
+        "evidence": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "We chose today's question from the top tag of the day if there is one, and if not, from Bigyeop, the group today's heavenly stem falls into for your Day Master."
+                }
+              ]
+            },
+            "detail": {
+              "basis": "BIGYEOP",
+              "ten_god": "BIGYEON"
+            },
+            "ruleId": "guide/question",
+            "source": {
+              "segments": [
+                {
+                  "text": "Yangin, Bigyeon, Paejae and Geonrok have different names but are really one family of the same energy.\n余按陽刃比肩敗財建祿名雖不同實一家同氣之神\nSammyeong Tonghoe, 論建祿"
+                }
+              ]
+            },
+            "sourceRef": "sammyeong-tonghoe/personal#ten_god.geonrok"
+          }
+        ],
+        "messageKey": "guide.ten_god.bigyeop",
+        "reactable": false,
+        "slot": "daily.guide",
+        "text": {
+          "segments": [
+            {
+              "text": "If you spent time with someone today, how about writing about it?"
+            }
+          ]
+        },
+        "variant": "1"
+      }
+    ],
+    "lunar": {
+      "day": 3,
+      "isLeapMonth": false,
+      "month": 9
+    },
+    "notices": [],
+    "relations": [
+      {
+        "kind": "branch_hap",
+        "natalPosition": "month_branch",
+        "suppressed": false
+      },
+      {
+        "kind": "hyeong",
+        "natalPosition": "month_branch",
+        "suppressed": false
+      }
+    ],
+    "rulesetVersion": "2026.11.9",
+    "tags": {
+      "all": [
+        "harmony",
+        "ten_god_rush.bigyeop",
+        "gongmang",
+        "yeokma",
+        "gosin"
+      ],
+      "featured": [
+        {
+          "key": "harmony",
+          "polarity": "good"
+        },
+        {
+          "key": "ten_god_rush.bigyeop",
+          "polarity": "neutral"
+        }
+      ]
+    }
+  }
+}

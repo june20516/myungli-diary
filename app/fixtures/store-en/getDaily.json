@@ -1,0 +1,776 @@
+{
+  "status": 200,
+  "body": {
+    "cards": {
+      "color": {
+        "element": "water",
+        "role": "yongsin",
+        "text": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "On a Day"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "Each element has"
+                  }
+                ]
+              }
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "The classics hold"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "The true colors"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "color.ordinary_day",
+          "reactable": false,
+          "slot": "daily.color",
+          "text": {
+            "segments": [
+              {
+                "text": "Your chart needs Water energy, so black suits you today."
+              }
+            ]
+          },
+          "todayReason": {
+            "segments": [
+              {
+                "text": "We chose the color of the energy that supports your chart."
+              }
+            ]
+          },
+          "variant": "single"
+        }
+      },
+      "direction": {
+        "direction": "nw",
+        "text": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "Since it's an"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "The north gives"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "direction.day_kind.ordinary.mo",
+          "reactable": false,
+          "slot": "daily.direction_relation",
+          "text": {
+            "segments": [
+              {
+                "text": "Head Northwest, the way of Metal, which generates the Water energy your chart needs."
+              }
+            ]
+          },
+          "todayReason": {
+            "segments": [
+              {
+                "text": "Of the calendar's lucky directions, we chose the one of the energy that backs up your chart."
+              }
+            ]
+          },
+          "variant": "single"
+        }
+      },
+      "focusTime": {
+        "fallback": false,
+        "hours": [
+          {
+            "branch": "jin",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T09:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-13T07:30:00+09:00"
+          },
+          {
+            "branch": "sa",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T11:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-13T09:30:00+09:00"
+          },
+          {
+            "branch": "o",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T13:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-13T11:30:00+09:00"
+          },
+          {
+            "branch": "mi",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T15:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-13T13:30:00+09:00"
+          },
+          {
+            "branch": "shin",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T17:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-13T15:30:00+09:00"
+          },
+          {
+            "branch": "yu",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T19:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-13T17:30:00+09:00"
+          },
+          {
+            "branch": "sul",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T21:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-13T19:30:00+09:00"
+          }
+        ],
+        "picks": [
+          {
+            "branch": "shin",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T17:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-13T15:30:00+09:00"
+          }
+        ],
+        "text": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We favored hours"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "The hour serves"
+                  }
+                ]
+              }
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We favored hours"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "People of old"
+                  }
+                ]
+              }
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We also checked"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "When counting hours"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "focus_time.day",
+          "reactable": false,
+          "slot": "daily.focus_time",
+          "text": {
+            "segments": [
+              {
+                "text": "This is a good time for important things."
+              }
+            ]
+          },
+          "variant": "single"
+        }
+      },
+      "nightFocusTime": {
+        "fallback": false,
+        "hours": [
+          {
+            "branch": "hae",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T23:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-13T21:30:00+09:00"
+          },
+          {
+            "branch": "ja",
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "branch": "yu",
+              "stem": "sin"
+            },
+            "end": "2026-10-14T01:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-13T23:30:00+09:00"
+          },
+          {
+            "branch": "chuk",
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "branch": "yu",
+              "stem": "sin"
+            },
+            "end": "2026-10-14T03:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-14T01:30:00+09:00"
+          },
+          {
+            "branch": "in",
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "branch": "yu",
+              "stem": "sin"
+            },
+            "end": "2026-10-14T05:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-14T03:30:00+09:00"
+          },
+          {
+            "branch": "myo",
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "branch": "yu",
+              "stem": "sin"
+            },
+            "end": "2026-10-14T07:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-14T05:30:00+09:00"
+          }
+        ],
+        "picks": [
+          {
+            "branch": "chuk",
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "branch": "yu",
+              "stem": "sin"
+            },
+            "end": "2026-10-14T03:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-14T01:30:00+09:00"
+          }
+        ],
+        "text": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We favored hours"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "The hour serves"
+                  }
+                ]
+              }
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We favored hours"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "People of old"
+                  }
+                ]
+              }
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We also checked"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "When counting hours"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "focus_time.night",
+          "reactable": false,
+          "slot": "daily.focus_time",
+          "text": {
+            "segments": [
+              {
+                "text": "If you have something to do at night, this is a good time."
+              }
+            ]
+          },
+          "variant": "single"
+        }
+      },
+      "number": {
+        "number": 1,
+        "text": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "Of the two"
+                  }
+                ]
+              },
+              "source": {
+                "segments": [
+                  {
+                    "text": "Each element has"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "number.ordinary_day",
+          "reactable": false,
+          "slot": "daily.number",
+          "text": {
+            "segments": [
+              {
+                "text": "Of the Water numbers, 1 fits today's heavenly stem Gyeonggeum."
+              }
+            ]
+          },
+          "todayReason": {
+            "segments": [
+              {
+                "text": "Of the numbers that share today's color energy, we chose the one that matches the yin or yang of today's heavenly stem."
+              }
+            ]
+          },
+          "variant": "single"
+        }
+      }
+    },
+    "characterReason": {
+      "messageKey": "character.reason.ordinary_day",
+      "reactable": false,
+      "slot": "character.reason",
+      "text": {
+        "segments": [
+          {
+            "text": "An ordinary day, with no particular energy helping or holding you back."
+          }
+        ]
+      },
+      "variant": "single"
+    },
+    "date": "2026-10-13",
+    "dayKind": "ordinary_day",
+    "dayPillar": {
+      "branch": "shin",
+      "stem": "gyeong"
+    },
+    "dayStemTenGod": "bigyeon",
+    "dayStemTenGodGroup": "bigyeop",
+    "dayVirtues": [],
+    "evidenceAccess": "locked",
+    "fortune": {
+      "head": {
+        "evidencePreview": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "Today is marked"
+                }
+              ]
+            },
+            "source": {
+              "segments": [
+                {
+                  "text": "Yangin, Bigyeon, Paejae"
+                }
+              ]
+            }
+          },
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "You were born"
+                }
+              ]
+            },
+            "source": {
+              "segments": [
+                {
+                  "text": "For a Gyeonggeum"
+                }
+              ]
+            }
+          }
+        ],
+        "messageKey": "fortune.ordinary_day.bigyeop",
+        "reactable": true,
+        "slot": "daily.fortune.head",
+        "text": {
+          "segments": [
+            {
+              "text": "Work at your own pace instead of matching others."
+            }
+          ]
+        },
+        "todayReason": {
+          "segments": [
+            {
+              "text": "This energy comes from how today's heavenly stem relates to your Day Master."
+            }
+          ]
+        },
+        "variant": "advice"
+      },
+      "tag": {
+        "evidencePreview": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "We chose the"
+                }
+              ]
+            },
+            "source": {
+              "segments": [
+                {
+                  "text": "Hap means getting"
+                }
+              ]
+            }
+          },
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "You were born"
+                }
+              ]
+            },
+            "source": {
+              "segments": [
+                {
+                  "text": "For a Gyeonggeum"
+                }
+              ]
+            }
+          }
+        ],
+        "messageKey": "fortune.tag.harmony",
+        "reactable": true,
+        "slot": "daily.fortune.tag",
+        "text": {
+          "segments": [
+            {
+              "text": "Set a date for the contract or plan you've put off."
+            }
+          ]
+        },
+        "todayReason": {
+          "segments": [
+            {
+              "text": "Today's day pillar meets your chart, and this tag comes in with it."
+            }
+          ]
+        },
+        "variant": "advice"
+      }
+    },
+    "guide": {
+      "evidencePreview": [
+        {
+          "basis": {
+            "segments": [
+              {
+                "text": "We chose today's"
+              }
+            ]
+          },
+          "source": {
+            "segments": [
+              {
+                "text": "Hap means getting"
+              }
+            ]
+          }
+        }
+      ],
+      "messageKey": "guide.harmony",
+      "reactable": false,
+      "slot": "daily.guide",
+      "text": {
+        "segments": [
+          {
+            "text": "If a conversation clicked today, how about writing it down?"
+          }
+        ]
+      },
+      "variant": "1"
+    },
+    "guideCandidates": [
+      {
+        "evidencePreview": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "We chose today's"
+                }
+              ]
+            },
+            "source": {
+              "segments": [
+                {
+                  "text": "Hap means getting"
+                }
+              ]
+            }
+          }
+        ],
+        "messageKey": "guide.harmony",
+        "reactable": false,
+        "slot": "daily.guide",
+        "text": {
+          "segments": [
+            {
+              "text": "If a conversation clicked today, how about writing it down?"
+            }
+          ]
+        },
+        "variant": "1"
+      },
+      {
+        "evidencePreview": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "We chose today's"
+                }
+              ]
+            },
+            "source": {
+              "segments": [
+                {
+                  "text": "Hap means getting"
+                }
+              ]
+            }
+          }
+        ],
+        "messageKey": "guide.harmony",
+        "reactable": false,
+        "slot": "daily.guide",
+        "text": {
+          "segments": [
+            {
+              "text": "Was there someone who was good company today?"
+            }
+          ]
+        },
+        "variant": "2"
+      },
+      {
+        "evidencePreview": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "We chose today's"
+                }
+              ]
+            }
+          }
+        ],
+        "messageKey": "guide.ten_god_rush.bigyeop",
+        "reactable": false,
+        "slot": "daily.guide",
+        "text": {
+          "segments": [
+            {
+              "text": "How about writing down a view you wanted to hold on to today?"
+            }
+          ]
+        },
+        "variant": "1"
+      },
+      {
+        "evidencePreview": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "We chose today's"
+                }
+              ]
+            },
+            "source": {
+              "segments": [
+                {
+                  "text": "Yangin, Bigyeon, Paejae"
+                }
+              ]
+            }
+          }
+        ],
+        "messageKey": "guide.ten_god.bigyeop",
+        "reactable": false,
+        "slot": "daily.guide",
+        "text": {
+          "segments": [
+            {
+              "text": "If you spent time with someone today, how about writing about it?"
+            }
+          ]
+        },
+        "variant": "1"
+      }
+    ],
+    "lunar": {
+      "day": 3,
+      "isLeapMonth": false,
+      "month": 9
+    },
+    "notices": [],
+    "relations": [
+      {
+        "kind": "branch_hap",
+        "natalPosition": "month_branch",
+        "suppressed": false
+      },
+      {
+        "kind": "hyeong",
+        "natalPosition": "month_branch",
+        "suppressed": false
+      }
+    ],
+    "rulesetVersion": "2026.11.9",
+    "tags": {
+      "all": [
+        "harmony",
+        "ten_god_rush.bigyeop",
+        "gongmang",
+        "yeokma",
+        "gosin"
+      ],
+      "featured": [
+        {
+          "key": "harmony",
+          "polarity": "good"
+        },
+        {
+          "key": "ten_god_rush.bigyeop",
+          "polarity": "neutral"
+        }
+      ]
+    }
+  }
+}

@@ -437,5 +437,65 @@
     "network": "online",
     "signedIn": true,
     "description": "daily-pair-virtue와 같은 날(2026-10-19, 행운 색 둘, 천덕일과 월덕일)의 근거가 열린 응답입니다. evidence-unlocked처럼 근거 열람 권한이 있어 오늘(getDaily)이 evidenceAccess unlocked로 와 덕일과 두 색 문장의 근거 전부(evidence)를 담습니다."
+  },
+  {
+    "id": "store-ko",
+    "locale": "ko-KR",
+    "extends": "member",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": true,
+    "description": "스토어 스크린샷(한국어, #1203, D133). member와 같은 출생 정보의 데모 프로필(언어 ko)로 로컬 server가 렌더한 응답(오늘, 달력 9~11월, 나의 사주, 용어 사전, tool/store_fixtures.sh)입니다. 근거는 잠겨 있습니다."
+  },
+  {
+    "id": "store-ko-unlocked",
+    "locale": "ko-KR",
+    "extends": "store-ko",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": true,
+    "description": "store-ko와 같은 날의 근거가 열린 응답(오늘, 나의 사주)입니다. 권한(getMe, getEntitlements)은 evidence-unlocked와 같은 광고 한 편 권한이라 열림 꼬리표가 끝 시각입니다."
+  },
+  {
+    "id": "store-en",
+    "locale": "en-US",
+    "extends": "member",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": true,
+    "description": "스토어 스크린샷(영어, #1203, D133). member와 같은 출생 정보의 데모 프로필(언어 en)로 로컬 server가 렌더한 응답(오늘, 달력 9~11월, 나의 사주, 용어 사전, tool/store_fixtures.sh)입니다. 근거는 잠겨 있습니다. 일기와 일정 글은 영어로 옮긴 데모 글입니다(tool/store_user_data.json)."
+  },
+  {
+    "id": "store-en-unlocked",
+    "locale": "en-US",
+    "extends": "store-en",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": true,
+    "description": "store-en와 같은 날의 근거가 열린 응답(오늘, 나의 사주)입니다. 권한(getMe, getEntitlements)은 evidence-unlocked와 같은 광고 한 편 권한이라 열림 꼬리표가 끝 시각입니다."
+  },
+  {
+    "id": "store-ja",
+    "locale": "ja-JP",
+    "extends": "member",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": true,
+    "description": "스토어 스크린샷(일본어, #1203, D133). member와 같은 출생 정보의 데모 프로필(언어 ja)로 로컬 server가 렌더한 응답(오늘, 달력 9~11월, 나의 사주, 용어 사전, tool/store_fixtures.sh)입니다. 근거는 잠겨 있습니다. 일기와 일정 글은 일본어로 옮긴 데모 글입니다(tool/store_user_data.json)."
+  },
+  {
+    "id": "store-ja-unlocked",
+    "locale": "ja-JP",
+    "extends": "store-ja",
+    "today": "2026-10-13",
+    "timezone": "Asia/Seoul",
+    "network": "online",
+    "signedIn": true,
+    "description": "store-ja와 같은 날의 근거가 열린 응답(오늘, 나의 사주)입니다. 권한(getMe, getEntitlements)은 evidence-unlocked와 같은 광고 한 편 권한이라 열림 꼬리표가 끝 시각입니다."
   }
 ]

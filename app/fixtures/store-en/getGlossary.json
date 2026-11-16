@@ -1,0 +1,1097 @@
+{
+  "status": 200,
+  "body": {
+    "hanja": {
+      "branch.chuk": "丑",
+      "branch.hae": "亥",
+      "branch.in": "寅",
+      "branch.ja": "子",
+      "branch.jin": "辰",
+      "branch.mi": "未",
+      "branch.myo": "卯",
+      "branch.o": "午",
+      "branch.sa": "巳",
+      "branch.shin": "申",
+      "branch.sul": "戌",
+      "branch.yu": "酉",
+      "element.earth": "土",
+      "element.fire": "火",
+      "element.metal": "金",
+      "element.water": "水",
+      "element.wood": "木",
+      "luck.daeun": "大運",
+      "luck.seun": "歲運",
+      "relation.branch_hap": "地支合",
+      "relation.chung": "沖",
+      "relation.hyeong": "刑",
+      "relation.stem_hap": "天干合",
+      "role.day_master": "日干",
+      "role.gisin": "忌神",
+      "role.huisin": "喜神",
+      "role.neutral": "閑神",
+      "role.yongsin": "用神",
+      "shinsal.amrok": "暗祿",
+      "shinsal.cheondeok": "天德貴人",
+      "shinsal.cheoneul_gwiin": "天乙貴人",
+      "shinsal.cheonra_jimang": "天羅地網",
+      "shinsal.dohwa": "桃花",
+      "shinsal.eumchak_yangcha": "陰錯陽差",
+      "shinsal.geumyeo": "金轝祿",
+      "shinsal.goegang": "魁罡",
+      "shinsal.gongmang": "空亡",
+      "shinsal.gosin": "孤辰",
+      "shinsal.gugyo": "勾絞",
+      "shinsal.gwasuk": "寡宿",
+      "shinsal.hwagae": "華蓋",
+      "shinsal.samgi": "三奇",
+      "shinsal.sipak_daepae": "十惡大敗",
+      "shinsal.woldeok": "月德貴人",
+      "shinsal.wonjin": "元嗔",
+      "shinsal.yangin": "羊刃",
+      "shinsal.yeokma": "驛馬",
+      "stem.byeong": "丙",
+      "stem.eul": "乙",
+      "stem.gap": "甲",
+      "stem.gi": "己",
+      "stem.gye": "癸",
+      "stem.gyeong": "庚",
+      "stem.im": "壬",
+      "stem.jeong": "丁",
+      "stem.mu": "戊",
+      "stem.sin": "辛",
+      "tag.cheoneul_gwiin": "天乙貴人",
+      "tag.dohwa": "桃花",
+      "tag.gongmang": "空亡",
+      "tag.gosin": "孤辰",
+      "tag.gwasuk": "寡宿",
+      "tag.hwagae": "華蓋",
+      "tag.wonjin": "元嗔",
+      "tag.yeokma": "驛馬",
+      "ten_god.bigyeon": "比肩",
+      "ten_god.geopjae": "劫財",
+      "ten_god.jeonggwan": "正官",
+      "ten_god.jeongin": "正印",
+      "ten_god.jeongjae": "正財",
+      "ten_god.pyeongwan": "偏官",
+      "ten_god.pyeonin": "偏印",
+      "ten_god.pyeonjae": "偏財",
+      "ten_god.sanggwan": "傷官",
+      "ten_god.siksin": "食神",
+      "ten_god_group.bigyeop": "比劫",
+      "ten_god_group.gwanseong": "官星",
+      "ten_god_group.inseong": "印星",
+      "ten_god_group.jaeseong": "財星",
+      "ten_god_group.siksang": "食傷",
+      "twelve_stage.byeong": "病",
+      "twelve_stage.geonrok": "建祿",
+      "twelve_stage.gwandae": "冠帶",
+      "twelve_stage.jangsaeng": "長生",
+      "twelve_stage.jeol": "絶",
+      "twelve_stage.jewang": "帝旺",
+      "twelve_stage.mokyok": "沐浴",
+      "twelve_stage.myo": "墓",
+      "twelve_stage.sa": "死",
+      "twelve_stage.soe": "衰",
+      "twelve_stage.tae": "胎",
+      "twelve_stage.yang": "養"
+    },
+    "lang": "en",
+    "meanings": {
+      "branch.chuk": {
+        "segments": [
+          {
+            "text": "The earthly branch of the Ox. It stands for late winter and the hours before dawn."
+          }
+        ]
+      },
+      "branch.hae": {
+        "segments": [
+          {
+            "text": "The earthly branch of the Pig. It stands for early winter and night."
+          }
+        ]
+      },
+      "branch.in": {
+        "segments": [
+          {
+            "text": "The earthly branch of the Tiger. It stands for early spring and dawn."
+          }
+        ]
+      },
+      "branch.ja": {
+        "segments": [
+          {
+            "text": "The earthly branch of the Rat. It stands for midwinter and the middle of the night."
+          }
+        ]
+      },
+      "branch.jin": {
+        "segments": [
+          {
+            "text": "The earthly branch of the Dragon. It stands for late spring and morning."
+          }
+        ]
+      },
+      "branch.mi": {
+        "segments": [
+          {
+            "text": "The earthly branch of the Goat. It stands for late summer and early afternoon."
+          }
+        ]
+      },
+      "branch.myo": {
+        "segments": [
+          {
+            "text": "The earthly branch of the Rabbit. It stands for mid-spring and sunrise."
+          }
+        ]
+      },
+      "branch.o": {
+        "segments": [
+          {
+            "text": "The earthly branch of the Horse. It stands for midsummer and midday."
+          }
+        ]
+      },
+      "branch.sa": {
+        "segments": [
+          {
+            "text": "The earthly branch of the Snake. It stands for early summer and late morning."
+          }
+        ]
+      },
+      "branch.shin": {
+        "segments": [
+          {
+            "text": "The earthly branch of the Monkey. It stands for early autumn and late afternoon."
+          }
+        ]
+      },
+      "branch.sul": {
+        "segments": [
+          {
+            "text": "The earthly branch of the Dog. It stands for late autumn and early evening."
+          }
+        ]
+      },
+      "branch.yu": {
+        "segments": [
+          {
+            "text": "The earthly branch of the Rooster. It stands for mid-autumn and sunset."
+          }
+        ]
+      },
+      "day_kind.gisin_day": {
+        "segments": [
+          {
+            "text": "A day when an energy that doesn't suit your chart comes in. It's a good day to keep to what you're already doing without pushing yourself."
+          }
+        ]
+      },
+      "day_kind.gwiin_day": {
+        "segments": [
+          {
+            "text": "A day when the day's energy reaches your chart as a helper. People who can help you tend to come close."
+          }
+        ]
+      },
+      "day_kind.ordinary_day": {
+        "segments": [
+          {
+            "text": "A day when the energy coming in does little to help or hold back your chart. It's a good day to go about things as you usually do."
+          }
+        ]
+      },
+      "day_kind.yongsin_day": {
+        "segments": [
+          {
+            "text": "A day when the energy your chart needs most comes in. It's a good day to work through things you've put off."
+          }
+        ]
+      },
+      "element.earth": {
+        "segments": [
+          {
+            "text": "The nature of soil, taking things in and holding them in place. In a person, it shows as the wish to connect people and keep things steady."
+          }
+        ]
+      },
+      "element.fire": {
+        "segments": [
+          {
+            "text": "The nature of a flame, burning and spreading light. In a person, it shows as the wish to show and express what's inside."
+          }
+        ]
+      },
+      "element.metal": {
+        "segments": [
+          {
+            "text": "The nature of iron, hard and sharp enough to cut cleanly. In a person, it shows as the wish to tell right from wrong and see things through."
+          }
+        ]
+      },
+      "element.water": {
+        "segments": [
+          {
+            "text": "The nature of water, flowing to low places and soaking in. In a person, it shows as a habit of thinking deeply and quietly taking things in."
+          }
+        ]
+      },
+      "element.wood": {
+        "segments": [
+          {
+            "text": "The nature of a tree, growing upward and spreading in every direction. In a person, it shows as the wish to start something new and help it grow."
+          }
+        ]
+      },
+      "luck.daeun": {
+        "segments": [
+          {
+            "text": "A big current that changes every 10 years, like the seasons of a life."
+          }
+        ]
+      },
+      "luck.seun": {
+        "segments": [
+          {
+            "text": "The current of a single year, changing each year. It shows how the energy coming in that year gets along with your chart."
+          }
+        ]
+      },
+      "relation.branch_hap": {
+        "segments": [
+          {
+            "text": "Two earthly branches locking together as one. Relationships tend to grow closer and work tends to fit together well."
+          }
+        ]
+      },
+      "relation.chung": {
+        "segments": [
+          {
+            "text": "Two earthly branches on opposite sides colliding. Plans may change, or you may end up moving somewhere new."
+          }
+        ]
+      },
+      "relation.hyeong": {
+        "segments": [
+          {
+            "text": "Earthly branches wearing each other down. Small frictions or things to fix tend to surface, so it helps to look things over carefully."
+          }
+        ]
+      },
+      "relation.stem_hap": {
+        "segments": [
+          {
+            "text": "Two heavenly stems drawn to each other and pairing up. People or plans may join hands when you don't expect it."
+          }
+        ]
+      },
+      "role.day_master": {
+        "segments": [
+          {
+            "text": "The heavenly stem of the day you were born, standing for you yourself in your chart. How the characters around it relate to you is all read from your day master."
+          }
+        ]
+      },
+      "role.gisin": {
+        "segments": [
+          {
+            "text": "An element that doesn't suit your chart. When this energy is strong, it's best not to push yourself."
+          }
+        ]
+      },
+      "role.huisin": {
+        "segments": [
+          {
+            "text": "An element that backs up the one your chart needs most. It's not quite as strong, but it's still a welcome energy."
+          }
+        ]
+      },
+      "role.neutral": {
+        "segments": [
+          {
+            "text": "An element that does little to help or harm your chart. On its own, it's an easygoing energy."
+          }
+        ]
+      },
+      "role.yongsin": {
+        "segments": [
+          {
+            "text": "The element your chart needs most to stay in balance. Things tend to go well when this energy comes in."
+          }
+        ]
+      },
+      "shinsal.amrok": {
+        "segments": [
+          {
+            "text": "A shinsal for hidden fortune. Help tends to come from places you can't see."
+          }
+        ]
+      },
+      "shinsal.cheondeok": {
+        "segments": [
+          {
+            "text": "A shinsal for the virtue of heaven. The classics say it turns misfortune toward good."
+          }
+        ]
+      },
+      "shinsal.cheoneul_gwiin": {
+        "segments": [
+          {
+            "text": "The shinsal for the most valued kind of help. It's read as the luck of someone unexpected lending you a hand when things are hard."
+          }
+        ]
+      },
+      "shinsal.cheonra_jimang": {
+        "segments": [
+          {
+            "text": "A shinsal for the nets of heaven and earth. Things tend to stall and move slowly."
+          }
+        ]
+      },
+      "shinsal.dohwa": {
+        "segments": [
+          {
+            "text": "A shinsal for the charm that draws people's eyes. It can show as popularity, and also as talk about your love life or a wandering heart."
+          }
+        ]
+      },
+      "shinsal.eumchak_yangcha": {
+        "segments": [
+          {
+            "text": "A shinsal for yin and yang falling out of step. The classics count it as unlucky, but it's weighed together with other energies."
+          }
+        ]
+      },
+      "shinsal.geumyeo": {
+        "segments": [
+          {
+            "text": "A shinsal for a carriage trimmed with gold. It's read as a seat where comfort and honor tend to follow."
+          }
+        ]
+      },
+      "shinsal.goegang": {
+        "segments": [
+          {
+            "text": "A shinsal for the lead stars of the Big Dipper. Its energy is strong, so good times and blocked times split sharply."
+          }
+        ]
+      },
+      "shinsal.gongmang": {
+        "segments": [
+          {
+            "text": "A shinsal for an empty seat. Results may not show right away for the effort you put in, so it's read as a time to want a little less."
+          }
+        ]
+      },
+      "shinsal.gosin": {
+        "segments": [
+          {
+            "text": "A shinsal for a lone star. The classics say it doesn't favor ties with close family."
+          }
+        ]
+      },
+      "shinsal.gugyo": {
+        "segments": [
+          {
+            "text": "A shinsal for tangling and tightening. It's read as a reason to watch for quarrels and entanglements."
+          }
+        ]
+      },
+      "shinsal.gwasuk": {
+        "segments": [
+          {
+            "text": "A shinsal for a star that lodges alone. It pairs with Gosin, and ties with close family tend to thin."
+          }
+        ]
+      },
+      "shinsal.hwagae": {
+        "segments": [
+          {
+            "text": "A shinsal for the power to look deep within on your own. It shows as getting absorbed in one thing, like study or art."
+          }
+        ]
+      },
+      "shinsal.samgi": {
+        "segments": [
+          {
+            "text": "A shinsal for three remarkable stems. It's read as lucky when Eul, Byeong, Jeong or Gap, Mu, Gyeong sit in order."
+          }
+        ]
+      },
+      "shinsal.sipak_daepae": {
+        "segments": [
+          {
+            "text": "A shinsal for being born on a day when the seat of your natural fortune is empty. The name sounds heavy, but the classics add that it's read as lucky when lucky energies support it."
+          }
+        ]
+      },
+      "shinsal.woldeok": {
+        "segments": [
+          {
+            "text": "A shinsal for the virtue of the month. Together with Cheondeok Gwiin, it keeps misfortune from growing severe."
+          }
+        ]
+      },
+      "shinsal.wonjin": {
+        "segments": [
+          {
+            "text": "A shinsal for zodiac signs that don't get along. We use the pairs common in Korea (Rat and Goat, Ox and Horse, and so on) for everyone, while the classics' section on Wonjin sets different pairs for men and women."
+          }
+        ]
+      },
+      "shinsal.yangin": {
+        "segments": [
+          {
+            "text": "A shinsal for drive as strong as a blade. With that much push, it's worth watching out for fights and injuries."
+          }
+        ]
+      },
+      "shinsal.yeokma": {
+        "segments": [
+          {
+            "text": "A shinsal that means a horse running far. It often shows as moving house, travel, or a busy stretch of getting from place to place."
+          }
+        ]
+      },
+      "stem.byeong": {
+        "segments": [
+          {
+            "text": "The third of the ten heavenly stems, like the midday sun shining bright. It hides nothing and lights up everything around it."
+          }
+        ]
+      },
+      "stem.eul": {
+        "segments": [
+          {
+            "text": "The second of the ten heavenly stems, like a wildflower that takes root anywhere. It bends to fit its situation and keeps on growing."
+          }
+        ]
+      },
+      "stem.gap": {
+        "segments": [
+          {
+            "text": "The first of the ten heavenly stems, like a tall tree growing straight up. It keeps steadily to a path once it's chosen."
+          }
+        ]
+      },
+      "stem.gi": {
+        "segments": [
+          {
+            "text": "The sixth of the ten heavenly stems, like a wide field where seeds grow. It takes things in and raises them step by step."
+          }
+        ]
+      },
+      "stem.gye": {
+        "segments": [
+          {
+            "text": "The tenth of the ten heavenly stems, like a spring of clear, still water. It quietly looks after what's around it."
+          }
+        ]
+      },
+      "stem.gyeong": {
+        "segments": [
+          {
+            "text": "The seventh of the ten heavenly stems, like solid metal that's yet to be shaped. It doesn't bend and decides things straight away."
+          }
+        ]
+      },
+      "stem.im": {
+        "segments": [
+          {
+            "text": "The ninth of the ten heavenly stems, like a great river flowing far. It takes in a lot and keeps moving without getting stuck."
+          }
+        ]
+      },
+      "stem.jeong": {
+        "segments": [
+          {
+            "text": "The fourth of the ten heavenly stems, like a lamp that lights up the dark. It keeps what's close by warm and lit for a long time."
+          }
+        ]
+      },
+      "stem.mu": {
+        "segments": [
+          {
+            "text": "The fifth of the ten heavenly stems, like a great mountain that holds its ground. It doesn't shake easily and stays put for others."
+          }
+        ]
+      },
+      "stem.sin": {
+        "segments": [
+          {
+            "text": "The eighth of the ten heavenly stems, like a finely cut gem. It sorts things with care and polishes them clean."
+          }
+        ]
+      },
+      "tag.cheoneul_gwiin": {
+        "segments": [
+          {
+            "text": "A shinsal for the most valued kind of help, so someone may lend you a hand when you least expect it."
+          }
+        ]
+      },
+      "tag.clash": {
+        "segments": [
+          {
+            "text": "Opposing energies colliding, so plans may change or opinions may split."
+          }
+        ]
+      },
+      "tag.clash_day_branch": {
+        "segments": [
+          {
+            "text": "Today's branch colliding with the branch of the day you were born, so you and those close to you are easily shaken."
+          }
+        ]
+      },
+      "tag.clash_month_branch": {
+        "segments": [
+          {
+            "text": "Today's branch colliding with the branch of the month you were born, so your work or surroundings are likely to change."
+          }
+        ]
+      },
+      "tag.dohwa": {
+        "segments": [
+          {
+            "text": "A shinsal for the pull that draws people's eyes. Today attention comes easily, and so can talk about romance."
+          }
+        ]
+      },
+      "tag.gongmang": {
+        "segments": [
+          {
+            "text": "A shinsal for an empty seat, so results may not show right away for the effort you put in."
+          }
+        ]
+      },
+      "tag.gosin": {
+        "segments": [
+          {
+            "text": "A shinsal for a lone star, so today you may feel apart from those around you."
+          }
+        ]
+      },
+      "tag.gwasuk": {
+        "segments": [
+          {
+            "text": "A shinsal for a star that lodges alone, so today close people may feel a little distant."
+          }
+        ]
+      },
+      "tag.gwiin_day": {
+        "segments": [
+          {
+            "text": "A day when people who help you come close, so it's a good time to ask for help."
+          }
+        ]
+      },
+      "tag.harmony": {
+        "segments": [
+          {
+            "text": "Different energies locking together as one, so people and work fit well."
+          }
+        ]
+      },
+      "tag.hwagae": {
+        "segments": [
+          {
+            "text": "A shinsal for looking deep within, so your mind turns easily to thoughts and hobbies."
+          }
+        ]
+      },
+      "tag.ten_god_rush.bigyeop": {
+        "segments": [
+          {
+            "text": "Bigyeop, already strong in your chart, comes in again that day, so you tend to put yourself and your share first."
+          }
+        ]
+      },
+      "tag.ten_god_rush.gwanseong": {
+        "segments": [
+          {
+            "text": "Gwanseong, already strong in your chart, comes in again that day, so duties and rules feel heavier."
+          }
+        ]
+      },
+      "tag.ten_god_rush.inseong": {
+        "segments": [
+          {
+            "text": "Inseong, already strong in your chart, comes in again that day, so thoughts multiply and you want someone to lean on."
+          }
+        ]
+      },
+      "tag.ten_god_rush.jaeseong": {
+        "segments": [
+          {
+            "text": "Jaeseong, already strong in your chart, comes in again that day, so your mind leans toward money and results."
+          }
+        ]
+      },
+      "tag.ten_god_rush.siksang": {
+        "segments": [
+          {
+            "text": "Siksang, already strong in your chart, comes in again that day, so words and expression tend to overflow."
+          }
+        ]
+      },
+      "tag.wonjin": {
+        "segments": [
+          {
+            "text": "A shinsal for signs that don't get along, so today small things may hurt your feelings."
+          }
+        ]
+      },
+      "tag.yeokma": {
+        "segments": [
+          {
+            "text": "A shinsal for movement, so trips and time outside tend to increase."
+          }
+        ]
+      },
+      "tag.yongsin_day": {
+        "segments": [
+          {
+            "text": "A day when the energy your chart needs comes in, so what you're doing tends to go smoothly."
+          }
+        ]
+      },
+      "ten_god.bigyeon": {
+        "segments": [
+          {
+            "text": "An energy on equal footing with you, like a friend or coworker at your side. It often shows as wanting to do things on your own, and as stubbornness."
+          }
+        ]
+      },
+      "ten_god.geopjae": {
+        "segments": [
+          {
+            "text": "An energy like a rival who resembles you and competes for your share. It shows as a drive not to lose and as bold decisions."
+          }
+        ]
+      },
+      "ten_god.jeonggwan": {
+        "segments": [
+          {
+            "text": "An energy for the rules and duties that keep you on the right track. It shows as keeping your promises and doing the job you're given."
+          }
+        ]
+      },
+      "ten_god.jeongin": {
+        "segments": [
+          {
+            "text": "An energy for the care and learning that look after you and help you grow. It shows as learning calmly and being grateful for the help you get."
+          }
+        ]
+      },
+      "ten_god.jeongjae": {
+        "segments": [
+          {
+            "text": "An energy for money saved bit by bit and the share you keep safe. It shows as being careful, thrifty, and dependable."
+          }
+        ]
+      },
+      "ten_god.pyeongwan": {
+        "segments": [
+          {
+            "text": "An energy for strict standards and challenges that toughen you up. It shows as the strength to hold on when things get hard."
+          }
+        ]
+      },
+      "ten_god.pyeonin": {
+        "segments": [
+          {
+            "text": "An energy for learning and seeing things by an unusual path. It shows as original ideas and digging deep into one thing."
+          }
+        ]
+      },
+      "ten_god.pyeonjae": {
+        "segments": [
+          {
+            "text": "An energy for money and chances that come and go in large amounts. It shows as a knack for taking on a lot and getting to know all kinds of people."
+          }
+        ]
+      },
+      "ten_god.sanggwan": {
+        "segments": [
+          {
+            "text": "An energy that puts your thoughts out into the world without holding back. It often shows as a sharp tongue and wit that breaks the mold."
+          }
+        ]
+      },
+      "ten_god.siksin": {
+        "segments": [
+          {
+            "text": "An energy that lets out what you have, easily and comfortably. It shows as time to eat and enjoy, and a knack for steadily making things."
+          }
+        ]
+      },
+      "ten_god_group.bigyeop": {
+        "segments": [
+          {
+            "text": "The name for Bigyeon and Geopjae together, the energy that stands shoulder to shoulder with you. It covers the drive to protect yourself and claim your share."
+          }
+        ]
+      },
+      "ten_god_group.gwanseong": {
+        "segments": [
+          {
+            "text": "The name for Pyeongwan and Jeonggwan together, the rules and duties that keep you in line. It covers your job, your good name, and promises you need to keep."
+          }
+        ]
+      },
+      "ten_god_group.inseong": {
+        "segments": [
+          {
+            "text": "The name for Pyeonin and Jeongin together, the learning and care that help you grow. It covers study, thinking, and the help you receive."
+          }
+        ]
+      },
+      "ten_god_group.jaeseong": {
+        "segments": [
+          {
+            "text": "The name for Pyeonjae and Jeongjae together, the money and results you handle and earn. It covers running a household, results at work, and a practical sense."
+          }
+        ]
+      },
+      "ten_god_group.siksang": {
+        "segments": [
+          {
+            "text": "The name for Siksin and Sanggwan together, the energy that brings what's inside you out. It covers talking, expressing yourself, and skill with your hands."
+          }
+        ]
+      },
+      "twelve_stage.byeong": {
+        "segments": [
+          {
+            "text": "The seventh of the twelve stages through which energy grows and fades, a time for looking inward and caring for yourself rather than rushing out."
+          }
+        ]
+      },
+      "twelve_stage.geonrok": {
+        "segments": [
+          {
+            "text": "The fourth of the twelve stages through which energy grows and fades, a time when you stand on your own and carry your share."
+          }
+        ]
+      },
+      "twelve_stage.gwandae": {
+        "segments": [
+          {
+            "text": "The third of the twelve stages through which energy grows and fades, a time when confidence builds and you step forward."
+          }
+        ]
+      },
+      "twelve_stage.jangsaeng": {
+        "segments": [
+          {
+            "text": "The first of the twelve stages through which energy grows and fades, a time when something new sprouts and grows."
+          }
+        ]
+      },
+      "twelve_stage.jeol": {
+        "segments": [
+          {
+            "text": "The tenth of the twelve stages through which energy grows and fades, a time when an old current ends and a new direction opens."
+          }
+        ]
+      },
+      "twelve_stage.jewang": {
+        "segments": [
+          {
+            "text": "The fifth of the twelve stages through which energy grows and fades, a time when strength is at its fullest."
+          }
+        ]
+      },
+      "twelve_stage.mokyok": {
+        "segments": [
+          {
+            "text": "The second of the twelve stages through which energy grows and fades, a time for trying this and that to get a feel for things."
+          }
+        ]
+      },
+      "twelve_stage.myo": {
+        "segments": [
+          {
+            "text": "The ninth of the twelve stages through which energy grows and fades, a time for gathering and keeping what you have."
+          }
+        ]
+      },
+      "twelve_stage.sa": {
+        "segments": [
+          {
+            "text": "The eighth of the twelve stages through which energy grows and fades, a time when movement quiets down and thoughts grow deeper."
+          }
+        ]
+      },
+      "twelve_stage.soe": {
+        "segments": [
+          {
+            "text": "The sixth of the twelve stages through which energy grows and fades, a time past the peak, when you handle things calmly with experience."
+          }
+        ]
+      },
+      "twelve_stage.tae": {
+        "segments": [
+          {
+            "text": "The eleventh of the twelve stages through which energy grows and fades, a time when new ideas are just forming."
+          }
+        ]
+      },
+      "twelve_stage.yang": {
+        "segments": [
+          {
+            "text": "The twelfth of the twelve stages through which energy grows and fades, a time for getting ready step by step, without hurrying."
+          }
+        ]
+      }
+    },
+    "seedVersion": "c7be1abef8bb689f",
+    "values": {
+      "branch": {
+        "chuk": "Ox",
+        "hae": "Pig",
+        "in": "Tiger",
+        "ja": "Rat",
+        "jin": "Dragon",
+        "mi": "Goat",
+        "myo": "Rabbit",
+        "o": "Horse",
+        "sa": "Snake",
+        "shin": "Monkey",
+        "sul": "Dog",
+        "yu": "Rooster"
+      },
+      "branch_reading": {
+        "chuk": "Chuk",
+        "hae": "Hae",
+        "in": "In",
+        "ja": "Ja",
+        "jin": "Jin",
+        "mi": "Mi",
+        "myo": "Myo",
+        "o": "O",
+        "sa": "Sa",
+        "shin": "Sin",
+        "sul": "Sul",
+        "yu": "Yu"
+      },
+      "color": {
+        "earth": "yellow",
+        "fire": "red",
+        "metal": "white",
+        "water": "black",
+        "wood": "green"
+      },
+      "day_kind": {
+        "gisin_day": "Day to go gently",
+        "gwiin_day": "Day of helpers",
+        "ordinary_day": "Ordinary day",
+        "yongsin_day": "Day in your favor"
+      },
+      "direction8": {
+        "e": "East",
+        "n": "North",
+        "ne": "Northeast",
+        "nw": "Northwest",
+        "s": "South",
+        "se": "Southeast",
+        "sw": "Southwest",
+        "w": "West"
+      },
+      "element": {
+        "earth": "Earth",
+        "fire": "Fire",
+        "metal": "Metal",
+        "water": "Water",
+        "wood": "Wood"
+      },
+      "focus_reason": {
+        "gwiin": "Helper time",
+        "hap": "Harmony time",
+        "huisin": "Supportive time",
+        "yongsin": "Favorable time"
+      },
+      "luck": {
+        "daeun": "10-year luck cycle",
+        "seun": "yearly luck cycle"
+      },
+      "part": {
+        "branch": "branch",
+        "gou": "Gu",
+        "jiao": "Gyo",
+        "stem": "stem",
+        "unknown": "Gugyo"
+      },
+      "place": {
+        "day_branch": "day branch",
+        "day_branch_hidden": "day hidden stem",
+        "day_stem": "day stem",
+        "hour_branch": "hour branch",
+        "hour_branch_hidden": "hour hidden stem",
+        "hour_stem": "hour stem",
+        "month_branch": "month branch",
+        "month_branch_hidden": "month hidden stem",
+        "month_stem": "month stem",
+        "year_branch": "year branch",
+        "year_branch_hidden": "year hidden stem",
+        "year_stem": "year stem"
+      },
+      "relation": {
+        "branch_hap": "Jijihap",
+        "chung": "Chung",
+        "hyeong": "Hyeong",
+        "stem_hap": "Cheonganhap"
+      },
+      "role": {
+        "day_master": "Day master",
+        "gisin": "not a great fit",
+        "huisin": "a good support",
+        "neutral": "a neutral one",
+        "yongsin": "a good fit for you"
+      },
+      "score_item": {
+        "chung_day_or_month": "Day/month Chung",
+        "chung_other": "Other Chung",
+        "gisin_day": "Day to go gently",
+        "gwiin_day": "Day of helpers",
+        "hap": "Hap",
+        "hyeong": "Hyeong",
+        "yongsin_day": "Day in your favor"
+      },
+      "shinsal": {
+        "amrok": "Amrok",
+        "cheondeok": "Cheondeok Gwiin",
+        "cheoneul_gwiin": "Cheoneul Gwiin",
+        "cheonra_jimang": "Cheonra Jimang",
+        "dohwa": "Dohwa",
+        "eumchak_yangcha": "Eumchak Yangcha",
+        "geumyeo": "Geumyeorok",
+        "goegang": "Goegang",
+        "gongmang": "Gongmang",
+        "gosin": "Gosin",
+        "gugyo": "Gugyo",
+        "gwasuk": "Gwasuk",
+        "hwagae": "Hwagae",
+        "samgi": "Samgi",
+        "sipak_daepae": "Sipak Daepae",
+        "woldeok": "Woldeok Gwiin",
+        "wonjin": "Wonjin",
+        "yangin": "Yangin",
+        "yeokma": "Yeokma"
+      },
+      "solar_term": {
+        "baengno": "Dew",
+        "cheongmyeong": "Clear",
+        "cheoseo": "E.Heat",
+        "chubun": "Au.Eq",
+        "chunbun": "Sp.Eq",
+        "daehan": "G.Cold",
+        "daeseo": "G.Heat",
+        "daeseol": "G.Snow",
+        "dongji": "Wi.Sol",
+        "gogu": "Grain",
+        "gyeongchip": "Insect",
+        "haji": "Su.Sol",
+        "hallo": "C.Dew",
+        "ipchu": "Autumn",
+        "ipchun": "Spring",
+        "ipdong": "Winter",
+        "ipha": "Summer",
+        "mangjong": "Ear",
+        "sanggang": "Frost",
+        "sohan": "S.Cold",
+        "soman": "Buds",
+        "soseo": "S.Heat",
+        "soseol": "S.Snow",
+        "usu": "Rain"
+      },
+      "stem": {
+        "byeong": "Byeonghwa",
+        "eul": "Eulmok",
+        "gap": "Gapmok",
+        "gi": "Gito",
+        "gye": "Gyesu",
+        "gyeong": "Gyeonggeum",
+        "im": "Imsu",
+        "jeong": "Jeonghwa",
+        "mu": "Muto",
+        "sin": "Singeum"
+      },
+      "stem_reading": {
+        "byeong": "Byeong",
+        "eul": "Eul",
+        "gap": "Gap",
+        "gi": "Gi",
+        "gye": "Gye",
+        "gyeong": "Gyeong",
+        "im": "Im",
+        "jeong": "Jeong",
+        "mu": "Mu",
+        "sin": "Sin"
+      },
+      "strength": {
+        "neutral": "well balanced",
+        "strong": "on the strong side",
+        "very_strong": "very strong",
+        "very_weak": "very weak",
+        "weak": "on the weak side"
+      },
+      "tag": {
+        "cheoneul_gwiin": "Noble helper",
+        "clash": "Clash",
+        "clash_day_branch": "Day branch clash",
+        "clash_month_branch": "Month branch clash",
+        "dohwa": "Peach blossom",
+        "gongmang": "Void",
+        "gosin": "Lone star",
+        "gwasuk": "Lone lodge",
+        "gwiin_day": "Day of helpers",
+        "harmony": "Harmony",
+        "hwagae": "Canopy star",
+        "ten_god_rush.bigyeop": "Peer-heavy day",
+        "ten_god_rush.gwanseong": "Duty-heavy day",
+        "ten_god_rush.inseong": "Learning-heavy day",
+        "ten_god_rush.jaeseong": "Wealth-heavy day",
+        "ten_god_rush.siksang": "Output-heavy day",
+        "wonjin": "Friction",
+        "yeokma": "Traveling horse",
+        "yongsin_day": "Day in your favor"
+      },
+      "ten_god": {
+        "bigyeon": "Bigyeon",
+        "geopjae": "Geopjae",
+        "jeonggwan": "Jeonggwan",
+        "jeongin": "Jeongin",
+        "jeongjae": "Jeongjae",
+        "pyeongwan": "Pyeongwan",
+        "pyeonin": "Pyeonin",
+        "pyeonjae": "Pyeonjae",
+        "sanggwan": "Sanggwan",
+        "siksin": "Siksin"
+      },
+      "ten_god_group": {
+        "bigyeop": "Bigyeop",
+        "gwanseong": "Gwanseong",
+        "inseong": "Inseong",
+        "jaeseong": "Jaeseong",
+        "siksang": "Siksang"
+      },
+      "twelve_stage": {
+        "byeong": "Byeong",
+        "geonrok": "Geonrok",
+        "gwandae": "Gwandae",
+        "jangsaeng": "Jangsaeng",
+        "jeol": "Jeol",
+        "jewang": "Jewang",
+        "mokyok": "Mogyok",
+        "myo": "Myo",
+        "sa": "Sa",
+        "soe": "Soe",
+        "tae": "Tae",
+        "yang": "Yang"
+      }
+    }
+  }
+}
