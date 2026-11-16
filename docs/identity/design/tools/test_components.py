@@ -446,7 +446,8 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_8_0_0():
+def test_contract_version_is_8_0_1():
+    # 8.0.1은 H1 지휘 점검(#1172): 요소 seal의 모양 기준을 elements.json seal.path로 적은 문구만이라 수 버전.
     # 8.0.0은 빌드 7 검수 묶음(V127~V131): depth-link block을 지워 주 버전. head-end, open.ring, term-token open, todayReselect 추가.
     # 7.7.0은 #1096(V126): timeBand 글자 1.3배 상한과 눈금 겹침 줄 내림 추가, #1063 전환 기준 문구라 부 버전.
     # 7.6.0은 #1091(D124 ⑦, V125): weighingNote 대상 목록 targets, notTargets를 writing 판단(#1090)에 맞춰 바꾼 값이라 부 버전.
@@ -456,7 +457,7 @@ def test_contract_version_is_8_0_0():
     # 7.2.0은 #1029 ①, #1034 drift(D124 ⑤, V119): 날짜 머리 덕일 virtue와 hanja-tag compact 추가라 부 버전.
     # 7.1.0은 #1020 drift(D123, V118): 행운 색, 시간 시트 근거 진입점과 시간 시트 제목 슬롯 추가라 부 버전.
     # 7.0.0은 #982, #1003(V114~V117), 6.3.0은 V110~V113, 6.2.0은 검수 회차2 묶음(V100~V109), 6.1.1은 #908(V99), 6.1.0은 #892(V98), 6.0.0은 #859 drift(V96)
-    assert VERSION == "8.0.0"
+    assert VERSION == "8.0.1"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
