@@ -102,7 +102,7 @@ func callback(txID, userID string) billing.RewardCallback {
 
 const rawQuery = "ad_unit=123&transaction_id=tx-1&user_id=x&signature=sig&key_id=1"
 
-func TestRewards_Grant_AccountWithProfile_GrantsUntilLocalMidnight(t *testing.T) {
+func TestRewards_Grant_AccountWithProfile_GrantsForTwoHours(t *testing.T) {
 	f := newRewardFixture(t)
 	accountID := newAccount(t, f.pool)
 	insertProfile(t, f.pool, accountID, "Asia/Seoul")
@@ -122,8 +122,8 @@ func TestRewards_Grant_AccountWithProfile_GrantsUntilLocalMidnight(t *testing.T)
 	assert.Equal(t, "rewarded_ad", grants[0].Source)
 	assert.Equal(t, "tx-1", grants[0].SourceRef)
 	assert.True(t, now.Equal(grants[0].StartsAt))
-	// now = 2026-10-20 12:00 UTC = 21:00 KST -> 다음 자정 10-21 00:00 KST = 10-20 15:00 UTC
-	assert.True(t, time.Date(2026, 10, 20, 15, 0, 0, 0, time.UTC).Equal(grants[0].ExpiresAt), grants[0].ExpiresAt.String())
+	// 처리한 시각부터 2시간(D132): now = 2026-10-20 12:00 UTC -> 14:00 UTC
+	assert.True(t, time.Date(2026, 10, 20, 14, 0, 0, 0, time.UTC).Equal(grants[0].ExpiresAt), grants[0].ExpiresAt.String())
 
 	status, err := f.store.Status(context.Background(), accountID)
 	require.NoError(t, err)
@@ -131,28 +131,27 @@ func TestRewards_Grant_AccountWithProfile_GrantsUntilLocalMidnight(t *testing.T)
 	assert.Equal(t, billing.SourceRewardedAd, status.Insight.Source)
 }
 
-func TestRewards_Grant_NoProfile_UsesUTCMidnight(t *testing.T) {
-	f := newRewardFixture(t)
-	accountID := newAccount(t, f.pool)
+// 기간은 계정 시간대와 상관없이 처리 시각부터 2시간입니다(D132). 프로필이 없거나 시간대가 달라도 같습니다.
+func TestRewards_Grant_ExpiryIgnoresTimezone(t *testing.T) {
+	for name, timezone := range map[string]string{
+		"프로필 없음":    "",
+		"뉴욕":        "America/New_York",
+		"날짜 변경선 근처": "Pacific/Apia",
+	} {
+		t.Run(name, func(t *testing.T) {
+			f := newRewardFixture(t)
+			accountID := newAccount(t, f.pool)
+			if timezone != "" {
+				insertProfile(t, f.pool, accountID, timezone)
+			}
 
-	require.NoError(t, f.rewards.Grant(context.Background(), callback("tx-1", accountID.String()), rawQuery))
+			require.NoError(t, f.rewards.Grant(context.Background(), callback("tx-1", accountID.String()), rawQuery))
 
-	grants := rewardGrants(t, f.pool)
-	require.Len(t, grants, 1)
-	assert.True(t, time.Date(2026, 10, 21, 0, 0, 0, 0, time.UTC).Equal(grants[0].ExpiresAt), grants[0].ExpiresAt.String())
-}
-
-func TestRewards_Grant_BadStoredTimezone_FallsBackToUTCWithErrorLog(t *testing.T) {
-	f := newRewardFixture(t)
-	accountID := newAccount(t, f.pool)
-	insertProfile(t, f.pool, accountID, "Not/AZone")
-
-	require.NoError(t, f.rewards.Grant(context.Background(), callback("tx-1", accountID.String()), rawQuery))
-
-	grants := rewardGrants(t, f.pool)
-	require.Len(t, grants, 1)
-	assert.True(t, time.Date(2026, 10, 21, 0, 0, 0, 0, time.UTC).Equal(grants[0].ExpiresAt))
-	assert.Contains(t, f.logs.String(), `"severity":"ERROR"`)
+			grants := rewardGrants(t, f.pool)
+			require.Len(t, grants, 1)
+			assert.True(t, now.Add(2*time.Hour).Equal(grants[0].ExpiresAt), grants[0].ExpiresAt.String())
+		})
+	}
 }
 
 func TestRewards_Grant_SameTransactionTwice_OneRowEach(t *testing.T) {

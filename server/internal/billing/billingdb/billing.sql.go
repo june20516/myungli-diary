@@ -13,20 +13,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const accountCurrentTimezone = `-- name: AccountCurrentTimezone :one
-SELECT current_timezone
-FROM profiles
-WHERE account_id = $1
-`
-
-// 계정 프로필의 현재 시간대(IANA 이름)입니다. 프로필이 없으면 행이 없습니다.
-func (q *Queries) AccountCurrentTimezone(ctx context.Context, accountID uuid.UUID) (string, error) {
-	row := q.db.QueryRow(ctx, accountCurrentTimezone, accountID)
-	var current_timezone string
-	err := row.Scan(&current_timezone)
-	return current_timezone, err
-}
-
 const billingEventProcessedAt = `-- name: BillingEventProcessedAt :one
 SELECT processed_at
 FROM billing_events

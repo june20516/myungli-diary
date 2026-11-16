@@ -14,7 +14,7 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/billing"
 )
 
-// staging 보상은 SSV와 같은 처리를 탑니다: 계정 시간대의 다음 자정까지 rewarded_ad 근거 열람, user_id는 토큰의 계정(S131).
+// staging 보상은 SSV와 같은 처리를 탑니다: 처리 시각부터 2시간 rewarded_ad 근거 열람(D132), user_id는 토큰의 계정(S131).
 func TestTestReward_GrantsLikeSSV(t *testing.T) {
 	f := newRewardFixture(t)
 	rewards := billing.NewTestRewards(f.rewards, f.store)
@@ -28,8 +28,8 @@ func TestTestReward_GrantsLikeSSV(t *testing.T) {
 	assert.True(t, status.Insight.Active)
 	assert.Equal(t, billing.SourceRewardedAd, status.Insight.Source)
 	require.NotNil(t, status.Insight.ExpiresAt)
-	// now = 2026-10-20 12:00 UTC = 21:00 KST -> 다음 자정 10-21 00:00 KST = 10-20 15:00 UTC
-	assert.True(t, time.Date(2026, 10, 20, 15, 0, 0, 0, time.UTC).Equal(*status.Insight.ExpiresAt))
+	// now = 2026-10-20 12:00 UTC -> 2시간 뒤 14:00 UTC
+	assert.True(t, time.Date(2026, 10, 20, 14, 0, 0, 0, time.UTC).Equal(*status.Insight.ExpiresAt))
 	assert.False(t, status.AdFree.Active, "광고 제거는 주지 않음")
 
 	events := rewardEvents(t, f.pool, "test-tx-1")
