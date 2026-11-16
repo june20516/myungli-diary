@@ -446,7 +446,8 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_8_0_1():
+def test_contract_version_is_8_1_0():
+    # 8.1.0은 #1180(D132, V132): 열림 꼬리표 params에 time 추가와 광고 권한 끝 "자정"을 "광고 2시간"으로 고친 문구라 부 버전.
     # 8.0.1은 H1 지휘 점검(#1172): 요소 seal의 모양 기준을 elements.json seal.path로 적은 문구만이라 수 버전.
     # 8.0.0은 빌드 7 검수 묶음(V127~V131): depth-link block을 지워 주 버전. head-end, open.ring, term-token open, todayReselect 추가.
     # 7.7.0은 #1096(V126): timeBand 글자 1.3배 상한과 눈금 겹침 줄 내림 추가, #1063 전환 기준 문구라 부 버전.
@@ -457,7 +458,7 @@ def test_contract_version_is_8_0_1():
     # 7.2.0은 #1029 ①, #1034 drift(D124 ⑤, V119): 날짜 머리 덕일 virtue와 hanja-tag compact 추가라 부 버전.
     # 7.1.0은 #1020 drift(D123, V118): 행운 색, 시간 시트 근거 진입점과 시간 시트 제목 슬롯 추가라 부 버전.
     # 7.0.0은 #982, #1003(V114~V117), 6.3.0은 V110~V113, 6.2.0은 검수 회차2 묶음(V100~V109), 6.1.1은 #908(V99), 6.1.0은 #892(V98), 6.0.0은 #859 drift(V96)
-    assert VERSION == "8.0.1"
+    assert VERSION == "8.1.0"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -3158,7 +3159,7 @@ def test_v112_unlocked_evidence_glints_and_marks():
     assert link["parts"]["icon"]["unlocked"]["fill"] == "{gradient.unlocked}"
     assert link["parts"]["icon"]["color"] == "{color.action.primary}"  # 잠긴 날은 그대로 (V63)
     tag = link["parts"]["evidenceSheet"]["unlockTag"]
-    assert tag["slot"] == "evidence-sheet.unlock.until" and tag["params"] == ["date"]
+    assert tag["slot"] == "evidence-sheet.unlock.until" and tag["params"] == ["time", "date"]
     assert tag["border"]["fill"] == "{gradient.unlocked}" and tag["icon"]["icon"] == "clock" and tag["glint"] is False
     assert "evidence-sheet.unlock.until" in ia_slot_ids("evidence-sheet")
     unlocked = link["states"]["unlocked"]["parts"]["evidenceSheet"]
@@ -3168,6 +3169,7 @@ def test_v112_unlocked_evidence_glints_and_marks():
     assert unlocked["reduceMotion"]["element"] == "unlock.mark"
     assert "unlockTag" not in link["states"]["locked"]["parts"]["evidenceSheet"]
     assert set(tag["copyByReason"]) == {"ad", "pass"} and "#952" in tag["reasonSource"]
+    assert "time" in tag["copyByReason"]["ad"] and "2시간" in tag["copyByReason"]["ad"]  # D132
     assert "whenExpires" in link["parts"]["icon"]["unlocked"] and "날짜 맥락이 없는" in link["parts"]["icon"]["unlocked"]["when"]
     # 화면 바탕 그라데이션 "하나" 규칙은 바탕으로 좁혀 씀 (V111). docs/identity/README.md는 지휘 몫(요청함)
     design_claude = (DESIGN_DIR / "CLAUDE.md").read_text(encoding="utf-8")

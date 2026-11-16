@@ -1,5 +1,5 @@
 {
-  "version": "8.0.1",
+  "version": "8.1.0",
   "patterns": {
     "press.ink": {
       "summary": "먹 번짐: 모든 눌림 (결정 V14, V61)",
@@ -192,7 +192,7 @@
       "base": "글자 기본색(그 자리 fg)은 그대로이고 띠는 글자 모양 안에만 칠함(text mask)",
       "together": "한 시트 안 대상 글자 모두 같은 때에 지나감",
       "pauseWhen": ["앱이 배경으로 감", "시트가 위 시트에 덮임(sheet.stack 아래 층)", "대상이 화면 밖으로 스크롤됨"],
-      "stopWhen": "시트가 닫힐 때. 보는 중에 권한이 끝나도(자정, 광고 제거권 기간 끝) 그 시트는 닫을 때까지 그대로 반짝이고, 다음에 여는 시트부터 locked(근거 시트 자정 규칙과 같음)",
+      "stopWhen": "시트가 닫힐 때. 보는 중에 권한이 끝나도(광고 2시간, 광고 제거권 기간 끝) 그 시트는 닫을 때까지 그대로 반짝이고, 다음에 여는 시트부터 locked(근거 시트 잠금 규칙과 같음)",
       "properties": ["text-fill"],
       "reduceMotion": "replace",
       "reduceMotionAlternative": { "element": "unlock.mark", "note": "동작 줄이기면 띠를 전혀 그리지 않고 구역 제목 그라데이션 글자와 왼쪽 가는 선으로 대신함(D118 ②)" },
