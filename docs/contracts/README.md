@@ -26,6 +26,7 @@
 | 법적 문서 원문 (이용약관·개인정보 처리방침) | `docs/legal/<언어>/{terms,privacy}.md` (읽는 문서 `docs/legal/README.md`) | 지휘 | server (`/legal/*` 정적 페이지), app (`getAppConfig`의 주소로 엶) | - | **원문 있음** (시행일은 출시 때 적음. 원문이 바뀌면 `ci-gate` server drift로 알림, #341) | D80, D64, D74 |
 | 글자 수 상한 표 | `docs/identity/design/lengths.md` | design | writing (슬롯 `max_length` 대조 테스트) | - | **사용 중** | design `lengths.md`, writing W26 |
 | 스토어 이미지 명세 (장면, 틀, 스크린샷 글 상한, Play 그래픽) | `docs/identity/design/store/store.json` (읽는 문서 `store/README.md`) | design | app (스토어 이미지 생성, #1203), writing (스크린샷 위 글 상한, #1201) | 1.0.0 | **확정** | store 스크린샷 spec, D133, design 결정 V133 |
+| 스토어 등록정보 문구 (앱 이름, 부제, 설명, 키워드, 스크린샷 위 글) | `docs/identity/writing/generated/store/listing.json` (원고 `content/<언어>/store.yaml`, 슬롯 `slots/store/`) | writing | app (스크린샷 위 글, #1203), 지휘 (콘솔 업로드) | - | **사용 중** | writing 결정 W80, 라운드 R49, D133 |
 
 ## 생성 코드
 * proto에서 생성한 코드는 사용하는 서비스마다 자기 디렉터리에 commit합니다(D33).

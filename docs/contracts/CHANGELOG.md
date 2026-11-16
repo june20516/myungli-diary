@@ -83,3 +83,7 @@
 ## 스토어 이미지 명세
 
 **1.0.0 (2026-11-16, design #1206, #1202, D133):** 처음 판. 장면 6장(오늘, 근거 시트 열림, 달력, 그날 시트, 나의 사주, 공유 미리보기), 틀(App Store 1320×2868, Play 1080×1920, 둥근 판), 스크린샷 글 한 줄 상한(ko 14, ja 11, en 23, 두 줄까지), Play 그래픽 1024×500 로고. 계약 목록에는 지휘가 root PR로 올렸습니다.
+
+## 스토어 등록정보 문구
+
+**2026-11-16 (writing #1208, #1201, D133):** 처음 판. ko는 라운드 R49 확정, en과 ja는 원어민 검수(E18) 전 초안. 슬롯 `store.app-name`, `store.subtitle`, `store.promotional-text`, `store.keywords`(100바이트), `store.short-description`, `store.description`, `store.screenshot.caption`(design 스토어 이미지 명세 장면 id 6개, 줄마다 상한, 두 줄). 계약 목록에는 지휘가 root PR로 올렸습니다.
