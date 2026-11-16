@@ -1,0 +1,39 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>스토어 스크린샷 틀 관문 질문 (#1202)</title><style>
+:root { --bg: #f2f1ee; --ink: #1f1f1e; --sub: #5b5b59; --line: #d6d4cf; --primary: #45604b; --good-bg: #e6efe7; --grad: linear-gradient(160deg, #eef4ef 0%, #fbefee 100%); }
+* { box-sizing: border-box; } body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif; font-size: 15px; line-height: 1.55; }
+.page { max-width: 1240px; margin: 0 auto; padding: 32px 20px 72px; display: grid; gap: 28px; } h1 { font-size: 24px; margin: 0; text-wrap: balance; } h2 { font-size: 18px; margin: 0 0 4px; color: var(--primary); }
+.intro { color: var(--sub); margin: 0; max-width: 980px; } .intro li { margin: 2px 0; }
+.rec { display: inline-block; font-size: 12px; font-weight: 700; color: var(--primary); background: var(--good-bg); border-radius: 999px; padding: 0 8px; margin-left: 6px; vertical-align: 2px; }
+.opt { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: grid; gap: 12px; } .why { margin: 0; color: var(--sub); max-width: 980px; }
+.row { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-end; } .cell { margin: 0; display: grid; gap: 6px; } figcaption { font-size: 12px; color: var(--sub); }
+.cv { position: relative; overflow: hidden; background: var(--grad); border: 1px solid var(--line); }
+.cap { position: absolute; left: 0; right: 0; top: 0; display: flex; flex-direction: column; align-items: center; text-align: center; color: #1f1f1e; font-weight: 700; font-size: 17px; line-height: 1.3; letter-spacing: -0.02em; }
+.scr { position: absolute; left: 50%; transform: translateX(-50%); overflow: hidden; } .scr img { display: block; width: 100%; height: auto; }
+/* F1: 글 위 + 둥근 판, 아래로 넘침 */
+.f1 .cap { padding-top: 34px; } .f1 .scr { top: 98px; width: 82%; border-radius: 14px; box-shadow: 0 6px 18px rgba(40,50,40,.14); }
+.f1.play .cap { padding-top: 30px; } .f1.play .scr { top: 92px; width: 66%; }
+/* F2: 기기 테두리 */
+.f2 .cap { padding-top: 34px; } .f2 .scr { top: 98px; width: 80%; border-radius: 22px; border: 6px solid #1d211e; background: #1d211e; } .f2 .scr img { border-radius: 16px; }
+.f2.play .cap { padding-top: 30px; } .f2.play .scr { top: 92px; width: 64%; }
+/* F3: 꽉 채움 + 위 띠 */
+.f3 .scr { top: 0; width: 100%; } .f3 .cap { z-index: 1; padding: 22px 12px 14px; background: rgba(238,244,239,.94); border-bottom: 1px solid rgba(0,0,0,.06); }
+.note { font-size: 12px; color: var(--sub); }
+</style></head><body><div class="page">
+<header><h1>스토어 스크린샷 틀: 배경, 기기 테두리, 글 자리 (#1202, D133)</h1></header>
+<ul class="intro"><li>장면은 A안(오늘, 근거 시트, 달력, 그날 시트, 나의 사주, 공유)으로 정해졌습니다. 여기서는 그 장면을 담을 틀을 고릅니다.</li><li>바탕은 세 안 모두 브랜드 바탕 그라데이션 <code>gradient.today</code>(라이트)입니다. 같은 틀로 App Store와 Play 두 비율을 만듭니다.</li><li>위 글 두 줄은 <b>자리를 보이려는 예시</b>입니다. 실제 글은 writing이 #1201에서 씁니다. 글자 수 상한은 틀이 정해진 뒤 언어별로 재어 넘깁니다.</li><li>미리보기는 실제 크기의 1/6입니다.</li></ul>
+<section class="opt"><h2>F1. 글 위, 화면은 둥근 판으로 아래로 넘침<span class=rec>추천</span></h2><p class="why">바탕 그라데이션 위 위쪽에 글 두 줄, 그 아래 실제 화면을 둥근 모서리 판으로 크게 둡니다. 화면 아래쪽은 그림 밖으로 넘쳐 잘려 화면 글자가 가장 크게 보입니다. 기기 모양이 없어 두 스토어에 같은 틀을 그대로 씁니다.</p><div class="row">
+<figure class="cell"><div class="cv f1 as" style="width:220px;height:478px"><div class="cap"><span>내 사주로 풀어 주는</span><span>나만의 오늘</span></div><div class="scr"><img src="../../../../app/docs/artifacts/2026-11-13-today-default.png" alt=""></div></div><figcaption>App Store 6.9인치 1320×2868</figcaption></figure>
+<figure class="cell"><div class="cv f1 play" style="width:270px;height:480px"><div class="cap"><span>내 사주로 풀어 주는</span><span>나만의 오늘</span></div><div class="scr"><img src="../../../../app/docs/artifacts/2026-11-13-today-default.png" alt=""></div></div><figcaption>Play 휴대전화 1080×1920 (9:16)</figcaption></figure>
+<figure class="cell"><div class="cv f1 as" style="width:220px;height:478px"><div class="cap"><span>왜 그런지</span><span>원전까지 보여 줘요</span></div><div class="scr"><img src="../../../../app/docs/artifacts/2026-11-12-evidence-sheet-unlocked.png" alt=""></div></div><figcaption>App Store 6.9인치 1320×2868</figcaption></figure>
+</div></section>
+<section class="opt"><h2>F2. 글 위, 기기 테두리 안 화면</h2><p class="why">F1과 같은 자리에 화면을 어두운 기기 테두리 안에 넣습니다. 휴대전화 사진처럼 보이지만 화면이 작아지고(테두리 몫), 한 벌을 두 스토어에 쓰므로 특정 기기 모양이 아닌 일반 테두리여야 합니다.</p><div class="row">
+<figure class="cell"><div class="cv f2 as" style="width:220px;height:478px"><div class="cap"><span>내 사주로 풀어 주는</span><span>나만의 오늘</span></div><div class="scr"><img src="../../../../app/docs/artifacts/2026-11-13-today-default.png" alt=""></div></div><figcaption>App Store 6.9인치 1320×2868</figcaption></figure>
+<figure class="cell"><div class="cv f2 play" style="width:270px;height:480px"><div class="cap"><span>내 사주로 풀어 주는</span><span>나만의 오늘</span></div><div class="scr"><img src="../../../../app/docs/artifacts/2026-11-13-today-default.png" alt=""></div></div><figcaption>Play 휴대전화 1080×1920 (9:16)</figcaption></figure>
+<figure class="cell"><div class="cv f2 as" style="width:220px;height:478px"><div class="cap"><span>왜 그런지</span><span>원전까지 보여 줘요</span></div><div class="scr"><img src="../../../../app/docs/artifacts/2026-11-12-evidence-sheet-unlocked.png" alt=""></div></div><figcaption>App Store 6.9인치 1320×2868</figcaption></figure>
+</div></section>
+<section class="opt"><h2>F3. 화면 꽉 채움, 글은 위 띠</h2><p class="why">실제 화면을 그림 전체에 깔고 위쪽 띠에 글을 얹습니다. 화면이 가장 넓지만 앱 상단 막대가 글 띠에 가려지고, 9:16에서는 화면 비율이 달라 아래가 많이 잘립니다.</p><div class="row">
+<figure class="cell"><div class="cv f3 as" style="width:220px;height:478px"><div class="cap"><span>내 사주로 풀어 주는</span><span>나만의 오늘</span></div><div class="scr"><img src="../../../../app/docs/artifacts/2026-11-13-today-default.png" alt=""></div></div><figcaption>App Store 6.9인치 1320×2868</figcaption></figure>
+<figure class="cell"><div class="cv f3 play" style="width:270px;height:480px"><div class="cap"><span>내 사주로 풀어 주는</span><span>나만의 오늘</span></div><div class="scr"><img src="../../../../app/docs/artifacts/2026-11-13-today-default.png" alt=""></div></div><figcaption>Play 휴대전화 1080×1920 (9:16)</figcaption></figure>
+<figure class="cell"><div class="cv f3 as" style="width:220px;height:478px"><div class="cap"><span>왜 그런지</span><span>원전까지 보여 줘요</span></div><div class="scr"><img src="../../../../app/docs/artifacts/2026-11-12-evidence-sheet-unlocked.png" alt=""></div></div><figcaption>App Store 6.9인치 1320×2868</figcaption></figure>
+</div></section>
+</div></body></html>

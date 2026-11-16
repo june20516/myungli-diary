@@ -1,0 +1,44 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>스토어 스크린샷 장면 관문 질문 (#1202)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"><style>
+:root { --bg: #f2f1ee; --ink: #1f1f1e; --sub: #5b5b59; --line: #d6d4cf; --primary: #45604b; --good-bg: #e6efe7; --search: #f7e4dd; }
+* { box-sizing: border-box; } body { margin: 0; background: var(--bg); color: var(--ink); font-family: Pretendard, "Pretendard JP", system-ui, sans-serif; font-size: 15px; line-height: 1.55; }
+.page { max-width: 1240px; margin: 0 auto; padding: 32px 20px 72px; display: grid; gap: 28px; } h1 { font-size: 24px; margin: 0; text-wrap: balance; } h2 { font-size: 18px; margin: 0 0 4px; color: var(--primary); }
+.intro { color: var(--sub); margin: 0; max-width: 980px; } .intro li { margin: 2px 0; }
+.rec { display: inline-block; font-size: 12px; font-weight: 700; color: var(--primary); background: var(--good-bg); border-radius: 999px; padding: 0 8px; margin-left: 6px; vertical-align: 2px; }
+.opt { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: grid; gap: 12px; }
+.why { margin: 0; color: var(--sub); max-width: 980px; }
+.strip { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; }
+.shot { flex: 0 0 168px; display: grid; gap: 6px; align-content: start; }
+.shot img { width: 168px; height: auto; border-radius: 14px; border: 1px solid var(--line); display: block; }
+.shot.search img { outline: 3px solid #c98a76; outline-offset: 2px; }
+.n { font-size: 12px; color: var(--sub); } .shot.search .n { color: #9a4f39; font-weight: 700; }
+.t { font-size: 14px; font-weight: 600; } .d { font-size: 12px; color: var(--sub); } .id { font-size: 11px; color: var(--sub); font-family: ui-monospace, Menlo, monospace; }
+@media (max-width: 420px) { .shot { flex-basis: 140px; } .shot img { width: 140px; } }
+</style></head><body><div class="page">
+<header><h1>스토어 스크린샷 장면: 어느 화면을 어떤 순서로 (#1202, D133)</h1></header>
+<ul class="intro"><li>두 스토어 같은 장면, 같은 순서로 6장을 냅니다(App Store 최대 10, Play 2~8). <b>테두리 친 앞 세 장</b>이 검색 결과에 보입니다.</li><li>화면은 app의 실제 렌더(대역 데이터 <code>member</code> 등, 실존 인물 아님)입니다. 장면 위 글은 writing이 쓰고, 틀(배경, 기기 테두리, 글 자리)은 다음 질문에서 고릅니다.</li><li>근거 시트 렌더는 D132 이전 판이라 꼬리표가 "자정까지 열림"입니다. 실제 이미지는 app이 #1179 반영 뒤 찍어 시각 문구로 나옵니다.</li><li>탭 화면 아래 배너 광고 자리는 실제 이미지에서 빼고 찍습니다(렌더의 빈 띠가 사라지고 탭 막대만 남음).</li></ul>
+<section class="opt"><h2>A. 오늘 먼저 (쓰는 순서)<span class=rec>추천</span></h2><p class="why">첫 장이 앱의 중심(사람마다 다른 오늘)이고, 둘째 장이 다른 운세 앱과 갈리는 점(원전 근거), 셋째 장이 매일 쓰는 도구(달력)입니다. 검색 결과 세 장만으로 "무엇을, 왜 믿고, 어떻게 쓰나"가 이어집니다.</p><div class="strip">
+<figure class="shot search" style="margin:0"><span class="n">1 검색 결과</span><img src="../../../../app/docs/artifacts/2026-11-13-today-default.png" alt="오늘 화면" loading="lazy"><span class="t">오늘</span><span class="d">내 사주로 조합한 오늘: 총운, 사주 기운, 행운</span><span class="id">today, default, member</span></figure>
+<figure class="shot search" style="margin:0"><span class="n">2 검색 결과</span><img src="../../../../app/docs/artifacts/2026-11-12-evidence-sheet-unlocked.png" alt="근거 시트 (열림) 화면" loading="lazy"><span class="t">근거 시트 (열림)</span><span class="d">판정 근거와 원전 인용. 근거를 보여 주는 앱</span><span class="id">evidence-sheet, unlocked, evidence-unlocked</span></figure>
+<figure class="shot search" style="margin:0"><span class="n">3 검색 결과</span><img src="../../../../app/docs/artifacts/2026-11-09-calendar-default.png" alt="달력 화면" loading="lazy"><span class="t">달력</span><span class="d">한 달 길흉을 날짜 칸 채우기로</span><span class="id">calendar, default, member</span></figure>
+<figure class="shot" style="margin:0"><span class="n">4</span><img src="../../../../app/docs/artifacts/2026-11-11-day-sheet-default.png" alt="그날 시트 화면" loading="lazy"><span class="t">그날 시트</span><span class="d">그날 길흉판정과 일정, 일기를 한곳에</span><span class="id">day-sheet, default, member</span></figure>
+<figure class="shot" style="margin:0"><span class="n">5</span><img src="../../../../app/docs/artifacts/2026-11-13-my-saju-default.png" alt="나의 사주 화면" loading="lazy"><span class="t">나의 사주</span><span class="d">원국과 오행 분포, 성향 풀이</span><span class="id">my-saju, default, member</span></figure>
+<figure class="shot" style="margin:0"><span class="n">6</span><img src="../../../../app/docs/artifacts/2026-11-13-share-preview-default.png" alt="공유 미리보기 화면" loading="lazy"><span class="t">공유 미리보기</span><span class="d">오늘 카드를 이미지로 공유</span><span class="id">share-preview, default, member</span></figure>
+</div></section>
+<section class="opt"><h2>B. 근거 먼저 (차별점 앞세움)</h2><p class="why">원전 한문이 첫 장이라 눈에 띄지만, 처음 보는 사람에게 무슨 앱인지(오늘 운세와 일기)는 둘째 장에서야 나옵니다. 한문 밀도가 높아 첫인상이 어렵게 보일 수 있습니다.</p><div class="strip">
+<figure class="shot search" style="margin:0"><span class="n">1 검색 결과</span><img src="../../../../app/docs/artifacts/2026-11-12-evidence-sheet-unlocked.png" alt="근거 시트 (열림) 화면" loading="lazy"><span class="t">근거 시트 (열림)</span><span class="d">판정 근거와 원전 인용. 근거를 보여 주는 앱</span><span class="id">evidence-sheet, unlocked, evidence-unlocked</span></figure>
+<figure class="shot search" style="margin:0"><span class="n">2 검색 결과</span><img src="../../../../app/docs/artifacts/2026-11-13-today-default.png" alt="오늘 화면" loading="lazy"><span class="t">오늘</span><span class="d">내 사주로 조합한 오늘: 총운, 사주 기운, 행운</span><span class="id">today, default, member</span></figure>
+<figure class="shot search" style="margin:0"><span class="n">3 검색 결과</span><img src="../../../../app/docs/artifacts/2026-11-13-my-saju-default.png" alt="나의 사주 화면" loading="lazy"><span class="t">나의 사주</span><span class="d">원국과 오행 분포, 성향 풀이</span><span class="id">my-saju, default, member</span></figure>
+<figure class="shot" style="margin:0"><span class="n">4</span><img src="../../../../app/docs/artifacts/2026-11-09-calendar-default.png" alt="달력 화면" loading="lazy"><span class="t">달력</span><span class="d">한 달 길흉을 날짜 칸 채우기로</span><span class="id">calendar, default, member</span></figure>
+<figure class="shot" style="margin:0"><span class="n">5</span><img src="../../../../app/docs/artifacts/2026-11-11-day-sheet-default.png" alt="그날 시트 화면" loading="lazy"><span class="t">그날 시트</span><span class="d">그날 길흉판정과 일정, 일기를 한곳에</span><span class="id">day-sheet, default, member</span></figure>
+<figure class="shot" style="margin:0"><span class="n">6</span><img src="../../../../app/docs/artifacts/2026-11-13-share-preview-default.png" alt="공유 미리보기 화면" loading="lazy"><span class="t">공유 미리보기</span><span class="d">오늘 카드를 이미지로 공유</span><span class="id">share-preview, default, member</span></figure>
+</div></section>
+<section class="opt"><h2>C. 일기 먼저 (기록 앱 앞세움)</h2><p class="why">일기장 성격이 앞에 서지만, 데모 일기는 한 편이라 화면이 비어 보이고(일기 보기), 근거는 마지막이라 검색 결과에서 보이지 않습니다.</p><div class="strip">
+<figure class="shot search" style="margin:0"><span class="n">1 검색 결과</span><img src="../../../../app/docs/artifacts/2026-11-13-today-default.png" alt="오늘 화면" loading="lazy"><span class="t">오늘</span><span class="d">내 사주로 조합한 오늘: 총운, 사주 기운, 행운</span><span class="id">today, default, member</span></figure>
+<figure class="shot search" style="margin:0"><span class="n">2 검색 결과</span><img src="../../../../app/docs/artifacts/2026-11-11-day-sheet-default.png" alt="그날 시트 화면" loading="lazy"><span class="t">그날 시트</span><span class="d">그날 길흉판정과 일정, 일기를 한곳에</span><span class="id">day-sheet, default, member</span></figure>
+<figure class="shot search" style="margin:0"><span class="n">3 검색 결과</span><img src="../../../../app/docs/artifacts/2026-11-09-diary-view-default.png" alt="일기 보기 화면" loading="lazy"><span class="t">일기 보기</span><span class="d">쓴 일기에 그날 기운 태그가 붙음</span><span class="id">diary-view, default, member</span></figure>
+<figure class="shot" style="margin:0"><span class="n">4</span><img src="../../../../app/docs/artifacts/2026-11-09-calendar-default.png" alt="달력 화면" loading="lazy"><span class="t">달력</span><span class="d">한 달 길흉을 날짜 칸 채우기로</span><span class="id">calendar, default, member</span></figure>
+<figure class="shot" style="margin:0"><span class="n">5</span><img src="../../../../app/docs/artifacts/2026-11-13-my-saju-default.png" alt="나의 사주 화면" loading="lazy"><span class="t">나의 사주</span><span class="d">원국과 오행 분포, 성향 풀이</span><span class="id">my-saju, default, member</span></figure>
+<figure class="shot" style="margin:0"><span class="n">6</span><img src="../../../../app/docs/artifacts/2026-11-12-evidence-sheet-unlocked.png" alt="근거 시트 (열림) 화면" loading="lazy"><span class="t">근거 시트 (열림)</span><span class="d">판정 근거와 원전 인용. 근거를 보여 주는 앱</span><span class="id">evidence-sheet, unlocked, evidence-unlocked</span></figure>
+</div></section>
+</div></body></html>
