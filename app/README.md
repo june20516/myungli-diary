@@ -63,6 +63,7 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
     | 6 | Play 내부 테스트용 AAB | TestFlight | `93f2eb92`(main) | 2026-11-09 | DS1 화면과 컴포넌트 6.0.0. 업로드 키 지문, universal APK로 release 실행 확인, 심볼 staging 업로드, dSYM 업로드 |
     | 7 | Play 내부 테스트(`tool/upload_play.sh`, #944) | TestFlight | `9a1af453` | 2026-11-13 | 오늘 화면 묶음, V99 앱 아이콘, 띠 1.3배 상한과 일간 표기 틀, 동의 화면 만 14세 확인. universal APK로 release 실행 확인, 심볼과 dSYM 업로드 |
     | 8 | Play 내부 테스트(versionCode 8) | TestFlight | `a5b14018` | 2026-11-13 | 빌드 7 검수 묶음(A147). 심볼과 dSYM 업로드. release 빌드 기기 실행 확인은 하지 않음 |
+    | 9 | Play 내부 테스트(`tool/upload_play.sh`) | TestFlight | `efec3e12` | 2026-11-17 | iOS iPhone 전용(A150, IPA `UIDeviceFamily` [1] 확인), 콘텐츠 문장 한자 글꼴(V134), 보상 열림 2시간(D132). 업로드 키 지문, 권한(production 푸시, Apple 로그인) 확인. 심볼과 dSYM 업로드. release 빌드 기기 실행 확인은 하지 않음 |
 * **iOS TestFlight(A103):** 자동 서명, 팀 `7JGP3D7B3Z`, App Store Connect 앱 `6829967838`. 이 Mac의 Xcode > Settings > Accounts에 팀 Apple ID가 로그인되어 있어야 합니다. 배포 인증서와 profile은 export 때 Xcode가 만듭니다(`-allowProvisioningUpdates`).
   ```
   flutter build ipa --release --dart-define-from-file=config/auth.json \
