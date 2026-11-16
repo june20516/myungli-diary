@@ -1580,7 +1580,7 @@
     {
      "id": "evidence-sheet.lock.reward",
      "source": "ui",
-     "role": "보상 고지: 광고 한 편을 보면 오늘 하루 근거와 해석이 모두 열림(광고 전 매번)"
+     "role": "보상 고지: 광고 한 편을 끝까지 보면 그때부터 2시간 동안 근거와 해석이 모두 열림(광고 전 매번, D132)"
     },
     {
      "id": "evidence-sheet.lock.cta",
