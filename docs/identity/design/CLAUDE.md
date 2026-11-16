@@ -32,7 +32,7 @@
 ## 현재 상태
 진행 중인 일만 적고, 병합하면 지웁니다(`docs/workflow.md` §3 마무리 2번). 병합된 일의 경과는 PR 본문, 결정 행([`decisions.md`](decisions.md)), git에 있습니다.
 
-* **보상형 광고 열림 2시간 #1180** (브랜치 `design/unlock-2h-1180`, D132, 결정 V132): 열림 꼬리표 `params`에 `time`을 더하고 광고 권한 끝 "자정" 문구를 "광고 2시간"으로 고침. 컴포넌트 8.1.0.
+* **스토어 이미지 명세 #1202** (브랜치 `design/store-screenshots-1202`, D133, 결정 V133): `store/` 명세와 `tools/store.py`. 글 자리 상한은 writing #1201, 이미지 생성은 app #1203.
 
 ## 기준 문서와 도구
 * 시각 정체성: [`visual-identity.md`](visual-identity.md)(시각에 관해서는 비공개 기록 06을 대체). 색 값의 출처는 [`tools/palette.py`](tools/palette.py)(`--check`로 대비 검사).
@@ -40,6 +40,7 @@
 * 컴포넌트 명세: [`components/`](components/README.md) JSON(사실) + MD(설명). 검사는 저장소 루트에서 `python3 docs/identity/design/tools/components.py`(IA, 토큰 참조, 요소, 패턴, 상태 대응표, 짝 MD). 판 기록(지움과 이름 바뀜)은 `components/README.md`에 있습니다.
 * 글자 수 상한: [`lengths.md`](lengths.md), 도구 `tools/lengths.py`. 표는 도구 출력과 같아야 합니다.
 * 시안 도구: `tools/token_css.py`(토큰을 CSS 변수로, `artifacts/ds1/tokens.css`), `tools/rules_audit.py`(간격 전수 점검), `tools/phosphor_names.txt`(Phosphor 이름 목록). 시안 기록은 [`artifacts/index.json`](artifacts/index.json).
+* 스토어 이미지: [`store/`](store/README.md)(장면, 틀, 글 자리 상한, Play 그래픽 이미지). 검사는 `python3 docs/identity/design/tools/store.py`(`--font-dir`면 상한 실측 대조).
 * 로고: 원본 [`logo/`](logo/), 견본 [`specimen/index.html`](specimen/index.html). 옛 로고 모음(`artifacts/2026-10-10-v0-logo-final.*`)은 기록 고정본입니다.
 * 한자 대체 글꼴: writing이 Pretendard JP에 없는 한자를 새로 쓰면 `tools/hanja_supplement.py`로 `Myungli Hanja Supplement`를 다시 만듭니다(V121).
 
@@ -53,7 +54,7 @@
 * 워드마크를 바꾸면 `uv run --with fonttools==4.54.1 python docs/identity/design/tools/wordmark.py --font .suberpowers/fonts/GowunDodum-Regular.ttf --out-dir docs/identity/design/logo` 뒤 위 `app_icon.py`로 가로 조합 PNG를 다시 만듭니다.
 
 ## 다음 할 일
-1. **#1180 마무리:** PR 병합 뒤 "현재 상태"에서 지웁니다.
+1. **#1202 마무리:** PR 병합 뒤 "현재 상태"에서 지웁니다. writing이 글 슬롯을 만들면 상한을 `lengths.md`로 옮길지 정하고, app이 이미지를 만들면(#1203) 명세대로인지 봅니다.
 
 그 밖에는 대기합니다. 아래 일이 생기면 엽니다.
 2. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다.

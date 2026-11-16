@@ -144,3 +144,23 @@ def test_render_limits_table_shape():
 def test_readme_has_no_banned_dashes():
     text = README.read_text(encoding="utf-8")
     assert not {"—", "–", "·"} & set(text)
+
+
+# Task 3: 관문 질문 시안 기록과 결정 (spec §2, §10)
+def test_question_pages_recorded():
+    import json
+
+    artifacts = store.DESIGN_DIR / "artifacts"
+    entries = {e["id"]: e for e in json.loads((artifacts / "index.json").read_text(encoding="utf-8"))}
+    for entry_id in ("design-store-scenes-questions", "design-store-frame-questions",
+                     "design-store-feature-graphic-questions"):
+        entry = entries[entry_id]
+        assert (entry["kind"], entry["status"]) == ("concept", "chosen"), entry_id
+        assert "V133" in entry["decisions"], entry_id
+        assert (artifacts / entry["file"]).is_file(), entry_id
+
+
+def test_decision_v133_recorded():
+    decisions = (store.DESIGN_DIR / "decisions.md").read_text(encoding="utf-8")
+    row = next(line for line in decisions.splitlines() if line.startswith("| V133 |"))
+    assert "#1202" in row and "store/" in row and "사용자 영향: #1201" in row

@@ -1215,5 +1215,65 @@
     ],
     "status": "chosen",
     "note": "토큰 CSS(ds1/tokens.css)로 gradient.unlocked 띠를 CSS 애니메이션으로 지나가게 함(글자 상자 30%, 100°, standard). 지금 1800/15000과 세 안, 라이트와 다크. 사용자 답(2026-11-13): A 2600ms, 10초마다"
+  },
+  {
+    "id": "design-store-scenes-questions",
+    "title": "스토어 스크린샷 장면 관문 질문(#1202)",
+    "kind": "concept",
+    "file": "2026-11-16-store-scenes-questions.html",
+    "source": "2026-11-16-store-scenes-questions.html",
+    "date": "2026-11-16",
+    "milestone": "S1",
+    "screens": [
+      "today",
+      "evidence-sheet",
+      "calendar",
+      "day-sheet",
+      "my-saju",
+      "share-preview",
+      "diary-view"
+    ],
+    "decisions": [
+      "V133"
+    ],
+    "status": "chosen",
+    "note": "app 화면 렌더(app/docs/artifacts)로 장면 순서 세 안 A 오늘 먼저, B 근거 먼저, C 일기 먼저. 사용자 답(2026-11-16): A"
+  },
+  {
+    "id": "design-store-frame-questions",
+    "title": "스토어 스크린샷 틀 관문 질문(#1202)",
+    "kind": "concept",
+    "file": "2026-11-16-store-frame-questions.html",
+    "source": "2026-11-16-store-frame-questions.html",
+    "date": "2026-11-16",
+    "milestone": "S1",
+    "screens": [
+      "today",
+      "evidence-sheet"
+    ],
+    "decisions": [
+      "V133"
+    ],
+    "status": "chosen",
+    "note": "바탕 gradient.today에 F1 둥근 판, F2 기기 테두리, F3 꽉 채움과 위 띠. App Store와 Play 두 비율. 사용자 답(2026-11-16): F1"
+  },
+  {
+    "id": "design-store-feature-graphic-questions",
+    "title": "Play 그래픽 이미지 관문 질문(#1202)",
+    "kind": "concept",
+    "file": "2026-11-16-store-feature-graphic-questions.html",
+    "source": "2026-11-16-store-feature-graphic-questions.html",
+    "date": "2026-11-16",
+    "milestone": "S1",
+    "screens": [
+      "today",
+      "evidence-sheet",
+      "calendar"
+    ],
+    "decisions": [
+      "V133"
+    ],
+    "status": "chosen",
+    "note": "1024×500에 G1 로고만, G2 로고와 화면 세 장, G3 로고와 한 줄 글. 사용자 답(2026-11-16): G1"
   }
 ]
