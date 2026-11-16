@@ -13,12 +13,14 @@ import 'package:myungli_diary/features/monetization/application/insight_provider
 import 'package:myungli_diary/features/purchase/model/ad_free_date.dart';
 
 final DateTime _now = DateTime.utc(2026, 10, 13, 3);
-final DateTime _midnight = DateTime.utc(2026, 10, 13, 15);
+
+/// 광고로 연 권한의 끝: [_now]부터 2시간(D132), 서울 시각 오후 2:00.
+final DateTime _adEnd = DateTime.utc(2026, 10, 13, 5);
 final DateTime _passEnd = DateTime.utc(2026, 11, 12, 3);
 
 Insight _ad({DateTime? end}) => Insight(
   active: true,
-  expiresAt: end ?? _midnight,
+  expiresAt: end ?? _adEnd,
   source_: InsightSource_Enum.rewardedAd,
 );
 
@@ -110,18 +112,44 @@ void main() {
   });
 
   group('unlockUntilText(evidence-sheet.unlock.until)', () {
-    setUpAll(() => initializeDateFormatting('ko'));
+    setUpAll(initializeDateFormatting);
     final ko = AppLocalizationsKo();
     final en = AppLocalizationsEn();
 
-    test('광고 한 편이면 자정 문구(매개변수 없음)입니다', () {
+    test('광고 한 편이면 끝 시각(기기 시간대, 기기 시각 형식)입니다', () {
       expect(
-        unlockUntilText(ko, _ad(), 'Asia/Seoul'),
-        ko.evidenceSheetUnlockUntilMidnight,
+        unlockUntilText(ko, _ad(), 'Asia/Seoul', use24HourFormat: false),
+        ko.evidenceSheetUnlockUntilTime('오후 2:00'),
       );
       expect(
-        unlockUntilText(en, _ad(), 'Asia/Seoul'),
-        en.evidenceSheetUnlockUntilMidnight,
+        unlockUntilText(ko, _ad(), 'Asia/Seoul', use24HourFormat: true),
+        ko.evidenceSheetUnlockUntilTime('14:00'),
+      );
+      expect(
+        unlockUntilText(en, _ad(), 'Asia/Seoul', use24HourFormat: false),
+        en.evidenceSheetUnlockUntilTime('2:00\u202fPM'),
+      );
+      // 같은 끝 시각도 시간대가 다르면 그 시간대의 시각입니다.
+      expect(
+        unlockUntilText(
+          ko,
+          _ad(),
+          'America/Los_Angeles',
+          use24HourFormat: true,
+        ),
+        ko.evidenceSheetUnlockUntilTime('22:00'),
+      );
+    });
+
+    test('광고 한 편인데 끝 시각이 없으면 꼬리표가 없습니다', () {
+      expect(
+        unlockUntilText(
+          ko,
+          Insight(active: true, source_: InsightSource_Enum.rewardedAd),
+          'Asia/Seoul',
+          use24HourFormat: false,
+        ),
+        isNull,
       );
     });
 
@@ -129,7 +157,10 @@ void main() {
       final date = ko.evidenceSheetUnlockUntilDate(
         expiryDate('ko', _passEnd, 'Asia/Seoul'),
       );
-      expect(unlockUntilText(ko, _pass(), 'Asia/Seoul'), date);
+      expect(
+        unlockUntilText(ko, _pass(), 'Asia/Seoul', use24HourFormat: false),
+        date,
+      );
       for (final source in [
         InsightSource_Enum.subscription,
         InsightSource_Enum.unknownDefaultOpenApi,
@@ -139,6 +170,7 @@ void main() {
             ko,
             Insight(active: true, expiresAt: _passEnd, source_: source),
             'Asia/Seoul',
+            use24HourFormat: false,
           ),
           date,
           reason: '$source',
@@ -159,14 +191,26 @@ void main() {
       );
     });
 
-    test('권한이 없거나 날짜 문구인데 끝 시각이 없으면 꼬리표가 없습니다', () {
-      expect(unlockUntilText(ko, null, 'Asia/Seoul'), isNull);
-      expect(unlockUntilText(ko, Insight(active: false), 'Asia/Seoul'), isNull);
+    test('권한이 없거나 끝 시각이 없으면 꼬리표가 없습니다', () {
+      expect(
+        unlockUntilText(ko, null, 'Asia/Seoul', use24HourFormat: false),
+        isNull,
+      );
+      expect(
+        unlockUntilText(
+          ko,
+          Insight(active: false),
+          'Asia/Seoul',
+          use24HourFormat: false,
+        ),
+        isNull,
+      );
       expect(
         unlockUntilText(
           ko,
           Insight(active: true, source_: InsightSource_Enum.adFreePass),
           'Asia/Seoul',
+          use24HourFormat: false,
         ),
         isNull,
       );

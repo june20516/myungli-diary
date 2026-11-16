@@ -35,7 +35,7 @@ final chartRepositoryProvider = Provider<ChartRepository>(
 /// 1. 기기 시간대 동기화([TimezoneSync.syncIfChanged])를 먼저 기다립니다.
 /// 2. 프로필 사본이 있으면 키 `chartKey(지문, 사본 language, 오늘의 연도)`의 캐시를 먼저 내보내고
 ///    server 응답으로 바꿉니다([loadCacheFirst], 오늘과 같은 흐름). 연결이 안 되면 캐시를 그대로
-///    둡니다. 캐시는 먼저 보이기용이고, 근거 열람 권한(보상형 해제는 그날 자정까지, D60)과 문장
+///    둡니다. 캐시는 먼저 보이기용이고, 근거 열람 권한(보상형 해제는 본 때부터 2시간, D132)과 문장
 ///    (호칭 등)은 매 진입 server 응답으로 맞춥니다.
 /// 3. 사본이 없으면 캐시 없이 받습니다. 오늘([todayProvider])이 해를 넘기면 새 연도로 다시
 ///    받습니다(세운 표). 자정마다 다시 받지는 않습니다(연도만 구독).
@@ -174,6 +174,29 @@ Future<void> forgetLockedCharts(Ref ref) async {
   final held = ref.read(chartControllerProvider).value;
   if (held != null && held.evidenceAccess == EvidenceAccess.locked) {
     ref.invalidate(chartControllerProvider);
+  }
+}
+
+/// 근거 열람 권한이 끝난 뒤, 들고 있는 차트가 열려 있으면 화면 상태를 건드리지 않고 다시 받아
+/// 잠급니다(D132: 광고로 연 근거는 2시간이라 사주 표를 연 채로도 끝날 수 있음).
+///
+/// 아무도 차트를 들고 있지 않거나 이미 잠겨 있으면 아무 일도 없습니다. 통신 실패는 이전 값을
+/// 둔 채 다음 진입에 맡기고, 그 밖의 실패는 비정상 종료 보고에 남기고 삼킵니다. 열린 채 저장한
+/// 캐시는 지우지 않습니다. 캐시는 먼저 보이기용이고 매 진입 server 응답으로 맞추기 때문입니다.
+Future<void> refreshUnlockedChart(Ref ref) async {
+  if (!ref.exists(chartControllerProvider)) {
+    return;
+  }
+  final held = ref.read(chartControllerProvider).value;
+  if (held == null || held.evidenceAccess != EvidenceAccess.unlocked) {
+    return;
+  }
+  try {
+    await ref.read(chartControllerProvider.notifier).refreshQuietly();
+  } on AppError {
+    // 이전 값 그대로이고, 다음 진입이 다시 받습니다.
+  } on Object catch (error, stack) {
+    ref.read(crashReporterProvider).record(CrashSummary.from(error), stack);
   }
 }
 

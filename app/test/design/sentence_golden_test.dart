@@ -132,7 +132,7 @@ Widget _evidence(DepthLinkState state, {bool loading = false}) {
         ],
         // 열리면 제목 옆 꼬리표(D118 ①). 반짝임은 박자가 끝난 뒤(띠 없음)를 찍습니다.
         unlockTag: unlocked
-            ? AppLocalizationsKo().evidenceSheetUnlockUntilMidnight
+            ? AppLocalizationsKo().evidenceSheetUnlockUntilTime('오후 2:00')
             : null,
         personal: unlocked
             ? _text([Segment(text: '내 사주에서는 월지에 있어 힘이 커요.')])

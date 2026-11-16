@@ -8,7 +8,7 @@
     "adFree": { "active": false },
     "insight": {
       "active": true,
-      "expiresAt": "2026-10-13T15:00:00Z",
+      "expiresAt": "2026-10-13T05:00:00Z",
       "source": "rewarded_ad"
     }
   }

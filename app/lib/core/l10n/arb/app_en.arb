@@ -65,7 +65,7 @@
   "evidenceSheetSectionSource": "Classical source",
   "evidenceSheetSectionPersonal": "In your chart",
   "evidenceSheetLockHead": "The basis and interpretation are locked",
-  "evidenceSheetLockReward": "Watch one ad to see all the basis and interpretation for the rest of today.",
+  "evidenceSheetLockReward": "Watch one ad to the end to see all the basis and interpretation for the next 2 hours.",
   "evidenceSheetLockCta": "Watch ad to unlock",
   "evidenceSheetLockPass": "With an ad-free pass, they stay unlocked the whole time.",
   "evidenceSheetLockUnavailable": "No ads are available right now. Please try again later.",
@@ -509,7 +509,6 @@
   "daySheetVerdictExpand": "Show details",
   "diaryEditGuideAttach": "Not sure what to write?",
   "diaryEditGuideRemove": "Write without a question",
-  "evidenceSheetUnlockUntilMidnight": "Open until midnight",
   "evidenceSheetUnlockUntilDate": "Open until {date}",
   "previewUsedInputName": "Name",
   "previewUsedInputBirth": "Birthday",
@@ -561,5 +560,6 @@
   "branchReadingSul": "Sul",
   "branchReadingHae": "Hae",
   "sajuChartManseBasisStemSuffix": " ({stemName})",
-  "consentRequiredLabelAge": "(Required) I am 14 or older"
+  "consentRequiredLabelAge": "(Required) I am 14 or older",
+  "evidenceSheetUnlockUntilTime": "Open until {time}"
 }

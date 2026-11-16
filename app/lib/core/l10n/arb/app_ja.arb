@@ -65,7 +65,7 @@
   "evidenceSheetSectionSource": "原典",
   "evidenceSheetSectionPersonal": "わたしの命式では",
   "evidenceSheetLockHead": "根拠と解釈はロックされています",
-  "evidenceSheetLockReward": "広告を1本見ると、今日一日、根拠と解釈をすべて見られます。",
+  "evidenceSheetLockReward": "広告を1本最後まで見ると、そこから2時間、根拠と解釈をすべて見られます。",
   "evidenceSheetLockCta": "広告を見て開く",
   "evidenceSheetLockPass": "広告除去パスがあれば、期間中ずっと開いています。",
   "evidenceSheetLockUnavailable": "いま見られる広告がありません。しばらくしてからもう一度お試しください。",
@@ -509,7 +509,6 @@
   "daySheetVerdictExpand": "内訳を見る",
   "diaryEditGuideAttach": "何を書くか迷っていますか?",
   "diaryEditGuideRemove": "質問なしで書く",
-  "evidenceSheetUnlockUntilMidnight": "今夜0時まで閲覧可",
   "evidenceSheetUnlockUntilDate": "{date}まで閲覧可",
   "previewUsedInputName": "呼び名",
   "previewUsedInputBirth": "誕生日",
@@ -561,5 +560,6 @@
   "branchReadingSul": "いぬ",
   "branchReadingHae": "い",
   "sajuChartManseBasisStemSuffix": "（{reading}）",
-  "consentRequiredLabelAge": "(必須)満14歳以上です"
+  "consentRequiredLabelAge": "(必須)満14歳以上です",
+  "evidenceSheetUnlockUntilTime": "{time}まで閲覧可"
 }

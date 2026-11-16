@@ -37,7 +37,7 @@ final calendarRepositoryProvider = Provider<CalendarRepository>(
 ///    server 응답으로 바꿉니다([loadCacheFirst], 오늘과 같은 흐름). 연결이 안 되면 캐시를 그대로
 ///    둡니다. 사본이 없으면 캐시 없이 받습니다(A24와 같음).
 ///
-/// 캐시는 먼저 보이기용입니다(D60·A56). 보상형 광고로 연 근거는 그날 자정까지라, 한 번 `unlocked`로
+/// 캐시는 먼저 보이기용입니다(D60·A56). 보상형 광고로 연 근거는 본 때부터 2시간이라(D132), 한 번 `unlocked`로
 /// 받은 달도 매 진입 server로 열람 상태와 문장을 확인합니다. server 응답에 ETag가 없으므로
 /// 조건부 요청은 없습니다(#219 ④). 출생 정보·시간대는 지문, 언어는 키의 language, ruleset은
 /// `observeRulesetVersion`이 맡아 캐시를 갈라 둡니다.

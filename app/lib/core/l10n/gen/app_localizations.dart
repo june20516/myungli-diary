@@ -490,10 +490,10 @@ abstract class AppLocalizations {
   /// **'근거와 해석은 잠겨 있어요'**
   String get evidenceSheetLockHead;
 
-  /// evidence-sheet.lock.reward: 보상 고지: 광고 한 편을 보면 오늘 하루 근거와 해석이 모두 열림(광고 전 매번)
+  /// evidence-sheet.lock.reward: 보상 고지: 광고 한 편을 끝까지 보면 그때부터 2시간 동안 근거와 해석이 모두 열림(광고 전 매번, D132)
   ///
   /// In ko, this message translates to:
-  /// **'광고 한 편을 보면 오늘 하루 근거와 해석을 모두 볼 수 있어요.'**
+  /// **'광고 한 편을 끝까지 보면 그때부터 2시간 동안 근거와 해석을 모두 볼 수 있어요.'**
   String get evidenceSheetLockReward;
 
   /// evidence-sheet.lock.cta: 광고 보고 열기 버튼
@@ -3162,13 +3162,7 @@ abstract class AppLocalizations {
   /// **'질문 없이 쓰기'**
   String get diaryEditGuideRemove;
 
-  /// evidence-sheet.unlock.until: 열려 있는 동안 시트 제목 옆 꼬리표. 언제까지 열려 있는지 알림. 열린 이유별 두 문구: 광고 한 편이면 그날 자정까지, 광고 제거권이면 기간 끝 날짜(매개변수 `date`)(D118 ①)
-  ///
-  /// In ko, this message translates to:
-  /// **'자정까지 열림'**
-  String get evidenceSheetUnlockUntilMidnight;
-
-  /// evidence-sheet.unlock.until: 열려 있는 동안 시트 제목 옆 꼬리표. 언제까지 열려 있는지 알림. 열린 이유별 두 문구: 광고 한 편이면 그날 자정까지, 광고 제거권이면 기간 끝 날짜(매개변수 `date`)(D118 ①)
+  /// evidence-sheet.unlock.until: 열려 있는 동안 시트 제목 옆 꼬리표. 언제까지 열려 있는지 알림. 열린 이유별 두 문구: 광고 한 편이면 끝 시각(광고를 본 때부터 2시간, 매개변수 `time`, D132), 광고 제거권이면 기간 끝 날짜(매개변수 `date`)(D118 ①)
   ///
   /// In ko, this message translates to:
   /// **'{date}까지 열림'**
@@ -3479,6 +3473,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'(필수) 만 14세 이상입니다'**
   String get consentRequiredLabelAge;
+
+  /// evidence-sheet.unlock.until: 열려 있는 동안 시트 제목 옆 꼬리표. 언제까지 열려 있는지 알림. 열린 이유별 두 문구: 광고 한 편이면 끝 시각(광고를 본 때부터 2시간, 매개변수 `time`, D132), 광고 제거권이면 기간 끝 날짜(매개변수 `date`)(D118 ①)
+  ///
+  /// In ko, this message translates to:
+  /// **'{time}까지 열림'**
+  String evidenceSheetUnlockUntilTime(String time);
 }
 
 class _AppLocalizationsDelegate

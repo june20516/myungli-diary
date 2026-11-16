@@ -28,6 +28,8 @@ const environmentKeys = {
   'APPLE_REDIRECT_URI',
   // staging 광고(모의 광고 대체와 staging 보상 경로, D101). staging만 "true"입니다.
   'STAGING_ADS',
+  // 광고 제거권 스토어 상품 id(쉼표 목록, A77, E12). 두 스토어와 두 환경이 같은 값입니다.
+  'AD_FREE_PRODUCT_IDS',
 };
 
 /// 생성하는 iOS 빌드 설정 파일(app 기준 경로).

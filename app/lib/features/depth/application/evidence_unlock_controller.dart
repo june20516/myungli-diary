@@ -716,9 +716,9 @@ class EvidenceUnlockController extends Notifier<EvidenceUnlockState> {
   /// 응답이 다른 길(오늘 화면의 다시 받기)로 열리면 따라갑니다. 다시 받는 중이면 그 결과는
   /// [_refresh]가 정합니다.
   ///
-  /// 한 번 열린 시트는 응답이 다시 잠겨도(자정 뒤 새 날 응답, 광고 제거권 기간 끝) 닫을
-  /// 때까지 [DepthLinkState.unlocked]로 둡니다(`depth-link` 자정 규칙, `unlock.glint`
-  /// `stopWhen`). 이 흐름은 시트마다 있고 닫히면 버려지므로, 다음에 여는 시트부터 응답대로
+  /// 한 번 열린 시트는 응답이 다시 잠겨도(자정 뒤 새 날 응답, 광고 2시간이나 광고 제거권 기간
+  /// 끝, D132) 닫을 때까지 [DepthLinkState.unlocked]로 둡니다(`depth-link` 잠금 규칙,
+  /// `unlock.glint` `stopWhen`). 이 흐름은 시트마다 있고 닫히면 버려지므로, 다음에 여는 시트부터 응답대로
   /// `locked`입니다.
   void _onAccess(
     AsyncValue<EvidenceAccess>? previous,

@@ -44,6 +44,9 @@ import '../../support/sheet_close.dart';
 
 final _ko = AppLocalizationsKo();
 
+/// 광고 한 편으로 연 권한의 꼬리표. 시나리오 시계(서울 정오, 03:00Z)부터 2시간 뒤 05:00Z(D132).
+final String _rewardTag = _ko.evidenceSheetUnlockUntilTime('오후 2:00');
+
 final Finder _sheet = find.byKey(const Key(ScreenIds.evidenceSheet));
 
 Finder _inSheet(Finder matching) =>
@@ -807,72 +810,65 @@ void main() {
       );
     });
 
-    testWidgets(
-      'evidence-unlocked: 광고 한 편으로 열린 날은 근거 아이콘이 그라데이션이고 시트 제목 옆 "자정까지 열림"',
-      (tester) async {
-        await pumpApp(tester, scenario: 'evidence-unlocked');
-        await pumpUntil(
-          tester,
-          () => find.byType(DateHeader).evaluate().isNotEmpty,
-        );
-        expect(
-          find.descendant(
-            of: find.byType(DepthLink),
-            matching: find.byType(ShaderMask),
-          ),
-          findsWidgets,
-          reason: '시트 밖에서도 열린 것이 보임(icon.unlocked)',
-        );
-
-        await tester.tap(
-          depthLinkTarget(of: find.byKey(const Key(SlotIds.todayFortuneHead))),
-        );
-        await pumpUntil(
-          tester,
-          () =>
-              _inSheet(find.text(_ko.evidenceSheetUnlockUntilMidnight))
-                  .evaluate()
-                  .isNotEmpty,
-        );
-        expect(_inSheet(find.byType(UnlockGlintScope)), findsOneWidget);
-      },
-    );
-
-    testWidgets('reward-unlock: 광고로 열리면 받은 권한으로 "자정까지 열림"이고 시트 밖 아이콘도 바뀝니다', (
-      tester,
-    ) async {
-      final (container, _) = await _openSheet(
-        tester,
-        scenario: 'reward-unlock',
-      );
-      expect(
-        find.descendant(
-          of: find.byType(DepthLink),
-          matching: find.byType(ShaderMask),
-        ),
-        findsNothing,
-      );
-      await _tapCta(tester);
+    testWidgets('evidence-unlocked: 광고 한 편으로 열린 날은 근거 아이콘이 그라데이션이고 '
+        '시트 제목 옆 끝 시각 "오후 2:00까지 열림"(D132)', (tester) async {
+      await pumpApp(tester, scenario: 'evidence-unlocked');
       await pumpUntil(
         tester,
-        () => container.read(_provider).link == DepthLinkState.unlocked,
+        () => find.byType(DateHeader).evaluate().isNotEmpty,
       );
-      await pumpUntil(
-        tester,
-        () =>
-            _inSheet(find.text(_ko.evidenceSheetUnlockUntilMidnight))
-                .evaluate()
-                .isNotEmpty,
-      );
-      await closeSheet(tester, _sheet);
       expect(
         find.descendant(
           of: find.byType(DepthLink),
           matching: find.byType(ShaderMask),
         ),
         findsWidgets,
+        reason: '시트 밖에서도 열린 것이 보임(icon.unlocked)',
       );
+
+      await tester.tap(
+        depthLinkTarget(of: find.byKey(const Key(SlotIds.todayFortuneHead))),
+      );
+      await pumpUntil(
+        tester,
+        () => _inSheet(find.text(_rewardTag)).evaluate().isNotEmpty,
+      );
+      expect(_inSheet(find.byType(UnlockGlintScope)), findsOneWidget);
     });
+
+    testWidgets(
+      'reward-unlock: 광고로 열리면 받은 권한의 끝 시각 "오후 2:00까지 열림"이고 시트 밖 아이콘도 바뀝니다',
+      (tester) async {
+        final (container, _) = await _openSheet(
+          tester,
+          scenario: 'reward-unlock',
+        );
+        expect(
+          find.descendant(
+            of: find.byType(DepthLink),
+            matching: find.byType(ShaderMask),
+          ),
+          findsNothing,
+        );
+        await _tapCta(tester);
+        await pumpUntil(
+          tester,
+          () => container.read(_provider).link == DepthLinkState.unlocked,
+        );
+        await pumpUntil(
+          tester,
+          () => _inSheet(find.text(_rewardTag)).evaluate().isNotEmpty,
+        );
+        await closeSheet(tester, _sheet);
+        expect(
+          find.descendant(
+            of: find.byType(DepthLink),
+            matching: find.byType(ShaderMask),
+          ),
+          findsWidgets,
+        );
+      },
+    );
 
     testWidgets('광고 제거권으로 열렸으면 꼬리표는 기간 끝 날짜입니다', (tester) async {
       final end = DateTime.utc(2026, 11, 12, 3);
@@ -926,7 +922,7 @@ void main() {
             unlockTagInsightProvider.overrideWith(
               (ref) async => Insight(
                 active: true,
-                expiresAt: DateTime.utc(2026, 10, 13, 15),
+                expiresAt: DateTime.utc(2026, 10, 13, 5),
                 source_: InsightSource_Enum.rewardedAd,
               ),
             ),
@@ -942,10 +938,7 @@ void main() {
         await tester.tap(link);
         await pumpUntil(
           tester,
-          () =>
-              _inSheet(find.text(_ko.evidenceSheetUnlockUntilMidnight))
-                  .evaluate()
-                  .isNotEmpty,
+          () => _inSheet(find.text(_rewardTag)).evaluate().isNotEmpty,
         );
         expect(
           _inSheet(find.text('첫째 근거', findRichText: true)),
@@ -975,10 +968,7 @@ void main() {
           _inSheet(find.text('첫째 원전', findRichText: true)),
           findsOneWidget,
         );
-        expect(
-          _inSheet(find.text(_ko.evidenceSheetUnlockUntilMidnight)),
-          findsOneWidget,
-        );
+        expect(_inSheet(find.text(_rewardTag)), findsOneWidget);
         expect(_inSheet(find.text('새 날 근거', findRichText: true)), findsNothing);
         expect(_inSheet(find.byType(UnlockGlint)), findsWidgets);
         expect(_inSheet(find.byType(EvidenceLockPanel)), findsNothing);
@@ -1000,10 +990,7 @@ void main() {
           () => _inSheet(find.byType(LockVeil)).evaluate().isNotEmpty,
         );
         expect(container.read(_provider).link, isNot(DepthLinkState.unlocked));
-        expect(
-          _inSheet(find.text(_ko.evidenceSheetUnlockUntilMidnight)),
-          findsNothing,
-        );
+        expect(_inSheet(find.text(_rewardTag)), findsNothing);
       },
     );
 
@@ -1048,10 +1035,7 @@ void main() {
       );
       await pumpUntil(
         tester,
-        () =>
-            _inSheet(find.text(_ko.evidenceSheetUnlockUntilMidnight))
-                .evaluate()
-                .isNotEmpty,
+        () => _inSheet(find.text(_rewardTag)).evaluate().isNotEmpty,
       );
       early.close();
       await tester.pump();
@@ -1066,10 +1050,7 @@ void main() {
       for (var i = 0; i < 5; i++) {
         await tester.pump(const Duration(milliseconds: 100));
       }
-      expect(
-        _inSheet(find.text(_ko.evidenceSheetUnlockUntilMidnight)),
-        findsOneWidget,
-      );
+      expect(_inSheet(find.text(_rewardTag)), findsOneWidget);
     });
   });
 }

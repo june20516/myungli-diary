@@ -21,6 +21,7 @@ import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/platform/push.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
+import 'package:myungli_diary/features/depth/application/insight_expiry_relock.dart';
 import 'package:myungli_diary/features/monetization/application/insight_providers.dart';
 import 'package:myungli_diary/features/profile/application/timezone_sync.dart';
 
@@ -56,10 +57,14 @@ class MyungliApp extends ConsumerWidget {
         return AppLifecycleHooks(
           // 근거 아이콘은 어느 화면, 시트에서든 지금 열람 권한이 있으면 그라데이션입니다(V112).
           child: Consumer(
-            builder: (context, ref, _) => EvidenceUnlockedScope(
-              unlocked: ref.watch(insightOpenProvider),
-              child: showDevMenu ? DevMenuTrigger(child: content) : content,
-            ),
+            builder: (context, ref, _) {
+              // 근거 열람 권한이 끝나면 열린 응답을 다시 받아 잠급니다(D132).
+              ref.watch(insightExpiryRelockProvider);
+              return EvidenceUnlockedScope(
+                unlocked: ref.watch(insightOpenProvider),
+                child: showDevMenu ? DevMenuTrigger(child: content) : content,
+              );
+            },
           ),
         );
       },
@@ -147,9 +152,11 @@ class _AppLifecycleHooksState extends ConsumerState<AppLifecycleHooks>
     }
     // 백그라운드에서 자정이 지났을 수 있어 타이머를 기다리지 않고 바로 다시 확인합니다.
     // 사본이 없으면 "오늘"이 기기 시간대를 따르므로 기기 시간대도 다시 읽습니다.
+    // 근거 열람 권한도 백그라운드에서 끝났을 수 있어 다시 계산합니다(D132, 광고로 연 근거는 2시간).
     ref
       ..invalidate(deviceTimezoneNameProvider)
-      ..invalidate(todayProvider);
+      ..invalidate(todayProvider)
+      ..invalidate(currentInsightProvider);
     // 구매·보고 계정 연결이 실패했으면 다시 시도합니다(이미 연결됐으면 거름).
     ref.read(accountLinkerProvider).linkFromEntry(ref.read(entryStateProvider));
     // 기기 시간대가 프로필 사본과 다르면 server에 알립니다.

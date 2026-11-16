@@ -208,7 +208,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get evidenceSheetLockHead => '根拠と解釈はロックされています';
 
   @override
-  String get evidenceSheetLockReward => '広告を1本見ると、今日一日、根拠と解釈をすべて見られます。';
+  String get evidenceSheetLockReward => '広告を1本最後まで見ると、そこから2時間、根拠と解釈をすべて見られます。';
 
   @override
   String get evidenceSheetLockCta => '広告を見て開く';
@@ -1761,9 +1761,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get diaryEditGuideRemove => '質問なしで書く';
 
   @override
-  String get evidenceSheetUnlockUntilMidnight => '今夜0時まで閲覧可';
-
-  @override
   String evidenceSheetUnlockUntilDate(String date) {
     return '$dateまで閲覧可';
   }
@@ -1935,4 +1932,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get consentRequiredLabelAge => '(必須)満14歳以上です';
+
+  @override
+  String evidenceSheetUnlockUntilTime(String time) {
+    return '$timeまで閲覧可';
+  }
 }

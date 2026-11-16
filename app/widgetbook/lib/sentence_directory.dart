@@ -130,9 +130,9 @@ final WidgetbookFolder sentenceDirectory = WidgetbookFolder(
                       ),
                     ],
                   ],
-                  // 열리면 제목 옆 꼬리표와 반짝임(D118, V112).
+                  // 열리면 제목 옆 꼬리표와 반짝임(D118, V112). 광고 한 편이면 끝 시각(D132).
                   unlockTag: AppLocalizations.of(context)
-                      .evidenceSheetUnlockUntilMidnight,
+                      .evidenceSheetUnlockUntilTime('오후 2:00'),
                   onWatchAd: () {},
                   onPass: () {},
                 ),

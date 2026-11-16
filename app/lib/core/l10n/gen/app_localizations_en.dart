@@ -240,7 +240,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get evidenceSheetLockReward =>
-      'Watch one ad to see all the basis and interpretation for the rest of today.';
+      'Watch one ad to the end to see all the basis and interpretation for the next 2 hours.';
 
   @override
   String get evidenceSheetLockCta => 'Watch ad to unlock';
@@ -1890,9 +1890,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get diaryEditGuideRemove => 'Write without a question';
 
   @override
-  String get evidenceSheetUnlockUntilMidnight => 'Open until midnight';
-
-  @override
   String evidenceSheetUnlockUntilDate(String date) {
     return 'Open until $date';
   }
@@ -2067,4 +2064,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get consentRequiredLabelAge => '(Required) I am 14 or older';
+
+  @override
+  String evidenceSheetUnlockUntilTime(String time) {
+    return 'Open until $time';
+  }
 }

@@ -299,12 +299,24 @@ final dailyControllerProvider =
 /// 아무도 오늘 응답을 들고 있지 않거나 이미 열려 있으면 아무 일도 없습니다. 통신 실패는 오늘
 /// 화면이 이전 값을 둔 채 다음 받기에 맡기고, 그 밖의 실패는 비정상 종료 보고에 남기고 삼킵니다
 /// (`forgetLockedCharts`와 같음).
-Future<void> refreshLockedDaily(Ref ref) async {
+Future<void> refreshLockedDaily(Ref ref) =>
+    _refreshHeldDaily(ref, EvidenceAccess.locked);
+
+/// 근거 열람 권한이 끝난 뒤, 들고 있는 오늘 응답이 열려 있으면 화면 상태를 건드리지 않고 다시
+/// 받아 잠급니다(D132: 광고로 연 근거는 2시간이라 하루 안에도 다시 잠김).
+///
+/// 보는 중인 근거 시트는 붙잡아 둔 근거를 닫을 때까지 그리고, 다음에 여는 시트부터 잠깁니다.
+/// 실패 처리는 [refreshLockedDaily]와 같습니다.
+Future<void> refreshUnlockedDaily(Ref ref) =>
+    _refreshHeldDaily(ref, EvidenceAccess.unlocked);
+
+/// 들고 있는 오늘 응답의 열람 상태가 [held]일 때만 조용히 다시 받습니다.
+Future<void> _refreshHeldDaily(Ref ref, EvidenceAccess held) async {
   if (!ref.exists(dailyControllerProvider)) {
     return;
   }
-  final held = ref.read(dailyControllerProvider).value;
-  if (held == null || held.daily.evidenceAccess != EvidenceAccess.locked) {
+  final view = ref.read(dailyControllerProvider).value;
+  if (view == null || view.daily.evidenceAccess != held) {
     return;
   }
   final reporter = ref.read(crashReporterProvider);
