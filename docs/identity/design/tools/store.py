@@ -28,8 +28,12 @@ PLAY_MIN_SHORT_SIDE = 1080  # 9:16 1080×1920 이상 권장
 FEATURE_GRAPHIC_SIZE = (1024, 500)
 MIN_SCENES, MAX_SCENES = 2, 8  # Play 2~8장(App Store 10장 이하)
 
-# app 화면 렌더 사례: _Shot('화면', '상태', '시나리오', ...) — 인자가 여러 줄에 걸쳐도 읽음
+# app 화면 렌더 사례: _Shot('화면', '상태', '시나리오', ...). 인자가 여러 줄에 걸쳐도 읽고, // 주석 줄은 건너뜀
 SHOT_PATTERN = re.compile(r"_Shot\(\s*'([^']+)',\s*'([^']+)',\s*'([^']+)'")
+LINE_COMMENT = re.compile(r"^\s*//.*$", re.MULTILINE)
+COLOR_LIGHT_TOKENS = DESIGN_DIR / "tokens" / "color.light.tokens.json"
+PRIMITIVE_TOKENS = DESIGN_DIR / "tokens" / "primitive.tokens.json"
+TOKEN_EXTENSION = "io.github.june20516.myungli-diary"
 
 
 def load(path: pathlib.Path = STORE_JSON) -> dict:
@@ -38,7 +42,8 @@ def load(path: pathlib.Path = STORE_JSON) -> dict:
 
 def app_shots(repo_root: pathlib.Path = REPO_ROOT) -> set[tuple[str, str, str]]:
     """app 화면 렌더 사례의 (화면, 상태, 시나리오) 조합."""
-    return set(SHOT_PATTERN.findall((repo_root / APP_SHOTS_PATH).read_text(encoding="utf-8")))
+    source = LINE_COMMENT.sub("", (repo_root / APP_SHOTS_PATH).read_text(encoding="utf-8"))
+    return set(SHOT_PATTERN.findall(source))
 
 
 def ia_screen_ids(repo_root: pathlib.Path) -> set[str]:
@@ -53,6 +58,9 @@ def scene_errors(scenes: list[dict], repo_root: pathlib.Path) -> list[str]:
     orders = [scene["order"] for scene in scenes]
     if orders != list(range(1, len(scenes) + 1)):
         errors.append(f"장면 순서 {orders}: 1부터 빈틈없이 이어져야 합니다")
+    keys = [scene["id"] for scene in scenes]
+    for key in sorted({key for key in keys if keys.count(key) > 1}):
+        errors.append(f"장면 키 {key}가 겹칩니다(writing 글 키로 씀)")
     screens = ia_screen_ids(repo_root)
     shots = app_shots(repo_root)
     for scene in scenes:
@@ -95,17 +103,52 @@ def feature_graphic_errors(graphic: dict) -> list[str]:
     return errors
 
 
+def token_errors(doc: dict) -> list[str]:
+    """바탕과 글 색이 토큰(gradient.today, text.primary 라이트)과 같은지."""
+    light = json.loads(COLOR_LIGHT_TOKENS.read_text(encoding="utf-8"))
+    primitive = json.loads(PRIMITIVE_TOKENS.read_text(encoding="utf-8"))
+    errors: list[str] = []
+    gradient = light["gradient"]["today"]
+    stops = [stop["color"]["hex"] for stop in gradient["$value"]]
+    angle = gradient["$extensions"][TOKEN_EXTENSION]["angle"]
+    background = doc["background"]
+    if [background["from"], background["to"]] != stops or background["angle"] != angle:
+        errors.append(f"background가 gradient.today 라이트({stops[0]}, {stops[-1]}, {angle}°)와 다릅니다")
+    reference = light["color"]["text"]["primary"]["$value"].strip("{}").split(".")
+    node = primitive
+    for part in reference:
+        node = node[part]
+    if doc["caption"]["color"] != node["$value"]["hex"]:
+        errors.append(f"caption.color가 text.primary 라이트({node['$value']['hex']})와 다릅니다")
+    return errors
+
+
 def validate(doc: dict, repo_root: pathlib.Path = REPO_ROOT) -> list[str]:
     """명세 오류 목록. 비어 있으면 통과입니다."""
     errors = scene_errors(doc["scenes"], repo_root)
     for name, frame in doc["frames"].items():
         errors += frame_errors(name, frame, doc["caption"])
     errors += feature_graphic_errors(doc["featureGraphic"])
+    errors += token_errors(doc)
     return errors
 
 
 CAPTION_FONT = "ui-600"  # Pretendard SemiBold. ja는 lengths 규칙대로 전각 1em
 LANGUAGE_ORDER = ("ko", "ja", "en")
+
+
+def en_title_case_chars(advances: dict[int, float], size: float, tracking: float, width: float) -> int:
+    """lengths.en_line_chars와 같되, 스토어 글은 낱말마다 머리 대문자(Title Case)일 수 있어
+    평균 낱말 4.7자 가운데 한 글자를 대문자 평균 폭으로 잽니다(최종 review, 소문자만으로 재면 넘침)."""
+    import lengths
+
+    total = sum(lengths.ENGLISH_LETTER_FREQUENCY.values())
+    lower = sum(advances[ord(c)] * w for c, w in lengths.ENGLISH_LETTER_FREQUENCY.items()) / total
+    upper = sum(advances[ord(c.upper())] * w for c, w in lengths.ENGLISH_LETTER_FREQUENCY.items()) / total
+    letters = lengths.EN_AVERAGE_WORD_LETTERS
+    word = lower * (letters - 1) + upper
+    char_width = ((word + advances[ord(" ")]) / (letters + 1)) * size + tracking
+    return int(width // char_width - (letters + 1) / 2)
 
 
 def caption_limits(fonts, doc: dict) -> dict[str, int]:
@@ -121,7 +164,7 @@ def caption_limits(fonts, doc: dict) -> dict[str, int]:
         measured = {
             "ko": lengths.ko_name_chars(fonts.ko(CAPTION_FONT), size, tracking, width),
             "ja": lengths.ja_line_chars(fonts.ja(CAPTION_FONT), size, width),
-            "en": lengths.en_line_chars(fonts.ko(CAPTION_FONT), size, tracking, width),
+            "en": en_title_case_chars(fonts.ko(CAPTION_FONT), size, tracking, width),
         }
         for language, value in measured.items():
             limits[language] = min(limits.get(language, value), value)

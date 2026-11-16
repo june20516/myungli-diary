@@ -34,6 +34,7 @@
     "align": "center",
     "maxLines": 2,
     "lineBreak": "writing이 원고에 줄바꿈을 직접 넣음(자동 줄바꿈 없음)",
+    "overflow": "한 줄 폭이 글 자리 폭을 넘거나 세 줄 이상이면 app 생성 명령이 실패(줄이거나 자르지 않음). 글자 수 상한은 추정이라 실제 폭 검사가 최종 기준",
     "slot": "writing이 정함(제안 store.screenshot.caption, 키는 scenes[].id)"
   },
   "frames": {

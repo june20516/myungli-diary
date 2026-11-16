@@ -119,7 +119,7 @@ def test_caption_limits_measured(font_dir):
     import lengths
 
     limits = store.caption_limits(lengths.Fonts(font_dir), store.load())
-    assert limits == {"ko": 14, "ja": 11, "en": 24}
+    assert limits == {"ko": 14, "ja": 11, "en": 23}
 
 
 def test_readme_table_matches_tool(font_dir):
@@ -156,6 +156,7 @@ def test_question_pages_recorded():
                      "design-store-feature-graphic-questions"):
         entry = entries[entry_id]
         assert (entry["kind"], entry["status"]) == ("concept", "chosen"), entry_id
+        assert entry["milestone"] == "T1", entry_id  # D133 ③ T1 전에 끝냄 (roadmap S1은 server 설계)
         assert "V133" in entry["decisions"], entry_id
         assert (artifacts / entry["file"]).is_file(), entry_id
 
@@ -164,3 +165,63 @@ def test_decision_v133_recorded():
     decisions = (store.DESIGN_DIR / "decisions.md").read_text(encoding="utf-8")
     row = next(line for line in decisions.splitlines() if line.startswith("| V133 |"))
     assert "#1202" in row and "store/" in row and "사용자 영향: #1201" in row
+
+
+# 최종 review 수정 (Important 2, Minor 1~3)
+TITLE_CASE_SAMPLES = (  # 글자마다 머리 대문자. 상한만큼 잘라 두 틀 칸에 들어가야 함
+    "See Why Today Looks Good For You And Your Month",
+    "Your Whole Month At Once With Every Good Day",
+    "Write Down Your Day With What The Day Holds",
+)
+
+
+def test_en_limit_fits_title_case(font_dir):
+    import lengths
+
+    doc = store.load()
+    fonts = lengths.Fonts(font_dir)
+    limit = store.caption_limits(fonts, doc)["en"]
+    advances = fonts.ko(store.CAPTION_FONT)
+    for name, frame in doc["frames"].items():
+        text = frame["caption"]
+        width = frame["size"][0] - 2 * text["side"]
+        for sample in TITLE_CASE_SAMPLES:
+            line = sample[:limit]
+            used = lengths.text_width(line, advances, text["size"], doc["caption"]["tracking"] * text["size"])
+            assert used <= width, (name, line, used, width)
+
+
+def test_caption_overflow_rule_for_app():
+    assert "실패" in store.load()["caption"]["overflow"]
+
+
+def test_readme_ratio_wording():
+    text = README.read_text(encoding="utf-8")
+    assert "비율이 같아 상한도 같습니다" not in text and "거의 같아" in text
+
+
+def test_commented_shot_is_ignored(tmp_path):
+    target = tmp_path / store.APP_SHOTS_PATH
+    target.parent.mkdir(parents=True)
+    target.write_text("final shots = [\n  // _Shot('a', 'b', 'c', _x),\n  _Shot('d', 'e', 'f', _x),\n];\n", encoding="utf-8")
+    assert store.app_shots(tmp_path) == {("d", "e", "f")}
+
+
+def test_background_matches_token():
+    doc = edited(lambda d: d["background"].update({"from": "#000000"}))
+    assert any("gradient.today" in e for e in store.validate(doc))
+
+
+def test_background_angle_matches_token():
+    doc = edited(lambda d: d["background"].update(angle=135))
+    assert any("gradient.today" in e for e in store.validate(doc))
+
+
+def test_caption_color_matches_token():
+    doc = edited(lambda d: d["caption"].update(color="#000000"))
+    assert any("text.primary" in e for e in store.validate(doc))
+
+
+def test_scene_ids_are_unique():
+    doc = edited(lambda d: d["scenes"][1].update(id="today"))
+    assert any("today" in e and "키" in e for e in store.validate(doc))

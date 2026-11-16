@@ -66,9 +66,10 @@
 | --- | --- | --- |
 | ko | 14 | 28 |
 | ja | 11 | 22 |
-| en | 24 | 48 |
+| en | 23 | 46 |
 
-* 재는 법은 `lengths.py`와 같습니다: ko는 띄어쓰기 없는 한글로 칸을 채운 수, ja는 전각 1em에서 금칙 여유 한 글자를 뺀 수, en은 글자 빈도 가중 평균 폭에서 줄바꿈 손실을 뺀 수.
+* 재는 법은 `lengths.py`와 같습니다: ko는 띄어쓰기 없는 한글로 칸을 채운 수, ja는 전각 1em에서 금칙 여유 한 글자를 뺀 수, en은 글자 빈도 가중 평균 폭에서 줄바꿈 손실을 뺀 수. 단 스토어 글은 Title Case일 수 있어 en은 낱말마다 한 글자를 대문자 평균 폭으로 잽니다(최종 review: 소문자만으로 잰 24자는 "See Why Today Looks Good"이 App Store 칸 1080을 1102로 넘침).
+* 상한은 추정입니다. app 생성 명령은 실제 글꼴로 줄 폭을 재어 칸을 넘거나 세 줄 이상이면 실패합니다(`store.json` `caption.overflow`).
 * 슬롯 이름과 키는 writing이 정합니다(제안: `store.screenshot.caption`, 키는 장면 순서대로 `today`, `evidence`, `calendar`, `daySheet`, `mySaju`, `share`).
 * 이 상한은 `lengths.md` `## 상한` 절에 넣지 않습니다. writing 검사(`test_slots.design_lengths`)가 그 절의 슬롯을 writing 슬롯에서 바로 찾으므로, 슬롯이 생기기 전에 넣으면 writing 검사가 깨집니다. writing이 슬롯을 만든 뒤 옮길지는 그때 writing과 정합니다.
 

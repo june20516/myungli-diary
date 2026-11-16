@@ -11,7 +11,7 @@
 **Spec:** `docs/identity/design/specs/2026-11-16-store-screenshots-design.md`
 
 ## Global Constraints
-* 글자 수 상한(한 줄): ko 14, ja 11, en 24. 두 줄까지.
+* 글자 수 상한(한 줄): ko 14, ja 11, en 23(최종 review에서 Title Case 감안으로 24에서 고침). 두 줄까지.
 * App Store 1320×2868, Play 1080×1920, 그래픽 이미지 1024×500. `store.json` `version` "1.0.0".
 * 장면 여섯(순서, IA 화면, 상태, 시나리오)은 spec §4 표 그대로.
 * 틀 수치는 spec §6 표 그대로. 글 Pretendard SemiBold(600), 자간 −0.02em, 색 `#2b2b2a`(`text.primary` 라이트), 줄 높이 1.3.
