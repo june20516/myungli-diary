@@ -33,6 +33,7 @@ from mlw.markup import check_name_position, check_ui_josa, check_ui_markup, stri
 from mlw.model import LANGS, PARAM_KIND_NUMBER, Entry, Finding, LoadError, ParamKind, RuleSet, Slot
 from mlw.placeholders import Placeholder, parse
 from mlw.sentence import check_sentence
+from mlw.store import is_store_slot
 from mlw.terms import check_tokens
 
 GLOSSARY_SLOT = "glossary.value_name"
@@ -139,6 +140,8 @@ def _entry_sentence_findings(
             values,
             allowed=slot.allowed,
             forbidden=slot.forbidden,
+            max_lines=slot.max_lines,
+            length_unit=slot.length_unit,
         )
     )
     return findings
@@ -341,8 +344,10 @@ def _read_fixture(path: Path) -> dict[str, object]:
 def _check(args: argparse.Namespace) -> int:
     rules = load_rules(args.rules_dir)
     all_slots = load_slots(args.slots_dir, rules)
-    # 하루·한 주 묶음 검사는 콘텐츠 슬롯만 봅니다. ui 원고는 완결성·문장·표기 검사만 받습니다.
-    content_slots = {slot_id: slot for slot_id, slot in all_slots.items() if not is_ui_slot(slot)}
+    # 하루·한 주 묶음 검사는 콘텐츠 슬롯만 봅니다. ui, store 원고는 완결성·문장·표기 검사만 받습니다.
+    content_slots = {
+        slot_id: slot for slot_id, slot in all_slots.items() if not is_ui_slot(slot) and not is_store_slot(slot)
+    }
     entries = load_content(args.content)
     message_keys = _read_message_keys(args.message_keys)
     message_params = _read_message_params(args.message_params)

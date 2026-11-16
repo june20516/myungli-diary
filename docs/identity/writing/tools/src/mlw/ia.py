@@ -13,6 +13,7 @@ from pathlib import Path
 import regex
 
 from mlw.model import Finding, LoadError, Severity, Slot
+from mlw.store import is_store_slot
 
 RULE_LOAD = "load.json"
 RULE_UNKNOWN = "ia.unknown"
@@ -85,6 +86,9 @@ def _finding(slot: Slot, rule_id: str, message: str, severity: Severity = "error
 
 
 def _slot_findings(slot: Slot, ia: Ia) -> list[Finding]:
+    if is_store_slot(slot):
+        # 스토어 등록정보는 앱 화면 밖이라 IA 자리가 없습니다(#1201).
+        return []
     findings: list[Finding] = []
     group = UI_GROUP if is_ui_slot(slot) else CONTENT_GROUP
     for ia_id in slot.ia:

@@ -42,6 +42,15 @@
   description: >-
     언어별 글자 수 상한. design과 조정하며(docs/identity/design/lengths.md) null이면 아직 정하지 않았습니다.
     unbounded는 레이아웃이 길이를 막지 않아(스크린리더 전용, 스크롤 본문, 확인 창 본문, app 밖 화면) 상한을 두지 않는다는 뜻입니다(#191).
+- name: max_lines
+  required: false
+  type: int
+  description: >-
+    최대 줄 수. 있으면 max_length를 줄마다 적용하고, 줄은 원고의 줄바꿈으로 나눕니다(스토어 스크린샷 위 글, #1201).
+- name: length_unit
+  required: false
+  type: "enum[chars, utf8_bytes]"
+  description: 글자 수를 재는 단위. 없으면 chars(글자)이고, utf8_bytes는 바이트로 재는 칸(App Store 키워드, #1201)에 씁니다.
 - name: key_max_length
   required: false
   type: "map[string, map[lang, int | unbounded | null]]"

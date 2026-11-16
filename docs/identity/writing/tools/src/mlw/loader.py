@@ -16,6 +16,7 @@ from mlw.model import (
     DETECT_KINDS,
     JUDGES,
     LANGS,
+    LENGTH_UNIT_CHARS,
     PARAM_KIND_LIST_PREFIX,
     PARAM_KIND_NONE,
     PARAM_KIND_NUMBER,
@@ -50,6 +51,7 @@ from mlw.model import (
     Slot,
     StyleRule,
 )
+from mlw.store import STORE_GROUP
 from mlw.yamlio import load_with_lines
 
 SCHEMA_RULE_ID = "load.schema"
@@ -661,6 +663,8 @@ def _type_error(type_text: str, value: object) -> str | None:
         return None if isinstance(value, str) else "문자열이어야 합니다"
     if type_text == "bool":
         return None if isinstance(value, bool) else "true 또는 false여야 합니다"
+    if type_text == "int":
+        return None if _is_int(value) and cast(int, value) >= 1 else "1 이상의 정수여야 합니다"
     if type_text.startswith("enum["):
         allowed = _enum_values(type_text)
         return None if value in allowed else f"허용 값은 {', '.join(allowed)}입니다"
@@ -932,6 +936,8 @@ def _parse_slot(
         components=item.string_list("components"),
         select=_plain_text(data, "select") or "",
         vocative=data.get("vocative") is True,
+        max_lines=cast(int, data["max_lines"]) if _field_is_valid(item, schema, "max_lines") else None,
+        length_unit=cast(str, data.get("length_unit", LENGTH_UNIT_CHARS)),
     )
 
 
@@ -948,23 +954,26 @@ def _check_references(slots: dict[str, Slot], rules: RuleSet, findings: list[Fin
                 findings.append(Finding(slot.file, slot.line, UNKNOWN_SLOT_ID, "error", message))
 
 
-# 콘텐츠 슬롯(content)과 ARB 화면 문구 슬롯(ui)의 하위 디렉터리입니다.
+# 콘텐츠 슬롯(content), ARB 화면 문구 슬롯(ui), 스토어 등록정보 슬롯(store, #1201)의 하위 디렉터리입니다.
 UI_GROUP = "ui"
-SLOT_GROUPS = ("content", UI_GROUP)
-# ui 슬롯의 keys는 Flutter gen-l10n이 getter 이름으로 쓰는 Dart 식별자(lowerCamelCase)입니다.
+SLOT_GROUPS = ("content", UI_GROUP, STORE_GROUP)
+# lowerCamelCase 키를 쓰는 묶음입니다. ui 슬롯 키는 Flutter gen-l10n getter 이름(Dart 식별자)이고,
+# store 슬롯 키는 업로드 JSON의 칸 이름이라 같은 규칙을 씁니다.
+CAMEL_KEY_GROUPS = (UI_GROUP, STORE_GROUP)
 ARB_KEY_PATTERN = regex.compile(r"[a-z][A-Za-z0-9]*")
 
 
-def _check_ui_keys(slot: Slot, problems: _Problems) -> bool:
-    """ui 슬롯의 키가 모두 lowerCamelCase인지 확인합니다. 어긋난 키마다 문제를 모읍니다."""
+def _check_camel_keys(slot: Slot, problems: _Problems) -> bool:
+    """ui, store 슬롯의 키가 모두 lowerCamelCase인지 확인합니다. 어긋난 키마다 문제를 모읍니다."""
     bad_keys = [key for key in slot.keys if ARB_KEY_PATTERN.fullmatch(key) is None]
+    group = slot.file.parent.name
     for key in bad_keys:
-        problems.add(slot.line, f"ui 슬롯 '{slot.id}'의 키 '{key}'는 lowerCamelCase 식별자여야 합니다")
+        problems.add(slot.line, f"{group} 슬롯 '{slot.id}'의 키 '{key}'는 lowerCamelCase 식별자여야 합니다")
     return not bad_keys
 
 
 def load_slots(slots_dir: Path, rules: RuleSet) -> dict[str, Slot]:
-    """`slots_dir/content/*.yaml`과 `slots_dir/ui/*.yaml`의 슬롯을 읽습니다. `_schema.yaml`이 검증 기준입니다.
+    """`slots_dir/content/*.yaml`, `slots_dir/ui/*.yaml`, `slots_dir/store/*.yaml`의 슬롯을 읽습니다. `_schema.yaml`이 검증 기준입니다.
 
     문제가 있으면 모두 모아 `LoadError`를 던집니다.
     """
@@ -979,7 +988,7 @@ def load_slots(slots_dir: Path, rules: RuleSet) -> dict[str, Slot]:
             slot = _parse_slot(data, line, path, schema, problems)
             if slot is None:
                 continue
-            if path.parent.name == UI_GROUP and not _check_ui_keys(slot, problems):
+            if path.parent.name in CAMEL_KEY_GROUPS and not _check_camel_keys(slot, problems):
                 continue
             if slot.id in slots:
                 first = slots[slot.id]

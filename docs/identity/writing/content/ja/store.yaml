@@ -1,0 +1,14 @@
+# 스토어 등록정보 원고(#1201, D133, 라운드 R49). 슬롯은 slots/store/listing.yaml, 업로드용은 generated/store/listing.json입니다.
+# en, ja는 원어민 검수(E18) 전 초안입니다.
+- {slot: store.app-name, key: appName, text: "命理日記"}
+- {slot: store.subtitle, key: subtitle, text: "今日の干支を、あなたの命式に合わせて読み解く日記"}
+- {slot: store.promotional-text, key: promotionalText, text: "自分の命式で読み解いた今日を見て、その日の出来事は解説の横に日記として残しましょう。うまく運ぶ日と気をつける日は、カレンダーで前もって確かめられます。"}
+- {slot: store.keywords, key: keywords, text: "四柱推命,占い,万年暦,干支,今日の運勢,命式,用神,吉凶,日記"}
+- {slot: store.short-description, key: shortDescription, text: "同じ日でも、一人ひとりの今日は違います。あなたの命式で毎日の干支を読み解きます。"}
+- {slot: store.description, key: description, text: "同じ日でも、一人ひとりの今日は違います。\n\n干支ひとつで見る占いが誰にでも同じ言葉をかけるなら、命理日記は生まれた日と時間から立てたあなたの命式に、その日の干支を重ねて読みます。命理日記があなたに届ける一文は、本当の「わたしの物語」です。\n\n■ 今日を開いたら\nその日の総合運の一文と、日の性格にまず出会います。用神の日か、貴人の日かをバッジでお知らせし、ラッキーカラーと方角、数字、集中しやすい時間も一緒に載せています。知らない命理の用語はタップしてみてください。意味と、今日そう読んだ理由が続けて開きます。\n\n■ 一日を記録したら\n日ごとに変わる問いひとつから日記を始めます。一日に何編書いても、過ぎた日を後から書いてもかまいません。保存した日記には命式の気のタグが付き、同じタグの記録をまとめて読み返せます。良かった一日は、その日の運勢と一緒に残しておきましょう。\n\n■ なぜそう読んだのか気になったら\n解説の一文一文に判定の根拠があります。窮通宝鑑、滴天髄、三命通会の原文とその意味を一緒に開いて読めます。\n\n■ 大切な予定があるなら\nカレンダーで、うまく運ぶ日と気をつける日を前もって確かめられます。大切な約束は吉日に決めましょう。日付ごとに、その日の吉凶と予定、日記をひとつの場所で見られます。\n\n■ 自分らしく生きるにはと迷ったとき\n命式と五行の分布、通変星と蔵干、十二運、神殺、大運と歳運まで、あなたの命式を表で広げて見られます。生まれ持った性向の解説と、自分を助ける気も一緒に読めます。\n\n■ いい日には\n今日の幸運をカード一枚にのせて、友だちとシェアしましょう。\n\n\n※旧暦は韓国天文研究院の基準です。詳しい計算の基準はアプリで確認できます。"}
+- {slot: store.screenshot.caption, key: today, text: "同じ日でも\n命式で見ると違う"}
+- {slot: store.screenshot.caption, key: evidence, text: "一文一文に\n根拠のある解釈"}
+- {slot: store.screenshot.caption, key: calendar, text: "大切な約束は\n吉日に決めましょう"}
+- {slot: store.screenshot.caption, key: daySheet, text: "良かった一日は\n運勢と一緒に日記へ"}
+- {slot: store.screenshot.caption, key: mySaju, text: "命式に照らして\n自分を見つめ直す"}
+- {slot: store.screenshot.caption, key: share, text: "あなたの幸運を\n友だちにシェア"}

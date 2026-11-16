@@ -69,11 +69,11 @@ def make_slots_dir(root: Path, slot_yaml: str) -> Path:
 def test_content_slots_cover_message_keys(rules: RuleSet) -> None:
     slots = load_slots(SLOTS_DIR, rules)
     message_keys = set(json.loads(MESSAGE_KEYS_PATH.read_text(encoding="utf-8")))
-    # ui 슬롯은 ARB 메시지 이름이라 core 메시지 키가 아닙니다.
+    # ui 슬롯은 ARB 메시지 이름, store 슬롯은 스토어 칸 이름이라 core 메시지 키가 아닙니다.
     covered = {
         key
         for slot in slots.values()
-        if slot.id not in IDENTIFIER_SLOTS and slot.file.parent.name != "ui"
+        if slot.id not in IDENTIFIER_SLOTS and slot.file.parent.name not in ("ui", "store")
         for key in slot.keys
     }
     assert len(message_keys) == 186
@@ -554,3 +554,45 @@ def test_bad_pending_is_schema_error(tmp_path: Path, rules: RuleSet, extra: str,
     with pytest.raises(LoadError) as raised:
         load_slots(make_slots_dir(tmp_path, VALID_SLOT + extra), rules)
     assert any(needle in finding.message for finding in raised.value.findings)
+
+
+STORE_SLOT = """\
+- id: store.test
+  where: 스토어 시험 칸
+  purpose: info
+  user_state: 미정
+  structure: 미정
+  tone: {}
+  max_length: {ko: 14, en: 23, ja: 11}
+  max_lines: 2
+  length_unit: utf8_bytes
+  keys:
+    - today
+  examples: {good: [], bad: []}
+"""
+
+
+def test_store_slots_load_with_line_and_unit_fields(tmp_path: Path, rules: RuleSet) -> None:
+    """스토어 슬롯은 `slots/store/`에서 읽고, 줄 수 상한과 길이 단위를 읽습니다(#1201)."""
+    slots_dir = make_slots_dir(tmp_path, VALID_SLOT)
+    (slots_dir / "store").mkdir()
+    (slots_dir / "store" / "listing.yaml").write_text(STORE_SLOT, encoding="utf-8")
+    slots = load_slots(slots_dir, rules)
+    store = slots["store.test"]
+    assert (store.max_lines, store.length_unit) == (2, "utf8_bytes")
+    assert (slots["test.slot"].max_lines, slots["test.slot"].length_unit) == (None, "chars")
+
+
+def test_store_slot_keys_must_be_lower_camel_case(tmp_path: Path, rules: RuleSet) -> None:
+    slots_dir = make_slots_dir(tmp_path, VALID_SLOT)
+    (slots_dir / "store").mkdir()
+    (slots_dir / "store" / "listing.yaml").write_text(STORE_SLOT.replace("- today", "- day.sheet"), encoding="utf-8")
+    with pytest.raises(LoadError) as raised:
+        load_slots(slots_dir, rules)
+    assert any("day.sheet" in finding.message for finding in raised.value.findings)
+
+
+def test_max_lines_must_be_positive_int(tmp_path: Path, rules: RuleSet) -> None:
+    with pytest.raises(LoadError) as raised:
+        load_slots(make_slots_dir(tmp_path, VALID_SLOT + "  max_lines: 0\n"), rules)
+    assert any("max_lines" in finding.message for finding in raised.value.findings)

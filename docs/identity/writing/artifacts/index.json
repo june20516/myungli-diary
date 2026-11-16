@@ -829,5 +829,26 @@
     ],
     "status": "chosen",
     "note": "子妻鬼 색은 사용자 문구(다르게 읽는 자리), 원전과 자리 이름은 근거 시트로, 숫자 중에서"
+  },
+  {
+    "id": "round-R49",
+    "title": "라운드 R49: 스토어 소개 문구와 스크린샷 위 글 (W80)",
+    "kind": "copy-sample",
+    "file": "2026-11-16-round-R49.md",
+    "date": "2026-11-16",
+    "milestone": "T1",
+    "screens": [
+      "today",
+      "evidence-sheet",
+      "calendar",
+      "day-sheet",
+      "my-saju",
+      "share-preview"
+    ],
+    "decisions": [
+      "W80"
+    ],
+    "status": "chosen",
+    "note": "캡션 4장과 설명은 사용자 문장, 비교 페이지 2026-11-16-round-R49-questions.html"
   }
 ]

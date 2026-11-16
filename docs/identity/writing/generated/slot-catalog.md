@@ -221,6 +221,13 @@
 | share-preview.image.footer | share-preview.image.footer | info | - | 1 | 1 | - | ko -, en -, ja - |
 | share-preview.image.tagline | share-preview.image.tagline | info | - | 1 | 1 | - | ko -, en -, ja - |
 | share-preview.ratio.label | share-preview.ratio.label | info | - | 1 | 3 | - | ko 8, en 13, ja 6 |
+| store.app-name | - | info | - | 1 | 1 | - | ko 30, en 30, ja 30 |
+| store.description | - | info | - | 1 | 1 | - | ko 4000, en 4000, ja 4000 |
+| store.keywords | - | info | - | 1 | 1 | - | ko 100, en 100, ja 100<br>UTF-8 바이트 |
+| store.promotional-text | - | info | - | 1 | 1 | - | ko 170, en 170, ja 170 |
+| store.screenshot.caption | - | info | - | 1 | 6 | - | ko 14, en 23, ja 11<br>줄마다, 최대 2줄 |
+| store.short-description | - | info | - | 1 | 1 | - | ko 80, en 80, ja 80 |
+| store.subtitle | - | info | - | 1 | 1 | - | ko 30, en 30, ja 30 |
 | system-push.channel.morning | system-push.channel.morning | info | - | 1 | 1 | - | ko -, en -, ja - |
 | system.apple_return | system-apple-return.page.title<br>system-apple-return.page.body<br>system-apple-return.page.open<br>system-apple-return.page.install | guide | - | 1 | 4 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | system.notice | 컴포넌트 notice-banner | info | - | 1 | 7 | - | ko 52, en 90, ja 38 |

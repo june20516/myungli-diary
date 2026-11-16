@@ -1,0 +1,13 @@
+# 스토어 등록정보 원고(#1201, D133, 라운드 R49). 슬롯은 slots/store/listing.yaml, 업로드용은 generated/store/listing.json입니다.
+- {slot: store.app-name, key: appName, text: "명리일기"}
+- {slot: store.subtitle, key: subtitle, text: "오늘 일진을 내 사주에 맞춰 풀어 주는 일기"}
+- {slot: store.promotional-text, key: promotionalText, text: "내 사주로 풀이한 오늘을 보고, 그날 있었던 일을 풀이 옆에 일기로 남겨요. 잘 풀리는 날과 조심할 날은 달력에서 미리 확인해요."}
+- {slot: store.keywords, key: keywords, text: "사주,운세,만세력,일진,오늘의운세,사주풀이,명리학,용신,길흉,다이어리"}
+- {slot: store.short-description, key: shortDescription, text: "같은 날이라도 각자의 오늘은 달라요. 내 사주로 매일의 일진을 풀어 드려요."}
+- {slot: store.description, key: description, text: "같은 날이라도 각자의 오늘은 다릅니다.\n\n띠 하나로 보는 운세가 모두에게 같은 말을 건넨다면, 명리일기는 태어난 날과 시간으로 세운 내 사주 원국에 그날의 일진을 맞춰 봅니다. 명리일기가 당신에게 주는 한 문장은, 진짜 \"나의 이야기\"입니다.\n\n■ 오늘을 열어보고\n그날의 총운 한 문장과 날의 성격을 먼저 만납니다. 용신의 날인지, 귀인의 날인지 배지로 알려 드리고, 행운 색과 방향, 숫자, 집중하기 좋은 시간도 함께 담았습니다. 낯선 명리 용어는 눌러 보세요. 뜻과 오늘 그렇게 본 이유가 이어서 펼쳐집니다.\n\n■ 하루를 기록하고\n날마다 다른 질문 하나로 일기를 시작합니다. 하루에 여러 편을 써도, 지나간 날을 뒤늦게 적어도 괜찮습니다. 저장한 일기에는 사주 기운 태그가 붙어, 같은 태그의 기록을 모아 다시 읽을 수 있습니다. 좋았던 하루는 그날의 운세와 함께 기억해 두세요.\n\n■ 왜 그렇게 봤는지 궁금하다면\n풀이 한 문장 한 문장에 판정 근거가 있습니다. 궁통보감, 적천수, 삼명통회의 원문과 그 뜻을 함께 펼쳐 볼 수 있습니다.\n\n■ 중요한 일정이 있다면\n캘린더에서 잘 풀리는 날과 조심할 날을 미리 확인할 수 있습니다. 중요한 약속은 길일에 잡아 보세요. 날짜마다 그날의 길흉과 일정, 일기를 한자리에서 볼 수 있습니다.\n\n■ 나로 태어나서 어떻게 살아야 할까 고민될 때\n사주 원국과 오행 분포, 십성과 지장간, 12운성, 신살, 대운과 세운까지 내 사주를 표로 펼쳐 봅니다. 타고난 성향 풀이와 나를 돕는 기운도 함께 읽을 수 있습니다.\n\n■ 좋은 날에는\n오늘의 행운을 카드 한 장에 담아 친구와 나눠 보세요.\n\n\n*음력은 한국천문연구원 기준이며, 상세 계산 기준은 앱에서 확인할 수 있습니다."}
+- {slot: store.screenshot.caption, key: today, text: "같은 날도\n내 사주로 보면 달라요"}
+- {slot: store.screenshot.caption, key: evidence, text: "한 문장 한 문장\n근거 있는 해석"}
+- {slot: store.screenshot.caption, key: calendar, text: "중요한 약속은\n길일에 잡아 보세요"}
+- {slot: store.screenshot.caption, key: daySheet, text: "좋았던 하루를\n운세와 함께 기억해요"}
+- {slot: store.screenshot.caption, key: mySaju, text: "사주에 비추어\n나를 다시 알아봐요"}
+- {slot: store.screenshot.caption, key: share, text: "내 행운을\n친구와 나눠요"}
