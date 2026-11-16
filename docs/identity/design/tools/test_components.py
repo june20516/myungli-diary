@@ -446,7 +446,8 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_8_1_0():
+def test_contract_version_is_8_2_0():
+    # 8.2.0은 #1211(V134): sentence-block 글자, 근거 시트 대상 문장, lock.veil 앞부분에 한자 대체 글꼴을 더해 부 버전.
     # 8.1.0은 #1180(D132, V132): 열림 꼬리표 params에 time 추가와 광고 권한 끝 "자정"을 "광고 2시간"으로 고친 문구라 부 버전.
     # 8.0.1은 H1 지휘 점검(#1172): 요소 seal의 모양 기준을 elements.json seal.path로 적은 문구만이라 수 버전.
     # 8.0.0은 빌드 7 검수 묶음(V127~V131): depth-link block을 지워 주 버전. head-end, open.ring, term-token open, todayReselect 추가.
@@ -458,7 +459,7 @@ def test_contract_version_is_8_1_0():
     # 7.2.0은 #1029 ①, #1034 drift(D124 ⑤, V119): 날짜 머리 덕일 virtue와 hanja-tag compact 추가라 부 버전.
     # 7.1.0은 #1020 drift(D123, V118): 행운 색, 시간 시트 근거 진입점과 시간 시트 제목 슬롯 추가라 부 버전.
     # 7.0.0은 #982, #1003(V114~V117), 6.3.0은 V110~V113, 6.2.0은 검수 회차2 묶음(V100~V109), 6.1.1은 #908(V99), 6.1.0은 #892(V98), 6.0.0은 #859 drift(V96)
-    assert VERSION == "8.1.0"
+    assert VERSION == "8.2.0"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -843,6 +844,20 @@ def test_evidence_sheet_stacks_many_items_and_hanja_font():
     assert sheet["source"]["repeat"] == {"each": "item", "gap": "{space.16}", "skipEmpty": True}  # V113 상자 없이 원전 묶음
     assert sheet["source"]["fontFallback"] == "{font.family.hanja}"
     assert by_id["term-token"]["parts"]["explainSheet"]["hanja"]["fontFamily"] == "{font.family.hanja}"
+
+
+def test_content_sentences_fall_back_to_hanja_font():
+    # #1211(V134): server 콘텐츠 문장(판정 근거, 내 사주에서는, 대상 문장, 잠긴 앞부분)에도 한자가 섞임.
+    # 문장 글꼴(고운돋움, Pretendard)에 없는 한자만 font.family.hanja로 그림
+    groups = load_documents(COMPONENTS_DIR)
+    by_id = {c["id"]: c for c in groups["sentence"]["components"]}
+    assert by_id["sentence-block"]["parts"]["text"]["fontFallback"] == "{font.family.hanja}"
+    sheet = by_id["depth-link"]["parts"]["evidenceSheet"]
+    assert sheet["target"]["sentence"]["fontFallback"] == "{font.family.hanja}"
+    lead = groups["elements"]["elements"]["lock.veil"]["lead"]
+    assert lead["fontFallback"] == "{font.family.hanja}"
+    sentence_md = (COMPONENTS_DIR / "sentence.md").read_text(encoding="utf-8")
+    assert "**콘텐츠 문장의 한자" in sentence_md and "V134" in sentence_md
 
 
 def test_day_sheet_diary_entrances():
