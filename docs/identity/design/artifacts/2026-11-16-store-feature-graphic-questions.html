@@ -1,0 +1,22 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Play 그래픽 이미지 관문 질문 (#1202)</title><style>
+:root { --bg: #f2f1ee; --ink: #1f1f1e; --sub: #5b5b59; --line: #d6d4cf; --primary: #45604b; --good-bg: #e6efe7; --grad: linear-gradient(160deg, #eef4ef 0%, #fbefee 100%); }
+* { box-sizing: border-box; } body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif; font-size: 15px; line-height: 1.55; }
+.page { max-width: 1240px; margin: 0 auto; padding: 32px 20px 72px; display: grid; gap: 28px; } h1 { font-size: 24px; margin: 0; text-wrap: balance; } h2 { font-size: 18px; margin: 0 0 4px; color: var(--primary); }
+.intro { color: var(--sub); margin: 0; max-width: 980px; } .intro li { margin: 2px 0; }
+.rec { display: inline-block; font-size: 12px; font-weight: 700; color: var(--primary); background: var(--good-bg); border-radius: 999px; padding: 0 8px; margin-left: 6px; vertical-align: 2px; }
+.opt { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: grid; gap: 12px; } .why { margin: 0; color: var(--sub); max-width: 980px; }
+.fg { position: relative; width: 512px; max-width: 100%; aspect-ratio: 1024 / 500; overflow: hidden; background: var(--grad); border: 1px solid var(--line); }
+.lock { position: absolute; height: auto; } .lock.c { width: 46%; left: 27%; top: 50%; transform: translateY(-50%); }
+.lock.l { width: 38%; left: 6%; top: 50%; transform: translateY(-50%); }
+.three { position: absolute; right: 4%; top: 14%; bottom: 0; width: 48%; display: flex; gap: 4%; }
+.pn { flex: 1; border-radius: 8px 8px 0 0; overflow: hidden; box-shadow: 0 4px 12px rgba(40,50,40,.14); } .pn img { width: 100%; display: block; }
+.stack { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; } .lock.s { position: static; width: 40%; }
+.line { font-size: 16px; font-weight: 600; color: #3b3b39; letter-spacing: -0.02em; }
+.cap { font-size: 12px; color: var(--sub); }
+</style></head><body><div class="page">
+<header><h1>Play 그래픽 이미지 1024×500 (#1202, D133)</h1></header>
+<ul class="intro"><li>Play 등록정보 맨 위와 추천 자리에 쓰이는 가로 그림입니다. 요청은 "글은 넣지 않거나 최소로"입니다.</li><li>바탕은 스크린샷과 같은 <code>gradient.today</code>이고, 로고는 정본 가로 조합 PNG(<code>logo/lockup.png</code>)를 그대로 씁니다. 미리보기는 실제 크기의 1/2입니다.</li></ul>
+<section class="opt"><h2>G1. 가로 조합 로고만<span class=rec>추천</span></h2><p class="why">바탕 그라데이션 가운데에 아이콘과 워드마크 가로 조합 하나. 글이 없어 세 언어 같은 그림이고, 화면이 바뀌어도 다시 만들 일이 없습니다. Play가 그래픽 이미지를 작게 보이거나 가장자리를 잘라도 가운데 로고는 남습니다. 워드마크는 한글 하나뿐이라 en, ja 등록정보에도 한글 명리일기가 보입니다(앱 아이콘과 같은 정체성 표지로 둠. 언어별 앱 이름은 writing #1201이 정하고 스토어가 글로 보여 줌).</p><div class="fg"><img class="lock c" src="../logo/lockup.png" alt="명리일기 로고"></div><span class="cap">1024×500</span></section>
+<section class="opt"><h2>G2. 로고 + 화면 세 장</h2><p class="why">왼쪽에 로고, 오른쪽에 스크린샷 앞 세 장면(오늘, 근거 시트, 달력)을 F1 둥근 판으로 아래가 잘리게 둡니다. 앱 모습이 보이지만 1024×500에서 화면 글자는 읽히지 않고, 화면이 바뀌면 다시 만들어야 하며 화면 안 글 때문에 언어별 세 벌이 됩니다.</p><div class="fg"><img class="lock l" src="../logo/lockup.png" alt="명리일기 로고"><div class="three"><div class="pn"><img src="../../../../app/docs/artifacts/2026-11-13-today-default.png" alt=""></div><div class="pn"><img src="../../../../app/docs/artifacts/2026-11-12-evidence-sheet-unlocked.png" alt=""></div><div class="pn"><img src="../../../../app/docs/artifacts/2026-11-09-calendar-default.png" alt=""></div></div></div><span class="cap">1024×500</span></section>
+<section class="opt"><h2>G3. 로고 + 한 줄 글</h2><p class="why">가운데 로고 아래 짧은 글 한 줄(writing이 씀, 아래는 자리 예시). 앱이 무엇인지 한 줄로 말하지만 요청의 "글은 넣지 않거나 최소로"에 걸치고 언어별 세 벌이 됩니다.</p><div class="fg"><div class="stack"><img class="lock s" src="../logo/lockup.png" alt="명리일기 로고"><span class="line">내 사주로 풀어 주는 오늘과 일기</span></div></div><span class="cap">1024×500</span></section>
+</div></body></html>

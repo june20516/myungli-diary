@@ -1,0 +1,56 @@
+{
+  "version": "1.0.0",
+  "spec": "specs/2026-11-16-store-screenshots-design.md",
+  "decisions": ["V133"],
+  "render": {
+    "logicalSize": [390, 844],
+    "pixelRatio": 3,
+    "theme": "light",
+    "locales": ["ko", "en", "ja"],
+    "hide": ["bannerAd", "statusBar"],
+    "notes": {
+      "bannerAd": "탭 화면 아래 배너 광고 자리는 빼고 찍음(탭 막대만 남음)",
+      "statusBar": "시계, 배터리 같은 상태 막대는 넣지 않음",
+      "evidence-sheet": "unlock.glint 띠가 지나가지 않는 정지 순간. 열림 꼬리표는 D132 끝 시각 문구(evidenceSheetUnlockUntilTime)",
+      "data": "시나리오의 대역 데이터 그대로(실존 인물 아님, D133 ④). 가격이 보이는 화면은 장면에 넣지 않음(D74)"
+    }
+  },
+  "scenes": [
+    { "order": 1, "id": "today", "screen": "today", "state": "default", "scenario": "member" },
+    { "order": 2, "id": "evidence", "screen": "evidence-sheet", "state": "unlocked", "scenario": "evidence-unlocked" },
+    { "order": 3, "id": "calendar", "screen": "calendar", "state": "default", "scenario": "member" },
+    { "order": 4, "id": "daySheet", "screen": "day-sheet", "state": "default", "scenario": "member" },
+    { "order": 5, "id": "mySaju", "screen": "my-saju", "state": "default", "scenario": "member" },
+    { "order": 6, "id": "share", "screen": "share-preview", "state": "default", "scenario": "member" }
+  ],
+  "background": { "token": "gradient.today", "theme": "light", "from": "#eef4ef", "to": "#fbefee", "angle": 160 },
+  "caption": {
+    "font": "Pretendard",
+    "weight": 600,
+    "tracking": -0.02,
+    "lineHeight": 1.3,
+    "color": "#2b2b2a",
+    "colorToken": "text.primary",
+    "align": "center",
+    "maxLines": 2,
+    "lineBreak": "writing이 원고에 줄바꿈을 직접 넣음(자동 줄바꿈 없음)",
+    "overflow": "한 줄 폭이 글 자리 폭을 넘거나 세 줄 이상이면 app 생성 명령이 실패(줄이거나 자르지 않음). 글자 수 상한은 추정이라 실제 폭 검사가 최종 기준",
+    "slot": "writing이 정함(제안 store.screenshot.caption, 키는 scenes[].id)"
+  },
+  "frames": {
+    "appStore": {
+      "label": "App Store iPhone 6.9인치",
+      "size": [1320, 2868],
+      "caption": { "top": 200, "side": 120, "size": 88 },
+      "screen": { "top": 560, "width": 1080, "radius": 72, "shadow": { "y": 24, "blur": 64, "color": "rgba(40, 50, 40, 0.14)" } }
+    },
+    "play": {
+      "label": "Play 휴대전화",
+      "size": [1080, 1920],
+      "caption": { "top": 120, "side": 96, "size": 72 },
+      "screen": { "top": 400, "width": 700, "radius": 48, "shadow": { "y": 16, "blur": 44, "color": "rgba(40, 50, 40, 0.14)" } }
+    }
+  },
+  "screenFit": "화면 렌더를 판 폭에 맞춰 줄이고(높이는 비율대로) 그림 아래로 넘치는 부분은 자름",
+  "featureGraphic": { "size": [1024, 500], "logo": "logo/lockup.png", "logoWidth": 472, "align": "center", "text": false, "locales": "세 언어 같은 한 장" }
+}
