@@ -160,7 +160,7 @@ type staticRouter interface {
 	staticRoutes(authenticate func(Operation, http.Handler) http.Handler) []staticRoute
 }
 
-// staticRoutes는 App Link 안내 페이지와 assetlinks.json 경로, 법적 문서 경로, staging 빌드의 테스트 로그인 경로입니다. 인증·계약 검증 없이 등록됩니다.
+// staticRoutes는 App Link 안내 페이지와 assetlinks.json 경로, 법적 문서와 지원 페이지 경로, staging 빌드의 테스트 로그인 경로입니다. 인증·계약 검증 없이 등록됩니다.
 // AppLink 설정이 비어 있으면 시작 시점의 조립 버그이므로 panic합니다.
 func (a *API) staticRoutes(authenticate func(Operation, http.Handler) http.Handler) []staticRoute {
 	c := a.AppLink
@@ -190,6 +190,7 @@ func (a *API) staticRoutes(authenticate func(Operation, http.Handler) http.Handl
 		})},
 	}
 	routes = append(routes, a.legalRoutes()...)
+	routes = append(routes, a.supportRoute())
 	// staging 빌드에서 켠 테스트 경로도 더합니다(prod 빌드에서는 늘 없음, S24, S125, S131).
 	return append(routes, a.testLoginRoutes(authenticate)...)
 }

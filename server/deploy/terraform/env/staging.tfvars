@@ -12,7 +12,8 @@ uptime_check_enabled = true
 test_login_enabled   = true
 
 # staging 결제는 RevenueCat Test Store(sandbox) 구매로 켭니다(D99, #683). APP_ENV가 prod가 아니라 sandbox 구매도 장부에 적습니다.
-# AD_FREE_PRODUCT_IDS는 Test Store 상품(식별자 ad_free_1m, consumable)의 RevenueCat 상품 id입니다(S124).
+# AD_FREE_PRODUCT_IDS는 광고 제거권 상품(식별자 ad_free_1m)의 RevenueCat 상품 id로 Test Store, Play, App Store 순입니다(S124).
+# 스토어 빌드가 staging 설정으로 나가 실제 스토어 sandbox 구매도 오므로 두 스토어 id를 함께 둡니다(#1221 지휘 요청, app #1197).
 # Secret REVENUECAT_API_KEY, REVENUECAT_WEBHOOK_AUTH는 staging Secret Manager에 있습니다(K8).
 billing_enabled = true
 
@@ -23,7 +24,7 @@ billing_enabled = true
 support_mail_enabled = true
 
 server_settings = {
-  AD_FREE_PRODUCT_IDS     = "prod0bc032dedf"
+  AD_FREE_PRODUCT_IDS     = "prod0bc032dedf,prod2559315a97,prod083797223e"
   ANDROID_APP_PACKAGE     = "app.myungli.diary"
   ANDROID_CERT_SHA256     = "69:6D:33:B9:F7:41:1A:76:9A:70:23:C3:EC:F0:D6:36:B1:17:33:DC:D7:BC:7D:DB:78:FA:43:9B:4F:B3:9A:93,E2:FA:71:8C:F4:CD:F1:4C:E4:7E:C7:38:32:FA:F3:86:D0:E7:BD:EF:5B:E9:EE:CC:E6:8C:CD:DC:60:E0:F5:DE"
   ANDROID_STORE_URL       = "https://play.google.com/store/apps/details?id=app.myungli.diary"
