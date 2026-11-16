@@ -74,7 +74,7 @@
 - {slot: event-edit.delete.confirm, key: eventEditDeleteConfirmDelete, text: "지우기"}
 - {slot: event-edit.delete.confirm, key: eventEditDeleteConfirmCancel, text: "취소"}
 - {slot: evidence-sheet.lock.head, key: evidenceSheetLockHead, text: "근거와 해석은 잠겨 있어요"}
-- {slot: evidence-sheet.lock.reward, key: evidenceSheetLockReward, text: "광고 한 편을 보면 오늘 하루 근거와 해석을 모두 볼 수 있어요."}
+- {slot: evidence-sheet.lock.reward, key: evidenceSheetLockReward, text: "광고 한 편을 끝까지 보면 그때부터 2시간 동안 근거와 해석을 모두 볼 수 있어요."}
 - {slot: evidence-sheet.lock.cta, key: evidenceSheetLockCta, text: "광고 보고 열기"}
 - {slot: evidence-sheet.lock.pass, key: evidenceSheetLockPass, text: "광고 제거권이 있으면 기간 내내 열려 있어요."}
 - {slot: evidence-sheet.lock.pass, key: evidenceSheetLockPassLink, text: "광고 제거 보기"}
@@ -504,7 +504,7 @@
 - {slot: preview.used.input, key: previewUsedInputBirthValue, text: "{calendar} {date}"}
 - {slot: preview.used.input, key: previewUsedInputBirthValueLeap, text: "{calendar} 윤달 {date}"}
 - {slot: preview.used.notice, key: previewUsedNotice, text: "첫 풀이는 이 기기에서 한 번만 볼 수 있어요. 정보를 바꾸려면 저장한 뒤 나 탭 정보 수정에서 바꿔 주세요."}
-- {slot: evidence-sheet.unlock.until, key: evidenceSheetUnlockUntilMidnight, text: "자정까지 열림"}
+- {slot: evidence-sheet.unlock.until, key: evidenceSheetUnlockUntilTime, text: "{time}까지 열림"}
 - {slot: evidence-sheet.unlock.until, key: evidenceSheetUnlockUntilDate, text: "{date}까지 열림"}
 - {slot: day-sheet.verdict.expand, key: daySheetVerdictExpand, text: "내역 보기"}
 - {slot: day-sheet.verdict.collapse, key: daySheetVerdictCollapse, text: "접기"}

@@ -74,7 +74,7 @@
 - {slot: event-edit.delete.confirm, key: eventEditDeleteConfirmDelete, text: "削除"}
 - {slot: event-edit.delete.confirm, key: eventEditDeleteConfirmCancel, text: "キャンセル"}
 - {slot: evidence-sheet.lock.head, key: evidenceSheetLockHead, text: "根拠と解釈はロックされています"}
-- {slot: evidence-sheet.lock.reward, key: evidenceSheetLockReward, text: "広告を1本見ると、今日一日、根拠と解釈をすべて見られます。"}
+- {slot: evidence-sheet.lock.reward, key: evidenceSheetLockReward, text: "広告を1本最後まで見ると、そこから2時間、根拠と解釈をすべて見られます。"}
 - {slot: evidence-sheet.lock.cta, key: evidenceSheetLockCta, text: "広告を見て開く"}
 - {slot: evidence-sheet.lock.pass, key: evidenceSheetLockPass, text: "広告除去パスがあれば、期間中ずっと開いています。"}
 - {slot: evidence-sheet.lock.pass, key: evidenceSheetLockPassLink, text: "広告除去を見る"}
@@ -504,7 +504,7 @@
 - {slot: preview.used.input, key: previewUsedInputBirthValue, text: "{calendar} {date}"}
 - {slot: preview.used.input, key: previewUsedInputBirthValueLeap, text: "{calendar} 閏月 {date}"}
 - {slot: preview.used.notice, key: previewUsedNotice, text: "最初の読み解きは、この端末では一度だけ見られます。情報を変えるには、保存したあとマイページの「情報の変更」で変えてください。"}
-- {slot: evidence-sheet.unlock.until, key: evidenceSheetUnlockUntilMidnight, text: "今夜0時まで閲覧可"}
+- {slot: evidence-sheet.unlock.until, key: evidenceSheetUnlockUntilTime, text: "{time}まで閲覧可"}
 - {slot: evidence-sheet.unlock.until, key: evidenceSheetUnlockUntilDate, text: "{date}まで閲覧可"}
 - {slot: day-sheet.verdict.expand, key: daySheetVerdictExpand, text: "内訳を見る"}
 - {slot: day-sheet.verdict.collapse, key: daySheetVerdictCollapse, text: "閉じる"}

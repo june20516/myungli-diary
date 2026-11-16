@@ -627,7 +627,7 @@
   "@evidenceSheetLockPassLink": {
     "description": "evidence-sheet.lock.pass: 광고 제거권으로도 열린다는 안내와 링크"
   },
-  "evidenceSheetLockReward": "광고 한 편을 보면 오늘 하루 근거와 해석을 모두 볼 수 있어요.",
+  "evidenceSheetLockReward": "광고 한 편을 끝까지 보면 그때부터 2시간 동안 근거와 해석을 모두 볼 수 있어요.",
   "@evidenceSheetLockReward": {
     "description": "evidence-sheet.lock.reward: 보상 고지: 광고 한 편을 보면 오늘 하루 근거와 해석이 모두 열림(광고 전 매번)"
   },
@@ -651,13 +651,18 @@
   "@evidenceSheetUnlockFailed": {
     "description": "evidence-sheet.unlock.failed: 광고를 끝까지 봤는데 server 확인(SSV)이 오지 않을 때의 toast"
   },
-  "evidenceSheetUnlockUntilMidnight": "자정까지 열림",
-  "@evidenceSheetUnlockUntilMidnight": {
-    "description": "evidence-sheet.unlock.until: 열려 있는 동안 시트 제목 옆 꼬리표. 언제까지 열려 있는지 알림. 열린 이유별 두 문구: 광고 한 편이면 그날 자정까지, 광고 제거권이면 기간 끝 날짜(매개변수 `date`)(D118 ①)"
+  "evidenceSheetUnlockUntilTime": "{time}까지 열림",
+  "@evidenceSheetUnlockUntilTime": {
+    "description": "evidence-sheet.unlock.until: 열려 있는 동안 시트 제목 옆 꼬리표. 언제까지 열려 있는지 알림. 열린 이유별 두 문구: 광고 한 편이면 끝 시각(광고를 본 때부터 2시간, 매개변수 `time`, D132), 광고 제거권이면 기간 끝 날짜(매개변수 `date`)(D118 ①)",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
   },
   "evidenceSheetUnlockUntilDate": "{date}까지 열림",
   "@evidenceSheetUnlockUntilDate": {
-    "description": "evidence-sheet.unlock.until: 열려 있는 동안 시트 제목 옆 꼬리표. 언제까지 열려 있는지 알림. 열린 이유별 두 문구: 광고 한 편이면 그날 자정까지, 광고 제거권이면 기간 끝 날짜(매개변수 `date`)(D118 ①)",
+    "description": "evidence-sheet.unlock.until: 열려 있는 동안 시트 제목 옆 꼬리표. 언제까지 열려 있는지 알림. 열린 이유별 두 문구: 광고 한 편이면 끝 시각(광고를 본 때부터 2시간, 매개변수 `time`, D132), 광고 제거권이면 기간 끝 날짜(매개변수 `date`)(D118 ①)",
     "placeholders": {
       "date": {
         "type": "String"
