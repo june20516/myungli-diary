@@ -629,7 +629,7 @@
   },
   "evidenceSheetLockReward": "광고 한 편을 끝까지 보면 그때부터 2시간 동안 근거와 해석을 모두 볼 수 있어요.",
   "@evidenceSheetLockReward": {
-    "description": "evidence-sheet.lock.reward: 보상 고지: 광고 한 편을 보면 오늘 하루 근거와 해석이 모두 열림(광고 전 매번)"
+    "description": "evidence-sheet.lock.reward: 보상 고지: 광고 한 편을 끝까지 보면 그때부터 2시간 동안 근거와 해석이 모두 열림(광고 전 매번, D132)"
   },
   "evidenceSheetLockUnavailable": "지금은 볼 수 있는 광고가 없어요. 잠시 뒤에 다시 해 주세요.",
   "@evidenceSheetLockUnavailable": {
