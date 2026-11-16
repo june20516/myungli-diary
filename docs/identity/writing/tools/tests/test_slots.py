@@ -33,6 +33,7 @@ IDENTIFIER_SLOTS = {
     "evidence.source",
     "evidence.no_source",
     "system.apple_return",
+    "system.support",
     "system.notice",
 }
 VALID_SLOT = """\
