@@ -210,7 +210,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get evidenceSheetLockHead => '근거와 해석은 잠겨 있어요';
 
   @override
-  String get evidenceSheetLockReward => '광고 한 편을 보면 오늘 하루 근거와 해석을 모두 볼 수 있어요.';
+  String get evidenceSheetLockReward =>
+      '광고 한 편을 끝까지 보면 그때부터 2시간 동안 근거와 해석을 모두 볼 수 있어요.';
 
   @override
   String get evidenceSheetLockCta => '광고 보고 열기';
@@ -1764,9 +1765,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get diaryEditGuideRemove => '질문 없이 쓰기';
 
   @override
-  String get evidenceSheetUnlockUntilMidnight => '자정까지 열림';
-
-  @override
   String evidenceSheetUnlockUntilDate(String date) {
     return '$date까지 열림';
   }
@@ -1938,4 +1936,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get consentRequiredLabelAge => '(필수) 만 14세 이상입니다';
+
+  @override
+  String evidenceSheetUnlockUntilTime(String time) {
+    return '$time까지 열림';
+  }
 }

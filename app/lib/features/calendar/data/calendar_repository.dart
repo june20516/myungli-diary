@@ -45,7 +45,7 @@ final class CalendarRepository {
   /// [key]의 캐시. 없거나 깨졌으면(문법 오류·모양 불일치) null이고, 다음 응답이 덮어써
   /// 회복합니다.
   ///
-  /// 캐시는 먼저 보이기용입니다. 근거 열람 권한(보상형 해제는 그날 자정까지, D60)과 문장은
+  /// 캐시는 먼저 보이기용입니다. 근거 열람 권한(보상형 해제는 본 때부터 2시간, D132)과 문장은
   /// 매 진입 [fetch]로 확인합니다(A32·A56). `getCalendar`에는 ETag가 없어 조건부 요청은 없습니다.
   Future<Calendar?> cached(String key) async {
     final json = await _cache.read(CacheKind.calendar, key);

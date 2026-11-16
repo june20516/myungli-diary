@@ -2348,7 +2348,8 @@ void main() {
     test('evidenceSheet.unlockTag: 슬롯, 알약 치수, 테두리, 아이콘, 글자가 구현과 같습니다', () {
       final tag = _map(sheet['unlockTag']);
       expect(tag['slot'], SlotIds.evidenceSheetUnlockUntil);
-      expect(tag['params'], ['date']);
+      // 광고 한 편은 끝 시각 time, 광고 제거권은 기간 끝 date(8.1.0, D132).
+      expect(tag['params'], ['time', 'date']);
       expect(_px(tag['height']), EvidenceSheetBody.unlockTagHeight);
       expect(tag['paddingStart'], '{space.8}');
       expect(tag['paddingEnd'], '{space.8}');

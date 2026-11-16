@@ -92,8 +92,9 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
   bool _everOpened = false;
 
   /// 응답이 열려 있을 때 받은 마지막 근거와 원국 개인 해석. 보는 중에 응답이 다시 잠기면
-  /// (자정 뒤 새 날 응답, 기간 끝) 이것을 시트를 닫을 때까지 그립니다(`depth-link` 자정 규칙,
-  /// `unlock.glint` `stopWhen`). 다음에 여는 시트는 새 흐름이라 응답대로 잠깁니다.
+  /// (자정 뒤 새 날 응답, 광고 2시간이나 광고 제거권 기간 끝, D132) 이것을 시트를 닫을 때까지
+  /// 그립니다(`depth-link` 잠금 규칙, `unlock.glint` `stopWhen`). 다음에 여는 시트는 새 흐름이라
+  /// 응답대로 잠깁니다.
   List<Evidence> _heldEvidence = const [];
   RenderedText? _heldPersonal;
   RenderedText? _heldSentence;
@@ -255,7 +256,12 @@ class _EvidenceSheetState extends ConsumerState<EvidenceSheet> {
     }
     final target = widget.target;
     final unlockTag = opened
-        ? unlockUntilText(l10n, _tagInsight, ref.watch(profileTimezoneProvider))
+        ? unlockUntilText(
+            l10n,
+            _tagInsight,
+            ref.watch(profileTimezoneProvider),
+            use24HourFormat: MediaQuery.alwaysUse24HourFormatOf(context),
+          )
         : null;
     return ScreenStateView<EvidenceUnlockState>(
       value: _valueOf(access, unlock),

@@ -27,7 +27,7 @@ const _reduce = MotionPrefs(
 );
 
 const _title = '오늘 풀이의 근거';
-const _tag = '자정까지 열림';
+const _tag = '오후 2:00까지 열림';
 
 RenderedText _text(String text) =>
     RenderedText(segments: [Segment(text: text)]);

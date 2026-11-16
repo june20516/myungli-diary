@@ -54,9 +54,9 @@
 | MVP 화면 목록 (IA) `docs/ia/screens.json` (화면·상태·경로·슬롯·컴포넌트) | **사용** | 지휘 |
 | ui 원고 ARB `docs/identity/writing/generated/arb/app_{ko,en,ja}.arb` (`tool/import_writing_arb.dart`로 가져옴) | **사용** | writing |
 
-## 현재 상태 (2026-11-14, app 세션 갱신)
+## 현재 상태 (2026-11-16, app 세션 갱신)
 진행 중인 일만 적고, 병합하면 지웁니다(`docs/workflow.md` §3 마무리 2번). 병합된 일의 경과는 PR 본문, 결정 로그(`docs/decisions.md`), git에 있습니다.
-* **스토어 빌드 (8) 기록과 H1 문서 정리(#1166, D131)**, 브랜치 `app/store-build-8`, PR #1162. Android와 iOS 1.0.0 (8)(빌드 7 검수 묶음 A147)을 Play 내부 테스트와 TestFlight에 올렸습니다. release 빌드를 기기에서 실행해 보는 확인은 이번에 하지 않았습니다. 막힌 것은 없습니다.
+* **보상형 광고 열림 2시간(#1179, D132, A148)과 drift #1187**, 브랜치 `app/1179-reward-2h`. 막힌 것은 없습니다.
 
 ## 다음 할 일
 0. **실기기와 도구:**
