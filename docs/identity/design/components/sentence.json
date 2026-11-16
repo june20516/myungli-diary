@@ -1,5 +1,5 @@
 {
-  "version": "8.1.0",
+  "version": "8.2.0",
   "group": "sentence",
   "components": [
     {
@@ -12,7 +12,7 @@
         { "id": "preview", "when": "일기 목록 미리보기", "parts": { "text": { "type": "{type.sentence.body}", "fontSize": { "value": 14.5, "unit": "px" }, "maxLines": 2, "overflow": "ellipsis" } } }
       ],
       "parts": {
-        "text": { "fg": "{color.text.primary}", "wordBreak": "keep-all" },
+        "text": { "fg": "{color.text.primary}", "wordBreak": "keep-all", "fontFallback": "{font.family.hanja}", "fontFallbackNote": "문장 글꼴(고운돋움, Pretendard)에 없는 한자만 대체 글꼴로 그림. 한자가 없는 문장은 모양이 같음. ja 문장 글꼴은 한자가 있어 그대로. segments가 sentence-block인 자리도 같음(결정 V134)" },
         "honorific": { "slot": "user-honorific", "style": "same-as-text" },
         "paragraphGap": "{space.12}",
         "segments": {
@@ -138,7 +138,7 @@
             "marginTop": "{space.12}",
             "note": "그 문장을 정한 태그와 대상 문장(D108, 결정 V80). 늘 보이고 잠기지 않음",
             "tags": { "component": "hanja-tag", "variant": "default", "interactive": false, "gap": "{space.8}", "wrap": true, "source": "근거 진입점이 붙은 문장을 정한 태그. 총운 헤드라인은 날의 성격과 십성 묶음, 보조 문장은 대표 태그 1순위, 사주 기운 시트에서 열면 그 태그", "whenEmpty": "태그가 없는 문장(풀이 시트, 사주 표 계열)은 줄을 그리지 않음" },
-            "sentence": { "slot": "evidence-sheet.target.body", "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "marginTop": "{space.8}", "segments": "plain", "maxLines": 3, "overflow": "ellipsis", "whenEmpty": "대상 문장이 없으면(용어에서 연 시트) 줄을 그리지 않음" }
+            "sentence": { "slot": "evidence-sheet.target.body", "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "fontFallback": "{font.family.hanja}", "marginTop": "{space.8}", "segments": "plain", "maxLines": 3, "overflow": "ellipsis", "whenEmpty": "대상 문장이 없으면(용어에서 연 시트) 줄을 그리지 않음" }
           },
           "pillars": { "component": "saju-pillars", "marginTop": "{space.12}", "note": "표 데이터라 무료(D60)" },
           "sectionTitle": { "type": "{type.label.md}", "fg": "{color.text.secondary}", "marginTop": "{space.24}" },
