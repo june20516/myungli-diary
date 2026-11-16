@@ -12,8 +12,6 @@ import (
 )
 
 type Querier interface {
-	// 계정 프로필의 현재 시간대(IANA 이름)입니다. 프로필이 없으면 행이 없습니다.
-	AccountCurrentTimezone(ctx context.Context, accountID uuid.UUID) (string, error)
 	// 이벤트의 처리 완료 시각입니다. NULL이면 아직 처리하지 않았거나 앞선 처리가 실패했습니다.
 	BillingEventProcessedAt(ctx context.Context, eventID string) (*time.Time, error)
 	// 사용 중 구간을 지금에서 끝냅니다(합치기로 옮긴 B 구간). 취소된 구간은 바꾸지 않습니다.

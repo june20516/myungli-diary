@@ -155,12 +155,6 @@ INSERT INTO reward_events (transaction_id, account_id, ad_unit, reward_item, raw
 VALUES (@transaction_id, @account_id, @ad_unit, @reward_item, @raw_query, @received_at)
 ON CONFLICT (transaction_id) DO NOTHING;
 
--- name: AccountCurrentTimezone :one
--- 계정 프로필의 현재 시간대(IANA 이름)입니다. 프로필이 없으면 행이 없습니다.
-SELECT current_timezone
-FROM profiles
-WHERE account_id = @account_id;
-
 -- name: InsertRewardedAdGrant :exec
 -- 보상형 광고의 insight 권한 행입니다. source_ref는 transaction_id입니다. 이미 있으면 아무것도 하지 않습니다(P7-14).
 INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)
