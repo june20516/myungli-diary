@@ -6,6 +6,7 @@ import 'package:myungli_diary/core/api/gen/model/rendered_text.dart';
 import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/design/components/sentence/depth_link.dart';
 import 'package:myungli_diary/design/components/today/day_character.dart';
+import 'package:myungli_diary/design/theme/hanja_fallback.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 
 import '../input/input_harness.dart';
@@ -47,6 +48,34 @@ void main() {
         dayCharacterVariantOf(DayKind.ordinaryDay),
         DayCharacterVariant.ordinary,
       );
+    });
+
+    testWidgets('이유 줄의 한자는 font.family.hanja로 그립니다(V134)', (tester) async {
+      await tester.pumpWidget(
+        inputApp(
+          Center(
+            child: DayCharacter(
+              variant: DayCharacterVariant.good,
+              label: '좋은 날',
+              reason: _text('巳월의 기운이 나를 돕는 날이에요.'),
+            ),
+          ),
+        ),
+      );
+      final hanja = hanjaFallbackFamilies(
+        tester.element(find.byType(DayCharacter)).tokens.typography,
+      );
+      expect(hanja, isNotEmpty);
+      final reason = tester.widget<RichText>(
+        find.descendant(
+          of: find.byKey(DayCharacter.reasonKey),
+          matching: find.byType(RichText),
+        ),
+      );
+      // 바깥 span은 기본 글자 스타일이고 이유 줄 스타일은 그 안 span입니다.
+      final style =
+          ((reason.text as TextSpan).children!.first as TextSpan).style;
+      expect(style?.fontFamilyFallback?.take(hanja.length), hanja);
     });
 
     testWidgets('Semantics 라벨은 배지 글자 + 이유입니다', (tester) async {

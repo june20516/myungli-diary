@@ -1,0 +1,81 @@
+{
+  "addSchedules": [
+    {
+      "id": "3a7d5c1e-8b2f-4d6a-9c4e-1f0b2a3c5d55",
+      "date": "2026-10-12",
+      "allDay": false,
+      "time": "12:30",
+      "title": {
+        "ko": "친구와 점심",
+        "en": "Lunch with a friend",
+        "ja": "友だちとランチ"
+      },
+      "createdAt": "2026-10-09T02:00:00Z",
+      "updatedAt": "2026-10-09T02:00:00Z"
+    }
+  ],
+  "listSchedules": {
+    "en": {
+      "5b0d7c2e-1f3a-4c8e-9a61-2d4f6b8e0a11": {
+        "title": "Mom's birthday",
+        "memo": "Pick up the cake in the evening"
+      },
+      "8c3e1a4b-7d2f-4e6a-b5c9-0f1e2d3c4b22": {
+        "title": "Weekly team meeting"
+      },
+      "2f6a9d1c-4b8e-4a3f-8c7d-6e5b4a3c2d33": {
+        "title": "Yoga class"
+      },
+      "9e4b2c7a-3d1f-4f5e-a8b6-1c0d9e8f7a44": {
+        "title": "Dental checkup",
+        "memo": "Bring the insurance card"
+      }
+    },
+    "ja": {
+      "5b0d7c2e-1f3a-4c8e-9a61-2d4f6b8e0a11": {
+        "title": "母の誕生日",
+        "memo": "ケーキは夕方に受け取る"
+      },
+      "8c3e1a4b-7d2f-4e6a-b5c9-0f1e2d3c4b22": {
+        "title": "チーム週次ミーティング"
+      },
+      "2f6a9d1c-4b8e-4a3f-8c7d-6e5b4a3c2d33": {
+        "title": "ヨガ教室"
+      },
+      "9e4b2c7a-3d1f-4f5e-a8b6-1c0d9e8f7a44": {
+        "title": "歯科の定期検診",
+        "memo": "保険証を持っていく"
+      }
+    }
+  },
+  "listDiaries": {
+    "en": {
+      "7b1c2a54-3d0e-4f6a-9b21-5e8f40c1a001": {
+        "excerpt": "Had lunch with a friend I hadn't heard from in a while. We talked so long my afternoon slipped, but it felt good."
+      },
+      "7b1c2a54-3d0e-4f6a-9b21-5e8f40c1a002": {
+        "excerpt": "The morning air turned cold all of a sudden. I grabbed an extra jacket."
+      },
+      "7b1c2a54-3d0e-4f6a-9b21-5e8f40c1a003": {
+        "excerpt": "Finally finished the tidying I'd put off. A clear desk made my mind feel lighter too."
+      },
+      "7b1c2a54-3d0e-4f6a-9b21-5e8f40c1a004": {
+        "excerpt": "Opinions split in the meeting. I'll think it over once more and bring it up again tomorrow."
+      }
+    },
+    "ja": {
+      "7b1c2a54-3d0e-4f6a-9b21-5e8f40c1a001": {
+        "excerpt": "久しぶりに連絡をくれた友だちとランチをした。話が長引いて午後の予定がずれたけれど、気分は良かった。"
+      },
+      "7b1c2a54-3d0e-4f6a-9b21-5e8f40c1a002": {
+        "excerpt": "朝の空気が急に冷たくなった。上着をもう一枚持って出た。"
+      },
+      "7b1c2a54-3d0e-4f6a-9b21-5e8f40c1a003": {
+        "excerpt": "後回しにしていた片づけを終えた。机が広くなると心も軽くなった。"
+      },
+      "7b1c2a54-3d0e-4f6a-9b21-5e8f40c1a004": {
+        "excerpt": "会議で意見が分かれた。もう一度考えて、明日あらためて話すことにした。"
+      }
+    }
+  }
+}

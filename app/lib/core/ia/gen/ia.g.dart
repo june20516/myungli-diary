@@ -18,6 +18,7 @@ abstract final class ScreenIds {
   static const String notifyAsk = 'notify-ask';
   static const String systemPush = 'system-push';
   static const String systemAppleReturn = 'system-apple-return';
+  static const String systemSupport = 'system-support';
   static const String adConsent = 'ad-consent';
   static const String today = 'today';
   static const String explainSheet = 'explain-sheet';
@@ -118,6 +119,17 @@ abstract final class SlotIds {
       'system-apple-return.page.open';
   static const String systemAppleReturnPageInstall =
       'system-apple-return.page.install';
+  static const String systemSupportPageTitle = 'system-support.page.title';
+  static const String systemSupportContactHead = 'system-support.contact.head';
+  static const String systemSupportContactBody = 'system-support.contact.body';
+  static const String systemSupportEmailBody = 'system-support.email.body';
+  static const String systemSupportDeleteHead = 'system-support.delete.head';
+  static const String systemSupportDeleteBody = 'system-support.delete.body';
+  static const String systemSupportDeleteLink = 'system-support.delete.link';
+  static const String systemSupportLegalHead = 'system-support.legal.head';
+  static const String systemSupportLegalPrivacy =
+      'system-support.legal.privacy';
+  static const String systemSupportLegalTerms = 'system-support.legal.terms';
   static const String todayBarTitle = 'today.bar.title';
   static const String todayDateSolar = 'today.date.solar';
   static const String todayDateLunar = 'today.date.lunar';
@@ -535,6 +547,15 @@ const List<IaScreen> iaScreens = [
     auth: IaAuth.any,
     states: [],
     exits: [IaExit(to: 'welcome', trigger: '앱에서 열기')],
+    components: [],
+  ),
+  IaScreen(
+    id: 'system-support',
+    tab: null,
+    presentation: IaPresentation.system,
+    auth: IaAuth.any,
+    states: [],
+    exits: [],
     components: [],
   ),
   IaScreen(

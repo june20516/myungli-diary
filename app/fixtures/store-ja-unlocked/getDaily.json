@@ -1,0 +1,938 @@
+{
+  "status": 200,
+  "body": {
+    "cards": {
+      "color": {
+        "element": "water",
+        "role": "yongsin",
+        "text": {
+          "evidence": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "忌神の日には滞った流れをつなぐ五行を、それ以外の日にはあなたの"
+                  },
+                  {
+                    "term": "role.yongsin",
+                    "text": "用神"
+                  },
+                  {
+                    "text": "の五行を、今日の色のもとと見ました。今日の方角も、このもとの五行にそのまま従います。"
+                  }
+                ]
+              },
+              "detail": {
+                "day_kind": "ORDINARY_DAY",
+                "element": "WATER",
+                "role": "YONGSIN"
+              },
+              "ruleId": "color/lucky_element",
+              "source": {
+                "segments": [
+                  {
+                    "text": "五行にはそれぞれ本来の色があり、水は黒、火は赤、木は青、土は黄だという意味です。\n推其形色，則水黑、火赤、木青、土黃，此正色也。及其變易，則不然。常以生旺從正色，死絶從母色，成形冠帶從妻色，病敗從鬼色，旺墓從子色。\n窮通宝鑑「五行総論」"
+                  }
+                ]
+              },
+              "sourceRef": "gungtong-bogam/five_elements#color"
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "原典は、五行の色がその日に置かれた位置によって変わると見ます。今日の水の気は地支申で長生の位置にあるので、黒を選びました。方角はこのように変わらず、もとの五行に従います。"
+                  }
+                ]
+              },
+              "detail": {
+                "base_element": "WATER",
+                "day_branch": "申",
+                "element": "WATER",
+                "shift": "JEONG",
+                "twelve_stage": "JANGSAENG"
+              },
+              "ruleId": "color/shift",
+              "source": {
+                "segments": [
+                  {
+                    "text": "五行の正色は水が黒、火が赤、木が青、金が白、土が黄色だが、変わるときは生旺なら正色、死絶なら自分を生む五行の色、成形と冠帯なら自分が剋す五行の色、病敗なら自分を剋す五行の色、旺墓なら自分が生む五行の色に従うという意味です。\n推其形色則水黑火赤木青金白土黃此正色也及其變易則不然常以生旺從正色死絶從母色成形冠帶從妻色病敗從鬼色旺墓從子色\n三命通会「論五行」"
+                  }
+                ]
+              },
+              "sourceRef": "sammyeong-tonghoe/five_elements#color_change"
+            }
+          ],
+          "messageKey": "color.ordinary_day",
+          "reactable": false,
+          "slot": "daily.color",
+          "text": {
+            "segments": [
+              {
+                "text": "あなたの命式に必要な水の気に合わせて、今日は黒がよく合います。"
+              }
+            ]
+          },
+          "todayReason": {
+            "segments": [
+              {
+                "text": "あなたの命式を助ける気の色を選んだからです。"
+              }
+            ]
+          },
+          "variant": "single"
+        }
+      },
+      "direction": {
+        "direction": "nw",
+        "text": {
+          "evidence": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "普通の日なので、この日の吉方位のうち、"
+                  },
+                  {
+                    "term": "role.huisin",
+                    "text": "喜神"
+                  },
+                  {
+                    "text": "の五行である金に合う北西を選びました。"
+                  }
+                ]
+              },
+              "detail": {
+                "day_branch": "申",
+                "day_kind": "ORDINARY_DAY",
+                "deity": "XI",
+                "direction": "NW",
+                "element": "METAL"
+              },
+              "ruleId": "direction/ordinary_deity_huisin",
+              "source": {
+                "segments": [
+                  {
+                    "text": "北は水、南は火、東は木、西は金、中央は土を生むという意味です。\n北方陰極而生寒，寒生水。南方陽極而生熱，熱生火。東方陽散以泄而生風，風生木。西方陰止以收而生燥，燥生金。中央陰陽交而生溫，溫生土。其相生也所以相維，其相剋也所以相制，此之謂有倫。\n窮通宝鑑「五行総論」"
+                  }
+                ]
+              },
+              "sourceRef": "gungtong-bogam/five_elements#direction"
+            }
+          ],
+          "messageKey": "direction.day_kind.ordinary.mo",
+          "reactable": false,
+          "slot": "daily.direction_relation",
+          "text": {
+            "segments": [
+              {
+                "text": "あなたの命式に必要な水の気を生じる金の方位、北西の方角がよいです。"
+              }
+            ]
+          },
+          "todayReason": {
+            "segments": [
+              {
+                "text": "暦の吉方位のうち、あなたの命式を後押しする気の方位を選んだからです。"
+              }
+            ]
+          },
+          "variant": "single"
+        }
+      },
+      "focusTime": {
+        "fallback": false,
+        "hours": [
+          {
+            "branch": "jin",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T09:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-13T07:30:00+09:00"
+          },
+          {
+            "branch": "sa",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T11:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-13T09:30:00+09:00"
+          },
+          {
+            "branch": "o",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T13:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-13T11:30:00+09:00"
+          },
+          {
+            "branch": "mi",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T15:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-13T13:30:00+09:00"
+          },
+          {
+            "branch": "shin",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T17:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-13T15:30:00+09:00"
+          },
+          {
+            "branch": "yu",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T19:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-13T17:30:00+09:00"
+          },
+          {
+            "branch": "sul",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T21:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-13T19:30:00+09:00"
+          }
+        ],
+        "picks": [
+          {
+            "branch": "shin",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T17:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-13T15:30:00+09:00"
+          }
+        ],
+        "text": {
+          "evidence": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "今日の日柱を助けるか日柱と合する時間を吉と見て、日柱とぶつかる時間は外しました。"
+                  }
+                ]
+              },
+              "detail": {
+                "day_pillar": "庚申",
+                "hour_branch": "SHIN",
+                "period": "DAY"
+              },
+              "ruleId": "focus_time/day_relation",
+              "source": {
+                "segments": [
+                  {
+                    "text": "時は日の用であるから、すべては日を助けるかにかかっており、日の干支と比和するか日支と三合、六合すれば吉で、時の吉凶神にすべてこだわらず、貴人と禄馬だけを吉とするという意味です。\n時者日之用也全在幇扶日辰或與日支干比和或與日支三合六合即吉時家吉凶神不必盡拘惟貴人祿馬為吉\n協紀弁方書「用時法」"
+                  }
+                ]
+              },
+              "sourceRef": "xieji-bianfang/hours#use_hour"
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "生まれ年の天干を助けるか、それと合する時間を吉と見て、生まれ年とぶつかる時間は避けました。"
+                  }
+                ]
+              },
+              "detail": {
+                "birth_year": "庚午",
+                "hour_branch": "SHIN",
+                "period": "DAY"
+              },
+              "ruleId": "focus_time/birth_year",
+              "source": {
+                "segments": [
+                  {
+                    "text": "昔の人は皆、生まれ年の天干を見て、官や財と合し、あるいは比肩、印綬、長生となり、あるいは禄馬貴人を取り、命を衝いたり剋したりしない時を選んだという意味です。\n古人皆論生年之天干或合官或合財或比肩或印綬或四長生或取祿馬貴人不衝命尅命\n協紀弁方書「論相主」"
+                  }
+                ]
+              },
+              "sourceRef": "xieji-bianfang/hours#birth_year"
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "択日の原典が黄道として吉とする時間かどうかも合わせて見ました。"
+                  }
+                ]
+              },
+              "detail": {
+                "hour_branch": "SHIN",
+                "huangdao": "false",
+                "period": "DAY"
+              },
+              "ruleId": "focus_time/huangdao",
+              "source": {
+                "segments": [
+                  {
+                    "text": "日から時を起こすと、子の日は申の時に青龍を起こし、酉の時を明堂とし、順に数えていくという意味です。\n日起時則子日申時起青龍酉時為明堂依次順數\n協紀弁方書「黄道黒道」"
+                  }
+                ]
+              },
+              "sourceRef": "xieji-bianfang/hours#huangdao"
+            }
+          ],
+          "messageKey": "focus_time.day",
+          "reactable": false,
+          "slot": "daily.focus_time",
+          "text": {
+            "segments": [
+              {
+                "text": "大事なことはこの時間にするとよいです。"
+              }
+            ]
+          },
+          "variant": "single"
+        }
+      },
+      "nightFocusTime": {
+        "fallback": false,
+        "hours": [
+          {
+            "branch": "hae",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T23:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-13T21:30:00+09:00"
+          },
+          {
+            "branch": "ja",
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "branch": "yu",
+              "stem": "sin"
+            },
+            "end": "2026-10-14T01:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-13T23:30:00+09:00"
+          },
+          {
+            "branch": "chuk",
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "branch": "yu",
+              "stem": "sin"
+            },
+            "end": "2026-10-14T03:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-14T01:30:00+09:00"
+          },
+          {
+            "branch": "in",
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "branch": "yu",
+              "stem": "sin"
+            },
+            "end": "2026-10-14T05:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-14T03:30:00+09:00"
+          },
+          {
+            "branch": "myo",
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "branch": "yu",
+              "stem": "sin"
+            },
+            "end": "2026-10-14T07:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-14T05:30:00+09:00"
+          }
+        ],
+        "picks": [
+          {
+            "branch": "chuk",
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "branch": "yu",
+              "stem": "sin"
+            },
+            "end": "2026-10-14T03:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-14T01:30:00+09:00"
+          }
+        ],
+        "text": {
+          "evidence": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "今日の日柱を助けるか日柱と合する時間を吉と見て、日柱とぶつかる時間は外しました。"
+                  }
+                ]
+              },
+              "detail": {
+                "day_pillar": "辛酉",
+                "hour_branch": "CHUK",
+                "period": "NIGHT"
+              },
+              "ruleId": "focus_time/day_relation",
+              "source": {
+                "segments": [
+                  {
+                    "text": "時は日の用であるから、すべては日を助けるかにかかっており、日の干支と比和するか日支と三合、六合すれば吉で、時の吉凶神にすべてこだわらず、貴人と禄馬だけを吉とするという意味です。\n時者日之用也全在幇扶日辰或與日支干比和或與日支三合六合即吉時家吉凶神不必盡拘惟貴人祿馬為吉\n協紀弁方書「用時法」"
+                  }
+                ]
+              },
+              "sourceRef": "xieji-bianfang/hours#use_hour"
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "生まれ年の天干を助けるか、それと合する時間を吉と見て、生まれ年とぶつかる時間は避けました。"
+                  }
+                ]
+              },
+              "detail": {
+                "birth_year": "庚午",
+                "hour_branch": "CHUK",
+                "period": "NIGHT"
+              },
+              "ruleId": "focus_time/birth_year",
+              "source": {
+                "segments": [
+                  {
+                    "text": "昔の人は皆、生まれ年の天干を見て、官や財と合し、あるいは比肩、印綬、長生となり、あるいは禄馬貴人を取り、命を衝いたり剋したりしない時を選んだという意味です。\n古人皆論生年之天干或合官或合財或比肩或印綬或四長生或取祿馬貴人不衝命尅命\n協紀弁方書「論相主」"
+                  }
+                ]
+              },
+              "sourceRef": "xieji-bianfang/hours#birth_year"
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "択日の原典が黄道として吉とする時間かどうかも合わせて見ました。"
+                  }
+                ]
+              },
+              "detail": {
+                "hour_branch": "CHUK",
+                "huangdao": "false",
+                "period": "NIGHT"
+              },
+              "ruleId": "focus_time/huangdao",
+              "source": {
+                "segments": [
+                  {
+                    "text": "日から時を起こすと、子の日は申の時に青龍を起こし、酉の時を明堂とし、順に数えていくという意味です。\n日起時則子日申時起青龍酉時為明堂依次順數\n協紀弁方書「黄道黒道」"
+                  }
+                ]
+              },
+              "sourceRef": "xieji-bianfang/hours#huangdao"
+            }
+          ],
+          "messageKey": "focus_time.night",
+          "reactable": false,
+          "slot": "daily.focus_time",
+          "text": {
+            "segments": [
+              {
+                "text": "夜にすることがあるなら、この時間がよいです。"
+              }
+            ]
+          },
+          "variant": "single"
+        }
+      },
+      "number": {
+        "number": 1,
+        "text": {
+          "evidence": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "今日の色と同じ五行である水の河図の数二つのうち、今日の天干庚の陰陽に合わせて、陽なら奇数、陰なら偶数を選びました。"
+                  }
+                ]
+              },
+              "detail": {
+                "day_stem": "庚",
+                "element": "WATER",
+                "number": "1",
+                "parity": "odd"
+              },
+              "ruleId": "number/hado",
+              "source": {
+                "segments": [
+                  {
+                    "text": "五行にはそれぞれ数があり、水は1、火は2、木は3、金は4、土は5だという意味です。\n其數則水一、火二、木三、金四、土五。生旺加倍，死絶減半。\n窮通宝鑑「五行総論」"
+                  }
+                ]
+              },
+              "sourceRef": "gungtong-bogam/five_elements#number"
+            }
+          ],
+          "messageKey": "number.ordinary_day",
+          "reactable": false,
+          "slot": "daily.number",
+          "text": {
+            "segments": [
+              {
+                "text": "水の数字のうち、今日の天干庚に合わせて1を選びました。"
+              }
+            ]
+          },
+          "todayReason": {
+            "segments": [
+              {
+                "text": "今日の色と同じ気の数のうち、今日の天干の陰陽に合う数を選んだからです。"
+              }
+            ]
+          },
+          "variant": "single"
+        }
+      }
+    },
+    "characterReason": {
+      "messageKey": "character.reason.ordinary_day",
+      "reactable": false,
+      "slot": "character.reason",
+      "text": {
+        "segments": [
+          {
+            "text": "特に助ける気も妨げる気もない、普通の日です。"
+          }
+        ]
+      },
+      "variant": "single"
+    },
+    "date": "2026-10-13",
+    "dayKind": "ordinary_day",
+    "dayPillar": {
+      "branch": "shin",
+      "stem": "gyeong"
+    },
+    "dayStemTenGod": "bigyeon",
+    "dayStemTenGodGroup": "bigyeop",
+    "dayVirtues": [],
+    "evidenceAccess": "unlocked",
+    "fortune": {
+      "head": {
+        "evidence": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "今日は普通の日で、今日の天干があなたの日干にとって比肩にあたるので、この二つをもとに総運を選びました。"
+                }
+              ]
+            },
+            "detail": {
+              "day_kind": "ORDINARY_DAY",
+              "group": "BIGYEOP",
+              "ten_god": "BIGYEON"
+            },
+            "ruleId": "fortune/day_kind",
+            "source": {
+              "segments": [
+                {
+                  "text": "陽刃、比肩、敗財、建禄は名は違っても、実は一家の同じ気の神だという意味です。\n余按陽刃比肩敗財建祿名雖不同實一家同氣之神\n三命通会「論建禄」"
+                }
+              ]
+            },
+            "sourceRef": "sammyeong-tonghoe/personal#ten_god.geonrok"
+          },
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "夏か冬に生まれ、暑さや寒さが行き過ぎた命式なので、温度を整える調候法で"
+                },
+                {
+                  "term": "role.yongsin",
+                  "text": "用神"
+                },
+                {
+                  "text": "を決めました。巳月のあなたの日干に合う五行は、窮通宝鑑の調候表に従いました。"
+                }
+              ]
+            },
+            "detail": {
+              "month_branch": "巳",
+              "share": "0.3143",
+              "threshold": "0.3000"
+            },
+            "ruleId": "yongsin/johu",
+            "source": {
+              "segments": [
+                {
+                  "text": "四月生まれの庚の日干には、丙は金を溶かさないので炎を恐れず丙も用いられるが、まず壬を用いてこそ中和を得るので、夏に生まれた金は土を喜ぶという意味です。\n丙不鎔金，故不畏火炎，丙亦可作用，但先壬水，方得中和，故曰羣金生夏，喜用勾陳。\n窮通宝鑑「四月庚」"
+                }
+              ]
+            },
+            "sourceRef": "gungtong-bogam/johu_evidence#庚.巳"
+          }
+        ],
+        "messageKey": "fortune.ordinary_day.bigyeop",
+        "reactable": true,
+        "slot": "daily.fortune.head",
+        "text": {
+          "segments": [
+            {
+              "text": "人に合わせるより、自分のペースで進めてみてください。"
+            }
+          ]
+        },
+        "todayReason": {
+          "segments": [
+            {
+              "text": "今日の天干があなたの日干と出会う関係が、この気にあたるからです。"
+            }
+          ]
+        },
+        "variant": "advice"
+      },
+      "tag": {
+        "evidence": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "今日付いたタグのうち、最も優先されるものをもとに、総運の下の文を選びました。"
+                }
+              ]
+            },
+            "detail": {
+              "day_kind": "ORDINARY_DAY",
+              "featured": "tag.harmony",
+              "group": "BIGYEOP",
+              "ten_god": "BIGYEON"
+            },
+            "ruleId": "fortune/tag",
+            "source": {
+              "segments": [
+                {
+                  "text": "合とは和すことで、陰と陽が和すれば気は自然に合わさるという意味です。\n夫合者，和也，乃陰陽相和，其氣自合。\n三命通会「論支元六合」"
+                }
+              ]
+            },
+            "sourceRef": "sammyeong-tonghoe/tags#branch_hap"
+          },
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "夏か冬に生まれ、暑さや寒さが行き過ぎた命式なので、温度を整える調候法で"
+                },
+                {
+                  "term": "role.yongsin",
+                  "text": "用神"
+                },
+                {
+                  "text": "を決めました。巳月のあなたの日干に合う五行は、窮通宝鑑の調候表に従いました。"
+                }
+              ]
+            },
+            "detail": {
+              "month_branch": "巳",
+              "share": "0.3143",
+              "threshold": "0.3000"
+            },
+            "ruleId": "yongsin/johu",
+            "source": {
+              "segments": [
+                {
+                  "text": "四月生まれの庚の日干には、丙は金を溶かさないので炎を恐れず丙も用いられるが、まず壬を用いてこそ中和を得るので、夏に生まれた金は土を喜ぶという意味です。\n丙不鎔金，故不畏火炎，丙亦可作用，但先壬水，方得中和，故曰羣金生夏，喜用勾陳。\n窮通宝鑑「四月庚」"
+                }
+              ]
+            },
+            "sourceRef": "gungtong-bogam/johu_evidence#庚.巳"
+          }
+        ],
+        "messageKey": "fortune.tag.harmony",
+        "reactable": true,
+        "slot": "daily.fortune.tag",
+        "text": {
+          "segments": [
+            {
+              "text": "先延ばしにした契約や約束を、今日決めてみてください。"
+            }
+          ]
+        },
+        "todayReason": {
+          "segments": [
+            {
+              "text": "今日の干支があなたの命式と出会い、このタグが一緒に入ったからです。"
+            }
+          ]
+        },
+        "variant": "advice"
+      }
+    },
+    "guide": {
+      "evidence": [
+        {
+          "basis": {
+            "segments": [
+              {
+                "text": "今日付いたタグがあれば最も優先されるタグで、なければ今日の天干があなたの日干にとってあたる比劫で、今日の質問を選びました。"
+              }
+            ]
+          },
+          "detail": {
+            "basis": "tag.harmony",
+            "ten_god": "BIGYEON"
+          },
+          "ruleId": "guide/question",
+          "source": {
+            "segments": [
+              {
+                "text": "合とは和すことで、陰と陽が和すれば気は自然に合わさるという意味です。\n夫合者，和也，乃陰陽相和，其氣自合。\n三命通会「論支元六合」"
+              }
+            ]
+          },
+          "sourceRef": "sammyeong-tonghoe/tags#branch_hap"
+        }
+      ],
+      "messageKey": "guide.harmony",
+      "reactable": false,
+      "slot": "daily.guide",
+      "text": {
+        "segments": [
+          {
+            "text": "今日気持ちが通じ合った会話があれば、書いてみませんか？"
+          }
+        ]
+      },
+      "variant": "1"
+    },
+    "guideCandidates": [
+      {
+        "evidence": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "今日付いたタグがあれば最も優先されるタグで、なければ今日の天干があなたの日干にとってあたる比劫で、今日の質問を選びました。"
+                }
+              ]
+            },
+            "detail": {
+              "basis": "tag.harmony",
+              "ten_god": "BIGYEON"
+            },
+            "ruleId": "guide/question",
+            "source": {
+              "segments": [
+                {
+                  "text": "合とは和すことで、陰と陽が和すれば気は自然に合わさるという意味です。\n夫合者，和也，乃陰陽相和，其氣自合。\n三命通会「論支元六合」"
+                }
+              ]
+            },
+            "sourceRef": "sammyeong-tonghoe/tags#branch_hap"
+          }
+        ],
+        "messageKey": "guide.harmony",
+        "reactable": false,
+        "slot": "daily.guide",
+        "text": {
+          "segments": [
+            {
+              "text": "今日気持ちが通じ合った会話があれば、書いてみませんか？"
+            }
+          ]
+        },
+        "variant": "1"
+      },
+      {
+        "evidence": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "今日付いたタグがあれば最も優先されるタグで、なければ今日の天干があなたの日干にとってあたる比劫で、今日の質問を選びました。"
+                }
+              ]
+            },
+            "detail": {
+              "basis": "tag.harmony",
+              "ten_god": "BIGYEON"
+            },
+            "ruleId": "guide/question",
+            "source": {
+              "segments": [
+                {
+                  "text": "合とは和すことで、陰と陽が和すれば気は自然に合わさるという意味です。\n夫合者，和也，乃陰陽相和，其氣自合。\n三命通会「論支元六合」"
+                }
+              ]
+            },
+            "sourceRef": "sammyeong-tonghoe/tags#branch_hap"
+          }
+        ],
+        "messageKey": "guide.harmony",
+        "reactable": false,
+        "slot": "daily.guide",
+        "text": {
+          "segments": [
+            {
+              "text": "今日一緒にいてよかった人はいましたか？"
+            }
+          ]
+        },
+        "variant": "2"
+      },
+      {
+        "evidence": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "今日付いたタグがあれば最も優先されるタグで、なければ今日の天干があなたの日干にとってあたる比劫で、今日の質問を選びました。"
+                }
+              ]
+            },
+            "detail": {
+              "basis": "tag.ten_god_rush.bigyeop",
+              "ten_god": "BIGYEON"
+            },
+            "ruleId": "guide/question",
+            "sourceRef": ""
+          }
+        ],
+        "messageKey": "guide.ten_god_rush.bigyeop",
+        "reactable": false,
+        "slot": "daily.guide",
+        "text": {
+          "segments": [
+            {
+              "text": "今日最後まで守りたかった自分の考えを書いてみませんか？"
+            }
+          ]
+        },
+        "variant": "1"
+      },
+      {
+        "evidence": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "今日付いたタグがあれば最も優先されるタグで、なければ今日の天干があなたの日干にとってあたる比劫で、今日の質問を選びました。"
+                }
+              ]
+            },
+            "detail": {
+              "basis": "BIGYEOP",
+              "ten_god": "BIGYEON"
+            },
+            "ruleId": "guide/question",
+            "source": {
+              "segments": [
+                {
+                  "text": "陽刃、比肩、敗財、建禄は名は違っても、実は一家の同じ気の神だという意味です。\n余按陽刃比肩敗財建祿名雖不同實一家同氣之神\n三命通会「論建禄」"
+                }
+              ]
+            },
+            "sourceRef": "sammyeong-tonghoe/personal#ten_god.geonrok"
+          }
+        ],
+        "messageKey": "guide.ten_god.bigyeop",
+        "reactable": false,
+        "slot": "daily.guide",
+        "text": {
+          "segments": [
+            {
+              "text": "今日一緒に過ごした人がいたら、その話を書いてみませんか？"
+            }
+          ]
+        },
+        "variant": "1"
+      }
+    ],
+    "lunar": {
+      "day": 3,
+      "isLeapMonth": false,
+      "month": 9
+    },
+    "notices": [],
+    "relations": [
+      {
+        "kind": "branch_hap",
+        "natalPosition": "month_branch",
+        "suppressed": false
+      },
+      {
+        "kind": "hyeong",
+        "natalPosition": "month_branch",
+        "suppressed": false
+      }
+    ],
+    "rulesetVersion": "2026.11.9",
+    "tags": {
+      "all": [
+        "harmony",
+        "ten_god_rush.bigyeop",
+        "gongmang",
+        "yeokma",
+        "gosin"
+      ],
+      "featured": [
+        {
+          "key": "harmony",
+          "polarity": "good"
+        },
+        {
+          "key": "ten_god_rush.bigyeop",
+          "polarity": "neutral"
+        }
+      ]
+    }
+  }
+}

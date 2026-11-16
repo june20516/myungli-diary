@@ -6,6 +6,7 @@ import 'package:myungli_diary/core/api/gen/model/segment.dart';
 import 'package:myungli_diary/design/elements/lock_veil.dart';
 import 'package:myungli_diary/design/text/line_height.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
+import 'package:myungli_diary/design/theme/hanja_fallback.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
@@ -119,8 +120,8 @@ void main() {
       );
     });
 
-    testWidgets('fontFallback을 주면 앞부분 글꼴 대체에 먼저 넣습니다(원전 한자)', (tester) async {
-      // 잠긴 원전의 앞부분은 첫 원전 뜻 줄입니다(V113). 뜻에 든 한자도 같은 대체를 씁니다.
+    testWidgets('앞부분 글꼴 대체 맨 앞은 한자 글꼴입니다(V134)', (tester) async {
+      // 잠긴 근거의 앞부분에 섞인 한자도 font.family.hanja로 그립니다.
       await tester.pumpWidget(
         _app(
           LockVeil(
@@ -128,18 +129,21 @@ void main() {
             stateLabel: '잠김',
             lines: LockVeilLines.source,
             lead: _text('넘치는 것은 덜고 中道로'),
-            fontFallback: const ['Hanja Test'],
           ),
         ),
       );
+      final hanja = hanjaFallbackFamilies(
+        tester.element(find.byType(LockVeil)).tokens.typography,
+      );
+      expect(hanja, isNotEmpty);
       final clear = tester.widget<Text>(find.byKey(LockVeil.clearKey));
       final veil = tester.widget<Text>(find.byKey(LockVeil.veilKey));
       for (final text in [clear, veil]) {
-        expect(text.style?.fontFamilyFallback?.first, 'Hanja Test');
+        expect(text.style?.fontFamilyFallback?.take(hanja.length), hanja);
         for (final span in (text.textSpan! as TextSpan).children!) {
           expect(
-            (span as TextSpan).style?.fontFamilyFallback?.first,
-            'Hanja Test',
+            (span as TextSpan).style?.fontFamilyFallback?.take(hanja.length),
+            hanja,
           );
         }
       }

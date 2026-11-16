@@ -5,6 +5,7 @@ import 'package:myungli_diary/core/api/rendered_text_plain.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
 import 'package:myungli_diary/design/components/sentence/rendered_text_view.dart';
+import 'package:myungli_diary/design/theme/hanja_fallback.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 
@@ -166,8 +167,12 @@ class DayCharacter extends StatelessWidget {
                 padding: const EdgeInsets.only(top: Space.s8),
                 child: RenderedTextView(
                   text: reasonText,
-                  style: tokens.typography.captionLg.copyWith(
-                    color: colors.textSecondary,
+                  // `segments: sentence-block`이라 한자 대체도 같습니다(결정 V134).
+                  style: withHanjaFallback(
+                    tokens.typography.captionLg.copyWith(
+                      color: colors.textSecondary,
+                    ),
+                    tokens.typography,
                   ),
                   trailing: reasonTrailing,
                   hideTextSemantics: true,

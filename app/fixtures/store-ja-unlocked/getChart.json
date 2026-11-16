@@ -1,0 +1,2284 @@
+{
+  "status": 200,
+  "body": {
+    "daeun": {
+      "forward": false,
+      "periods": [
+        {
+          "branchTenGod": "pyeonin",
+          "pillar": {
+            "branch": "jin",
+            "stem": "gyeong"
+          },
+          "startAge": 3,
+          "startAgeKorean": 4,
+          "startYear": 1993,
+          "stemTenGod": "bigyeon",
+          "twelveStage": "yang"
+        },
+        {
+          "branchTenGod": "jeongjae",
+          "pillar": {
+            "branch": "myo",
+            "stem": "gi"
+          },
+          "startAge": 13,
+          "startAgeKorean": 14,
+          "startYear": 2003,
+          "stemTenGod": "jeongin",
+          "twelveStage": "tae"
+        },
+        {
+          "branchTenGod": "pyeonjae",
+          "pillar": {
+            "branch": "in",
+            "stem": "mu"
+          },
+          "startAge": 23,
+          "startAgeKorean": 24,
+          "startYear": 2013,
+          "stemTenGod": "pyeonin",
+          "twelveStage": "jeol"
+        },
+        {
+          "branchTenGod": "jeongin",
+          "pillar": {
+            "branch": "chuk",
+            "stem": "jeong"
+          },
+          "startAge": 33,
+          "startAgeKorean": 34,
+          "startYear": 2023,
+          "stemTenGod": "jeonggwan",
+          "twelveStage": "myo"
+        },
+        {
+          "branchTenGod": "sanggwan",
+          "pillar": {
+            "branch": "ja",
+            "stem": "byeong"
+          },
+          "startAge": 43,
+          "startAgeKorean": 44,
+          "startYear": 2033,
+          "stemTenGod": "pyeongwan",
+          "twelveStage": "sa"
+        },
+        {
+          "branchTenGod": "siksin",
+          "pillar": {
+            "branch": "hae",
+            "stem": "eul"
+          },
+          "startAge": 53,
+          "startAgeKorean": 54,
+          "startYear": 2043,
+          "stemTenGod": "jeongjae",
+          "twelveStage": "byeong"
+        },
+        {
+          "branchTenGod": "pyeonin",
+          "pillar": {
+            "branch": "sul",
+            "stem": "gap"
+          },
+          "startAge": 63,
+          "startAgeKorean": 64,
+          "startYear": 2053,
+          "stemTenGod": "pyeonjae",
+          "twelveStage": "soe"
+        },
+        {
+          "branchTenGod": "geopjae",
+          "pillar": {
+            "branch": "yu",
+            "stem": "gye"
+          },
+          "startAge": 73,
+          "startAgeKorean": 74,
+          "startYear": 2063,
+          "stemTenGod": "sanggwan",
+          "twelveStage": "jewang"
+        },
+        {
+          "branchTenGod": "bigyeon",
+          "pillar": {
+            "branch": "shin",
+            "stem": "im"
+          },
+          "startAge": 83,
+          "startAgeKorean": 84,
+          "startYear": 2073,
+          "stemTenGod": "siksin",
+          "twelveStage": "geonrok"
+        },
+        {
+          "branchTenGod": "jeongin",
+          "pillar": {
+            "branch": "mi",
+            "stem": "sin"
+          },
+          "startAge": 93,
+          "startAgeKorean": 94,
+          "startYear": 2083,
+          "stemTenGod": "geopjae",
+          "twelveStage": "gwandae"
+        }
+      ],
+      "startMonths": 2,
+      "startYears": 3
+    },
+    "elementWeights": [
+      {
+        "element": "wood",
+        "weight": 0.6
+      },
+      {
+        "element": "fire",
+        "weight": 3.3
+      },
+      {
+        "element": "earth",
+        "weight": 2.55
+      },
+      {
+        "element": "metal",
+        "weight": 2.9
+      },
+      {
+        "element": "water",
+        "weight": 1.15
+      }
+    ],
+    "evidenceAccess": "unlocked",
+    "gongmang": [
+      "shin",
+      "yu"
+    ],
+    "hiddenStems": [
+      {
+        "position": "year_branch",
+        "stems": [
+          {
+            "stem": "jeong",
+            "tenGod": "jeonggwan"
+          },
+          {
+            "stem": "gi",
+            "tenGod": "jeongin"
+          }
+        ]
+      },
+      {
+        "position": "month_branch",
+        "stems": [
+          {
+            "stem": "byeong",
+            "tenGod": "pyeongwan"
+          },
+          {
+            "stem": "gyeong",
+            "tenGod": "bigyeon"
+          },
+          {
+            "stem": "mu",
+            "tenGod": "pyeonin"
+          }
+        ]
+      },
+      {
+        "position": "day_branch",
+        "stems": [
+          {
+            "stem": "mu",
+            "tenGod": "pyeonin"
+          },
+          {
+            "stem": "eul",
+            "tenGod": "jeongjae"
+          },
+          {
+            "stem": "gye",
+            "tenGod": "sanggwan"
+          }
+        ]
+      },
+      {
+        "position": "hour_branch",
+        "stems": [
+          {
+            "stem": "gi",
+            "tenGod": "jeongin"
+          },
+          {
+            "stem": "jeong",
+            "tenGod": "jeonggwan"
+          },
+          {
+            "stem": "eul",
+            "tenGod": "jeongjae"
+          }
+        ]
+      }
+    ],
+    "ilganBody": {
+      "messageKey": "ilgan.body.gyeong",
+      "reactable": false,
+      "slot": "chart.ilgan_body",
+      "text": {
+        "segments": [
+          {
+            "text": "正しいと思ったことは、すぐ行動に移すほうです。決断が必要な場面で迷わない姿が目立ちます。"
+          }
+        ]
+      },
+      "variant": "single"
+    },
+    "ilganHead": {
+      "messageKey": "ilgan.head.gyeong",
+      "reactable": false,
+      "slot": "chart.ilgan_head",
+      "text": {
+        "segments": [
+          {
+            "text": "そらさん、磨く前のかたい鉄に似ています。"
+          }
+        ]
+      },
+      "variant": "single"
+    },
+    "notices": [],
+    "personalReadings": [
+      {
+        "kind": "day_master",
+        "position": "day_stem",
+        "text": {
+          "segments": [
+            {
+              "text": "自分の命式の"
+            },
+            {
+              "term": "stem.gyeong",
+              "text": "庚金"
+            },
+            {
+              "text": "は、身旺です。"
+            },
+            {
+              "term": "element.water",
+              "text": "水"
+            },
+            {
+              "text": "の気はバランスを整えてくれるので取り入れ、"
+            },
+            {
+              "term": "element.earth",
+              "text": "土"
+            },
+            {
+              "text": "の気は控えめにするとよいです。"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "year_stem",
+        "text": {
+          "segments": [
+            {
+              "text": "年干に"
+            },
+            {
+              "term": "ten_god.bigyeon",
+              "text": "比肩"
+            },
+            {
+              "text": "があり、肩を並べて歩く人の力が土台にあります。この位置の五行は"
+            },
+            {
+              "term": "element.metal",
+              "text": "金"
+            },
+            {
+              "text": "で、喜神です。"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "year_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "年支に"
+            },
+            {
+              "term": "ten_god.jeonggwan",
+              "text": "正官"
+            },
+            {
+              "text": "があり、約束を守り、責任を引き受ける力が根づいています。この位置の五行は"
+            },
+            {
+              "term": "element.fire",
+              "text": "火"
+            },
+            {
+              "text": "で、閑神です。"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "month_stem",
+        "text": {
+          "segments": [
+            {
+              "text": "月干に"
+            },
+            {
+              "term": "ten_god.geopjae",
+              "text": "劫財"
+            },
+            {
+              "text": "があり、誰かと競いながら一緒に伸びていく気質が根づいています。この位置の五行は"
+            },
+            {
+              "term": "element.metal",
+              "text": "金"
+            },
+            {
+              "text": "で、喜神です。"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "month_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "月支に"
+            },
+            {
+              "term": "ten_god.pyeongwan",
+              "text": "偏官"
+            },
+            {
+              "text": "があり、負担がかかっても踏ん張って押し進める力があります。この位置の五行は"
+            },
+            {
+              "term": "element.fire",
+              "text": "火"
+            },
+            {
+              "text": "で、閑神です。"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "day_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "日支に"
+            },
+            {
+              "term": "ten_god.pyeonin",
+              "text": "偏印"
+            },
+            {
+              "text": "があり、人と違う目で深く掘り下げる気質があります。この位置の五行は"
+            },
+            {
+              "term": "element.earth",
+              "text": "土"
+            },
+            {
+              "text": "で、忌神です。"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "hour_stem",
+        "text": {
+          "segments": [
+            {
+              "text": "時干に"
+            },
+            {
+              "term": "ten_god.sanggwan",
+              "text": "傷官"
+            },
+            {
+              "text": "があり、枠を越えて新しく表現する才能が表れます。この位置の五行は"
+            },
+            {
+              "term": "element.water",
+              "text": "水"
+            },
+            {
+              "text": "で、用神です。"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "hour_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "時支に"
+            },
+            {
+              "term": "ten_god.jeongin",
+              "text": "印綬"
+            },
+            {
+              "text": "があり、学んだり助けを受け入れたりする力が土台にあります。この位置の五行は"
+            },
+            {
+              "term": "element.earth",
+              "text": "土"
+            },
+            {
+              "text": "で、忌神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "hidden_ten_god",
+        "position": "year_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "年支の蔵干に"
+            },
+            {
+              "term": "ten_god.jeonggwan",
+              "text": "正官"
+            },
+            {
+              "text": "があり、約束を守り、責任を引き受ける力が根づいています。この位置の五行は"
+            },
+            {
+              "term": "element.fire",
+              "text": "火"
+            },
+            {
+              "text": "で、閑神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "hidden_ten_god",
+        "position": "year_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "年支の蔵干に"
+            },
+            {
+              "term": "ten_god.jeongin",
+              "text": "印綬"
+            },
+            {
+              "text": "があり、学んだり助けを受け入れたりする力が土台にあります。この位置の五行は"
+            },
+            {
+              "term": "element.earth",
+              "text": "土"
+            },
+            {
+              "text": "で、忌神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "hidden_ten_god",
+        "position": "month_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "月支の蔵干に"
+            },
+            {
+              "term": "ten_god.pyeongwan",
+              "text": "偏官"
+            },
+            {
+              "text": "があり、負担がかかっても踏ん張って押し進める力があります。この位置の五行は"
+            },
+            {
+              "term": "element.fire",
+              "text": "火"
+            },
+            {
+              "text": "で、閑神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "hidden_ten_god",
+        "position": "month_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "月支の蔵干に"
+            },
+            {
+              "term": "ten_god.bigyeon",
+              "text": "比肩"
+            },
+            {
+              "text": "があり、肩を並べて歩く人の力が土台にあります。この位置の五行は"
+            },
+            {
+              "term": "element.metal",
+              "text": "金"
+            },
+            {
+              "text": "で、喜神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "hidden_ten_god",
+        "position": "month_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "月支の蔵干に"
+            },
+            {
+              "term": "ten_god.pyeonin",
+              "text": "偏印"
+            },
+            {
+              "text": "があり、人と違う目で深く掘り下げる気質があります。この位置の五行は"
+            },
+            {
+              "term": "element.earth",
+              "text": "土"
+            },
+            {
+              "text": "で、忌神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "hidden_ten_god",
+        "position": "day_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "日支の蔵干に"
+            },
+            {
+              "term": "ten_god.pyeonin",
+              "text": "偏印"
+            },
+            {
+              "text": "があり、人と違う目で深く掘り下げる気質があります。この位置の五行は"
+            },
+            {
+              "term": "element.earth",
+              "text": "土"
+            },
+            {
+              "text": "で、忌神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "hidden_ten_god",
+        "position": "day_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "日支の蔵干に"
+            },
+            {
+              "term": "ten_god.jeongjae",
+              "text": "正財"
+            },
+            {
+              "text": "があり、こつこつ蓄えて暮らしを整える力が根づいています。この位置の五行は"
+            },
+            {
+              "term": "element.wood",
+              "text": "木"
+            },
+            {
+              "text": "で、閑神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "hidden_ten_god",
+        "position": "day_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "日支の蔵干に"
+            },
+            {
+              "term": "ten_god.sanggwan",
+              "text": "傷官"
+            },
+            {
+              "text": "があり、枠を越えて新しく表現する才能が表れます。この位置の五行は"
+            },
+            {
+              "term": "element.water",
+              "text": "水"
+            },
+            {
+              "text": "で、用神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "hidden_ten_god",
+        "position": "hour_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "時支の蔵干に"
+            },
+            {
+              "term": "ten_god.jeongin",
+              "text": "印綬"
+            },
+            {
+              "text": "があり、学んだり助けを受け入れたりする力が土台にあります。この位置の五行は"
+            },
+            {
+              "term": "element.earth",
+              "text": "土"
+            },
+            {
+              "text": "で、忌神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "hidden_ten_god",
+        "position": "hour_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "時支の蔵干に"
+            },
+            {
+              "term": "ten_god.jeonggwan",
+              "text": "正官"
+            },
+            {
+              "text": "があり、約束を守り、責任を引き受ける力が根づいています。この位置の五行は"
+            },
+            {
+              "term": "element.fire",
+              "text": "火"
+            },
+            {
+              "text": "で、閑神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "hidden_ten_god",
+        "position": "hour_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "時支の蔵干に"
+            },
+            {
+              "term": "ten_god.jeongjae",
+              "text": "正財"
+            },
+            {
+              "text": "があり、こつこつ蓄えて暮らしを整える力が根づいています。この位置の五行は"
+            },
+            {
+              "term": "element.wood",
+              "text": "木"
+            },
+            {
+              "text": "で、閑神です。"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "twelve_stage",
+        "position": "year_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "年支での自分の気は沐浴の段階にあり、あれこれ試しながら感覚をつかんでいくところです。この位置の五行は"
+            },
+            {
+              "term": "element.fire",
+              "text": "火"
+            },
+            {
+              "text": "で、閑神です。"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "twelve_stage",
+        "position": "month_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "月支での自分の気は長生の段階にあり、新しく芽生えて育っていくところです。この位置の五行は"
+            },
+            {
+              "term": "element.fire",
+              "text": "火"
+            },
+            {
+              "text": "で、閑神です。"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "twelve_stage",
+        "position": "day_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "日支での自分の気は養の段階にあり、急がず内側でじっくり準備するところです。この位置の五行は"
+            },
+            {
+              "term": "element.earth",
+              "text": "土"
+            },
+            {
+              "text": "で、忌神です。"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "twelve_stage",
+        "position": "hour_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "時支での自分の気は冠帯の段階にあり、自信がついて前に出ていくところです。この位置の五行は"
+            },
+            {
+              "term": "element.earth",
+              "text": "土"
+            },
+            {
+              "text": "で、忌神です。"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "hour_branch",
+        "shinsal": "cheoneul_gwiin",
+        "text": {
+          "segments": [
+            {
+              "text": "時支に"
+            },
+            {
+              "term": "shinsal.cheoneul_gwiin",
+              "text": "天乙貴人"
+            },
+            {
+              "text": "があり、困ったときに手を差し伸べてくれる人に出会いやすい土台です。この位置の五行は"
+            },
+            {
+              "term": "element.earth",
+              "text": "土"
+            },
+            {
+              "text": "で、忌神です。"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "day_branch",
+        "shinsal": "hwagae",
+        "text": {
+          "segments": [
+            {
+              "text": "日支に"
+            },
+            {
+              "term": "shinsal.hwagae",
+              "text": "華蓋"
+            },
+            {
+              "text": "があり、一人で深く掘り下げる学びや芸術に心が向く土台です。この位置の五行は"
+            },
+            {
+              "term": "element.earth",
+              "text": "土"
+            },
+            {
+              "text": "で、忌神です。"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "month_stem",
+        "shinsal": "cheondeok",
+        "text": {
+          "segments": [
+            {
+              "text": "月干に"
+            },
+            {
+              "term": "shinsal.cheondeok",
+              "text": "天徳貴人"
+            },
+            {
+              "text": "があり、困難に出会っても和らいで良い方へ向かいやすいです。この位置の五行は"
+            },
+            {
+              "term": "element.metal",
+              "text": "金"
+            },
+            {
+              "text": "で、喜神です。"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "year_stem",
+        "shinsal": "woldeok",
+        "text": {
+          "segments": [
+            {
+              "text": "年干に"
+            },
+            {
+              "term": "shinsal.woldeok",
+              "text": "月徳貴人"
+            },
+            {
+              "text": "があり、凶の気が来ても大きく広がらず収まりやすいです。この位置の五行は"
+            },
+            {
+              "term": "element.metal",
+              "text": "金"
+            },
+            {
+              "text": "で、喜神です。"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "day_stem",
+        "shinsal": "woldeok",
+        "text": {
+          "segments": [
+            {
+              "text": "日干に"
+            },
+            {
+              "term": "shinsal.woldeok",
+              "text": "月徳貴人"
+            },
+            {
+              "text": "があり、凶の気が来ても大きく広がらず収まりやすいです。この位置の五行は"
+            },
+            {
+              "term": "element.metal",
+              "text": "金"
+            },
+            {
+              "text": "で、喜神です。"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "day_branch",
+        "shinsal": "gwasuk",
+        "text": {
+          "segments": [
+            {
+              "text": "日支の"
+            },
+            {
+              "term": "shinsal.gwasuk",
+              "text": "寡宿"
+            },
+            {
+              "text": "は家族との縁が薄くなりやすいという意味なので、近しい人に自分から気持ちを伝えるとよいです。この位置の五行は"
+            },
+            {
+              "term": "element.earth",
+              "text": "土"
+            },
+            {
+              "text": "で、忌神です。"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "day_branch",
+        "shinsal": "goegang",
+        "text": {
+          "segments": [
+            {
+              "text": "日支に"
+            },
+            {
+              "term": "shinsal.goegang",
+              "text": "魁罡"
+            },
+            {
+              "text": "があり、気が強く決断が早いです。うまくいくときと行き詰まるときが大きく分かれやすいので、勢いを調整するとよいです。この位置の五行は"
+            },
+            {
+              "term": "element.earth",
+              "text": "土"
+            },
+            {
+              "text": "で、忌神です。"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "day_branch",
+        "shinsal": "sipak_daepae",
+        "text": {
+          "segments": [
+            {
+              "text": "日支の"
+            },
+            {
+              "term": "shinsal.sipak_daepae",
+              "text": "十悪大敗"
+            },
+            {
+              "text": "は生まれ持った福禄の位置が空いているという意味なので、お金を扱うときにゆとりを持つとよいです。この位置の五行は"
+            },
+            {
+              "term": "element.earth",
+              "text": "土"
+            },
+            {
+              "text": "で、忌神です。"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "month_branch",
+        "shinsal": "amrok",
+        "text": {
+          "segments": [
+            {
+              "text": "月支に"
+            },
+            {
+              "term": "shinsal.amrok",
+              "text": "暗禄"
+            },
+            {
+              "text": "があり、表に出ないところから助けが入りやすいです。この位置の五行は"
+            },
+            {
+              "term": "element.fire",
+              "text": "火"
+            },
+            {
+              "text": "で、閑神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の天干に"
+            },
+            {
+              "term": "ten_god.bigyeon",
+              "text": "比肩"
+            },
+            {
+              "text": "が入り、一緒に動く人が増え、自分の取り分を自分で守りやすい時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.metal",
+              "text": "金"
+            },
+            {
+              "text": "で、喜神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の地支に"
+            },
+            {
+              "term": "ten_god.pyeonin",
+              "text": "偏印"
+            },
+            {
+              "text": "が入り、人と違う学びや考えに深く入り込む時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.earth",
+              "text": "土"
+            },
+            {
+              "text": "で、忌神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運での自分の気は養の段階にあり、急がずに力を蓄える時期です。この大運の五行は"
+            },
+            {
+              "term": "element.earth",
+              "text": "土"
+            },
+            {
+              "text": "で、忌神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の天干に"
+            },
+            {
+              "term": "ten_god.jeongin",
+              "text": "印綬"
+            },
+            {
+              "text": "が入り、学ぶことや頼ることが増えていく時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.earth",
+              "text": "土"
+            },
+            {
+              "text": "で、忌神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の地支に"
+            },
+            {
+              "term": "ten_god.jeongjae",
+              "text": "正財"
+            },
+            {
+              "text": "が入り、こつこつ蓄えて暮らしの土台を固める時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.wood",
+              "text": "木"
+            },
+            {
+              "text": "で、閑神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運での自分の気は胎の段階にあり、新しい計画がちょうど芽生える時期です。この大運の五行は"
+            },
+            {
+              "term": "element.wood",
+              "text": "木"
+            },
+            {
+              "text": "で、閑神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の天干に"
+            },
+            {
+              "term": "ten_god.pyeonin",
+              "text": "偏印"
+            },
+            {
+              "text": "が入り、人と違う学びや考えに深く入り込む時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.earth",
+              "text": "土"
+            },
+            {
+              "text": "で、忌神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の地支に"
+            },
+            {
+              "term": "ten_god.pyeonjae",
+              "text": "偏財"
+            },
+            {
+              "text": "が入り、広く動きながら機会に出会う時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.wood",
+              "text": "木"
+            },
+            {
+              "text": "で、閑神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運での自分の気は絶の段階にあり、これまでの流れを整理して方向を新しく切り替える時期です。この大運の五行は"
+            },
+            {
+              "term": "element.wood",
+              "text": "木"
+            },
+            {
+              "text": "で、閑神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 3,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の天干に"
+            },
+            {
+              "term": "ten_god.jeonggwan",
+              "text": "正官"
+            },
+            {
+              "text": "が入り、責任や立場が生まれ、認められやすい時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.fire",
+              "text": "火"
+            },
+            {
+              "text": "で、閑神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 3,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の地支に"
+            },
+            {
+              "term": "ten_god.jeongin",
+              "text": "印綬"
+            },
+            {
+              "text": "が入り、学ぶことや頼ることが増えていく時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.earth",
+              "text": "土"
+            },
+            {
+              "text": "で、忌神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 3,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運での自分の気は墓の段階にあり、広げたことを収めて締めくくる時期です。この大運の五行は"
+            },
+            {
+              "term": "element.earth",
+              "text": "土"
+            },
+            {
+              "text": "で、忌神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 4,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の天干に"
+            },
+            {
+              "term": "ten_god.pyeongwan",
+              "text": "偏官"
+            },
+            {
+              "text": "が入り、任されることが重くなりやすく、踏ん張る力を蓄えるのに向いた時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.fire",
+              "text": "火"
+            },
+            {
+              "text": "で、閑神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 4,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の地支に"
+            },
+            {
+              "term": "ten_god.sanggwan",
+              "text": "傷官"
+            },
+            {
+              "text": "が入り、新しい考えを外に出すのに向いた時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.water",
+              "text": "水"
+            },
+            {
+              "text": "で、用神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 4,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運での自分の気は死の段階にあり、外のことより考えを深く固める時期です。この大運の五行は"
+            },
+            {
+              "term": "element.water",
+              "text": "水"
+            },
+            {
+              "text": "で、用神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 5,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の天干に"
+            },
+            {
+              "term": "ten_god.jeongjae",
+              "text": "正財"
+            },
+            {
+              "text": "が入り、こつこつ蓄えて暮らしの土台を固める時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.wood",
+              "text": "木"
+            },
+            {
+              "text": "で、閑神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 5,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の地支に"
+            },
+            {
+              "term": "ten_god.siksin",
+              "text": "食神"
+            },
+            {
+              "text": "が入り、やりたいことを楽しみながら広げるのに向いた時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.water",
+              "text": "水"
+            },
+            {
+              "text": "で、用神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 5,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運での自分の気は病の段階にあり、無理をするより心と体をいたわるのに向いた時期です。この大運の五行は"
+            },
+            {
+              "term": "element.water",
+              "text": "水"
+            },
+            {
+              "text": "で、用神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 6,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の天干に"
+            },
+            {
+              "term": "ten_god.pyeonjae",
+              "text": "偏財"
+            },
+            {
+              "text": "が入り、広く動きながら機会に出会う時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.wood",
+              "text": "木"
+            },
+            {
+              "text": "で、閑神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 6,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の地支に"
+            },
+            {
+              "term": "ten_god.pyeonin",
+              "text": "偏印"
+            },
+            {
+              "text": "が入り、人と違う学びや考えに深く入り込む時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.earth",
+              "text": "土"
+            },
+            {
+              "text": "で、忌神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 6,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運での自分の気は衰の段階にあり、ペースを落として経験を生かす時期です。この大運の五行は"
+            },
+            {
+              "term": "element.earth",
+              "text": "土"
+            },
+            {
+              "text": "で、忌神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 7,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の天干に"
+            },
+            {
+              "term": "ten_god.sanggwan",
+              "text": "傷官"
+            },
+            {
+              "text": "が入り、新しい考えを外に出すのに向いた時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.water",
+              "text": "水"
+            },
+            {
+              "text": "で、用神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 7,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の地支に"
+            },
+            {
+              "term": "ten_god.geopjae",
+              "text": "劫財"
+            },
+            {
+              "text": "が入り、競うことと分け合うことがどちらも増えやすい時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.metal",
+              "text": "金"
+            },
+            {
+              "text": "で、喜神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 7,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運での自分の気は帝旺の段階にあり、力が最も満ちる時期です。この大運の五行は"
+            },
+            {
+              "term": "element.metal",
+              "text": "金"
+            },
+            {
+              "text": "で、喜神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 8,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の天干に"
+            },
+            {
+              "term": "ten_god.siksin",
+              "text": "食神"
+            },
+            {
+              "text": "が入り、やりたいことを楽しみながら広げるのに向いた時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.water",
+              "text": "水"
+            },
+            {
+              "text": "で、用神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 8,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の地支に"
+            },
+            {
+              "term": "ten_god.bigyeon",
+              "text": "比肩"
+            },
+            {
+              "text": "が入り、一緒に動く人が増え、自分の取り分を自分で守りやすい時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.metal",
+              "text": "金"
+            },
+            {
+              "text": "で、喜神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 8,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運での自分の気は建禄の段階にあり、自分の足で立って自分の役目を果たす時期です。この大運の五行は"
+            },
+            {
+              "term": "element.metal",
+              "text": "金"
+            },
+            {
+              "text": "で、喜神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 9,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の天干に"
+            },
+            {
+              "term": "ten_god.geopjae",
+              "text": "劫財"
+            },
+            {
+              "text": "が入り、競うことと分け合うことがどちらも増えやすい時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.metal",
+              "text": "金"
+            },
+            {
+              "text": "で、喜神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 9,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の地支に"
+            },
+            {
+              "term": "ten_god.jeongin",
+              "text": "印綬"
+            },
+            {
+              "text": "が入り、学ぶことや頼ることが増えていく時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.earth",
+              "text": "土"
+            },
+            {
+              "text": "で、忌神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 9,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運での自分の気は冠帯の段階にあり、自信がついて前に出ていく時期です。この大運の五行は"
+            },
+            {
+              "term": "element.earth",
+              "text": "土"
+            },
+            {
+              "text": "で、忌神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この年運の天干に"
+            },
+            {
+              "term": "ten_god.sanggwan",
+              "text": "傷官"
+            },
+            {
+              "text": "が入り、新しい考えを外に出すのに向いた時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.water",
+              "text": "水"
+            },
+            {
+              "text": "で、用神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この年運の天干に"
+            },
+            {
+              "term": "ten_god.pyeonjae",
+              "text": "偏財"
+            },
+            {
+              "text": "が入り、広く動きながら機会に出会う時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.wood",
+              "text": "木"
+            },
+            {
+              "text": "で、閑神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この年運の天干に"
+            },
+            {
+              "term": "ten_god.jeongjae",
+              "text": "正財"
+            },
+            {
+              "text": "が入り、こつこつ蓄えて暮らしの土台を固める時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.wood",
+              "text": "木"
+            },
+            {
+              "text": "で、閑神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 3,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この年運の天干に"
+            },
+            {
+              "term": "ten_god.pyeongwan",
+              "text": "偏官"
+            },
+            {
+              "text": "が入り、任されることが重くなりやすく、踏ん張る力を蓄えるのに向いた時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.fire",
+              "text": "火"
+            },
+            {
+              "text": "で、閑神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 4,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この年運の天干に"
+            },
+            {
+              "term": "ten_god.jeonggwan",
+              "text": "正官"
+            },
+            {
+              "text": "が入り、責任や立場が生まれ、認められやすい時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.fire",
+              "text": "火"
+            },
+            {
+              "text": "で、閑神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 5,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この年運の天干に"
+            },
+            {
+              "term": "ten_god.pyeonin",
+              "text": "偏印"
+            },
+            {
+              "text": "が入り、人と違う学びや考えに深く入り込む時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.earth",
+              "text": "土"
+            },
+            {
+              "text": "で、忌神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 6,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この年運の天干に"
+            },
+            {
+              "term": "ten_god.jeongin",
+              "text": "印綬"
+            },
+            {
+              "text": "が入り、学ぶことや頼ることが増えていく時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.earth",
+              "text": "土"
+            },
+            {
+              "text": "で、忌神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 7,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この年運の天干に"
+            },
+            {
+              "term": "ten_god.bigyeon",
+              "text": "比肩"
+            },
+            {
+              "text": "が入り、一緒に動く人が増え、自分の取り分を自分で守りやすい時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.metal",
+              "text": "金"
+            },
+            {
+              "text": "で、喜神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 8,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この年運の天干に"
+            },
+            {
+              "term": "ten_god.geopjae",
+              "text": "劫財"
+            },
+            {
+              "text": "が入り、競うことと分け合うことがどちらも増えやすい時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.metal",
+              "text": "金"
+            },
+            {
+              "text": "で、喜神です。"
+            }
+          ]
+        }
+      },
+      {
+        "index": 9,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この年運の天干に"
+            },
+            {
+              "term": "ten_god.siksin",
+              "text": "食神"
+            },
+            {
+              "text": "が入り、やりたいことを楽しみながら広げるのに向いた時期です。入ってきた五行は"
+            },
+            {
+              "term": "element.water",
+              "text": "水"
+            },
+            {
+              "text": "で、用神です。"
+            }
+          ]
+        }
+      }
+    ],
+    "pillars": {
+      "day": {
+        "branch": "jin",
+        "stem": "gyeong"
+      },
+      "hour": {
+        "branch": "mi",
+        "stem": "gye"
+      },
+      "month": {
+        "branch": "sa",
+        "stem": "sin"
+      },
+      "year": {
+        "branch": "o",
+        "stem": "gyeong"
+      }
+    },
+    "rulesetVersion": "2026.11.9",
+    "seun": [
+      {
+        "pillar": {
+          "branch": "myo",
+          "stem": "gye"
+        },
+        "relationsWithNatal": [],
+        "tenGod": "sanggwan",
+        "year": 2023
+      },
+      {
+        "pillar": {
+          "branch": "jin",
+          "stem": "gap"
+        },
+        "relationsWithNatal": [
+          "hyeong"
+        ],
+        "tenGod": "pyeonjae",
+        "year": 2024
+      },
+      {
+        "pillar": {
+          "branch": "sa",
+          "stem": "eul"
+        },
+        "relationsWithNatal": [
+          "stem_hap"
+        ],
+        "tenGod": "jeongjae",
+        "year": 2025
+      },
+      {
+        "pillar": {
+          "branch": "o",
+          "stem": "byeong"
+        },
+        "relationsWithNatal": [
+          "stem_hap",
+          "branch_hap",
+          "hyeong"
+        ],
+        "tenGod": "pyeongwan",
+        "year": 2026
+      },
+      {
+        "pillar": {
+          "branch": "mi",
+          "stem": "jeong"
+        },
+        "relationsWithNatal": [
+          "branch_hap"
+        ],
+        "tenGod": "jeonggwan",
+        "year": 2027
+      },
+      {
+        "pillar": {
+          "branch": "shin",
+          "stem": "mu"
+        },
+        "relationsWithNatal": [
+          "stem_hap",
+          "branch_hap",
+          "hyeong"
+        ],
+        "tenGod": "pyeonin",
+        "year": 2028
+      },
+      {
+        "pillar": {
+          "branch": "yu",
+          "stem": "gi"
+        },
+        "relationsWithNatal": [
+          "branch_hap"
+        ],
+        "tenGod": "jeongin",
+        "year": 2029
+      },
+      {
+        "pillar": {
+          "branch": "sul",
+          "stem": "gyeong"
+        },
+        "relationsWithNatal": [
+          "chung",
+          "hyeong"
+        ],
+        "tenGod": "bigyeon",
+        "year": 2030
+      },
+      {
+        "pillar": {
+          "branch": "hae",
+          "stem": "sin"
+        },
+        "relationsWithNatal": [
+          "chung"
+        ],
+        "tenGod": "geopjae",
+        "year": 2031
+      },
+      {
+        "pillar": {
+          "branch": "ja",
+          "stem": "im"
+        },
+        "relationsWithNatal": [
+          "chung"
+        ],
+        "tenGod": "siksin",
+        "year": 2032
+      }
+    ],
+    "shinsal": [
+      {
+        "kind": "cheoneul_gwiin",
+        "position": "hour_branch",
+        "positions": [
+          "hour_branch"
+        ]
+      },
+      {
+        "kind": "hwagae",
+        "position": "day_branch",
+        "positions": [
+          "day_branch"
+        ]
+      },
+      {
+        "kind": "cheondeok",
+        "position": "month_stem",
+        "positions": [
+          "month_stem"
+        ]
+      },
+      {
+        "kind": "woldeok",
+        "position": "year_stem",
+        "positions": [
+          "year_stem"
+        ]
+      },
+      {
+        "kind": "woldeok",
+        "position": "day_stem",
+        "positions": [
+          "day_stem"
+        ]
+      },
+      {
+        "kind": "gwasuk",
+        "position": "day_branch",
+        "positions": [
+          "day_branch"
+        ]
+      },
+      {
+        "kind": "goegang",
+        "position": "day_branch",
+        "positions": [
+          "day_stem",
+          "day_branch"
+        ]
+      },
+      {
+        "kind": "sipak_daepae",
+        "position": "day_branch",
+        "positions": [
+          "day_stem",
+          "day_branch"
+        ]
+      },
+      {
+        "kind": "amrok",
+        "position": "month_branch",
+        "positions": [
+          "month_branch"
+        ]
+      }
+    ],
+    "strength": {
+      "level": "strong",
+      "score": 51.904762
+    },
+    "tenGods": [
+      {
+        "position": "year_stem",
+        "tenGod": "bigyeon"
+      },
+      {
+        "position": "year_branch",
+        "tenGod": "jeonggwan"
+      },
+      {
+        "position": "month_stem",
+        "tenGod": "geopjae"
+      },
+      {
+        "position": "month_branch",
+        "tenGod": "pyeongwan"
+      },
+      {
+        "position": "day_branch",
+        "tenGod": "pyeonin"
+      },
+      {
+        "position": "hour_stem",
+        "tenGod": "sanggwan"
+      },
+      {
+        "position": "hour_branch",
+        "tenGod": "jeongin"
+      }
+    ],
+    "twelveStages": [
+      {
+        "position": "year_branch",
+        "stage": "mokyok"
+      },
+      {
+        "position": "month_branch",
+        "stage": "jangsaeng"
+      },
+      {
+        "position": "day_branch",
+        "stage": "yang"
+      },
+      {
+        "position": "hour_branch",
+        "stage": "gwandae"
+      }
+    ],
+    "yongsin": {
+      "basis": {
+        "messageKey": "yongsin.method.johu",
+        "reactable": false,
+        "slot": "chart.yongsin_method",
+        "text": {
+          "segments": [
+            {
+              "text": "生まれた季節の暑さや寒さが目立つため、温度を整える五行を"
+            },
+            {
+              "term": "role.yongsin",
+              "text": "用神"
+            },
+            {
+              "text": "にしました。"
+            }
+          ]
+        },
+        "variant": "single"
+      },
+      "gisin": "earth",
+      "huisin": "metal",
+      "johuStem": "im",
+      "method": "johu",
+      "tonggwan": "metal",
+      "yongsin": "water"
+    },
+    "yongsinSummary": {
+      "messageKey": "yongsin.summary",
+      "reactable": false,
+      "slot": "chart.yongsin_summary",
+      "text": {
+        "segments": [
+          {
+            "text": "自分によく合う五行は"
+          },
+          {
+            "term": "element.water",
+            "text": "水"
+          },
+          {
+            "text": "で、色なら黒が似合います。服や小物で身近に取り入れてみてください。"
+          }
+        ]
+      },
+      "variant": "single"
+    }
+  }
+}

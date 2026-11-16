@@ -1,0 +1,2284 @@
+{
+  "status": 200,
+  "body": {
+    "daeun": {
+      "forward": false,
+      "periods": [
+        {
+          "branchTenGod": "pyeonin",
+          "pillar": {
+            "branch": "jin",
+            "stem": "gyeong"
+          },
+          "startAge": 3,
+          "startAgeKorean": 4,
+          "startYear": 1993,
+          "stemTenGod": "bigyeon",
+          "twelveStage": "yang"
+        },
+        {
+          "branchTenGod": "jeongjae",
+          "pillar": {
+            "branch": "myo",
+            "stem": "gi"
+          },
+          "startAge": 13,
+          "startAgeKorean": 14,
+          "startYear": 2003,
+          "stemTenGod": "jeongin",
+          "twelveStage": "tae"
+        },
+        {
+          "branchTenGod": "pyeonjae",
+          "pillar": {
+            "branch": "in",
+            "stem": "mu"
+          },
+          "startAge": 23,
+          "startAgeKorean": 24,
+          "startYear": 2013,
+          "stemTenGod": "pyeonin",
+          "twelveStage": "jeol"
+        },
+        {
+          "branchTenGod": "jeongin",
+          "pillar": {
+            "branch": "chuk",
+            "stem": "jeong"
+          },
+          "startAge": 33,
+          "startAgeKorean": 34,
+          "startYear": 2023,
+          "stemTenGod": "jeonggwan",
+          "twelveStage": "myo"
+        },
+        {
+          "branchTenGod": "sanggwan",
+          "pillar": {
+            "branch": "ja",
+            "stem": "byeong"
+          },
+          "startAge": 43,
+          "startAgeKorean": 44,
+          "startYear": 2033,
+          "stemTenGod": "pyeongwan",
+          "twelveStage": "sa"
+        },
+        {
+          "branchTenGod": "siksin",
+          "pillar": {
+            "branch": "hae",
+            "stem": "eul"
+          },
+          "startAge": 53,
+          "startAgeKorean": 54,
+          "startYear": 2043,
+          "stemTenGod": "jeongjae",
+          "twelveStage": "byeong"
+        },
+        {
+          "branchTenGod": "pyeonin",
+          "pillar": {
+            "branch": "sul",
+            "stem": "gap"
+          },
+          "startAge": 63,
+          "startAgeKorean": 64,
+          "startYear": 2053,
+          "stemTenGod": "pyeonjae",
+          "twelveStage": "soe"
+        },
+        {
+          "branchTenGod": "geopjae",
+          "pillar": {
+            "branch": "yu",
+            "stem": "gye"
+          },
+          "startAge": 73,
+          "startAgeKorean": 74,
+          "startYear": 2063,
+          "stemTenGod": "sanggwan",
+          "twelveStage": "jewang"
+        },
+        {
+          "branchTenGod": "bigyeon",
+          "pillar": {
+            "branch": "shin",
+            "stem": "im"
+          },
+          "startAge": 83,
+          "startAgeKorean": 84,
+          "startYear": 2073,
+          "stemTenGod": "siksin",
+          "twelveStage": "geonrok"
+        },
+        {
+          "branchTenGod": "jeongin",
+          "pillar": {
+            "branch": "mi",
+            "stem": "sin"
+          },
+          "startAge": 93,
+          "startAgeKorean": 94,
+          "startYear": 2083,
+          "stemTenGod": "geopjae",
+          "twelveStage": "gwandae"
+        }
+      ],
+      "startMonths": 2,
+      "startYears": 3
+    },
+    "elementWeights": [
+      {
+        "element": "wood",
+        "weight": 0.6
+      },
+      {
+        "element": "fire",
+        "weight": 3.3
+      },
+      {
+        "element": "earth",
+        "weight": 2.55
+      },
+      {
+        "element": "metal",
+        "weight": 2.9
+      },
+      {
+        "element": "water",
+        "weight": 1.15
+      }
+    ],
+    "evidenceAccess": "unlocked",
+    "gongmang": [
+      "shin",
+      "yu"
+    ],
+    "hiddenStems": [
+      {
+        "position": "year_branch",
+        "stems": [
+          {
+            "stem": "jeong",
+            "tenGod": "jeonggwan"
+          },
+          {
+            "stem": "gi",
+            "tenGod": "jeongin"
+          }
+        ]
+      },
+      {
+        "position": "month_branch",
+        "stems": [
+          {
+            "stem": "byeong",
+            "tenGod": "pyeongwan"
+          },
+          {
+            "stem": "gyeong",
+            "tenGod": "bigyeon"
+          },
+          {
+            "stem": "mu",
+            "tenGod": "pyeonin"
+          }
+        ]
+      },
+      {
+        "position": "day_branch",
+        "stems": [
+          {
+            "stem": "mu",
+            "tenGod": "pyeonin"
+          },
+          {
+            "stem": "eul",
+            "tenGod": "jeongjae"
+          },
+          {
+            "stem": "gye",
+            "tenGod": "sanggwan"
+          }
+        ]
+      },
+      {
+        "position": "hour_branch",
+        "stems": [
+          {
+            "stem": "gi",
+            "tenGod": "jeongin"
+          },
+          {
+            "stem": "jeong",
+            "tenGod": "jeonggwan"
+          },
+          {
+            "stem": "eul",
+            "tenGod": "jeongjae"
+          }
+        ]
+      }
+    ],
+    "ilganBody": {
+      "messageKey": "ilgan.body.gyeong",
+      "reactable": false,
+      "slot": "chart.ilgan_body",
+      "text": {
+        "segments": [
+          {
+            "text": "옳다고 여긴 일은 바로 행동으로 옮기는 편이에요. 결단이 필요한 순간에 망설이지 않는 모습이 돋보여요."
+          }
+        ]
+      },
+      "variant": "single"
+    },
+    "ilganHead": {
+      "messageKey": "ilgan.head.gyeong",
+      "reactable": false,
+      "slot": "chart.ilgan_head",
+      "text": {
+        "segments": [
+          {
+            "text": "하늘님, 다듬기 전의 단단한 쇠를 닮았어요."
+          }
+        ]
+      },
+      "variant": "single"
+    },
+    "notices": [],
+    "personalReadings": [
+      {
+        "kind": "day_master",
+        "position": "day_stem",
+        "text": {
+          "segments": [
+            {
+              "text": "내 사주의 "
+            },
+            {
+              "term": "stem.gyeong",
+              "text": "경금"
+            },
+            {
+              "text": "은 힘이 센 편이에요. "
+            },
+            {
+              "term": "element.water",
+              "text": "수"
+            },
+            {
+              "text": " 기운이 균형을 잡아 주니 가까이하고, "
+            },
+            {
+              "term": "element.earth",
+              "text": "토"
+            },
+            {
+              "text": " 기운은 덜어 내면 좋아요."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "year_stem",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 해의 천간에 "
+            },
+            {
+              "term": "ten_god.bigyeon",
+              "text": "비견"
+            },
+            {
+              "text": "이 있어, 곁에서 나란히 걷는 사람의 힘이 바탕에 깔려 있어요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.metal",
+              "text": "금"
+            },
+            {
+              "text": "은 곁에서 돕는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "year_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 해의 지지에 "
+            },
+            {
+              "term": "ten_god.jeonggwan",
+              "text": "정관"
+            },
+            {
+              "text": "이 있어, 약속을 지키고 책임을 맡는 힘이 자리 잡고 있어요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.fire",
+              "text": "화"
+            },
+            {
+              "text": "는 무난한 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "month_stem",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 달의 천간에 "
+            },
+            {
+              "term": "ten_god.geopjae",
+              "text": "겁재"
+            },
+            {
+              "text": "가 있어, 누군가와 겨루며 함께 커 가는 기질이 자리 잡고 있어요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.metal",
+              "text": "금"
+            },
+            {
+              "text": "은 곁에서 돕는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "month_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 달의 지지에 "
+            },
+            {
+              "term": "ten_god.pyeongwan",
+              "text": "편관"
+            },
+            {
+              "text": "이 있어, 부담이 와도 버티며 밀고 나가는 힘이 있어요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.fire",
+              "text": "화"
+            },
+            {
+              "text": "는 무난한 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "day_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 날의 지지에 "
+            },
+            {
+              "term": "ten_god.pyeonin",
+              "text": "편인"
+            },
+            {
+              "text": "이 있어, 남다른 눈으로 깊이 파고드는 기질이 있어요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.earth",
+              "text": "토"
+            },
+            {
+              "text": "는 잘 안 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "hour_stem",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 시의 천간에 "
+            },
+            {
+              "term": "ten_god.sanggwan",
+              "text": "상관"
+            },
+            {
+              "text": "이 있어, 틀을 넘어 새롭게 표현하는 재주가 드러나요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.water",
+              "text": "수"
+            },
+            {
+              "text": "는 나와 잘 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "hour_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 시의 지지에 "
+            },
+            {
+              "term": "ten_god.jeongin",
+              "text": "정인"
+            },
+            {
+              "text": "이 있어, 배우고 도움을 받아들이는 힘이 바탕에 깔려 있어요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.earth",
+              "text": "토"
+            },
+            {
+              "text": "는 잘 안 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "hidden_ten_god",
+        "position": "year_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 해 지지 속에 "
+            },
+            {
+              "term": "ten_god.jeonggwan",
+              "text": "정관"
+            },
+            {
+              "text": "이 있어, 약속을 지키고 책임을 맡는 힘이 자리 잡고 있어요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.fire",
+              "text": "화"
+            },
+            {
+              "text": "는 무난한 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "hidden_ten_god",
+        "position": "year_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 해 지지 속에 "
+            },
+            {
+              "term": "ten_god.jeongin",
+              "text": "정인"
+            },
+            {
+              "text": "이 있어, 배우고 도움을 받아들이는 힘이 바탕에 깔려 있어요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.earth",
+              "text": "토"
+            },
+            {
+              "text": "는 잘 안 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "hidden_ten_god",
+        "position": "month_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 달 지지 속에 "
+            },
+            {
+              "term": "ten_god.pyeongwan",
+              "text": "편관"
+            },
+            {
+              "text": "이 있어, 부담이 와도 버티며 밀고 나가는 힘이 있어요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.fire",
+              "text": "화"
+            },
+            {
+              "text": "는 무난한 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "hidden_ten_god",
+        "position": "month_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 달 지지 속에 "
+            },
+            {
+              "term": "ten_god.bigyeon",
+              "text": "비견"
+            },
+            {
+              "text": "이 있어, 곁에서 나란히 걷는 사람의 힘이 바탕에 깔려 있어요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.metal",
+              "text": "금"
+            },
+            {
+              "text": "은 곁에서 돕는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "hidden_ten_god",
+        "position": "month_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 달 지지 속에 "
+            },
+            {
+              "term": "ten_god.pyeonin",
+              "text": "편인"
+            },
+            {
+              "text": "이 있어, 남다른 눈으로 깊이 파고드는 기질이 있어요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.earth",
+              "text": "토"
+            },
+            {
+              "text": "는 잘 안 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "hidden_ten_god",
+        "position": "day_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 날 지지 속에 "
+            },
+            {
+              "term": "ten_god.pyeonin",
+              "text": "편인"
+            },
+            {
+              "text": "이 있어, 남다른 눈으로 깊이 파고드는 기질이 있어요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.earth",
+              "text": "토"
+            },
+            {
+              "text": "는 잘 안 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "hidden_ten_god",
+        "position": "day_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 날 지지 속에 "
+            },
+            {
+              "term": "ten_god.jeongjae",
+              "text": "정재"
+            },
+            {
+              "text": "가 있어, 차곡차곡 모으고 살림을 챙기는 힘이 자리 잡고 있어요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.wood",
+              "text": "목"
+            },
+            {
+              "text": "은 무난한 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "hidden_ten_god",
+        "position": "day_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 날 지지 속에 "
+            },
+            {
+              "term": "ten_god.sanggwan",
+              "text": "상관"
+            },
+            {
+              "text": "이 있어, 틀을 넘어 새롭게 표현하는 재주가 드러나요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.water",
+              "text": "수"
+            },
+            {
+              "text": "는 나와 잘 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "hidden_ten_god",
+        "position": "hour_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 시 지지 속에 "
+            },
+            {
+              "term": "ten_god.jeongin",
+              "text": "정인"
+            },
+            {
+              "text": "이 있어, 배우고 도움을 받아들이는 힘이 바탕에 깔려 있어요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.earth",
+              "text": "토"
+            },
+            {
+              "text": "는 잘 안 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "hidden_ten_god",
+        "position": "hour_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 시 지지 속에 "
+            },
+            {
+              "term": "ten_god.jeonggwan",
+              "text": "정관"
+            },
+            {
+              "text": "이 있어, 약속을 지키고 책임을 맡는 힘이 자리 잡고 있어요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.fire",
+              "text": "화"
+            },
+            {
+              "text": "는 무난한 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "hidden_ten_god",
+        "position": "hour_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 시 지지 속에 "
+            },
+            {
+              "term": "ten_god.jeongjae",
+              "text": "정재"
+            },
+            {
+              "text": "가 있어, 차곡차곡 모으고 살림을 챙기는 힘이 자리 잡고 있어요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.wood",
+              "text": "목"
+            },
+            {
+              "text": "은 무난한 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "twelve_stage",
+        "position": "year_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 해의 지지에서 내 기운은 목욕 단계라, 이것저것 해 보며 감을 잡아 가는 자리예요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.fire",
+              "text": "화"
+            },
+            {
+              "text": "는 무난한 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "twelve_stage",
+        "position": "month_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 달의 지지에서 내 기운은 장생 단계라, 새로 싹트고 자라나는 자리예요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.fire",
+              "text": "화"
+            },
+            {
+              "text": "는 무난한 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "twelve_stage",
+        "position": "day_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 날의 지지에서 내 기운은 양 단계라, 서두르지 않고 안에서 차근차근 준비하는 자리예요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.earth",
+              "text": "토"
+            },
+            {
+              "text": "는 잘 안 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "twelve_stage",
+        "position": "hour_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 시의 지지에서 내 기운은 관대 단계라, 자신감이 붙어 앞으로 나서는 자리예요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.earth",
+              "text": "토"
+            },
+            {
+              "text": "는 잘 안 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "hour_branch",
+        "shinsal": "cheoneul_gwiin",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 시의 지지에 "
+            },
+            {
+              "term": "shinsal.cheoneul_gwiin",
+              "text": "천을귀인"
+            },
+            {
+              "text": "이 있어, 어려울 때 손을 내미는 사람을 만나기 쉬운 바탕이에요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.earth",
+              "text": "토"
+            },
+            {
+              "text": "는 잘 안 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "day_branch",
+        "shinsal": "hwagae",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 날의 지지에 "
+            },
+            {
+              "term": "shinsal.hwagae",
+              "text": "화개"
+            },
+            {
+              "text": "가 있어, 혼자 깊이 파고드는 공부나 예술에 마음이 가는 바탕이에요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.earth",
+              "text": "토"
+            },
+            {
+              "text": "는 잘 안 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "month_stem",
+        "shinsal": "cheondeok",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 달의 천간에 "
+            },
+            {
+              "term": "shinsal.cheondeok",
+              "text": "천덕귀인"
+            },
+            {
+              "text": "이 있어, 어려운 일을 만나도 누그러져 좋은 쪽으로 풀리기 쉬워요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.metal",
+              "text": "금"
+            },
+            {
+              "text": "은 곁에서 돕는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "year_stem",
+        "shinsal": "woldeok",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 해의 천간에 "
+            },
+            {
+              "term": "shinsal.woldeok",
+              "text": "월덕귀인"
+            },
+            {
+              "text": "이 있어, 흉한 기운이 와도 크게 번지지 않고 가라앉기 쉬워요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.metal",
+              "text": "금"
+            },
+            {
+              "text": "은 곁에서 돕는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "day_stem",
+        "shinsal": "woldeok",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 날의 천간에 "
+            },
+            {
+              "term": "shinsal.woldeok",
+              "text": "월덕귀인"
+            },
+            {
+              "text": "이 있어, 흉한 기운이 와도 크게 번지지 않고 가라앉기 쉬워요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.metal",
+              "text": "금"
+            },
+            {
+              "text": "은 곁에서 돕는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "day_branch",
+        "shinsal": "gwasuk",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 날의 지지의 "
+            },
+            {
+              "term": "shinsal.gwasuk",
+              "text": "과숙"
+            },
+            {
+              "text": "은 가족과의 인연이 약해지기 쉽다는 뜻이라, 가까운 사람에게 먼저 마음을 표현하면 좋아요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.earth",
+              "text": "토"
+            },
+            {
+              "text": "는 잘 안 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "day_branch",
+        "shinsal": "goegang",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 날의 지지에 "
+            },
+            {
+              "term": "shinsal.goegang",
+              "text": "괴강"
+            },
+            {
+              "text": "이 있어 기운이 세고 결단이 빨라요. 잘 풀릴 때와 막힐 때가 크게 갈리기 쉬우니 기세를 조절하면 좋아요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.earth",
+              "text": "토"
+            },
+            {
+              "text": "는 잘 안 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "day_branch",
+        "shinsal": "sipak_daepae",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 날의 지지의 "
+            },
+            {
+              "term": "shinsal.sipak_daepae",
+              "text": "십악대패"
+            },
+            {
+              "text": "는 타고난 복록의 자리가 비어 있다는 뜻이라, 재물을 다룰 때 여유를 두면 좋아요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.earth",
+              "text": "토"
+            },
+            {
+              "text": "는 잘 안 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "month_branch",
+        "shinsal": "amrok",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 달의 지지에 "
+            },
+            {
+              "term": "shinsal.amrok",
+              "text": "암록"
+            },
+            {
+              "text": "이 있어, 드러나지 않는 곳에서 도움이 들어오기 쉬워요. 이 자리의 오행 "
+            },
+            {
+              "term": "element.fire",
+              "text": "화"
+            },
+            {
+              "text": "는 무난한 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운의 천간에 "
+            },
+            {
+              "term": "ten_god.bigyeon",
+              "text": "비견"
+            },
+            {
+              "text": "이 들어, 함께하는 사람이 늘고 내 몫을 스스로 챙기기 쉬운 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.metal",
+              "text": "금"
+            },
+            {
+              "text": "은 곁에서 돕는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운의 지지에 "
+            },
+            {
+              "term": "ten_god.pyeonin",
+              "text": "편인"
+            },
+            {
+              "text": "이 들어, 남다른 공부나 생각에 깊이 빠지는 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.earth",
+              "text": "토"
+            },
+            {
+              "text": "는 잘 안 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운에서 내 기운은 양 단계라, 서두르지 않고 힘을 기르는 시기예요. 이 대운의 오행 "
+            },
+            {
+              "term": "element.earth",
+              "text": "토"
+            },
+            {
+              "text": "는 잘 안 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운의 천간에 "
+            },
+            {
+              "term": "ten_god.jeongin",
+              "text": "정인"
+            },
+            {
+              "text": "이 들어, 배우고 기대는 일이 늘어나는 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.earth",
+              "text": "토"
+            },
+            {
+              "text": "는 잘 안 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운의 지지에 "
+            },
+            {
+              "term": "ten_god.jeongjae",
+              "text": "정재"
+            },
+            {
+              "text": "가 들어, 꾸준히 모으고 살림을 다지는 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.wood",
+              "text": "목"
+            },
+            {
+              "text": "은 무난한 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운에서 내 기운은 태 단계라, 새 계획이 막 생겨나는 시기예요. 이 대운의 오행 "
+            },
+            {
+              "term": "element.wood",
+              "text": "목"
+            },
+            {
+              "text": "은 무난한 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운의 천간에 "
+            },
+            {
+              "term": "ten_god.pyeonin",
+              "text": "편인"
+            },
+            {
+              "text": "이 들어, 남다른 공부나 생각에 깊이 빠지는 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.earth",
+              "text": "토"
+            },
+            {
+              "text": "는 잘 안 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운의 지지에 "
+            },
+            {
+              "term": "ten_god.pyeonjae",
+              "text": "편재"
+            },
+            {
+              "text": "가 들어, 넓게 움직이며 기회를 만나는 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.wood",
+              "text": "목"
+            },
+            {
+              "text": "은 무난한 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운에서 내 기운은 절 단계라, 지난 흐름을 정리하고 방향을 새로 트는 시기예요. 이 대운의 오행 "
+            },
+            {
+              "term": "element.wood",
+              "text": "목"
+            },
+            {
+              "text": "은 무난한 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 3,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운의 천간에 "
+            },
+            {
+              "term": "ten_god.jeonggwan",
+              "text": "정관"
+            },
+            {
+              "text": "이 들어, 책임과 자리가 생기고 인정받기 쉬운 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.fire",
+              "text": "화"
+            },
+            {
+              "text": "는 무난한 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 3,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운의 지지에 "
+            },
+            {
+              "term": "ten_god.jeongin",
+              "text": "정인"
+            },
+            {
+              "text": "이 들어, 배우고 기대는 일이 늘어나는 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.earth",
+              "text": "토"
+            },
+            {
+              "text": "는 잘 안 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 3,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운에서 내 기운은 묘 단계라, 벌인 일을 거두고 마무리하는 시기예요. 이 대운의 오행 "
+            },
+            {
+              "term": "element.earth",
+              "text": "토"
+            },
+            {
+              "text": "는 잘 안 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 4,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운의 천간에 "
+            },
+            {
+              "term": "ten_god.pyeongwan",
+              "text": "편관"
+            },
+            {
+              "text": "이 들어, 맡는 일이 무거워지기 쉬워, 버티는 힘을 기르기 좋은 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.fire",
+              "text": "화"
+            },
+            {
+              "text": "는 무난한 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 4,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운의 지지에 "
+            },
+            {
+              "term": "ten_god.sanggwan",
+              "text": "상관"
+            },
+            {
+              "text": "이 들어, 새로운 생각을 밖으로 내보이기 좋은 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.water",
+              "text": "수"
+            },
+            {
+              "text": "는 나와 잘 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 4,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운에서 내 기운은 사 단계라, 바깥일보다 생각을 깊게 다지는 시기예요. 이 대운의 오행 "
+            },
+            {
+              "term": "element.water",
+              "text": "수"
+            },
+            {
+              "text": "는 나와 잘 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 5,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운의 천간에 "
+            },
+            {
+              "term": "ten_god.jeongjae",
+              "text": "정재"
+            },
+            {
+              "text": "가 들어, 꾸준히 모으고 살림을 다지는 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.wood",
+              "text": "목"
+            },
+            {
+              "text": "은 무난한 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 5,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운의 지지에 "
+            },
+            {
+              "term": "ten_god.siksin",
+              "text": "식신"
+            },
+            {
+              "text": "이 들어, 하고 싶은 일을 즐기며 펼치기 좋은 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.water",
+              "text": "수"
+            },
+            {
+              "text": "는 나와 잘 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 5,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운에서 내 기운은 병 단계라, 무리하기보다 몸과 마음을 돌보기 좋은 시기예요. 이 대운의 오행 "
+            },
+            {
+              "term": "element.water",
+              "text": "수"
+            },
+            {
+              "text": "는 나와 잘 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 6,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운의 천간에 "
+            },
+            {
+              "term": "ten_god.pyeonjae",
+              "text": "편재"
+            },
+            {
+              "text": "가 들어, 넓게 움직이며 기회를 만나는 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.wood",
+              "text": "목"
+            },
+            {
+              "text": "은 무난한 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 6,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운의 지지에 "
+            },
+            {
+              "term": "ten_god.pyeonin",
+              "text": "편인"
+            },
+            {
+              "text": "이 들어, 남다른 공부나 생각에 깊이 빠지는 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.earth",
+              "text": "토"
+            },
+            {
+              "text": "는 잘 안 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 6,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운에서 내 기운은 쇠 단계라, 속도를 늦추고 경험을 살리는 시기예요. 이 대운의 오행 "
+            },
+            {
+              "term": "element.earth",
+              "text": "토"
+            },
+            {
+              "text": "는 잘 안 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 7,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운의 천간에 "
+            },
+            {
+              "term": "ten_god.sanggwan",
+              "text": "상관"
+            },
+            {
+              "text": "이 들어, 새로운 생각을 밖으로 내보이기 좋은 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.water",
+              "text": "수"
+            },
+            {
+              "text": "는 나와 잘 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 7,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운의 지지에 "
+            },
+            {
+              "term": "ten_god.geopjae",
+              "text": "겁재"
+            },
+            {
+              "text": "가 들어, 겨룰 일과 나눌 일이 함께 많아지기 쉬운 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.metal",
+              "text": "금"
+            },
+            {
+              "text": "은 곁에서 돕는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 7,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운에서 내 기운은 제왕 단계라, 힘이 가장 차오르는 시기예요. 이 대운의 오행 "
+            },
+            {
+              "term": "element.metal",
+              "text": "금"
+            },
+            {
+              "text": "은 곁에서 돕는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 8,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운의 천간에 "
+            },
+            {
+              "term": "ten_god.siksin",
+              "text": "식신"
+            },
+            {
+              "text": "이 들어, 하고 싶은 일을 즐기며 펼치기 좋은 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.water",
+              "text": "수"
+            },
+            {
+              "text": "는 나와 잘 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 8,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운의 지지에 "
+            },
+            {
+              "term": "ten_god.bigyeon",
+              "text": "비견"
+            },
+            {
+              "text": "이 들어, 함께하는 사람이 늘고 내 몫을 스스로 챙기기 쉬운 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.metal",
+              "text": "금"
+            },
+            {
+              "text": "은 곁에서 돕는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 8,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운에서 내 기운은 건록 단계라, 스스로 서서 제 몫을 해내는 시기예요. 이 대운의 오행 "
+            },
+            {
+              "term": "element.metal",
+              "text": "금"
+            },
+            {
+              "text": "은 곁에서 돕는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 9,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운의 천간에 "
+            },
+            {
+              "term": "ten_god.geopjae",
+              "text": "겁재"
+            },
+            {
+              "text": "가 들어, 겨룰 일과 나눌 일이 함께 많아지기 쉬운 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.metal",
+              "text": "금"
+            },
+            {
+              "text": "은 곁에서 돕는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 9,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운의 지지에 "
+            },
+            {
+              "term": "ten_god.jeongin",
+              "text": "정인"
+            },
+            {
+              "text": "이 들어, 배우고 기대는 일이 늘어나는 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.earth",
+              "text": "토"
+            },
+            {
+              "text": "는 잘 안 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 9,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "이 대운에서 내 기운은 관대 단계라, 자신감이 붙어 앞으로 나서는 시기예요. 이 대운의 오행 "
+            },
+            {
+              "term": "element.earth",
+              "text": "토"
+            },
+            {
+              "text": "는 잘 안 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 세운의 천간에 "
+            },
+            {
+              "term": "ten_god.sanggwan",
+              "text": "상관"
+            },
+            {
+              "text": "이 들어, 새로운 생각을 밖으로 내보이기 좋은 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.water",
+              "text": "수"
+            },
+            {
+              "text": "는 나와 잘 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 세운의 천간에 "
+            },
+            {
+              "term": "ten_god.pyeonjae",
+              "text": "편재"
+            },
+            {
+              "text": "가 들어, 넓게 움직이며 기회를 만나는 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.wood",
+              "text": "목"
+            },
+            {
+              "text": "은 무난한 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 세운의 천간에 "
+            },
+            {
+              "term": "ten_god.jeongjae",
+              "text": "정재"
+            },
+            {
+              "text": "가 들어, 꾸준히 모으고 살림을 다지는 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.wood",
+              "text": "목"
+            },
+            {
+              "text": "은 무난한 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 3,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 세운의 천간에 "
+            },
+            {
+              "term": "ten_god.pyeongwan",
+              "text": "편관"
+            },
+            {
+              "text": "이 들어, 맡는 일이 무거워지기 쉬워, 버티는 힘을 기르기 좋은 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.fire",
+              "text": "화"
+            },
+            {
+              "text": "는 무난한 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 4,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 세운의 천간에 "
+            },
+            {
+              "term": "ten_god.jeonggwan",
+              "text": "정관"
+            },
+            {
+              "text": "이 들어, 책임과 자리가 생기고 인정받기 쉬운 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.fire",
+              "text": "화"
+            },
+            {
+              "text": "는 무난한 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 5,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 세운의 천간에 "
+            },
+            {
+              "term": "ten_god.pyeonin",
+              "text": "편인"
+            },
+            {
+              "text": "이 들어, 남다른 공부나 생각에 깊이 빠지는 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.earth",
+              "text": "토"
+            },
+            {
+              "text": "는 잘 안 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 6,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 세운의 천간에 "
+            },
+            {
+              "term": "ten_god.jeongin",
+              "text": "정인"
+            },
+            {
+              "text": "이 들어, 배우고 기대는 일이 늘어나는 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.earth",
+              "text": "토"
+            },
+            {
+              "text": "는 잘 안 맞는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 7,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 세운의 천간에 "
+            },
+            {
+              "term": "ten_god.bigyeon",
+              "text": "비견"
+            },
+            {
+              "text": "이 들어, 함께하는 사람이 늘고 내 몫을 스스로 챙기기 쉬운 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.metal",
+              "text": "금"
+            },
+            {
+              "text": "은 곁에서 돕는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 8,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 세운의 천간에 "
+            },
+            {
+              "term": "ten_god.geopjae",
+              "text": "겁재"
+            },
+            {
+              "text": "가 들어, 겨룰 일과 나눌 일이 함께 많아지기 쉬운 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.metal",
+              "text": "금"
+            },
+            {
+              "text": "은 곁에서 돕는 기운이에요."
+            }
+          ]
+        }
+      },
+      {
+        "index": 9,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "이 세운의 천간에 "
+            },
+            {
+              "term": "ten_god.siksin",
+              "text": "식신"
+            },
+            {
+              "text": "이 들어, 하고 싶은 일을 즐기며 펼치기 좋은 시기예요. 들어온 오행 "
+            },
+            {
+              "term": "element.water",
+              "text": "수"
+            },
+            {
+              "text": "는 나와 잘 맞는 기운이에요."
+            }
+          ]
+        }
+      }
+    ],
+    "pillars": {
+      "day": {
+        "branch": "jin",
+        "stem": "gyeong"
+      },
+      "hour": {
+        "branch": "mi",
+        "stem": "gye"
+      },
+      "month": {
+        "branch": "sa",
+        "stem": "sin"
+      },
+      "year": {
+        "branch": "o",
+        "stem": "gyeong"
+      }
+    },
+    "rulesetVersion": "2026.11.9",
+    "seun": [
+      {
+        "pillar": {
+          "branch": "myo",
+          "stem": "gye"
+        },
+        "relationsWithNatal": [],
+        "tenGod": "sanggwan",
+        "year": 2023
+      },
+      {
+        "pillar": {
+          "branch": "jin",
+          "stem": "gap"
+        },
+        "relationsWithNatal": [
+          "hyeong"
+        ],
+        "tenGod": "pyeonjae",
+        "year": 2024
+      },
+      {
+        "pillar": {
+          "branch": "sa",
+          "stem": "eul"
+        },
+        "relationsWithNatal": [
+          "stem_hap"
+        ],
+        "tenGod": "jeongjae",
+        "year": 2025
+      },
+      {
+        "pillar": {
+          "branch": "o",
+          "stem": "byeong"
+        },
+        "relationsWithNatal": [
+          "stem_hap",
+          "branch_hap",
+          "hyeong"
+        ],
+        "tenGod": "pyeongwan",
+        "year": 2026
+      },
+      {
+        "pillar": {
+          "branch": "mi",
+          "stem": "jeong"
+        },
+        "relationsWithNatal": [
+          "branch_hap"
+        ],
+        "tenGod": "jeonggwan",
+        "year": 2027
+      },
+      {
+        "pillar": {
+          "branch": "shin",
+          "stem": "mu"
+        },
+        "relationsWithNatal": [
+          "stem_hap",
+          "branch_hap",
+          "hyeong"
+        ],
+        "tenGod": "pyeonin",
+        "year": 2028
+      },
+      {
+        "pillar": {
+          "branch": "yu",
+          "stem": "gi"
+        },
+        "relationsWithNatal": [
+          "branch_hap"
+        ],
+        "tenGod": "jeongin",
+        "year": 2029
+      },
+      {
+        "pillar": {
+          "branch": "sul",
+          "stem": "gyeong"
+        },
+        "relationsWithNatal": [
+          "chung",
+          "hyeong"
+        ],
+        "tenGod": "bigyeon",
+        "year": 2030
+      },
+      {
+        "pillar": {
+          "branch": "hae",
+          "stem": "sin"
+        },
+        "relationsWithNatal": [
+          "chung"
+        ],
+        "tenGod": "geopjae",
+        "year": 2031
+      },
+      {
+        "pillar": {
+          "branch": "ja",
+          "stem": "im"
+        },
+        "relationsWithNatal": [
+          "chung"
+        ],
+        "tenGod": "siksin",
+        "year": 2032
+      }
+    ],
+    "shinsal": [
+      {
+        "kind": "cheoneul_gwiin",
+        "position": "hour_branch",
+        "positions": [
+          "hour_branch"
+        ]
+      },
+      {
+        "kind": "hwagae",
+        "position": "day_branch",
+        "positions": [
+          "day_branch"
+        ]
+      },
+      {
+        "kind": "cheondeok",
+        "position": "month_stem",
+        "positions": [
+          "month_stem"
+        ]
+      },
+      {
+        "kind": "woldeok",
+        "position": "year_stem",
+        "positions": [
+          "year_stem"
+        ]
+      },
+      {
+        "kind": "woldeok",
+        "position": "day_stem",
+        "positions": [
+          "day_stem"
+        ]
+      },
+      {
+        "kind": "gwasuk",
+        "position": "day_branch",
+        "positions": [
+          "day_branch"
+        ]
+      },
+      {
+        "kind": "goegang",
+        "position": "day_branch",
+        "positions": [
+          "day_stem",
+          "day_branch"
+        ]
+      },
+      {
+        "kind": "sipak_daepae",
+        "position": "day_branch",
+        "positions": [
+          "day_stem",
+          "day_branch"
+        ]
+      },
+      {
+        "kind": "amrok",
+        "position": "month_branch",
+        "positions": [
+          "month_branch"
+        ]
+      }
+    ],
+    "strength": {
+      "level": "strong",
+      "score": 51.904762
+    },
+    "tenGods": [
+      {
+        "position": "year_stem",
+        "tenGod": "bigyeon"
+      },
+      {
+        "position": "year_branch",
+        "tenGod": "jeonggwan"
+      },
+      {
+        "position": "month_stem",
+        "tenGod": "geopjae"
+      },
+      {
+        "position": "month_branch",
+        "tenGod": "pyeongwan"
+      },
+      {
+        "position": "day_branch",
+        "tenGod": "pyeonin"
+      },
+      {
+        "position": "hour_stem",
+        "tenGod": "sanggwan"
+      },
+      {
+        "position": "hour_branch",
+        "tenGod": "jeongin"
+      }
+    ],
+    "twelveStages": [
+      {
+        "position": "year_branch",
+        "stage": "mokyok"
+      },
+      {
+        "position": "month_branch",
+        "stage": "jangsaeng"
+      },
+      {
+        "position": "day_branch",
+        "stage": "yang"
+      },
+      {
+        "position": "hour_branch",
+        "stage": "gwandae"
+      }
+    ],
+    "yongsin": {
+      "basis": {
+        "messageKey": "yongsin.method.johu",
+        "reactable": false,
+        "slot": "chart.yongsin_method",
+        "text": {
+          "segments": [
+            {
+              "text": "태어난 계절의 더위나 추위가 두드러져, 온도를 맞추는 오행으로 "
+            },
+            {
+              "term": "role.yongsin",
+              "text": "용신"
+            },
+            {
+              "text": "을 정했어요."
+            }
+          ]
+        },
+        "variant": "single"
+      },
+      "gisin": "earth",
+      "huisin": "metal",
+      "johuStem": "im",
+      "method": "johu",
+      "tonggwan": "metal",
+      "yongsin": "water"
+    },
+    "yongsinSummary": {
+      "messageKey": "yongsin.summary",
+      "reactable": false,
+      "slot": "chart.yongsin_summary",
+      "text": {
+        "segments": [
+          {
+            "text": "나와 잘 맞는 오행은 "
+          },
+          {
+            "term": "element.water",
+            "text": "수"
+          },
+          {
+            "text": "예요. 색으로는 검정이 어울리니, 옷이나 소품으로 곁에 두어 보세요."
+          }
+        ]
+      },
+      "variant": "single"
+    }
+  }
+}

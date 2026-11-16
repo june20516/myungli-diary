@@ -203,3 +203,9 @@ flutter:
     - fixtures/daily-pair-virtue-unlocked/
     - fixtures/calendar-error/
     - fixtures/schedule-save-error/
+    - fixtures/store-ko/
+    - fixtures/store-ko-unlocked/
+    - fixtures/store-en/
+    - fixtures/store-en-unlocked/
+    - fixtures/store-ja/
+    - fixtures/store-ja-unlocked/

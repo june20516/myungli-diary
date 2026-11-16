@@ -1,0 +1,1514 @@
+{
+  "status": 200,
+  "body": {
+    "daeun": {
+      "forward": false,
+      "periods": [
+        {
+          "branchTenGod": "pyeonin",
+          "pillar": {
+            "branch": "jin",
+            "stem": "gyeong"
+          },
+          "startAge": 3,
+          "startAgeKorean": 4,
+          "startYear": 1993,
+          "stemTenGod": "bigyeon",
+          "twelveStage": "yang"
+        },
+        {
+          "branchTenGod": "jeongjae",
+          "pillar": {
+            "branch": "myo",
+            "stem": "gi"
+          },
+          "startAge": 13,
+          "startAgeKorean": 14,
+          "startYear": 2003,
+          "stemTenGod": "jeongin",
+          "twelveStage": "tae"
+        },
+        {
+          "branchTenGod": "pyeonjae",
+          "pillar": {
+            "branch": "in",
+            "stem": "mu"
+          },
+          "startAge": 23,
+          "startAgeKorean": 24,
+          "startYear": 2013,
+          "stemTenGod": "pyeonin",
+          "twelveStage": "jeol"
+        },
+        {
+          "branchTenGod": "jeongin",
+          "pillar": {
+            "branch": "chuk",
+            "stem": "jeong"
+          },
+          "startAge": 33,
+          "startAgeKorean": 34,
+          "startYear": 2023,
+          "stemTenGod": "jeonggwan",
+          "twelveStage": "myo"
+        },
+        {
+          "branchTenGod": "sanggwan",
+          "pillar": {
+            "branch": "ja",
+            "stem": "byeong"
+          },
+          "startAge": 43,
+          "startAgeKorean": 44,
+          "startYear": 2033,
+          "stemTenGod": "pyeongwan",
+          "twelveStage": "sa"
+        },
+        {
+          "branchTenGod": "siksin",
+          "pillar": {
+            "branch": "hae",
+            "stem": "eul"
+          },
+          "startAge": 53,
+          "startAgeKorean": 54,
+          "startYear": 2043,
+          "stemTenGod": "jeongjae",
+          "twelveStage": "byeong"
+        },
+        {
+          "branchTenGod": "pyeonin",
+          "pillar": {
+            "branch": "sul",
+            "stem": "gap"
+          },
+          "startAge": 63,
+          "startAgeKorean": 64,
+          "startYear": 2053,
+          "stemTenGod": "pyeonjae",
+          "twelveStage": "soe"
+        },
+        {
+          "branchTenGod": "geopjae",
+          "pillar": {
+            "branch": "yu",
+            "stem": "gye"
+          },
+          "startAge": 73,
+          "startAgeKorean": 74,
+          "startYear": 2063,
+          "stemTenGod": "sanggwan",
+          "twelveStage": "jewang"
+        },
+        {
+          "branchTenGod": "bigyeon",
+          "pillar": {
+            "branch": "shin",
+            "stem": "im"
+          },
+          "startAge": 83,
+          "startAgeKorean": 84,
+          "startYear": 2073,
+          "stemTenGod": "siksin",
+          "twelveStage": "geonrok"
+        },
+        {
+          "branchTenGod": "jeongin",
+          "pillar": {
+            "branch": "mi",
+            "stem": "sin"
+          },
+          "startAge": 93,
+          "startAgeKorean": 94,
+          "startYear": 2083,
+          "stemTenGod": "geopjae",
+          "twelveStage": "gwandae"
+        }
+      ],
+      "startMonths": 2,
+      "startYears": 3
+    },
+    "elementWeights": [
+      {
+        "element": "wood",
+        "weight": 0.6
+      },
+      {
+        "element": "fire",
+        "weight": 3.3
+      },
+      {
+        "element": "earth",
+        "weight": 2.55
+      },
+      {
+        "element": "metal",
+        "weight": 2.9
+      },
+      {
+        "element": "water",
+        "weight": 1.15
+      }
+    ],
+    "evidenceAccess": "locked",
+    "gongmang": [
+      "shin",
+      "yu"
+    ],
+    "hiddenStems": [
+      {
+        "position": "year_branch",
+        "stems": [
+          {
+            "stem": "jeong",
+            "tenGod": "jeonggwan"
+          },
+          {
+            "stem": "gi",
+            "tenGod": "jeongin"
+          }
+        ]
+      },
+      {
+        "position": "month_branch",
+        "stems": [
+          {
+            "stem": "byeong",
+            "tenGod": "pyeongwan"
+          },
+          {
+            "stem": "gyeong",
+            "tenGod": "bigyeon"
+          },
+          {
+            "stem": "mu",
+            "tenGod": "pyeonin"
+          }
+        ]
+      },
+      {
+        "position": "day_branch",
+        "stems": [
+          {
+            "stem": "mu",
+            "tenGod": "pyeonin"
+          },
+          {
+            "stem": "eul",
+            "tenGod": "jeongjae"
+          },
+          {
+            "stem": "gye",
+            "tenGod": "sanggwan"
+          }
+        ]
+      },
+      {
+        "position": "hour_branch",
+        "stems": [
+          {
+            "stem": "gi",
+            "tenGod": "jeongin"
+          },
+          {
+            "stem": "jeong",
+            "tenGod": "jeonggwan"
+          },
+          {
+            "stem": "eul",
+            "tenGod": "jeongjae"
+          }
+        ]
+      }
+    ],
+    "ilganBody": {
+      "messageKey": "ilgan.body.gyeong",
+      "reactable": false,
+      "slot": "chart.ilgan_body",
+      "text": {
+        "segments": [
+          {
+            "text": "正しいと思ったことは、すぐ行動に移すほうです。決断が必要な場面で迷わない姿が目立ちます。"
+          }
+        ]
+      },
+      "variant": "single"
+    },
+    "ilganHead": {
+      "messageKey": "ilgan.head.gyeong",
+      "reactable": false,
+      "slot": "chart.ilgan_head",
+      "text": {
+        "segments": [
+          {
+            "text": "そらさん、磨く前のかたい鉄に似ています。"
+          }
+        ]
+      },
+      "variant": "single"
+    },
+    "notices": [],
+    "personalReadingPreviews": [
+      {
+        "kind": "day_master",
+        "position": "day_stem",
+        "text": {
+          "segments": [
+            {
+              "text": "自分の命式の"
+            },
+            {
+              "term": "stem.gyeong",
+              "text": "庚金"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "year_stem",
+        "text": {
+          "segments": [
+            {
+              "text": "年干に"
+            },
+            {
+              "term": "ten_god.bigyeon",
+              "text": "比肩"
+            },
+            {
+              "text": "があり"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "year_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "年支に"
+            },
+            {
+              "term": "ten_god.jeonggwan",
+              "text": "正官"
+            },
+            {
+              "text": "があり"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "month_stem",
+        "text": {
+          "segments": [
+            {
+              "text": "月干に"
+            },
+            {
+              "term": "ten_god.geopjae",
+              "text": "劫財"
+            },
+            {
+              "text": "があり"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "month_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "月支に"
+            },
+            {
+              "term": "ten_god.pyeongwan",
+              "text": "偏官"
+            },
+            {
+              "text": "があり"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "day_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "日支に"
+            },
+            {
+              "term": "ten_god.pyeonin",
+              "text": "偏印"
+            },
+            {
+              "text": "があり"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "hour_stem",
+        "text": {
+          "segments": [
+            {
+              "text": "時干に"
+            },
+            {
+              "term": "ten_god.sanggwan",
+              "text": "傷官"
+            },
+            {
+              "text": "があり"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "ten_god",
+        "position": "hour_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "時支に"
+            },
+            {
+              "term": "ten_god.jeongin",
+              "text": "印綬"
+            },
+            {
+              "text": "があり"
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "hidden_ten_god",
+        "position": "year_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "年支の蔵干に"
+            },
+            {
+              "term": "ten_god.jeonggwan",
+              "text": "正官"
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "hidden_ten_god",
+        "position": "year_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "年支の蔵干に"
+            },
+            {
+              "term": "ten_god.jeongin",
+              "text": "印綬"
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "hidden_ten_god",
+        "position": "month_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "月支の蔵干に"
+            },
+            {
+              "term": "ten_god.pyeongwan",
+              "text": "偏官"
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "hidden_ten_god",
+        "position": "month_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "月支の蔵干に"
+            },
+            {
+              "term": "ten_god.bigyeon",
+              "text": "比肩"
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "hidden_ten_god",
+        "position": "month_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "月支の蔵干に"
+            },
+            {
+              "term": "ten_god.pyeonin",
+              "text": "偏印"
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "hidden_ten_god",
+        "position": "day_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "日支の蔵干に"
+            },
+            {
+              "term": "ten_god.pyeonin",
+              "text": "偏印"
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "hidden_ten_god",
+        "position": "day_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "日支の蔵干に"
+            },
+            {
+              "term": "ten_god.jeongjae",
+              "text": "正財"
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "hidden_ten_god",
+        "position": "day_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "日支の蔵干に"
+            },
+            {
+              "term": "ten_god.sanggwan",
+              "text": "傷官"
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "hidden_ten_god",
+        "position": "hour_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "時支の蔵干に"
+            },
+            {
+              "term": "ten_god.jeongin",
+              "text": "印綬"
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "hidden_ten_god",
+        "position": "hour_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "時支の蔵干に"
+            },
+            {
+              "term": "ten_god.jeonggwan",
+              "text": "正官"
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "hidden_ten_god",
+        "position": "hour_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "時支の蔵干に"
+            },
+            {
+              "term": "ten_god.jeongjae",
+              "text": "正財"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "twelve_stage",
+        "position": "year_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "年支での自分の気"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "twelve_stage",
+        "position": "month_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "月支での自分の気"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "twelve_stage",
+        "position": "day_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "日支での自分の気"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "twelve_stage",
+        "position": "hour_branch",
+        "text": {
+          "segments": [
+            {
+              "text": "時支での自分の気"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "hour_branch",
+        "shinsal": "cheoneul_gwiin",
+        "text": {
+          "segments": [
+            {
+              "text": "時支に"
+            },
+            {
+              "term": "shinsal.cheoneul_gwiin",
+              "text": "天乙貴人"
+            },
+            {
+              "text": "が"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "day_branch",
+        "shinsal": "hwagae",
+        "text": {
+          "segments": [
+            {
+              "text": "日支に"
+            },
+            {
+              "term": "shinsal.hwagae",
+              "text": "華蓋"
+            },
+            {
+              "text": "があり"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "month_stem",
+        "shinsal": "cheondeok",
+        "text": {
+          "segments": [
+            {
+              "text": "月干に"
+            },
+            {
+              "term": "shinsal.cheondeok",
+              "text": "天徳貴人"
+            },
+            {
+              "text": "が"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "year_stem",
+        "shinsal": "woldeok",
+        "text": {
+          "segments": [
+            {
+              "text": "年干に"
+            },
+            {
+              "term": "shinsal.woldeok",
+              "text": "月徳貴人"
+            },
+            {
+              "text": "が"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "day_stem",
+        "shinsal": "woldeok",
+        "text": {
+          "segments": [
+            {
+              "text": "日干に"
+            },
+            {
+              "term": "shinsal.woldeok",
+              "text": "月徳貴人"
+            },
+            {
+              "text": "が"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "day_branch",
+        "shinsal": "gwasuk",
+        "text": {
+          "segments": [
+            {
+              "text": "日支の"
+            },
+            {
+              "term": "shinsal.gwasuk",
+              "text": "寡宿"
+            },
+            {
+              "text": "は家族"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "day_branch",
+        "shinsal": "goegang",
+        "text": {
+          "segments": [
+            {
+              "text": "日支に"
+            },
+            {
+              "term": "shinsal.goegang",
+              "text": "魁罡"
+            },
+            {
+              "text": "があり"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "day_branch",
+        "shinsal": "sipak_daepae",
+        "text": {
+          "segments": [
+            {
+              "text": "日支の"
+            },
+            {
+              "term": "shinsal.sipak_daepae",
+              "text": "十悪大敗"
+            },
+            {
+              "text": "は"
+            }
+          ]
+        }
+      },
+      {
+        "kind": "shinsal",
+        "position": "month_branch",
+        "shinsal": "amrok",
+        "text": {
+          "segments": [
+            {
+              "text": "月支に"
+            },
+            {
+              "term": "shinsal.amrok",
+              "text": "暗禄"
+            },
+            {
+              "text": "があり"
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の天干に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の地支に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運での自分"
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の天干に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の地支に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運での自分"
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の天干に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の地支に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運での自分"
+            }
+          ]
+        }
+      },
+      {
+        "index": 3,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の天干に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 3,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の地支に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 3,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運での自分"
+            }
+          ]
+        }
+      },
+      {
+        "index": 4,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の天干に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 4,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の地支に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 4,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運での自分"
+            }
+          ]
+        }
+      },
+      {
+        "index": 5,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の天干に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 5,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の地支に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 5,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運での自分"
+            }
+          ]
+        }
+      },
+      {
+        "index": 6,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の天干に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 6,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の地支に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 6,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運での自分"
+            }
+          ]
+        }
+      },
+      {
+        "index": 7,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の天干に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 7,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の地支に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 7,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運での自分"
+            }
+          ]
+        }
+      },
+      {
+        "index": 8,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の天干に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 8,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の地支に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 8,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運での自分"
+            }
+          ]
+        }
+      },
+      {
+        "index": 9,
+        "kind": "daeun_stem_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の天干に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 9,
+        "kind": "daeun_branch_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運の地支に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 9,
+        "kind": "daeun_twelve_stage",
+        "text": {
+          "segments": [
+            {
+              "text": "この大運での自分"
+            }
+          ]
+        }
+      },
+      {
+        "index": 0,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この年運の天干に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 1,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この年運の天干に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 2,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この年運の天干に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 3,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この年運の天干に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 4,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この年運の天干に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 5,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この年運の天干に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 6,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この年運の天干に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 7,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この年運の天干に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 8,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この年運の天干に"
+            }
+          ]
+        }
+      },
+      {
+        "index": 9,
+        "kind": "seun_ten_god",
+        "text": {
+          "segments": [
+            {
+              "text": "この年運の天干に"
+            }
+          ]
+        }
+      }
+    ],
+    "pillars": {
+      "day": {
+        "branch": "jin",
+        "stem": "gyeong"
+      },
+      "hour": {
+        "branch": "mi",
+        "stem": "gye"
+      },
+      "month": {
+        "branch": "sa",
+        "stem": "sin"
+      },
+      "year": {
+        "branch": "o",
+        "stem": "gyeong"
+      }
+    },
+    "rulesetVersion": "2026.11.9",
+    "seun": [
+      {
+        "pillar": {
+          "branch": "myo",
+          "stem": "gye"
+        },
+        "relationsWithNatal": [],
+        "tenGod": "sanggwan",
+        "year": 2023
+      },
+      {
+        "pillar": {
+          "branch": "jin",
+          "stem": "gap"
+        },
+        "relationsWithNatal": [
+          "hyeong"
+        ],
+        "tenGod": "pyeonjae",
+        "year": 2024
+      },
+      {
+        "pillar": {
+          "branch": "sa",
+          "stem": "eul"
+        },
+        "relationsWithNatal": [
+          "stem_hap"
+        ],
+        "tenGod": "jeongjae",
+        "year": 2025
+      },
+      {
+        "pillar": {
+          "branch": "o",
+          "stem": "byeong"
+        },
+        "relationsWithNatal": [
+          "stem_hap",
+          "branch_hap",
+          "hyeong"
+        ],
+        "tenGod": "pyeongwan",
+        "year": 2026
+      },
+      {
+        "pillar": {
+          "branch": "mi",
+          "stem": "jeong"
+        },
+        "relationsWithNatal": [
+          "branch_hap"
+        ],
+        "tenGod": "jeonggwan",
+        "year": 2027
+      },
+      {
+        "pillar": {
+          "branch": "shin",
+          "stem": "mu"
+        },
+        "relationsWithNatal": [
+          "stem_hap",
+          "branch_hap",
+          "hyeong"
+        ],
+        "tenGod": "pyeonin",
+        "year": 2028
+      },
+      {
+        "pillar": {
+          "branch": "yu",
+          "stem": "gi"
+        },
+        "relationsWithNatal": [
+          "branch_hap"
+        ],
+        "tenGod": "jeongin",
+        "year": 2029
+      },
+      {
+        "pillar": {
+          "branch": "sul",
+          "stem": "gyeong"
+        },
+        "relationsWithNatal": [
+          "chung",
+          "hyeong"
+        ],
+        "tenGod": "bigyeon",
+        "year": 2030
+      },
+      {
+        "pillar": {
+          "branch": "hae",
+          "stem": "sin"
+        },
+        "relationsWithNatal": [
+          "chung"
+        ],
+        "tenGod": "geopjae",
+        "year": 2031
+      },
+      {
+        "pillar": {
+          "branch": "ja",
+          "stem": "im"
+        },
+        "relationsWithNatal": [
+          "chung"
+        ],
+        "tenGod": "siksin",
+        "year": 2032
+      }
+    ],
+    "shinsal": [
+      {
+        "kind": "cheoneul_gwiin",
+        "position": "hour_branch",
+        "positions": [
+          "hour_branch"
+        ]
+      },
+      {
+        "kind": "hwagae",
+        "position": "day_branch",
+        "positions": [
+          "day_branch"
+        ]
+      },
+      {
+        "kind": "cheondeok",
+        "position": "month_stem",
+        "positions": [
+          "month_stem"
+        ]
+      },
+      {
+        "kind": "woldeok",
+        "position": "year_stem",
+        "positions": [
+          "year_stem"
+        ]
+      },
+      {
+        "kind": "woldeok",
+        "position": "day_stem",
+        "positions": [
+          "day_stem"
+        ]
+      },
+      {
+        "kind": "gwasuk",
+        "position": "day_branch",
+        "positions": [
+          "day_branch"
+        ]
+      },
+      {
+        "kind": "goegang",
+        "position": "day_branch",
+        "positions": [
+          "day_stem",
+          "day_branch"
+        ]
+      },
+      {
+        "kind": "sipak_daepae",
+        "position": "day_branch",
+        "positions": [
+          "day_stem",
+          "day_branch"
+        ]
+      },
+      {
+        "kind": "amrok",
+        "position": "month_branch",
+        "positions": [
+          "month_branch"
+        ]
+      }
+    ],
+    "strength": {
+      "level": "strong",
+      "score": 51.904762
+    },
+    "tenGods": [
+      {
+        "position": "year_stem",
+        "tenGod": "bigyeon"
+      },
+      {
+        "position": "year_branch",
+        "tenGod": "jeonggwan"
+      },
+      {
+        "position": "month_stem",
+        "tenGod": "geopjae"
+      },
+      {
+        "position": "month_branch",
+        "tenGod": "pyeongwan"
+      },
+      {
+        "position": "day_branch",
+        "tenGod": "pyeonin"
+      },
+      {
+        "position": "hour_stem",
+        "tenGod": "sanggwan"
+      },
+      {
+        "position": "hour_branch",
+        "tenGod": "jeongin"
+      }
+    ],
+    "twelveStages": [
+      {
+        "position": "year_branch",
+        "stage": "mokyok"
+      },
+      {
+        "position": "month_branch",
+        "stage": "jangsaeng"
+      },
+      {
+        "position": "day_branch",
+        "stage": "yang"
+      },
+      {
+        "position": "hour_branch",
+        "stage": "gwandae"
+      }
+    ],
+    "yongsin": {
+      "basisPreview": {
+        "segments": [
+          {
+            "text": "生まれた季節の暑"
+          }
+        ]
+      },
+      "gisin": "earth",
+      "huisin": "metal",
+      "johuStem": "im",
+      "method": "johu",
+      "tonggwan": "metal",
+      "yongsin": "water"
+    },
+    "yongsinSummary": {
+      "messageKey": "yongsin.summary",
+      "reactable": false,
+      "slot": "chart.yongsin_summary",
+      "text": {
+        "segments": [
+          {
+            "text": "自分によく合う五行は"
+          },
+          {
+            "term": "element.water",
+            "text": "水"
+          },
+          {
+            "text": "で、色なら黒が似合います。服や小物で身近に取り入れてみてください。"
+          }
+        ]
+      },
+      "variant": "single"
+    }
+  }
+}

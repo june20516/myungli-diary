@@ -1,0 +1,1097 @@
+{
+  "status": 200,
+  "body": {
+    "hanja": {
+      "branch.chuk": "丑",
+      "branch.hae": "亥",
+      "branch.in": "寅",
+      "branch.ja": "子",
+      "branch.jin": "辰",
+      "branch.mi": "未",
+      "branch.myo": "卯",
+      "branch.o": "午",
+      "branch.sa": "巳",
+      "branch.shin": "申",
+      "branch.sul": "戌",
+      "branch.yu": "酉",
+      "element.earth": "土",
+      "element.fire": "火",
+      "element.metal": "金",
+      "element.water": "水",
+      "element.wood": "木",
+      "luck.daeun": "大運",
+      "luck.seun": "歲運",
+      "relation.branch_hap": "地支合",
+      "relation.chung": "沖",
+      "relation.hyeong": "刑",
+      "relation.stem_hap": "天干合",
+      "role.day_master": "日干",
+      "role.gisin": "忌神",
+      "role.huisin": "喜神",
+      "role.neutral": "閑神",
+      "role.yongsin": "用神",
+      "shinsal.amrok": "暗祿",
+      "shinsal.cheondeok": "天德貴人",
+      "shinsal.cheoneul_gwiin": "天乙貴人",
+      "shinsal.cheonra_jimang": "天羅地網",
+      "shinsal.dohwa": "桃花",
+      "shinsal.eumchak_yangcha": "陰錯陽差",
+      "shinsal.geumyeo": "金轝祿",
+      "shinsal.goegang": "魁罡",
+      "shinsal.gongmang": "空亡",
+      "shinsal.gosin": "孤辰",
+      "shinsal.gugyo": "勾絞",
+      "shinsal.gwasuk": "寡宿",
+      "shinsal.hwagae": "華蓋",
+      "shinsal.samgi": "三奇",
+      "shinsal.sipak_daepae": "十惡大敗",
+      "shinsal.woldeok": "月德貴人",
+      "shinsal.wonjin": "元嗔",
+      "shinsal.yangin": "羊刃",
+      "shinsal.yeokma": "驛馬",
+      "stem.byeong": "丙",
+      "stem.eul": "乙",
+      "stem.gap": "甲",
+      "stem.gi": "己",
+      "stem.gye": "癸",
+      "stem.gyeong": "庚",
+      "stem.im": "壬",
+      "stem.jeong": "丁",
+      "stem.mu": "戊",
+      "stem.sin": "辛",
+      "tag.cheoneul_gwiin": "天乙貴人",
+      "tag.dohwa": "桃花",
+      "tag.gongmang": "空亡",
+      "tag.gosin": "孤辰",
+      "tag.gwasuk": "寡宿",
+      "tag.hwagae": "華蓋",
+      "tag.wonjin": "元嗔",
+      "tag.yeokma": "驛馬",
+      "ten_god.bigyeon": "比肩",
+      "ten_god.geopjae": "劫財",
+      "ten_god.jeonggwan": "正官",
+      "ten_god.jeongin": "正印",
+      "ten_god.jeongjae": "正財",
+      "ten_god.pyeongwan": "偏官",
+      "ten_god.pyeonin": "偏印",
+      "ten_god.pyeonjae": "偏財",
+      "ten_god.sanggwan": "傷官",
+      "ten_god.siksin": "食神",
+      "ten_god_group.bigyeop": "比劫",
+      "ten_god_group.gwanseong": "官星",
+      "ten_god_group.inseong": "印星",
+      "ten_god_group.jaeseong": "財星",
+      "ten_god_group.siksang": "食傷",
+      "twelve_stage.byeong": "病",
+      "twelve_stage.geonrok": "建祿",
+      "twelve_stage.gwandae": "冠帶",
+      "twelve_stage.jangsaeng": "長生",
+      "twelve_stage.jeol": "絶",
+      "twelve_stage.jewang": "帝旺",
+      "twelve_stage.mokyok": "沐浴",
+      "twelve_stage.myo": "墓",
+      "twelve_stage.sa": "死",
+      "twelve_stage.soe": "衰",
+      "twelve_stage.tae": "胎",
+      "twelve_stage.yang": "養"
+    },
+    "lang": "ja",
+    "meanings": {
+      "branch.chuk": {
+        "segments": [
+          {
+            "text": "うし年を表す地支です。冬の終わりと夜明け前を指します。"
+          }
+        ]
+      },
+      "branch.hae": {
+        "segments": [
+          {
+            "text": "いのしし年を表す地支です。初冬と夜を指します。"
+          }
+        ]
+      },
+      "branch.in": {
+        "segments": [
+          {
+            "text": "とら年を表す地支です。早春と明け方を指します。"
+          }
+        ]
+      },
+      "branch.ja": {
+        "segments": [
+          {
+            "text": "ねずみ年を表す地支です。真冬と真夜中を指します。"
+          }
+        ]
+      },
+      "branch.jin": {
+        "segments": [
+          {
+            "text": "たつ年を表す地支です。晩春と朝を指します。"
+          }
+        ]
+      },
+      "branch.mi": {
+        "segments": [
+          {
+            "text": "ひつじ年を表す地支です。晩夏と昼過ぎを指します。"
+          }
+        ]
+      },
+      "branch.myo": {
+        "segments": [
+          {
+            "text": "うさぎ年を表す地支です。春の盛りと日の出のころを指します。"
+          }
+        ]
+      },
+      "branch.o": {
+        "segments": [
+          {
+            "text": "うま年を表す地支です。真夏と真昼を指します。"
+          }
+        ]
+      },
+      "branch.sa": {
+        "segments": [
+          {
+            "text": "へび年を表す地支です。初夏と昼前を指します。"
+          }
+        ]
+      },
+      "branch.shin": {
+        "segments": [
+          {
+            "text": "さる年を表す地支です。初秋と夕方前を指します。"
+          }
+        ]
+      },
+      "branch.sul": {
+        "segments": [
+          {
+            "text": "いぬ年を表す地支です。晩秋と宵の口を指します。"
+          }
+        ]
+      },
+      "branch.yu": {
+        "segments": [
+          {
+            "text": "とり年を表す地支です。秋の盛りと日の入りのころを指します。"
+          }
+        ]
+      },
+      "day_kind.gisin_day": {
+        "segments": [
+          {
+            "text": "命式とあまり合わない気が入る日です。無理をせず、今していることを守るのに向いています。"
+          }
+        ]
+      },
+      "day_kind.gwiin_day": {
+        "segments": [
+          {
+            "text": "その日の気が、命式に貴人として届く日です。自分を助けてくれる人が近づきやすくなります。"
+          }
+        ]
+      },
+      "day_kind.ordinary_day": {
+        "segments": [
+          {
+            "text": "命式を大きく助けも妨げもしない気が入る日です。いつも通りに過ごすのに向いています。"
+          }
+        ]
+      },
+      "day_kind.yongsin_day": {
+        "segments": [
+          {
+            "text": "命式に最も必要な気が入る日です。後回しにしていたことに手をつけるのに向いています。"
+          }
+        ]
+      },
+      "element.earth": {
+        "segments": [
+          {
+            "text": "土のように受け止めて、つなぎとめておく性質です。人には、間を取り持ち、中心を守ろうとする心として表れます。"
+          }
+        ]
+      },
+      "element.fire": {
+        "segments": [
+          {
+            "text": "火のように燃え上がり、明るく広がる性質です。人には、表に出して伝えようとする心として表れます。"
+          }
+        ]
+      },
+      "element.metal": {
+        "segments": [
+          {
+            "text": "金属のようにかたく、鋭く切り分ける性質です。人には、物事の是非を分け、きちんとけりをつけようとする心として表れます。"
+          }
+        ]
+      },
+      "element.water": {
+        "segments": [
+          {
+            "text": "水のように低いほうへ流れ、しみ込んでいく性質です。人には、深く考え、静かに見守る心として表れます。"
+          }
+        ]
+      },
+      "element.wood": {
+        "segments": [
+          {
+            "text": "木のように上へ伸び、四方へ広がっていく性質です。人には、新しく始めて育てていこうとする心として表れます。"
+          }
+        ]
+      },
+      "luck.daeun": {
+        "segments": [
+          {
+            "text": "人生の季節のように、10年ごとに巡ってくる大きな流れです。"
+          }
+        ]
+      },
+      "luck.seun": {
+        "segments": [
+          {
+            "text": "年ごとに変わる、一年の流れです。その年に入る気が命式とどう合うかを表します。"
+          }
+        ]
+      },
+      "relation.branch_hap": {
+        "segments": [
+          {
+            "text": "二つの地支がかみ合い、一つになることです。関係が近づき、物事がよくなじみやすくなります。"
+          }
+        ]
+      },
+      "relation.chung": {
+        "segments": [
+          {
+            "text": "向かい合う位置にある二つの地支がぶつかり合うことです。予定が変わったり、居場所を移したりすることが起きやすくなります。"
+          }
+        ]
+      },
+      "relation.hyeong": {
+        "segments": [
+          {
+            "text": "地支同士が互いに削り合うことです。小さな摩擦や直すべきところが見えやすいので、丁寧に確かめるとよいでしょう。"
+          }
+        ]
+      },
+      "relation.stem_hap": {
+        "segments": [
+          {
+            "text": "二つの天干が引かれ合い、対になることです。人や物事が思いがけず手を結びやすくなります。"
+          }
+        ]
+      },
+      "role.day_master": {
+        "segments": [
+          {
+            "text": "生まれた日の天干で、命式の中で「自分」自身を表します。まわりの字が自分にとってどんな気なのかは、すべて日干を基準に読みます。"
+          }
+        ]
+      },
+      "role.gisin": {
+        "segments": [
+          {
+            "text": "命式とあまり合わない五行です。この気が強い時期は、無理をしないのがよいでしょう。"
+          }
+        ]
+      },
+      "role.huisin": {
+        "segments": [
+          {
+            "text": "用神をそばで助け、力を添える五行です。用神ほどではなくても、うれしい気です。"
+          }
+        ]
+      },
+      "role.neutral": {
+        "segments": [
+          {
+            "text": "命式を大きく助けも損ないもしない五行です。それ自体は穏やかな気です。"
+          }
+        ]
+      },
+      "role.yongsin": {
+        "segments": [
+          {
+            "text": "命式のバランスを整えるのに最も必要な五行です。この気が入る時期は、物事が順調に運びやすくなります。"
+          }
+        ]
+      },
+      "shinsal.amrok": {
+        "segments": [
+          {
+            "text": "表に出ない福禄を表す神殺です。見えないところから助けが入りやすいと見ます。"
+          }
+        ]
+      },
+      "shinsal.cheondeok": {
+        "segments": [
+          {
+            "text": "天の徳を表す神殺です。原典は、凶を転じて善とすると見ます。"
+          }
+        ]
+      },
+      "shinsal.cheoneul_gwiin": {
+        "segments": [
+          {
+            "text": "神殺の中で最も尊い助けを表します。困ったときに、思いがけない人が手を差し伸べてくれる福と見ます。"
+          }
+        ]
+      },
+      "shinsal.cheonra_jimang": {
+        "segments": [
+          {
+            "text": "天の網と地の網を表す神殺です。物事が滞り、ゆっくり進みやすいと見ます。"
+          }
+        ]
+      },
+      "shinsal.dohwa": {
+        "segments": [
+          {
+            "text": "人の目を引く魅力を表す神殺です。人気として表れることもあれば、異性関係で噂が立ったり、心が乱れたりしやすくもあります。"
+          }
+        ]
+      },
+      "shinsal.eumchak_yangcha": {
+        "segments": [
+          {
+            "text": "陰と陽が食い違うという意味の神殺です。原典は凶の神殺と見ますが、ほかの気と合わせて比べて読みます。"
+          }
+        ]
+      },
+      "shinsal.geumyeo": {
+        "segments": [
+          {
+            "text": "金で飾った車を表す神殺です。豊かさや尊さが伴いやすい位置と見ます。"
+          }
+        ]
+      },
+      "shinsal.goegang": {
+        "segments": [
+          {
+            "text": "北斗七星の先頭の星を表す神殺です。気が強く、うまくいくときと行き詰まるときが大きく分かれると見ます。"
+          }
+        ]
+      },
+      "shinsal.gongmang": {
+        "segments": [
+          {
+            "text": "空いた席を表す神殺です。努力した分の結果がすぐには手に入らないことがあり、欲を少し手放すときと見ます。"
+          }
+        ]
+      },
+      "shinsal.gosin": {
+        "segments": [
+          {
+            "text": "孤独な星を表す神殺です。原典は、近しい家族との縁に良くないと見ます。"
+          }
+        ]
+      },
+      "shinsal.gugyo": {
+        "segments": [
+          {
+            "text": "絡めて締めつけるという意味の神殺です。口論や面倒な絡みに気をつけるよう見ます。"
+          }
+        ]
+      },
+      "shinsal.gwasuk": {
+        "segments": [
+          {
+            "text": "独りで過ごす星を表す神殺です。孤辰と対になり、近しい家族との縁が薄くなりやすいと見ます。"
+          }
+        ]
+      },
+      "shinsal.hwagae": {
+        "segments": [
+          {
+            "text": "内側を深く見つめる力を表す神殺です。勉強や芸術のように、一つのことに打ち込む姿として表れます。"
+          }
+        ]
+      },
+      "shinsal.samgi": {
+        "segments": [
+          {
+            "text": "三つの優れた天干を表す神殺です。乙丙丁や甲戊庚が順に並ぶと吉と見ます。"
+          }
+        ]
+      },
+      "shinsal.sipak_daepae": {
+        "segments": [
+          {
+            "text": "生まれ持った福禄の位置が空いた日に生まれたという意味の神殺です。名前は重いですが、原典は吉の気が助ければ吉と見ると付け加えています。"
+          }
+        ]
+      },
+      "shinsal.woldeok": {
+        "segments": [
+          {
+            "text": "月の徳を表す神殺です。天徳貴人とともにあると、凶の気が来てもひどくならないと見ます。"
+          }
+        ]
+      },
+      "shinsal.wonjin": {
+        "segments": [
+          {
+            "text": "干支どうしが互いに避け合う間柄を表す神殺です。韓国で広く使われる組み合わせ(子と未、丑と午など)を男女の区別なく使い、原典「論元辰」は男女で組み合わせを分けます。"
+          }
+        ]
+      },
+      "shinsal.yangin": {
+        "segments": [
+          {
+            "text": "刃のようにとても強い推進力を表す神殺です。押し進める力が大きい分、争いやけがに気をつける必要があります。"
+          }
+        ]
+      },
+      "shinsal.yeokma": {
+        "segments": [
+          {
+            "text": "遠くへ駆ける馬を表す神殺です。引っ越し、旅行、忙しい移動のように、居場所を移すこととして表れやすくなります。"
+          }
+        ]
+      },
+      "stem.byeong": {
+        "segments": [
+          {
+            "text": "十干の三番目で、明るく照らす真昼の太陽に似ています。隠さず、広く明るく表に出す姿です。"
+          }
+        ]
+      },
+      "stem.eul": {
+        "segments": [
+          {
+            "text": "十干の二番目で、どこにでも根を張る草花に似ています。状況に合わせてしなりながらも、粘り強く育つ姿です。"
+          }
+        ]
+      },
+      "stem.gap": {
+        "segments": [
+          {
+            "text": "十干の一番目で、まっすぐ伸びる大きな木に似ています。一度決めた道をこつこつ進む姿です。"
+          }
+        ]
+      },
+      "stem.gi": {
+        "segments": [
+          {
+            "text": "十干の六番目で、種を育てる広い畑に似ています。受け入れたものを一歩ずつ育てていく姿です。"
+          }
+        ]
+      },
+      "stem.gye": {
+        "segments": [
+          {
+            "text": "十干の十番目で、澄んだ湧き水に似ています。静かにそばを見守る姿です。"
+          }
+        ]
+      },
+      "stem.gyeong": {
+        "segments": [
+          {
+            "text": "十干の七番目で、磨く前のかたい鉄に似ています。曲げずに、すぐに決める姿です。"
+          }
+        ]
+      },
+      "stem.im": {
+        "segments": [
+          {
+            "text": "十干の九番目で、遠くへ流れていく大河に似ています。広く受け入れながら、滞りなく進んでいく姿です。"
+          }
+        ]
+      },
+      "stem.jeong": {
+        "segments": [
+          {
+            "text": "十干の四番目で、暗がりを照らす灯火に似ています。身近なところを長く温かく照らす姿です。"
+          }
+        ]
+      },
+      "stem.mu": {
+        "segments": [
+          {
+            "text": "十干の五番目で、どっしりと構える大きな山に似ています。簡単には揺らがず、支えてくれる姿です。"
+          }
+        ]
+      },
+      "stem.sin": {
+        "segments": [
+          {
+            "text": "十干の八番目で、美しく磨いた宝石に似ています。細やかに見分け、きれいに整える姿です。"
+          }
+        ]
+      },
+      "tag.cheoneul_gwiin": {
+        "segments": [
+          {
+            "text": "最も尊い助けを表す神殺で、思いがけない人が手を差し伸べてくれやすくなります。"
+          }
+        ]
+      },
+      "tag.clash": {
+        "segments": [
+          {
+            "text": "反対の気がぶつかり合うことで、予定が変わったり意見が分かれたりしやすくなります。"
+          }
+        ]
+      },
+      "tag.clash_day_branch": {
+        "segments": [
+          {
+            "text": "今日の地支が生まれた日の地支とぶつかり合う関係で、自分自身や身近な人との間柄が揺らぎやすくなります。"
+          }
+        ]
+      },
+      "tag.clash_month_branch": {
+        "segments": [
+          {
+            "text": "今日の地支が生まれた月の地支とぶつかり合う関係で、仕事や生活環境に変化が起きやすくなります。"
+          }
+        ]
+      },
+      "tag.dohwa": {
+        "segments": [
+          {
+            "text": "人の目を引く気を表す神殺で、今日は注目を集めやすいぶん、異性関係の噂も立ちやすくなります。"
+          }
+        ]
+      },
+      "tag.gongmang": {
+        "segments": [
+          {
+            "text": "空いた席を表す神殺で、努力した分の結果がすぐには手に入らないことがあります。"
+          }
+        ]
+      },
+      "tag.gosin": {
+        "segments": [
+          {
+            "text": "孤独な星を表す神殺で、今日は周りから離れて寂しさを感じやすいです。"
+          }
+        ]
+      },
+      "tag.gwasuk": {
+        "segments": [
+          {
+            "text": "独りで過ごす星を表す神殺で、今日は近しい人が少し遠く感じられることがあります。"
+          }
+        ]
+      },
+      "tag.gwiin_day": {
+        "segments": [
+          {
+            "text": "自分を助けてくれる人が近づく日で、助けを頼むのに向いています。"
+          }
+        ]
+      },
+      "tag.harmony": {
+        "segments": [
+          {
+            "text": "異なる気がかみ合って一つになることで、人や物事がよくなじみます。"
+          }
+        ]
+      },
+      "tag.hwagae": {
+        "segments": [
+          {
+            "text": "内側を深く見つめる気を表す神殺で、考えごとや趣味に心が向きやすくなります。"
+          }
+        ]
+      },
+      "tag.ten_god_rush.bigyeop": {
+        "segments": [
+          {
+            "text": "命式にすでに多い比劫がその日さらに入ることで、自分や自分の取り分を前に出しがちです。"
+          }
+        ]
+      },
+      "tag.ten_god_rush.gwanseong": {
+        "segments": [
+          {
+            "text": "命式にすでに多い官星がその日さらに入ることで、責任や決まりが重く感じられます。"
+          }
+        ]
+      },
+      "tag.ten_god_rush.inseong": {
+        "segments": [
+          {
+            "text": "命式にすでに多い印星がその日さらに入ることで、考えが増え、誰かに頼りたくなります。"
+          }
+        ]
+      },
+      "tag.ten_god_rush.jaeseong": {
+        "segments": [
+          {
+            "text": "命式にすでに多い財星がその日さらに入ることで、お金や結果に心が向きやすくなります。"
+          }
+        ]
+      },
+      "tag.ten_god_rush.siksang": {
+        "segments": [
+          {
+            "text": "命式にすでに多い食傷がその日さらに入ることで、言葉や表現があふれやすくなります。"
+          }
+        ]
+      },
+      "tag.wonjin": {
+        "segments": [
+          {
+            "text": "干支どうしが避け合う間柄を表す神殺で、今日はささいなことで気持ちが傷つきやすいです。"
+          }
+        ]
+      },
+      "tag.yeokma": {
+        "segments": [
+          {
+            "text": "動きを表す神殺で、移動や外出が増えます。"
+          }
+        ]
+      },
+      "tag.yongsin_day": {
+        "segments": [
+          {
+            "text": "命式に必要な気が入る日で、進めていることが順調に運びやすくなります。"
+          }
+        ]
+      },
+      "ten_god.bigyeon": {
+        "segments": [
+          {
+            "text": "肩を並べる友人や仲間のように、自分と対等な気です。自分の力でやり遂げようとする心や、こだわりの強さとして表れやすくなります。"
+          }
+        ]
+      },
+      "ten_god.geopjae": {
+        "segments": [
+          {
+            "text": "自分に似ていながら、自分の取り分を争うライバルのような気です。負けたくない気持ちや、思い切った決断として表れます。"
+          }
+        ]
+      },
+      "ten_god.jeonggwan": {
+        "segments": [
+          {
+            "text": "自分を正しく導く決まりや責任を表す気です。約束を守り、任された役目を果たす姿として表れます。"
+          }
+        ]
+      },
+      "ten_god.jeongin": {
+        "segments": [
+          {
+            "text": "自分を大切にし、育ててくれる慈しみや学びを表す気です。落ち着いて学び、受けた助けをありがたく思う姿として表れます。"
+          }
+        ]
+      },
+      "ten_god.jeongjae": {
+        "segments": [
+          {
+            "text": "少しずつ貯めるお金や、自分が守る取り分を表す気です。きちんと管理し、大切に使う誠実さとして表れます。"
+          }
+        ]
+      },
+      "ten_god.pyeongwan": {
+        "segments": [
+          {
+            "text": "自分を鍛える厳しい基準や試練を表す気です。困難の前で踏みとどまる力として表れます。"
+          }
+        ]
+      },
+      "ten_god.pyeonin": {
+        "segments": [
+          {
+            "text": "人とは違う道で学び、気づいていく気です。独特な発想や、一つのことを深く掘り下げる姿として表れます。"
+          }
+        ]
+      },
+      "ten_god.pyeonjae": {
+        "segments": [
+          {
+            "text": "大きく動くお金や機会を表す気です。物事を広く手がけ、人と幅広く付き合う手腕として表れます。"
+          }
+        ]
+      },
+      "ten_god.sanggwan": {
+        "segments": [
+          {
+            "text": "自分の考えを、ためらわず外へ出す気です。鋭い話しぶりや、型を破る機転として表れやすくなります。"
+          }
+        ]
+      },
+      "ten_god.siksin": {
+        "segments": [
+          {
+            "text": "自分が持っているものを、のびのびと表に出す気です。食べて楽しむゆとりや、こつこつ何かを生み出す才として表れます。"
+          }
+        ]
+      },
+      "ten_god_group.bigyeop": {
+        "segments": [
+          {
+            "text": "比肩と劫財をまとめた呼び名で、自分と肩を並べる気です。自分を守り、自分の取り分を確保しようとする力がここに入ります。"
+          }
+        ]
+      },
+      "ten_god_group.gwanseong": {
+        "segments": [
+          {
+            "text": "偏官と正官をまとめた呼び名で、自分を律する決まりや責任を表します。職場、名誉、守るべき約束がここに入ります。"
+          }
+        ]
+      },
+      "ten_god_group.inseong": {
+        "segments": [
+          {
+            "text": "偏印と印綬をまとめた呼び名で、自分を育ててくれる学びや慈しみを表します。勉強、考えごと、受ける助けがここに入ります。"
+          }
+        ]
+      },
+      "ten_god_group.jaeseong": {
+        "segments": [
+          {
+            "text": "偏財と正財をまとめた呼び名で、自分が扱い、手にするお金や結果を表します。暮らしのやりくり、仕事の成果、現実感覚がここに入ります。"
+          }
+        ]
+      },
+      "ten_god_group.siksang": {
+        "segments": [
+          {
+            "text": "食神と傷官をまとめた呼び名で、内にあるものを外へ表す気です。言葉、表現、手先の器用さがここに入ります。"
+          }
+        ]
+      },
+      "twelve_stage.byeong": {
+        "segments": [
+          {
+            "text": "気が育ち衰えていく十二段階の七番目で、外へ駆け出すより内側を見つめていたわる時期です。"
+          }
+        ]
+      },
+      "twelve_stage.geonrok": {
+        "segments": [
+          {
+            "text": "気が育ち衰えていく十二段階の四番目で、自分の足で立って自分の役目を担っていく時期です。"
+          }
+        ]
+      },
+      "twelve_stage.gwandae": {
+        "segments": [
+          {
+            "text": "気が育ち衰えていく十二段階の三番目で、自信がついて前に出ていく時期です。"
+          }
+        ]
+      },
+      "twelve_stage.jangsaeng": {
+        "segments": [
+          {
+            "text": "気が育ち衰えていく十二段階の一番目で、新しく芽生えて育っていく時期です。"
+          }
+        ]
+      },
+      "twelve_stage.jeol": {
+        "segments": [
+          {
+            "text": "気が育ち衰えていく十二段階の十番目で、それまでの流れを断って方向を新しく切り替える時期です。"
+          }
+        ]
+      },
+      "twelve_stage.jewang": {
+        "segments": [
+          {
+            "text": "気が育ち衰えていく十二段階の五番目で、力が最も強く満ちた時期です。"
+          }
+        ]
+      },
+      "twelve_stage.mokyok": {
+        "segments": [
+          {
+            "text": "気が育ち衰えていく十二段階の二番目で、あれこれ試しながら感覚をつかんでいく時期です。"
+          }
+        ]
+      },
+      "twelve_stage.myo": {
+        "segments": [
+          {
+            "text": "気が育ち衰えていく十二段階の九番目で、集めたものを蓄えて守る時期です。"
+          }
+        ]
+      },
+      "twelve_stage.sa": {
+        "segments": [
+          {
+            "text": "気が育ち衰えていく十二段階の八番目で、動きは静まって考えが深まっていく時期です。"
+          }
+        ]
+      },
+      "twelve_stage.soe": {
+        "segments": [
+          {
+            "text": "気が育ち衰えていく十二段階の六番目で、盛りを過ぎ、経験を生かして落ち着いて物事を進める時期です。"
+          }
+        ]
+      },
+      "twelve_stage.tae": {
+        "segments": [
+          {
+            "text": "気が育ち衰えていく十二段階の十一番目で、新しい考えがちょうど生まれてくる時期です。"
+          }
+        ]
+      },
+      "twelve_stage.yang": {
+        "segments": [
+          {
+            "text": "気が育ち衰えていく十二段階の十二番目で、急がず内側でじっくり準備する時期です。"
+          }
+        ]
+      }
+    },
+    "seedVersion": "c7be1abef8bb689f",
+    "values": {
+      "branch": {
+        "chuk": "丑",
+        "hae": "亥",
+        "in": "寅",
+        "ja": "子",
+        "jin": "辰",
+        "mi": "未",
+        "myo": "卯",
+        "o": "午",
+        "sa": "巳",
+        "shin": "申",
+        "sul": "戌",
+        "yu": "酉"
+      },
+      "branch_reading": {
+        "chuk": "うし",
+        "hae": "い",
+        "in": "とら",
+        "ja": "ね",
+        "jin": "たつ",
+        "mi": "ひつじ",
+        "myo": "う",
+        "o": "うま",
+        "sa": "み",
+        "shin": "さる",
+        "sul": "いぬ",
+        "yu": "とり"
+      },
+      "color": {
+        "earth": "黄色",
+        "fire": "赤",
+        "metal": "白",
+        "water": "黒",
+        "wood": "緑"
+      },
+      "day_kind": {
+        "gisin_day": "忌神の日",
+        "gwiin_day": "貴人の日",
+        "ordinary_day": "普通の日",
+        "yongsin_day": "用神の日"
+      },
+      "direction8": {
+        "e": "東",
+        "n": "北",
+        "ne": "北東",
+        "nw": "北西",
+        "s": "南",
+        "se": "南東",
+        "sw": "南西",
+        "w": "西"
+      },
+      "element": {
+        "earth": "土",
+        "fire": "火",
+        "metal": "金",
+        "water": "水",
+        "wood": "木"
+      },
+      "focus_reason": {
+        "gwiin": "貴人の時間",
+        "hap": "合のある時間",
+        "huisin": "喜神の時間",
+        "yongsin": "用神の時間"
+      },
+      "luck": {
+        "daeun": "大運",
+        "seun": "年運"
+      },
+      "part": {
+        "branch": "地支",
+        "gou": "勾",
+        "jiao": "絞",
+        "stem": "天干",
+        "unknown": "勾絞"
+      },
+      "place": {
+        "day_branch": "日支",
+        "day_branch_hidden": "日支の蔵干",
+        "day_stem": "日干",
+        "hour_branch": "時支",
+        "hour_branch_hidden": "時支の蔵干",
+        "hour_stem": "時干",
+        "month_branch": "月支",
+        "month_branch_hidden": "月支の蔵干",
+        "month_stem": "月干",
+        "year_branch": "年支",
+        "year_branch_hidden": "年支の蔵干",
+        "year_stem": "年干"
+      },
+      "relation": {
+        "branch_hap": "支合",
+        "chung": "冲",
+        "hyeong": "刑",
+        "stem_hap": "干合"
+      },
+      "role": {
+        "day_master": "日干",
+        "gisin": "忌神",
+        "huisin": "喜神",
+        "neutral": "閑神",
+        "yongsin": "用神"
+      },
+      "score_item": {
+        "chung_day_or_month": "日支・月支との冲",
+        "chung_other": "ほかの支との冲",
+        "gisin_day": "忌神の日",
+        "gwiin_day": "貴人の日",
+        "hap": "合",
+        "hyeong": "刑",
+        "yongsin_day": "用神の日"
+      },
+      "shinsal": {
+        "amrok": "暗禄",
+        "cheondeok": "天徳貴人",
+        "cheoneul_gwiin": "天乙貴人",
+        "cheonra_jimang": "天羅地網",
+        "dohwa": "咸池",
+        "eumchak_yangcha": "陰差陽錯",
+        "geumyeo": "金與禄",
+        "goegang": "魁罡",
+        "gongmang": "空亡",
+        "gosin": "孤辰",
+        "gugyo": "勾絞",
+        "gwasuk": "寡宿",
+        "hwagae": "華蓋",
+        "samgi": "三奇貴人",
+        "sipak_daepae": "十悪大敗",
+        "woldeok": "月徳貴人",
+        "wonjin": "元辰",
+        "yangin": "羊刃",
+        "yeokma": "駅馬"
+      },
+      "solar_term": {
+        "baengno": "白露",
+        "cheongmyeong": "清明",
+        "cheoseo": "処暑",
+        "chubun": "秋分",
+        "chunbun": "春分",
+        "daehan": "大寒",
+        "daeseo": "大暑",
+        "daeseol": "大雪",
+        "dongji": "冬至",
+        "gogu": "穀雨",
+        "gyeongchip": "啓蟄",
+        "haji": "夏至",
+        "hallo": "寒露",
+        "ipchu": "立秋",
+        "ipchun": "立春",
+        "ipdong": "立冬",
+        "ipha": "立夏",
+        "mangjong": "芒種",
+        "sanggang": "霜降",
+        "sohan": "小寒",
+        "soman": "小満",
+        "soseo": "小暑",
+        "soseol": "小雪",
+        "usu": "雨水"
+      },
+      "stem": {
+        "byeong": "丙",
+        "eul": "乙",
+        "gap": "甲",
+        "gi": "己",
+        "gye": "癸",
+        "gyeong": "庚",
+        "im": "壬",
+        "jeong": "丁",
+        "mu": "戊",
+        "sin": "辛"
+      },
+      "stem_reading": {
+        "byeong": "ひのえ",
+        "eul": "きのと",
+        "gap": "きのえ",
+        "gi": "つちのと",
+        "gye": "みずのと",
+        "gyeong": "かのえ",
+        "im": "みずのえ",
+        "jeong": "ひのと",
+        "mu": "つちのえ",
+        "sin": "かのと"
+      },
+      "strength": {
+        "neutral": "中和",
+        "strong": "身旺",
+        "very_strong": "極身強",
+        "very_weak": "極身弱",
+        "weak": "身弱"
+      },
+      "tag": {
+        "cheoneul_gwiin": "天乙貴人",
+        "clash": "冲",
+        "clash_day_branch": "日支冲",
+        "clash_month_branch": "月支冲",
+        "dohwa": "咸池",
+        "gongmang": "空亡",
+        "gosin": "孤辰",
+        "gwasuk": "寡宿",
+        "gwiin_day": "貴人の日",
+        "harmony": "合",
+        "hwagae": "華蓋",
+        "ten_god_rush.bigyeop": "比劫が多い日",
+        "ten_god_rush.gwanseong": "官星が多い日",
+        "ten_god_rush.inseong": "印星が多い日",
+        "ten_god_rush.jaeseong": "財星が多い日",
+        "ten_god_rush.siksang": "食傷が多い日",
+        "wonjin": "元辰",
+        "yeokma": "駅馬",
+        "yongsin_day": "用神の日"
+      },
+      "ten_god": {
+        "bigyeon": "比肩",
+        "geopjae": "劫財",
+        "jeonggwan": "正官",
+        "jeongin": "印綬",
+        "jeongjae": "正財",
+        "pyeongwan": "偏官",
+        "pyeonin": "偏印",
+        "pyeonjae": "偏財",
+        "sanggwan": "傷官",
+        "siksin": "食神"
+      },
+      "ten_god_group": {
+        "bigyeop": "比劫",
+        "gwanseong": "官星",
+        "inseong": "印星",
+        "jaeseong": "財星",
+        "siksang": "食傷"
+      },
+      "twelve_stage": {
+        "byeong": "病",
+        "geonrok": "建禄",
+        "gwandae": "冠帯",
+        "jangsaeng": "長生",
+        "jeol": "絶",
+        "jewang": "帝旺",
+        "mokyok": "沐浴",
+        "myo": "墓",
+        "sa": "死",
+        "soe": "衰",
+        "tae": "胎",
+        "yang": "養"
+      }
+    }
+  }
+}

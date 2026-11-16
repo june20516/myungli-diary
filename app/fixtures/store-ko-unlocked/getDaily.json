@@ -1,0 +1,938 @@
+{
+  "status": 200,
+  "body": {
+    "cards": {
+      "color": {
+        "element": "water",
+        "role": "yongsin",
+        "text": {
+          "evidence": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "기신의 날에는 막힌 흐름을 이어 주는 오행을, 그 밖의 날에는 내 "
+                  },
+                  {
+                    "term": "role.yongsin",
+                    "text": "용신"
+                  },
+                  {
+                    "text": " 오행을 행운 색의 바탕으로 봤어요. 행운 방향도 이 바탕 오행을 그대로 따라요."
+                  }
+                ]
+              },
+              "detail": {
+                "day_kind": "ORDINARY_DAY",
+                "element": "WATER",
+                "role": "YONGSIN"
+              },
+              "ruleId": "color/lucky_element",
+              "source": {
+                "segments": [
+                  {
+                    "text": "오행마다 바른 색이 있어 수는 검정, 화는 빨강, 목은 푸른색, 토는 노랑이라는 뜻이에요.\n推其形色，則水黑、火赤、木青、土黃，此正色也。及其變易，則不然。常以生旺從正色，死絶從母色，成形冠帶從妻色，病敗從鬼色，旺墓從子色。\n궁통보감 「오행총론」"
+                  }
+                ]
+              },
+              "sourceRef": "gungtong-bogam/five_elements#color"
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "원전은 오행의 색이 그날 놓인 자리에 따라 바뀐다고 봐요. 오늘 수 기운은 지지 申에서 장생 자리라 검정을 골랐어요. 방향은 이렇게 바뀌지 않고 바탕 오행을 따라요."
+                  }
+                ]
+              },
+              "detail": {
+                "base_element": "WATER",
+                "day_branch": "申",
+                "element": "WATER",
+                "shift": "JEONG",
+                "twelve_stage": "JANGSAENG"
+              },
+              "ruleId": "color/shift",
+              "source": {
+                "segments": [
+                  {
+                    "text": "오행의 제 색은 수 검정, 화 빨강, 목 푸른색, 금 흰색, 토 노랑이지만, 바뀔 때는 생왕이면 제 색, 사절이면 나를 낳는 오행의 색, 성형과 관대면 내가 이기는 오행의 색, 병패면 나를 이기는 오행의 색, 왕묘면 내가 낳는 오행의 색을 따른다는 뜻이에요.\n推其形色則水黑火赤木青金白土黃此正色也及其變易則不然常以生旺從正色死絶從母色成形冠帶從妻色病敗從鬼色旺墓從子色\n삼명통회 「논오행」"
+                  }
+                ]
+              },
+              "sourceRef": "sammyeong-tonghoe/five_elements#color_change"
+            }
+          ],
+          "messageKey": "color.ordinary_day",
+          "reactable": false,
+          "slot": "daily.color",
+          "text": {
+            "segments": [
+              {
+                "text": "내 사주에 필요한 수 기운에 맞춰 오늘은 검정이 잘 맞아요."
+              }
+            ]
+          },
+          "todayReason": {
+            "segments": [
+              {
+                "text": "내 사주를 돕는 기운의 색을 골라서 그래요."
+              }
+            ]
+          },
+          "variant": "single"
+        }
+      },
+      "direction": {
+        "direction": "nw",
+        "text": {
+          "evidence": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "평범한 날이라 이날 길한 방위 가운데 "
+                  },
+                  {
+                    "term": "role.huisin",
+                    "text": "희신"
+                  },
+                  {
+                    "text": " 오행인 금에 맞는 북서쪽을 골랐어요."
+                  }
+                ]
+              },
+              "detail": {
+                "day_branch": "申",
+                "day_kind": "ORDINARY_DAY",
+                "deity": "XI",
+                "direction": "NW",
+                "element": "METAL"
+              },
+              "ruleId": "direction/ordinary_deity_huisin",
+              "source": {
+                "segments": [
+                  {
+                    "text": "북쪽은 수, 남쪽은 화, 동쪽은 목, 서쪽은 금, 가운데는 토를 낳는다는 뜻이에요.\n北方陰極而生寒，寒生水。南方陽極而生熱，熱生火。東方陽散以泄而生風，風生木。西方陰止以收而生燥，燥生金。中央陰陽交而生溫，溫生土。其相生也所以相維，其相剋也所以相制，此之謂有倫。\n궁통보감 「오행총론」"
+                  }
+                ]
+              },
+              "sourceRef": "gungtong-bogam/five_elements#direction"
+            }
+          ],
+          "messageKey": "direction.day_kind.ordinary.mo",
+          "reactable": false,
+          "slot": "daily.direction_relation",
+          "text": {
+            "segments": [
+              {
+                "text": "내 사주에 필요한 수 기운을 생해 주는 금의 방위, 북서쪽이 좋아요."
+              }
+            ]
+          },
+          "todayReason": {
+            "segments": [
+              {
+                "text": "달력의 길한 방위 가운데 내 사주를 거드는 기운의 방향을 골라서 그래요."
+              }
+            ]
+          },
+          "variant": "single"
+        }
+      },
+      "focusTime": {
+        "fallback": false,
+        "hours": [
+          {
+            "branch": "jin",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T09:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-13T07:30:00+09:00"
+          },
+          {
+            "branch": "sa",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T11:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-13T09:30:00+09:00"
+          },
+          {
+            "branch": "o",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T13:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-13T11:30:00+09:00"
+          },
+          {
+            "branch": "mi",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T15:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-13T13:30:00+09:00"
+          },
+          {
+            "branch": "shin",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T17:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-13T15:30:00+09:00"
+          },
+          {
+            "branch": "yu",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T19:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-13T17:30:00+09:00"
+          },
+          {
+            "branch": "sul",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T21:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-13T19:30:00+09:00"
+          }
+        ],
+        "picks": [
+          {
+            "branch": "shin",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T17:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-13T15:30:00+09:00"
+          }
+        ],
+        "text": {
+          "evidence": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "오늘 일진을 돕거나 일진과 합이 되는 시간을 길하게 보고, 일진과 부딪히는 시간은 뺐어요."
+                  }
+                ]
+              },
+              "detail": {
+                "day_pillar": "庚申",
+                "hour_branch": "SHIN",
+                "period": "DAY"
+              },
+              "ruleId": "focus_time/day_relation",
+              "source": {
+                "segments": [
+                  {
+                    "text": "시는 날을 쓰는 것이라 오로지 날을 돕는 데 달려 있어, 일간이나 일지와 같은 기운이거나 일지와 삼합, 육합이 되면 곧 길하고, 시의 길신과 흉신에 다 얽매일 필요 없이 귀인과 녹마만 길로 본다는 뜻이에요.\n時者日之用也全在幇扶日辰或與日支干比和或與日支三合六合即吉時家吉凶神不必盡拘惟貴人祿馬為吉\n협기변방서 「용시법」"
+                  }
+                ]
+              },
+              "sourceRef": "xieji-bianfang/hours#use_hour"
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "내가 태어난 해의 천간을 돕거나 그와 합이 되는 시간을 길하게 보고, 태어난 해와 부딪히는 시간은 피했어요."
+                  }
+                ]
+              },
+              "detail": {
+                "birth_year": "庚午",
+                "hour_branch": "SHIN",
+                "period": "DAY"
+              },
+              "ruleId": "focus_time/birth_year",
+              "source": {
+                "segments": [
+                  {
+                    "text": "옛사람들은 모두 태어난 해의 천간을 보고, 관이나 재와 합하거나 비견, 인수, 장생이 되거나 녹마와 귀인을 얻으면서 명을 충하거나 극하지 않는 때를 골랐다는 뜻이에요.\n古人皆論生年之天干或合官或合財或比肩或印綬或四長生或取祿馬貴人不衝命尅命\n협기변방서 「논상주」"
+                  }
+                ]
+              },
+              "sourceRef": "xieji-bianfang/hours#birth_year"
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "택일 원전이 황도라 해서 길하게 꼽는 시간인지도 함께 봤어요."
+                  }
+                ]
+              },
+              "detail": {
+                "hour_branch": "SHIN",
+                "huangdao": "false",
+                "period": "DAY"
+              },
+              "ruleId": "focus_time/huangdao",
+              "source": {
+                "segments": [
+                  {
+                    "text": "날로 시를 일으키면 자일에는 신시에서 청룡을 시작하고 유시를 명당으로 삼아 차례대로 세어 나간다는 뜻이에요.\n日起時則子日申時起青龍酉時為明堂依次順數\n협기변방서 「황도흑도」"
+                  }
+                ]
+              },
+              "sourceRef": "xieji-bianfang/hours#huangdao"
+            }
+          ],
+          "messageKey": "focus_time.day",
+          "reactable": false,
+          "slot": "daily.focus_time",
+          "text": {
+            "segments": [
+              {
+                "text": "중요한 일은 이 시간에 하면 좋아요."
+              }
+            ]
+          },
+          "variant": "single"
+        }
+      },
+      "nightFocusTime": {
+        "fallback": false,
+        "hours": [
+          {
+            "branch": "hae",
+            "dayDate": "2026-10-13",
+            "dayPillar": {
+              "branch": "shin",
+              "stem": "gyeong"
+            },
+            "end": "2026-10-13T23:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-13T21:30:00+09:00"
+          },
+          {
+            "branch": "ja",
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "branch": "yu",
+              "stem": "sin"
+            },
+            "end": "2026-10-14T01:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-13T23:30:00+09:00"
+          },
+          {
+            "branch": "chuk",
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "branch": "yu",
+              "stem": "sin"
+            },
+            "end": "2026-10-14T03:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-14T01:30:00+09:00"
+          },
+          {
+            "branch": "in",
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "branch": "yu",
+              "stem": "sin"
+            },
+            "end": "2026-10-14T05:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-14T03:30:00+09:00"
+          },
+          {
+            "branch": "myo",
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "branch": "yu",
+              "stem": "sin"
+            },
+            "end": "2026-10-14T07:30:00+09:00",
+            "huangdaoLucky": true,
+            "reasons": [],
+            "start": "2026-10-14T05:30:00+09:00"
+          }
+        ],
+        "picks": [
+          {
+            "branch": "chuk",
+            "dayDate": "2026-10-14",
+            "dayPillar": {
+              "branch": "yu",
+              "stem": "sin"
+            },
+            "end": "2026-10-14T03:30:00+09:00",
+            "huangdaoLucky": false,
+            "reasons": [],
+            "start": "2026-10-14T01:30:00+09:00"
+          }
+        ],
+        "text": {
+          "evidence": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "오늘 일진을 돕거나 일진과 합이 되는 시간을 길하게 보고, 일진과 부딪히는 시간은 뺐어요."
+                  }
+                ]
+              },
+              "detail": {
+                "day_pillar": "辛酉",
+                "hour_branch": "CHUK",
+                "period": "NIGHT"
+              },
+              "ruleId": "focus_time/day_relation",
+              "source": {
+                "segments": [
+                  {
+                    "text": "시는 날을 쓰는 것이라 오로지 날을 돕는 데 달려 있어, 일간이나 일지와 같은 기운이거나 일지와 삼합, 육합이 되면 곧 길하고, 시의 길신과 흉신에 다 얽매일 필요 없이 귀인과 녹마만 길로 본다는 뜻이에요.\n時者日之用也全在幇扶日辰或與日支干比和或與日支三合六合即吉時家吉凶神不必盡拘惟貴人祿馬為吉\n협기변방서 「용시법」"
+                  }
+                ]
+              },
+              "sourceRef": "xieji-bianfang/hours#use_hour"
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "내가 태어난 해의 천간을 돕거나 그와 합이 되는 시간을 길하게 보고, 태어난 해와 부딪히는 시간은 피했어요."
+                  }
+                ]
+              },
+              "detail": {
+                "birth_year": "庚午",
+                "hour_branch": "CHUK",
+                "period": "NIGHT"
+              },
+              "ruleId": "focus_time/birth_year",
+              "source": {
+                "segments": [
+                  {
+                    "text": "옛사람들은 모두 태어난 해의 천간을 보고, 관이나 재와 합하거나 비견, 인수, 장생이 되거나 녹마와 귀인을 얻으면서 명을 충하거나 극하지 않는 때를 골랐다는 뜻이에요.\n古人皆論生年之天干或合官或合財或比肩或印綬或四長生或取祿馬貴人不衝命尅命\n협기변방서 「논상주」"
+                  }
+                ]
+              },
+              "sourceRef": "xieji-bianfang/hours#birth_year"
+            },
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "택일 원전이 황도라 해서 길하게 꼽는 시간인지도 함께 봤어요."
+                  }
+                ]
+              },
+              "detail": {
+                "hour_branch": "CHUK",
+                "huangdao": "false",
+                "period": "NIGHT"
+              },
+              "ruleId": "focus_time/huangdao",
+              "source": {
+                "segments": [
+                  {
+                    "text": "날로 시를 일으키면 자일에는 신시에서 청룡을 시작하고 유시를 명당으로 삼아 차례대로 세어 나간다는 뜻이에요.\n日起時則子日申時起青龍酉時為明堂依次順數\n협기변방서 「황도흑도」"
+                  }
+                ]
+              },
+              "sourceRef": "xieji-bianfang/hours#huangdao"
+            }
+          ],
+          "messageKey": "focus_time.night",
+          "reactable": false,
+          "slot": "daily.focus_time",
+          "text": {
+            "segments": [
+              {
+                "text": "밤에 할 일이 있다면 이 시간이 좋아요."
+              }
+            ]
+          },
+          "variant": "single"
+        }
+      },
+      "number": {
+        "number": 1,
+        "text": {
+          "evidence": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "행운 색과 같은 오행인 수의 하도 수 두 개 중에서, 오늘 천간 庚의 음양에 따라 양이면 홀수, 음이면 짝수를 골랐어요."
+                  }
+                ]
+              },
+              "detail": {
+                "day_stem": "庚",
+                "element": "WATER",
+                "number": "1",
+                "parity": "odd"
+              },
+              "ruleId": "number/hado",
+              "source": {
+                "segments": [
+                  {
+                    "text": "오행마다 수가 있어 수는 1, 화는 2, 목은 3, 금은 4, 토는 5라는 뜻이에요.\n其數則水一、火二、木三、金四、土五。生旺加倍，死絶減半。\n궁통보감 「오행총론」"
+                  }
+                ]
+              },
+              "sourceRef": "gungtong-bogam/five_elements#number"
+            }
+          ],
+          "messageKey": "number.ordinary_day",
+          "reactable": false,
+          "slot": "daily.number",
+          "text": {
+            "segments": [
+              {
+                "text": "수 기운의 숫자 중에서 오늘 천간 경금에 맞춰 1을 골랐어요."
+              }
+            ]
+          },
+          "todayReason": {
+            "segments": [
+              {
+                "text": "오늘의 색과 같은 기운의 숫자 중에서, 오늘 천간의 음양에 맞는 숫자를 골라서 그래요."
+              }
+            ]
+          },
+          "variant": "single"
+        }
+      }
+    },
+    "characterReason": {
+      "messageKey": "character.reason.ordinary_day",
+      "reactable": false,
+      "slot": "character.reason",
+      "text": {
+        "segments": [
+          {
+            "text": "특별히 돕거나 막는 기운이 없는 보통의 날이에요."
+          }
+        ]
+      },
+      "variant": "single"
+    },
+    "date": "2026-10-13",
+    "dayKind": "ordinary_day",
+    "dayPillar": {
+      "branch": "shin",
+      "stem": "gyeong"
+    },
+    "dayStemTenGod": "bigyeon",
+    "dayStemTenGodGroup": "bigyeop",
+    "dayVirtues": [],
+    "evidenceAccess": "unlocked",
+    "fortune": {
+      "head": {
+        "evidence": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "오늘은 평범한 날이고 오늘 천간이 내 일간에게 비견에 해당해서, 이 둘을 바탕으로 총운을 골랐어요."
+                }
+              ]
+            },
+            "detail": {
+              "day_kind": "ORDINARY_DAY",
+              "group": "BIGYEOP",
+              "ten_god": "BIGYEON"
+            },
+            "ruleId": "fortune/day_kind",
+            "source": {
+              "segments": [
+                {
+                  "text": "양인, 비견, 패재, 건록은 이름은 달라도 실은 한집안처럼 같은 기운이라는 뜻이에요.\n余按陽刃比肩敗財建祿名雖不同實一家同氣之神\n삼명통회 「논건록」"
+                }
+              ]
+            },
+            "sourceRef": "sammyeong-tonghoe/personal#ten_god.geonrok"
+          },
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "여름이나 겨울에 태어나 더위나 추위가 지나친 사주라, 온도를 맞추는 조후법으로 "
+                },
+                {
+                  "term": "role.yongsin",
+                  "text": "용신"
+                },
+                {
+                  "text": "을 정했어요. 巳월의 내 일간에 맞는 오행은 궁통보감 조후표를 따랐어요."
+                }
+              ]
+            },
+            "detail": {
+              "month_branch": "巳",
+              "share": "0.3143",
+              "threshold": "0.3000"
+            },
+            "ruleId": "yongsin/johu",
+            "source": {
+              "segments": [
+                {
+                  "text": "4월에 태어난 경금 일간에게 병화는 금을 녹이지 않아 불길을 두려워하지 않고 병화도 쓸 수 있지만, 임수를 먼저 써야 중화를 이루니, 여름에 난 금은 토를 반긴다는 뜻이에요.\n丙不鎔金，故不畏火炎，丙亦可作用，但先壬水，方得中和，故曰羣金生夏，喜用勾陳。\n궁통보감 「사월경」"
+                }
+              ]
+            },
+            "sourceRef": "gungtong-bogam/johu_evidence#庚.巳"
+          }
+        ],
+        "messageKey": "fortune.ordinary_day.bigyeop",
+        "reactable": true,
+        "slot": "daily.fortune.head",
+        "text": {
+          "segments": [
+            {
+              "text": "남에게 맞추기보다 내 속도대로 일을 해 보세요."
+            }
+          ]
+        },
+        "todayReason": {
+          "segments": [
+            {
+              "text": "오늘의 천간이 내 일간과 만나는 관계가 이 기운이라 그래요."
+            }
+          ]
+        },
+        "variant": "advice"
+      },
+      "tag": {
+        "evidence": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "오늘 붙은 태그 가운데 가장 앞선 것을 바탕으로 총운 아래 문장을 골랐어요."
+                }
+              ]
+            },
+            "detail": {
+              "day_kind": "ORDINARY_DAY",
+              "featured": "tag.harmony",
+              "group": "BIGYEOP",
+              "ten_god": "BIGYEON"
+            },
+            "ruleId": "fortune/tag",
+            "source": {
+              "segments": [
+                {
+                  "text": "합은 어울림이라, 음과 양이 서로 어울리면 기운이 저절로 합해진다는 뜻이에요.\n夫合者，和也，乃陰陽相和，其氣自合。\n삼명통회 「논지원육합」"
+                }
+              ]
+            },
+            "sourceRef": "sammyeong-tonghoe/tags#branch_hap"
+          },
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "여름이나 겨울에 태어나 더위나 추위가 지나친 사주라, 온도를 맞추는 조후법으로 "
+                },
+                {
+                  "term": "role.yongsin",
+                  "text": "용신"
+                },
+                {
+                  "text": "을 정했어요. 巳월의 내 일간에 맞는 오행은 궁통보감 조후표를 따랐어요."
+                }
+              ]
+            },
+            "detail": {
+              "month_branch": "巳",
+              "share": "0.3143",
+              "threshold": "0.3000"
+            },
+            "ruleId": "yongsin/johu",
+            "source": {
+              "segments": [
+                {
+                  "text": "4월에 태어난 경금 일간에게 병화는 금을 녹이지 않아 불길을 두려워하지 않고 병화도 쓸 수 있지만, 임수를 먼저 써야 중화를 이루니, 여름에 난 금은 토를 반긴다는 뜻이에요.\n丙不鎔金，故不畏火炎，丙亦可作用，但先壬水，方得中和，故曰羣金生夏，喜用勾陳。\n궁통보감 「사월경」"
+                }
+              ]
+            },
+            "sourceRef": "gungtong-bogam/johu_evidence#庚.巳"
+          }
+        ],
+        "messageKey": "fortune.tag.harmony",
+        "reactable": true,
+        "slot": "daily.fortune.tag",
+        "text": {
+          "segments": [
+            {
+              "text": "미뤄 둔 계약이나 약속을 오늘 잡아 보세요."
+            }
+          ]
+        },
+        "todayReason": {
+          "segments": [
+            {
+              "text": "오늘 일진과 내 사주가 만나 이 태그가 함께 들어서 그래요."
+            }
+          ]
+        },
+        "variant": "advice"
+      }
+    },
+    "guide": {
+      "evidence": [
+        {
+          "basis": {
+            "segments": [
+              {
+                "text": "오늘 붙은 태그가 있으면 가장 앞선 태그로, 없으면 오늘 천간이 내 일간에게 해당하는 비겁으로 가이드 질문을 골랐어요."
+              }
+            ]
+          },
+          "detail": {
+            "basis": "tag.harmony",
+            "ten_god": "BIGYEON"
+          },
+          "ruleId": "guide/question",
+          "source": {
+            "segments": [
+              {
+                "text": "합은 어울림이라, 음과 양이 서로 어울리면 기운이 저절로 합해진다는 뜻이에요.\n夫合者，和也，乃陰陽相和，其氣自合。\n삼명통회 「논지원육합」"
+              }
+            ]
+          },
+          "sourceRef": "sammyeong-tonghoe/tags#branch_hap"
+        }
+      ],
+      "messageKey": "guide.harmony",
+      "reactable": false,
+      "slot": "daily.guide",
+      "text": {
+        "segments": [
+          {
+            "text": "오늘 마음이 잘 맞았던 대화가 있었다면 적어 볼까요?"
+          }
+        ]
+      },
+      "variant": "1"
+    },
+    "guideCandidates": [
+      {
+        "evidence": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "오늘 붙은 태그가 있으면 가장 앞선 태그로, 없으면 오늘 천간이 내 일간에게 해당하는 비겁으로 가이드 질문을 골랐어요."
+                }
+              ]
+            },
+            "detail": {
+              "basis": "tag.harmony",
+              "ten_god": "BIGYEON"
+            },
+            "ruleId": "guide/question",
+            "source": {
+              "segments": [
+                {
+                  "text": "합은 어울림이라, 음과 양이 서로 어울리면 기운이 저절로 합해진다는 뜻이에요.\n夫合者，和也，乃陰陽相和，其氣自合。\n삼명통회 「논지원육합」"
+                }
+              ]
+            },
+            "sourceRef": "sammyeong-tonghoe/tags#branch_hap"
+          }
+        ],
+        "messageKey": "guide.harmony",
+        "reactable": false,
+        "slot": "daily.guide",
+        "text": {
+          "segments": [
+            {
+              "text": "오늘 마음이 잘 맞았던 대화가 있었다면 적어 볼까요?"
+            }
+          ]
+        },
+        "variant": "1"
+      },
+      {
+        "evidence": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "오늘 붙은 태그가 있으면 가장 앞선 태그로, 없으면 오늘 천간이 내 일간에게 해당하는 비겁으로 가이드 질문을 골랐어요."
+                }
+              ]
+            },
+            "detail": {
+              "basis": "tag.harmony",
+              "ten_god": "BIGYEON"
+            },
+            "ruleId": "guide/question",
+            "source": {
+              "segments": [
+                {
+                  "text": "합은 어울림이라, 음과 양이 서로 어울리면 기운이 저절로 합해진다는 뜻이에요.\n夫合者，和也，乃陰陽相和，其氣自合。\n삼명통회 「논지원육합」"
+                }
+              ]
+            },
+            "sourceRef": "sammyeong-tonghoe/tags#branch_hap"
+          }
+        ],
+        "messageKey": "guide.harmony",
+        "reactable": false,
+        "slot": "daily.guide",
+        "text": {
+          "segments": [
+            {
+              "text": "오늘 함께해서 좋았던 사람이 있었나요?"
+            }
+          ]
+        },
+        "variant": "2"
+      },
+      {
+        "evidence": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "오늘 붙은 태그가 있으면 가장 앞선 태그로, 없으면 오늘 천간이 내 일간에게 해당하는 비겁으로 가이드 질문을 골랐어요."
+                }
+              ]
+            },
+            "detail": {
+              "basis": "tag.ten_god_rush.bigyeop",
+              "ten_god": "BIGYEON"
+            },
+            "ruleId": "guide/question",
+            "sourceRef": ""
+          }
+        ],
+        "messageKey": "guide.ten_god_rush.bigyeop",
+        "reactable": false,
+        "slot": "daily.guide",
+        "text": {
+          "segments": [
+            {
+              "text": "오늘 끝까지 지키고 싶었던 내 생각을 적어 볼까요?"
+            }
+          ]
+        },
+        "variant": "1"
+      },
+      {
+        "evidence": [
+          {
+            "basis": {
+              "segments": [
+                {
+                  "text": "오늘 붙은 태그가 있으면 가장 앞선 태그로, 없으면 오늘 천간이 내 일간에게 해당하는 비겁으로 가이드 질문을 골랐어요."
+                }
+              ]
+            },
+            "detail": {
+              "basis": "BIGYEOP",
+              "ten_god": "BIGYEON"
+            },
+            "ruleId": "guide/question",
+            "source": {
+              "segments": [
+                {
+                  "text": "양인, 비견, 패재, 건록은 이름은 달라도 실은 한집안처럼 같은 기운이라는 뜻이에요.\n余按陽刃比肩敗財建祿名雖不同實一家同氣之神\n삼명통회 「논건록」"
+                }
+              ]
+            },
+            "sourceRef": "sammyeong-tonghoe/personal#ten_god.geonrok"
+          }
+        ],
+        "messageKey": "guide.ten_god.bigyeop",
+        "reactable": false,
+        "slot": "daily.guide",
+        "text": {
+          "segments": [
+            {
+              "text": "오늘 함께 시간을 보낸 사람이 있었다면 그 이야기를 적어 볼까요?"
+            }
+          ]
+        },
+        "variant": "1"
+      }
+    ],
+    "lunar": {
+      "day": 3,
+      "isLeapMonth": false,
+      "month": 9
+    },
+    "notices": [],
+    "relations": [
+      {
+        "kind": "branch_hap",
+        "natalPosition": "month_branch",
+        "suppressed": false
+      },
+      {
+        "kind": "hyeong",
+        "natalPosition": "month_branch",
+        "suppressed": false
+      }
+    ],
+    "rulesetVersion": "2026.11.9",
+    "tags": {
+      "all": [
+        "harmony",
+        "ten_god_rush.bigyeop",
+        "gongmang",
+        "yeokma",
+        "gosin"
+      ],
+      "featured": [
+        {
+          "key": "harmony",
+          "polarity": "good"
+        },
+        {
+          "key": "ten_god_rush.bigyeop",
+          "polarity": "neutral"
+        }
+      ]
+    }
+  }
+}

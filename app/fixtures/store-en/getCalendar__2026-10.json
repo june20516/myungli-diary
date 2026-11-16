@@ -1,0 +1,2009 @@
+{
+  "status": 200,
+  "body": {
+    "days": [
+      {
+        "characterReason": {
+          "messageKey": "character.reason.gisin_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "Energies tend to cross today, so it's a good day to slow down a beat."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-01",
+        "dayKind": "gisin_day",
+        "dayVirtues": [],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.neutral",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Steady day"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "neutral",
+        "lunar": {
+          "day": 21,
+          "isLeapMonth": false,
+          "month": 8
+        },
+        "pillar": {
+          "branch": "shin",
+          "stem": "mu"
+        },
+        "score": -1,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ]
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.gisin_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "Energies tend to cross today, so it's a good day to slow down a beat."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-02",
+        "dayKind": "gisin_day",
+        "dayVirtues": [],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.neutral",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Steady day"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "neutral",
+        "lunar": {
+          "day": 22,
+          "isLeapMonth": false,
+          "month": 8
+        },
+        "pillar": {
+          "branch": "yu",
+          "stem": "gi"
+        },
+        "score": 0,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "hap",
+            "score": 1
+          }
+        ]
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.gisin_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "Energies tend to cross today, so it's a good day to slow down a beat."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-03",
+        "dayKind": "gisin_day",
+        "dayVirtues": [
+          "woldeok_day"
+        ],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.caution",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Day to take care"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "caution",
+        "lunar": {
+          "day": 23,
+          "isLeapMonth": false,
+          "month": 8
+        },
+        "pillar": {
+          "branch": "sul",
+          "stem": "gyeong"
+        },
+        "score": -4,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "chung_day_or_month",
+            "score": -2
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ]
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.yongsin_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "The energy your chart needs comes in today, so things tend to go smoothly."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-04",
+        "dayKind": "yongsin_day",
+        "dayVirtues": [],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.neutral",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Steady day"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "neutral",
+        "lunar": {
+          "day": 24,
+          "isLeapMonth": false,
+          "month": 8
+        },
+        "pillar": {
+          "branch": "hae",
+          "stem": "sin"
+        },
+        "score": 0,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          },
+          {
+            "id": "chung_day_or_month",
+            "score": -2
+          }
+        ]
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.yongsin_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "The energy your chart needs comes in today, so things tend to go smoothly."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-05",
+        "dayKind": "yongsin_day",
+        "dayVirtues": [],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.neutral",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Steady day"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "neutral",
+        "lunar": {
+          "day": 25,
+          "isLeapMonth": false,
+          "month": 8
+        },
+        "pillar": {
+          "branch": "ja",
+          "stem": "im"
+        },
+        "score": 1,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          },
+          {
+            "id": "chung_other",
+            "score": -1
+          }
+        ]
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.gwiin_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "A day when help from others comes more easily."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-06",
+        "dayKind": "gwiin_day",
+        "dayVirtues": [],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.neutral",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Steady day"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "neutral",
+        "lunar": {
+          "day": 26,
+          "isLeapMonth": false,
+          "month": 8
+        },
+        "pillar": {
+          "branch": "chuk",
+          "stem": "gye"
+        },
+        "score": 0,
+        "scoreItems": [
+          {
+            "id": "gwiin_day",
+            "score": 2
+          },
+          {
+            "id": "chung_other",
+            "score": -1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ]
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.ordinary_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "An ordinary day, with no particular energy helping or holding you back."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-07",
+        "dayKind": "ordinary_day",
+        "dayVirtues": [],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.neutral",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Steady day"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "neutral",
+        "lunar": {
+          "day": 27,
+          "isLeapMonth": false,
+          "month": 8
+        },
+        "pillar": {
+          "branch": "in",
+          "stem": "gap"
+        },
+        "score": -1,
+        "scoreItems": [
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ]
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.ordinary_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "An ordinary day, with no particular energy helping or holding you back."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-08",
+        "dayKind": "ordinary_day",
+        "dayVirtues": [],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.neutral",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Steady day"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "neutral",
+        "lunar": {
+          "day": 28,
+          "isLeapMonth": false,
+          "month": 8
+        },
+        "pillar": {
+          "branch": "myo",
+          "stem": "eul"
+        },
+        "score": 1,
+        "scoreItems": [
+          {
+            "id": "hap",
+            "score": 1
+          }
+        ],
+        "solarTerm": {
+          "at": "2026-10-08T15:29:17+09:00",
+          "kind": "hallo"
+        }
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.gisin_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "Energies tend to cross today, so it's a good day to slow down a beat."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-09",
+        "dayKind": "gisin_day",
+        "dayVirtues": [
+          "cheondeok_day",
+          "woldeok_day"
+        ],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.neutral",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Steady day"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "neutral",
+        "lunar": {
+          "day": 29,
+          "isLeapMonth": false,
+          "month": 8
+        },
+        "pillar": {
+          "branch": "jin",
+          "stem": "byeong"
+        },
+        "score": -1,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ]
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.ordinary_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "An ordinary day, with no particular energy helping or holding you back."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-10",
+        "dayKind": "ordinary_day",
+        "dayVirtues": [],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.neutral",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Steady day"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "neutral",
+        "lunar": {
+          "day": 30,
+          "isLeapMonth": false,
+          "month": 8
+        },
+        "pillar": {
+          "branch": "sa",
+          "stem": "jeong"
+        },
+        "score": 0,
+        "scoreItems": []
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.gisin_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "Energies tend to cross today, so it's a good day to slow down a beat."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-11",
+        "dayKind": "gisin_day",
+        "dayVirtues": [],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.neutral",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Steady day"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "neutral",
+        "lunar": {
+          "day": 1,
+          "isLeapMonth": false,
+          "month": 9
+        },
+        "pillar": {
+          "branch": "o",
+          "stem": "mu"
+        },
+        "score": -1,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ]
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.gwiin_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "A day when help from others comes more easily."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-12",
+        "dayKind": "gwiin_day",
+        "dayVirtues": [],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.very_good",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Very smooth day"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "very_good",
+        "lunar": {
+          "day": 2,
+          "isLeapMonth": false,
+          "month": 9
+        },
+        "pillar": {
+          "branch": "mi",
+          "stem": "gi"
+        },
+        "score": 3,
+        "scoreItems": [
+          {
+            "id": "gwiin_day",
+            "score": 2
+          },
+          {
+            "id": "hap",
+            "score": 1
+          }
+        ]
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.ordinary_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "An ordinary day, with no particular energy helping or holding you back."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-13",
+        "dayKind": "ordinary_day",
+        "dayVirtues": [],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.neutral",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Steady day"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "neutral",
+        "lunar": {
+          "day": 3,
+          "isLeapMonth": false,
+          "month": 9
+        },
+        "pillar": {
+          "branch": "shin",
+          "stem": "gyeong"
+        },
+        "score": 0,
+        "scoreItems": [
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ]
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.ordinary_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "An ordinary day, with no particular energy helping or holding you back."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-14",
+        "dayKind": "ordinary_day",
+        "dayVirtues": [],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.neutral",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Steady day"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "neutral",
+        "lunar": {
+          "day": 4,
+          "isLeapMonth": false,
+          "month": 9
+        },
+        "pillar": {
+          "branch": "yu",
+          "stem": "sin"
+        },
+        "score": 1,
+        "scoreItems": [
+          {
+            "id": "hap",
+            "score": 1
+          }
+        ]
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.gisin_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "Energies tend to cross today, so it's a good day to slow down a beat."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-15",
+        "dayKind": "gisin_day",
+        "dayVirtues": [],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.caution",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Day to take care"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "caution",
+        "lunar": {
+          "day": 5,
+          "isLeapMonth": false,
+          "month": 9
+        },
+        "pillar": {
+          "branch": "sul",
+          "stem": "im"
+        },
+        "score": -4,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "chung_day_or_month",
+            "score": -2
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ]
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.yongsin_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "The energy your chart needs comes in today, so things tend to go smoothly."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-16",
+        "dayKind": "yongsin_day",
+        "dayVirtues": [],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.neutral",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Steady day"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "neutral",
+        "lunar": {
+          "day": 6,
+          "isLeapMonth": false,
+          "month": 9
+        },
+        "pillar": {
+          "branch": "hae",
+          "stem": "gye"
+        },
+        "score": 0,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          },
+          {
+            "id": "chung_day_or_month",
+            "score": -2
+          }
+        ]
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.yongsin_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "The energy your chart needs comes in today, so things tend to go smoothly."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-17",
+        "dayKind": "yongsin_day",
+        "dayVirtues": [],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.neutral",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Steady day"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "neutral",
+        "lunar": {
+          "day": 7,
+          "isLeapMonth": false,
+          "month": 9
+        },
+        "pillar": {
+          "branch": "ja",
+          "stem": "gap"
+        },
+        "score": 1,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          },
+          {
+            "id": "chung_other",
+            "score": -1
+          }
+        ]
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.gwiin_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "A day when help from others comes more easily."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-18",
+        "dayKind": "gwiin_day",
+        "dayVirtues": [],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.neutral",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Steady day"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "neutral",
+        "lunar": {
+          "day": 8,
+          "isLeapMonth": false,
+          "month": 9
+        },
+        "pillar": {
+          "branch": "chuk",
+          "stem": "eul"
+        },
+        "score": 1,
+        "scoreItems": [
+          {
+            "id": "gwiin_day",
+            "score": 2
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "chung_other",
+            "score": -1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ]
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.ordinary_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "An ordinary day, with no particular energy helping or holding you back."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-19",
+        "dayKind": "ordinary_day",
+        "dayVirtues": [
+          "cheondeok_day",
+          "woldeok_day"
+        ],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.neutral",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Steady day"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "neutral",
+        "lunar": {
+          "day": 9,
+          "isLeapMonth": false,
+          "month": 9
+        },
+        "pillar": {
+          "branch": "in",
+          "stem": "byeong"
+        },
+        "score": 0,
+        "scoreItems": [
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ]
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.ordinary_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "An ordinary day, with no particular energy helping or holding you back."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-20",
+        "dayKind": "ordinary_day",
+        "dayVirtues": [],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.neutral",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Steady day"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "neutral",
+        "lunar": {
+          "day": 10,
+          "isLeapMonth": false,
+          "month": 9
+        },
+        "pillar": {
+          "branch": "myo",
+          "stem": "jeong"
+        },
+        "score": 0,
+        "scoreItems": []
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.gisin_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "Energies tend to cross today, so it's a good day to slow down a beat."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-21",
+        "dayKind": "gisin_day",
+        "dayVirtues": [],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.neutral",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Steady day"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "neutral",
+        "lunar": {
+          "day": 11,
+          "isLeapMonth": false,
+          "month": 9
+        },
+        "pillar": {
+          "branch": "jin",
+          "stem": "mu"
+        },
+        "score": -1,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ]
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.gisin_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "Energies tend to cross today, so it's a good day to slow down a beat."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-22",
+        "dayKind": "gisin_day",
+        "dayVirtues": [],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.neutral",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Steady day"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "neutral",
+        "lunar": {
+          "day": 12,
+          "isLeapMonth": false,
+          "month": 9
+        },
+        "pillar": {
+          "branch": "sa",
+          "stem": "gi"
+        },
+        "score": -1,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          }
+        ]
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.ordinary_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "An ordinary day, with no particular energy helping or holding you back."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-23",
+        "dayKind": "ordinary_day",
+        "dayVirtues": [],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.neutral",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Steady day"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "neutral",
+        "lunar": {
+          "day": 13,
+          "isLeapMonth": false,
+          "month": 9
+        },
+        "pillar": {
+          "branch": "o",
+          "stem": "gyeong"
+        },
+        "score": 0,
+        "scoreItems": [
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ],
+        "solarTerm": {
+          "at": "2026-10-23T18:37:57+09:00",
+          "kind": "sanggang"
+        }
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.gwiin_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "A day when help from others comes more easily."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-24",
+        "dayKind": "gwiin_day",
+        "dayVirtues": [],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.very_good",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Very smooth day"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "very_good",
+        "lunar": {
+          "day": 14,
+          "isLeapMonth": false,
+          "month": 9
+        },
+        "pillar": {
+          "branch": "mi",
+          "stem": "sin"
+        },
+        "score": 3,
+        "scoreItems": [
+          {
+            "id": "gwiin_day",
+            "score": 2
+          },
+          {
+            "id": "hap",
+            "score": 1
+          }
+        ]
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.yongsin_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "The energy your chart needs comes in today, so things tend to go smoothly."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-25",
+        "dayKind": "yongsin_day",
+        "dayVirtues": [],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.good",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Day that goes well"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "good",
+        "lunar": {
+          "day": 15,
+          "isLeapMonth": false,
+          "month": 9
+        },
+        "pillar": {
+          "branch": "shin",
+          "stem": "im"
+        },
+        "score": 2,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ]
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.yongsin_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "The energy your chart needs comes in today, so things tend to go smoothly."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-26",
+        "dayKind": "yongsin_day",
+        "dayVirtues": [],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.very_good",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Very smooth day"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "very_good",
+        "lunar": {
+          "day": 16,
+          "isLeapMonth": false,
+          "month": 9
+        },
+        "pillar": {
+          "branch": "yu",
+          "stem": "gye"
+        },
+        "score": 3,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          },
+          {
+            "id": "hap",
+            "score": 1
+          }
+        ]
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.gisin_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "Energies tend to cross today, so it's a good day to slow down a beat."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-27",
+        "dayKind": "gisin_day",
+        "dayVirtues": [],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.caution",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Day to take care"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "caution",
+        "lunar": {
+          "day": 17,
+          "isLeapMonth": false,
+          "month": 9
+        },
+        "pillar": {
+          "branch": "sul",
+          "stem": "gap"
+        },
+        "score": -4,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "chung_day_or_month",
+            "score": -2
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ]
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.yongsin_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "The energy your chart needs comes in today, so things tend to go smoothly."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-28",
+        "dayKind": "yongsin_day",
+        "dayVirtues": [],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.neutral",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Steady day"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "neutral",
+        "lunar": {
+          "day": 18,
+          "isLeapMonth": false,
+          "month": 9
+        },
+        "pillar": {
+          "branch": "hae",
+          "stem": "eul"
+        },
+        "score": 1,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "chung_day_or_month",
+            "score": -2
+          }
+        ]
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.yongsin_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "The energy your chart needs comes in today, so things tend to go smoothly."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-29",
+        "dayKind": "yongsin_day",
+        "dayVirtues": [
+          "cheondeok_day",
+          "woldeok_day"
+        ],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.good",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Day that goes well"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "good",
+        "lunar": {
+          "day": 19,
+          "isLeapMonth": false,
+          "month": 9
+        },
+        "pillar": {
+          "branch": "ja",
+          "stem": "byeong"
+        },
+        "score": 2,
+        "scoreItems": [
+          {
+            "id": "yongsin_day",
+            "score": 2
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "chung_other",
+            "score": -1
+          }
+        ]
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.gwiin_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "A day when help from others comes more easily."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-30",
+        "dayKind": "gwiin_day",
+        "dayVirtues": [],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.neutral",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Steady day"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "neutral",
+        "lunar": {
+          "day": 20,
+          "isLeapMonth": false,
+          "month": 9
+        },
+        "pillar": {
+          "branch": "chuk",
+          "stem": "jeong"
+        },
+        "score": 0,
+        "scoreItems": [
+          {
+            "id": "gwiin_day",
+            "score": 2
+          },
+          {
+            "id": "chung_other",
+            "score": -1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ]
+      },
+      {
+        "characterReason": {
+          "messageKey": "character.reason.gisin_day",
+          "reactable": false,
+          "slot": "character.reason",
+          "text": {
+            "segments": [
+              {
+                "text": "Energies tend to cross today, so it's a good day to slow down a beat."
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "date": "2026-10-31",
+        "dayKind": "gisin_day",
+        "dayVirtues": [],
+        "level": {
+          "evidencePreview": [
+            {
+              "basis": {
+                "segments": [
+                  {
+                    "text": "We added points"
+                  }
+                ]
+              }
+            }
+          ],
+          "messageKey": "calendar.neutral",
+          "reactable": false,
+          "slot": "calendar.day_level",
+          "text": {
+            "segments": [
+              {
+                "text": "Steady day"
+              }
+            ]
+          },
+          "variant": "single"
+        },
+        "luckLevel": "neutral",
+        "lunar": {
+          "day": 21,
+          "isLeapMonth": false,
+          "month": 9
+        },
+        "pillar": {
+          "branch": "in",
+          "stem": "mu"
+        },
+        "score": -1,
+        "scoreItems": [
+          {
+            "id": "gisin_day",
+            "score": -1
+          },
+          {
+            "id": "hap",
+            "score": 1
+          },
+          {
+            "id": "hyeong",
+            "score": -1
+          }
+        ]
+      }
+    ],
+    "evidenceAccess": "locked",
+    "month": 10,
+    "rulesetVersion": "2026.11.9",
+    "year": 2026
+  }
+}
