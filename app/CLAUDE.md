@@ -65,6 +65,7 @@
    * drift #916(PR #993) 남은 사용자 확인: TalkBack이나 VoiceOver를 켜고 일기 쓰기 질문 떼기와 다시 붙이기에서 한 번만 읽히는지.
    * DS1에서 남긴 원고 쪽 확인거리(`stage-strip` 읽기 연결의 "와", en 윤달 태그 대소문자, 세운 연도와 나이 배치, 그날 시트 내역 "지지합 / 합")는 PR #872 본문 "남은 것"에 있습니다.
    * staging 광고(A106): staging release 실기기에서 모의 광고와 보상 열림 확인, iPhone 광고 실패 코드 확인.
+   * staging E2E(A108): CI에서 정기로 돌릴지(GitHub Secret, 실행 주기)를 정합니다(#781 5번, 아직 정하지 않음).
    * Crashlytics(A105): iOS는 dSYM 업로드만 했고 보고 시험은 하지 않았습니다(사용자 결정, 아이폰 연결 때 `CRASHLYTICS_SELF_TEST` release로 확인).
 1. **계획 7 A2 남은 것(#311·#387·#484):** [spec](docs/specs/2026-10-21-real-login-design.md)·[계획](docs/plans/2026-10-22-real-login.md) "진행 순서"의 A2 열대로 합니다.
    * **실기기 확인 목록(spec §12):** 카카오톡 로그인·계정 로그인·각 취소, LINE 앱·웹 로그인(LINE 앱 없음)·취소, Google 계정 선택·취소와 두 번째 로그인에서 계정 선택이 다시 뜨는지, iOS Apple 로그인·취소, Android Auth Tab이 server 303을 받는지·안내 페이지 intent 복귀·앱이 내려간 뒤 복귀, `assetlinks.json` 검증(`adb shell pm get-app-links app.myungli.diary`), 붙이기·떼기·합치기(LINE·Google 허가는 제공자 쪽 연결 앱 목록에 남는 것이 맞음, D95). Auth Tab이 303을 받지 못하면 안내 페이지 intent 경로를 기본으로 할지 다시 판단하고 server와 문구는 Issue로 올립니다.

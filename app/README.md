@@ -49,7 +49,19 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
   상품 id는 스토어 상품이 생긴 뒤(E12, 판매는 E15 뒤) 로컬 값으로 넘깁니다. 그 전 빌드나 id를 빠뜨린 빌드는 상품 목록이 비어, 광고 제거 화면이 `offer-card` `unavailable`(가격, 기간 고지, 구매 버튼 대신 안내 한 줄 `ad-free.unavailable.body`, 구매 내역과 약관 안내는 그대로)을 보입니다(V123, A139 ①). 오류가 아니라 정상 상태라 Crashlytics에도 남지 않으니, 상품이 생긴 뒤 빌드에서는 구매 버튼이 보이는지 기기에서 직접 확인합니다(A126, #922). release + staging은 Test Store 상품을 받지 못하므로 광고 제거권은 결제 없이 시험합니다(D99 ④).
   `keytool -printcert -jarfile build/app/outputs/bundle/release/app-release.aab`의 SHA256이 업로드 키 저장소(`keytool -list -v`)의 지문과 같은지 확인합니다. 빌드 번호는 아래 "스토어 빌드 번호"를 따릅니다. 앱 서명 키는 Play가 보관합니다(E8).
 * **Play 트랙에 올리기(#944):** `tool/upload_play.sh build/app/outputs/bundle/release/app-release.aab [track]`(기본 `internal`). 서비스 계정 `play-publisher@myungli-diary.iam.gserviceaccount.com`(키 파일 없음)을 사용자 gcloud 계정이 impersonation으로 쓰고, 토큰은 출력하지 않습니다(D98). Android Publisher API v3로 edit를 열어, AAB의 versionCode가 Play에 이미 있으면(어느 트랙이든) 올리기 전에 멈추고, 업로드, 트랙 지정(`completed`), commit 순서로 진행합니다. 중간에 실패하면 edit를 지워 아무것도 남기지 않습니다. 출시 노트는 아직 넣지 않습니다. 필요: `gcloud`(로그인), `bundletool`, `jq`, `curl`.
-* **스토어 빌드 번호(A104, #735):** `pubspec.yaml`의 `+N` 하나를 두 플랫폼이 함께 쓰고, N은 커밋 하나를 가리킵니다. 스토어에 낼 빌드를 만들 때 `+N`을 올려 commit하고 그 커밋에서 빌드합니다. 바뀐 것이 한 플랫폼에만 해당하면 그 플랫폼만 빌드해 올리고, 다른 플랫폼은 그 번호를 건너뜁니다. 올린 플랫폼과 N은 `CLAUDE.md` 현재 상태의 스토어 빌드 줄에 적습니다. release에서만 나는 문제(R8 축소 등, #728)는 debug와 Patrol로 잡히지 않으니, 올리기 전에 release 빌드를 기기에서 한 번 실행합니다(Android는 `bundletool build-apks --mode=universal`로 AAB에서 APK를 뽑아 설치).
+* **스토어 빌드 번호(A104, #735):** `pubspec.yaml`의 `+N` 하나를 두 플랫폼이 함께 쓰고, N은 커밋 하나를 가리킵니다. 스토어에 낼 빌드를 만들 때 `+N`을 올려 commit하고 그 커밋에서 빌드합니다. 바뀐 것이 한 플랫폼에만 해당하면 그 플랫폼만 빌드해 올리고, 다른 플랫폼은 그 번호를 건너뜁니다. 올린 플랫폼과 N은 바로 아래 "스토어 빌드 대장" 표에 적습니다. release에서만 나는 문제(R8 축소 등, #728)는 debug와 Patrol로 잡히지 않으니, 올리기 전에 release 빌드를 기기에서 한 번 실행합니다(Android는 `bundletool build-apks --mode=universal`로 AAB에서 APK를 뽑아 설치).
+  * **스토어 빌드 대장:** 새 빌드는 맨 아래 줄에 더합니다. 커밋은 그 빌드를 만든 커밋입니다.
+
+    | N | Android | iOS | 커밋 | 날짜 | 비고 |
+    | --- | --- | --- | --- | --- | --- |
+    | 1 | 올림(첫 staging AAB, Play 내부 테스트) | 없음 | 기록 없음 | 2026-10-30 | 업로드 키(K1)로 서명(#677) |
+    | 2 | AAB 만듦(Play 업로드는 사용자) | TestFlight | `9a0a3d6a` | 2026-11-03 | 업로드 키 지문, 아이콘, 세 언어 앱 이름 확인. iOS 서명과 권한 확인(A103) |
+    | 3 | 올림, 시작 직후 종료 | TestFlight | `a16a05f3` | 2026-11-03 | Android는 R8 full mode에서 Room 기본 생성자가 지워져 WorkManager 초기화 실패(#728). iOS는 실기기 실행과 로그인 확인 |
+    | 4 | 올림 | 건너뜀 | `998c4a4f` | 2026-11-03 | Android만 고친 빌드(#728, PR #730, `proguard-rules.pro`의 `RoomDatabase` 하위 클래스 `<init>()` keep). 실기기 실행과 네 제공자 로그인 확인. (4)까지는 Crashlytics build ID가 없어 Crashlytics가 시작하지 않음 |
+    | 5 | 올림 | 건너뜀 | `0067754d`(main) | 2026-11-04 | Crashlytics build ID와 심볼 업로드(A105), staging 광고(A106) |
+    | 6 | Play 내부 테스트용 AAB | TestFlight | `93f2eb92`(main) | 2026-11-09 | DS1 화면과 컴포넌트 6.0.0. 업로드 키 지문, universal APK로 release 실행 확인, 심볼 staging 업로드, dSYM 업로드 |
+    | 7 | Play 내부 테스트(`tool/upload_play.sh`, #944) | TestFlight | `9a1af453` | 2026-11-13 | 오늘 화면 묶음, V99 앱 아이콘, 띠 1.3배 상한과 일간 표기 틀, 동의 화면 만 14세 확인. universal APK로 release 실행 확인, 심볼과 dSYM 업로드 |
+    | 8 | Play 내부 테스트(versionCode 8) | TestFlight | `a5b14018` | 2026-11-13 | 빌드 7 검수 묶음(A147). 심볼과 dSYM 업로드. release 빌드 기기 실행 확인은 하지 않음 |
 * **iOS TestFlight(A103):** 자동 서명, 팀 `7JGP3D7B3Z`, App Store Connect 앱 `6829967838`. 이 Mac의 Xcode > Settings > Accounts에 팀 Apple ID가 로그인되어 있어야 합니다. 배포 인증서와 profile은 export 때 Xcode가 만듭니다(`-allowProvisioningUpdates`).
   ```
   flutter build ipa --release --dart-define-from-file=config/auth.json \
