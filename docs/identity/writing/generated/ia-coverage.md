@@ -68,6 +68,16 @@
 | system-apple-return.page.body | content | system.apple_return |
 | system-apple-return.page.open | content | system.apple_return |
 | system-apple-return.page.install | content | system.apple_return |
+| system-support.page.title | content | system.support |
+| system-support.contact.head | content | system.support |
+| system-support.contact.body | content | system.support |
+| system-support.email.body | content | system.support |
+| system-support.delete.head | content | system.support |
+| system-support.delete.body | content | system.support |
+| system-support.delete.link | content | system.support |
+| system-support.legal.head | content | system.support |
+| system-support.legal.privacy | content | system.support |
+| system-support.legal.terms | content | system.support |
 | today.bar.title | ui | today.bar.title |
 | today.date.solar | ui | today.date.solar |
 | today.date.lunar | ui | today.date.lunar |

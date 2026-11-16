@@ -28,6 +28,38 @@
     truncation: 잘리지 않게 씁니다.
     screen_reader: 제목, 본문, 링크 순서로 읽습니다.
 
+- id: system.support
+  where: 스토어 지원 URL로 쓰는 지원 페이지(GET /support?lang=<언어>, server #1217, D134)
+  ia: [system-support.page.title, system-support.contact.head, system-support.contact.body, system-support.email.body, system-support.delete.head, system-support.delete.body, system-support.delete.link, system-support.legal.head, system-support.legal.privacy, system-support.legal.terms]
+  select: "IA 슬롯 system-support.<자리> → 키 support.<자리>(page.title → support.title). email.body의 {email}은 server가 mailto 링크로 감쌉니다"
+  purpose: guide
+  user_state: 스토어에서 지원 링크를 눌렀거나 앱을 쓸 수 없어 도움을 찾습니다. 어디로 문의하는지, 계정을 어떻게 지우는지만 알면 됩니다.
+  structure: 제목, 세 절(문의하기, 계정 삭제, 약관과 정책). 절마다 앱 안 경로를 한 문장으로, 링크 글자는 가는 곳의 이름입니다. 공적 안내라 합니다체이고, 자주 묻는 질문은 두지 않습니다(MVP).
+  tone: {진지: 4, 격식: 4, 존중: 4, 담백: 5}
+  max_length: {ko: unbounded, en: unbounded, ja: unbounded}
+  keys:
+    - support.title
+    - support.contact.head
+    - support.contact.body
+    - params: {email: text}
+      keys: [support.email.body]
+    - support.delete.head
+    - support.delete.body
+    - support.delete.link
+    - support.legal.head
+    - support.legal.privacy
+    - support.legal.terms
+  variants: {count: 1, rotation: "변주가 하나입니다"}
+  examples:
+    good:
+      - {lang: ko, key: support.delete.body, text: "앱에서 나 탭 > 설정 > 계정 삭제로 계정을 지울 수 있습니다. 지운 계정은 되돌릴 수 없습니다.", why: "경로 한 문장과 꼭 알릴 사실 하나(D86 ①)", source: writing}
+    bad:
+      - {lang: ko, key: support.contact.body, text: "언제든 편하게 문의해 주세요! 빠르게 도와드릴게요.", why: "들뜬 강조 slop.P8, 공적 안내에 해요체", source: writing}
+  endings: ["~습니다", "~주세요"]
+  a11y:
+    truncation: 잘리지 않게 씁니다.
+    screen_reader: 제목, 절 제목, 본문, 링크 순서로 읽습니다.
+
 - id: system.notice
   where: 계산 안내 배너(오늘·명식·월간 응답의 notices). 엔진이 출생 시각이나 절입 때문에 계산을 어떻게 처리했는지 알립니다
   components: [notice-banner]

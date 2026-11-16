@@ -1111,6 +1111,76 @@
    ]
   },
   {
+   "id": "system-support",
+   "title": "지원 페이지",
+   "tab": null,
+   "presentation": "system",
+   "auth": "any",
+   "purpose": "스토어 지원 URL로 쓰는 웹 페이지입니다(D134). server가 `/support?lang=ko|en|ja`로 내주며 로그인 없이 열립니다. 문의 방법, 문의 메일 주소, 계정 삭제 방법, 약관과 정책 링크를 담습니다",
+   "depths": [],
+   "states": [],
+   "slots": [
+    {
+     "id": "system-support.page.title",
+     "source": "content",
+     "role": "지원 페이지 제목(브라우저 탭과 머리)"
+    },
+    {
+     "id": "system-support.contact.head",
+     "source": "content",
+     "role": "문의 절 제목"
+    },
+    {
+     "id": "system-support.contact.body",
+     "source": "content",
+     "role": "앱 설정 > 문의하기 경로와, 적은 메일 주소로 답장한다는 안내"
+    },
+    {
+     "id": "system-support.email.body",
+     "source": "content",
+     "role": "앱을 쓸 수 없을 때 문의 메일 주소 안내. 매개변수 email, server가 mailto 링크로 그림"
+    },
+    {
+     "id": "system-support.delete.head",
+     "source": "content",
+     "role": "계정 삭제 절 제목"
+    },
+    {
+     "id": "system-support.delete.body",
+     "source": "content",
+     "role": "앱 설정 > 계정 삭제 경로"
+    },
+    {
+     "id": "system-support.delete.link",
+     "source": "content",
+     "role": "개인정보 처리방침 9항으로 가는 링크 글자(처리방침 페이지 링크, 같은 언어)"
+    },
+    {
+     "id": "system-support.legal.head",
+     "source": "content",
+     "role": "약관과 정책 절 제목"
+    },
+    {
+     "id": "system-support.legal.privacy",
+     "source": "content",
+     "role": "개인정보 처리방침 링크 글자(/legal/privacy, 같은 언어)"
+    },
+    {
+     "id": "system-support.legal.terms",
+     "source": "content",
+     "role": "이용약관 링크 글자(/legal/terms, 같은 언어)"
+    }
+   ],
+   "components": [],
+   "exits": [],
+   "decisions": [
+    "D134",
+    "D102",
+    "D89",
+    "D66"
+   ]
+  },
+  {
    "id": "ad-consent",
    "title": "광고 동의",
    "tab": null,

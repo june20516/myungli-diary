@@ -3,6 +3,16 @@
 - {slot: system.apple_return, key: apple_return.body, text: "Please continue signing in from the Myungli Diary app."}
 - {slot: system.apple_return, key: apple_return.open, text: "Open in app"}
 - {slot: system.apple_return, key: apple_return.install, text: "Install the app"}
+- {slot: system.support, key: support.title, text: "Myungli Diary Help and Support"}
+- {slot: system.support, key: support.contact.head, text: "Contact us"}
+- {slot: system.support, key: support.contact.body, text: "In the app, go to Me > Settings > Contact us to send us a message. Enter the email address where you'd like a reply, and we'll answer there."}
+- {slot: system.support, key: support.email.body, text: "If you can't open the app or sign in, email us at {email}."}
+- {slot: system.support, key: support.delete.head, text: "Delete your account"}
+- {slot: system.support, key: support.delete.body, text: "In the app, go to Me > Settings > Delete account to delete your account. A deleted account can't be restored."}
+- {slot: system.support, key: support.delete.link, text: "What we delete and what we keep (Privacy Policy, section 9)"}
+- {slot: system.support, key: support.legal.head, text: "Terms and policies"}
+- {slot: system.support, key: support.legal.privacy, text: "Privacy Policy"}
+- {slot: system.support, key: support.legal.terms, text: "Terms of Service"}
 - {slot: system.notice, key: notice.ambiguous_local_time, text: "Your birth time occurred twice when the clocks changed, so we used the earlier one."}
 - {slot: system.notice, key: notice.nonexistent_local_time, text: "Your birth time was skipped when the clocks changed, so we used the time after the change."}
 - {slot: system.notice, key: notice.zi_hour_next_day, text: "Adjusted for longitude, your birth time falls in the Rat hour, which starts the next day."}
