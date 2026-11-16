@@ -32,7 +32,7 @@
 ## 현재 상태
 진행 중인 일만 적고, 병합하면 지웁니다(`docs/workflow.md` §3 마무리 2번). 병합된 일의 경과는 PR 본문, 결정 행([`decisions.md`](decisions.md)), git에 있습니다.
 
-* **H1 기준 문서 정리 #1168** (브랜치 `design/h1-doc-slimming-1168`, PR #1172, D131): 이 파일의 병합된 경과를 지우고, 통째로 대체된 결정 V35 원문을 [`decisions-history.md`](decisions-history.md)로 옮김. 이 파일이 크기 상한 아래로 내려와 docs-check가 면제를 지우라는 오류를 내며, 면제는 지휘가 지움.
+* **보상형 광고 열림 2시간 #1180** (브랜치 `design/unlock-2h-1180`, D132, 결정 V132): 열림 꼬리표 `params`에 `time`을 더하고 광고 권한 끝 "자정" 문구를 "광고 2시간"으로 고침. 컴포넌트 8.1.0.
 
 ## 기준 문서와 도구
 * 시각 정체성: [`visual-identity.md`](visual-identity.md)(시각에 관해서는 비공개 기록 06을 대체). 색 값의 출처는 [`tools/palette.py`](tools/palette.py)(`--check`로 대비 검사).
@@ -53,7 +53,7 @@
 * 워드마크를 바꾸면 `uv run --with fonttools==4.54.1 python docs/identity/design/tools/wordmark.py --font .suberpowers/fonts/GowunDodum-Regular.ttf --out-dir docs/identity/design/logo` 뒤 위 `app_icon.py`로 가로 조합 PNG를 다시 만듭니다.
 
 ## 다음 할 일
-1. **H1 #1168 마무리:** PR 병합 뒤 지휘가 docs-check 면제를 지우는지 봅니다.
+1. **#1180 마무리:** PR 병합 뒤 "현재 상태"에서 지웁니다.
 
 그 밖에는 대기합니다. 아래 일이 생기면 엽니다.
 2. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다.
