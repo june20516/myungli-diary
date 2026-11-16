@@ -161,3 +161,9 @@ def test_empty_keys_warn(ia: Ia) -> None:
     findings = check_ia(slots, ia)
     assert rule_ids(findings) == [RULE_EMPTY_KEYS]
     assert findings[0].severity == "warn"
+
+
+def test_store_slot_needs_no_ia_place(ia: Ia) -> None:
+    """스토어 슬롯은 앱 화면 밖(스토어 등록정보)이라 IA 자리를 묻지 않습니다(#1201)."""
+    slots = covering_slots(make_slot("store.subtitle", "store", ("subtitle",)))
+    assert check_ia(slots, ia) == []

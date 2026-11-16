@@ -157,3 +157,26 @@ def test_dangsin_is_error(rules: RuleSet) -> None:
     entry = make_entry("재물의 흐름이 당신에게 어떤 의미로 다가왔나요?")
     findings = check_sentence(entry, "care", rules, None, {})
     assert ("style.S6", "error") in [(f.rule_id, f.severity) for f in findings]
+
+
+def test_max_lines_measures_each_line(rules: RuleSet) -> None:
+    """줄 수 상한이 있으면 글자 수 상한은 줄마다 적용합니다(스토어 스크린샷 위 글, #1201)."""
+    assert check_sentence(make_entry("가나다\n라마바"), "info", rules, 3, {}, max_lines=2) == []
+    findings = check_sentence(make_entry("가나다\n라마바사"), "info", rules, 3, {}, max_lines=2)
+    assert [f.rule_id for f in findings] == ["style.length"]
+    assert "2째 줄" in findings[0].message
+
+
+def test_max_lines_limits_line_count(rules: RuleSet) -> None:
+    findings = check_sentence(make_entry("가\n나\n다"), "info", rules, 3, {}, max_lines=2)
+    assert [f.rule_id for f in findings] == ["style.length"]
+    assert "3줄" in findings[0].message
+
+
+def test_utf8_bytes_unit_counts_bytes(rules: RuleSet) -> None:
+    """App Store 키워드처럼 바이트로 재는 칸은 UTF-8 바이트 수를 상한과 견줍니다."""
+    entry = make_entry("사주,운세")  # 글자 5, 바이트 13
+    assert check_sentence(entry, "info", rules, 13, {}, length_unit="utf8_bytes") == []
+    findings = check_sentence(entry, "info", rules, 12, {}, length_unit="utf8_bytes")
+    assert [f.rule_id for f in findings] == ["style.length"]
+    assert "바이트" in findings[0].message

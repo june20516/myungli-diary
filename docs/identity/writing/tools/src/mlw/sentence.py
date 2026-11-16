@@ -5,7 +5,17 @@ from collections.abc import Mapping
 
 import regex
 
-from mlw.model import Detect, Entry, Finding, RuleSet, Severity, SlopRule, StyleRule
+from mlw.model import (
+    LENGTH_UNIT_BYTES,
+    LENGTH_UNIT_CHARS,
+    Detect,
+    Entry,
+    Finding,
+    RuleSet,
+    Severity,
+    SlopRule,
+    StyleRule,
+)
 from mlw.placeholders import parse, parse_tokens, strip_token_marks, substitute
 
 # 규칙 탐지용 정규화에서 자리표시자 자리에 들어가는 값입니다.
@@ -36,15 +46,40 @@ def normalize_for_detection(text: str) -> str:
     return substitute(strip_token_marks(text), lambda _placeholder: DETECTION_VALUE)
 
 
-def _rendered_length(text: str, longest_values: Mapping[str, str]) -> int | None:
-    """가장 긴 값으로 렌더한 글자 수입니다. 값이 없는 자리표시자가 있으면 None입니다.
+def _rendered_text(text: str, longest_values: Mapping[str, str]) -> str | None:
+    """가장 긴 값으로 렌더한 글입니다. 값이 없는 자리표시자가 있으면 None입니다.
 
-    용어 토큰의 `[[`, `]]`는 글자 수에 넣지 않습니다.
+    용어 토큰의 `[[`, `]]`는 글자 수에 넣지 않으므로 지웁니다.
     """
     text = strip_token_marks(text)
     if any(placeholder.key not in longest_values for placeholder in parse(text)):
         return None
-    return len(substitute(text, lambda placeholder: longest_values[placeholder.key]))
+    return substitute(text, lambda placeholder: longest_values[placeholder.key])
+
+
+def _measure(text: str, length_unit: str) -> int:
+    return len(text.encode("utf-8")) if length_unit == LENGTH_UNIT_BYTES else len(text)
+
+
+def _length_findings(
+    rendered: str, max_length: int | None, max_lines: int | None, length_unit: str
+) -> list[tuple[str, str]]:
+    """글자 수와 줄 수 문제의 (규칙, 메시지)입니다. 줄 수 상한이 있으면 글자 수 상한을 줄마다 적용합니다."""
+    unit = "바이트" if length_unit == LENGTH_UNIT_BYTES else "자"
+    if max_lines is None:
+        length = _measure(rendered, length_unit)
+        if max_length is not None and length > max_length:
+            return [(RULE_LENGTH, f"글자 수 {length}{unit}가 상한 {max_length}{unit}를 넘습니다")]
+        return []
+    lines = rendered.split("\n")
+    problems: list[tuple[str, str]] = []
+    if len(lines) > max_lines:
+        problems.append((RULE_LENGTH, f"줄 수 {len(lines)}줄이 상한 {max_lines}줄을 넘습니다"))
+    for number, line in enumerate(lines, start=1):
+        length = _measure(line, length_unit)
+        if max_length is not None and length > max_length:
+            problems.append((RULE_LENGTH, f"{number}째 줄 글자 수 {length}{unit}가 줄 상한 {max_length}{unit}를 넘습니다"))
+    return problems
 
 
 def _runs_in_ci(rule: SlopRule | StyleRule) -> bool:
@@ -61,8 +96,13 @@ def check_sentence(
     longest_values: Mapping[str, str],
     allowed: frozenset[str] = frozenset(),
     forbidden: frozenset[str] = frozenset(),
+    *,
+    max_lines: int | None = None,
+    length_unit: str = LENGTH_UNIT_CHARS,
 ) -> list[Finding]:
     """원고 한 문장을 검사합니다.
+
+    `max_lines`가 있으면 `max_length`를 줄마다 적용하고 줄 수도 봅니다. `length_unit`은 슬롯 명세의 같은 이름 필드입니다.
 
     `allowed`·`forbidden`은 슬롯 명세의 같은 이름 필드입니다. `allowed`의 규칙은 이 슬롯에서 건너뛰고,
     `forbidden`의 규칙은 `exempt_purposes`와 관계없이 적용합니다.
@@ -91,10 +131,9 @@ def check_sentence(
         if matches(rule.detect, entry.lang, text):
             findings.append(finding(rule.id, rule.severity, rule.name))
 
-    if max_length is not None:
-        length = _rendered_length(entry.text, longest_values)
-        if length is not None and length > max_length:
-            findings.append(
-                finding(RULE_LENGTH, "error", f"글자 수 {length}자가 상한 {max_length}자를 넘습니다")
-            )
+    if max_length is not None or max_lines is not None:
+        rendered = _rendered_text(entry.text, longest_values)
+        if rendered is not None:
+            for rule_id, message in _length_findings(rendered, max_length, max_lines, length_unit):
+                findings.append(finding(rule_id, "error", message))
     return findings

@@ -207,6 +207,9 @@ class ParamKind:
 
 # 레이아웃이 길이를 막지 않아 상한을 두지 않는 슬롯·키입니다(#191). None(아직 정하지 않음)과 구별합니다.
 UNBOUNDED: Final = "unbounded"
+# 글자 수를 재는 단위: 글자(기본) 또는 UTF-8 바이트(App Store 키워드처럼 바이트로 재는 칸, #1201)입니다.
+LENGTH_UNIT_CHARS: Final = "chars"
+LENGTH_UNIT_BYTES: Final = "utf8_bytes"
 # 언어별 글자 수 상한 값: 양의 정수, UNBOUNDED, None(미정)입니다.
 LengthLimit = int | Literal["unbounded"] | None
 
@@ -248,6 +251,10 @@ class Slot:
     key_max_length: dict[str, dict[str, LengthLimit]] = field(default_factory=dict)
     # 원고를 일부러 비워 둔 키와 언어, 그 이유입니다. 빠져도 error가 아니라 warn으로 보고합니다.
     pending: dict[str, dict[str, str]] = field(default_factory=dict)
+    # 최대 줄 수입니다. 있으면 글자 수 상한을 줄마다 적용합니다(스토어 스크린샷 위 글, #1201).
+    max_lines: int | None = None
+    # 글자 수를 재는 단위(LENGTH_UNIT_CHARS 또는 LENGTH_UNIT_BYTES)입니다.
+    length_unit: str = LENGTH_UNIT_CHARS
 
     def length_limit(self, lang: str, key: str | None = None) -> int | None:
         """검사에 쓸 글자 수 상한입니다. 미정(None)과 상한 없음(UNBOUNDED)은 둘 다 재지 않으므로 None입니다."""

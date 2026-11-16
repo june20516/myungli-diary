@@ -7,6 +7,7 @@ from mlw.arb_export import render_arb
 from mlw.ia import Ia, placements
 from mlw.model import (
     LANGS,
+    LENGTH_UNIT_BYTES,
     PARAM_KIND_LIST_PREFIX,
     UNBOUNDED,
     Detect,
@@ -17,6 +18,7 @@ from mlw.model import (
     RuleSet,
     Slot,
 )
+from mlw.store import LISTING_FILE, render_listing
 
 HEADER = "<!-- mlw gen-docs로 생성. 직접 고치지 않습니다 -->"
 RULE_STALE = "docs.stale"
@@ -111,7 +113,11 @@ def _render_slots(slots: Mapping[str, Slot], ia: Ia) -> str:
             f"`{key}` {_limits_text(by_lang, [lang for lang in LANGS if lang in by_lang])}"
             for key, by_lang in slot.key_max_length.items()
         ]
-        limits = "<br>".join([limits, *key_limits])
+        notes = [
+            *([f"줄마다, 최대 {slot.max_lines}줄"] if slot.max_lines is not None else []),
+            *(["UTF-8 바이트"] if slot.length_unit == LENGTH_UNIT_BYTES else []),
+        ]
+        limits = "<br>".join([limits, *key_limits, *notes])
         rows.append(
             (
                 slot.id,
@@ -183,6 +189,7 @@ def render_docs(
     docs = {name: render() for name, render in renderers.items()}
     for lang in LANGS:
         docs[f"{ARB_DIR}/app_{lang}.arb"] = render_arb(slots, entries, lang, ia.roles)
+    docs[LISTING_FILE] = render_listing(slots, entries)
     return docs
 
 

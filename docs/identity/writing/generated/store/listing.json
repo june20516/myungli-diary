@@ -1,0 +1,86 @@
+{
+  "ko": {
+    "store.app-name": {
+      "appName": "명리일기"
+    },
+    "store.subtitle": {
+      "subtitle": "오늘 일진을 내 사주에 맞춰 풀어 주는 일기"
+    },
+    "store.promotional-text": {
+      "promotionalText": "내 사주로 풀이한 오늘을 보고, 그날 있었던 일을 풀이 옆에 일기로 남겨요. 잘 풀리는 날과 조심할 날은 달력에서 미리 확인해요."
+    },
+    "store.keywords": {
+      "keywords": "사주,운세,만세력,일진,오늘의운세,사주풀이,명리학,용신,길흉,다이어리"
+    },
+    "store.short-description": {
+      "shortDescription": "같은 날이라도 각자의 오늘은 달라요. 내 사주로 매일의 일진을 풀어 드려요."
+    },
+    "store.description": {
+      "description": "같은 날이라도 각자의 오늘은 다릅니다.\n\n띠 하나로 보는 운세가 모두에게 같은 말을 건넨다면, 명리일기는 태어난 날과 시간으로 세운 내 사주 원국에 그날의 일진을 맞춰 봅니다. 명리일기가 당신에게 주는 한 문장은, 진짜 \"나의 이야기\"입니다.\n\n■ 오늘을 열어보고\n그날의 총운 한 문장과 날의 성격을 먼저 만납니다. 용신의 날인지, 귀인의 날인지 배지로 알려 드리고, 행운 색과 방향, 숫자, 집중하기 좋은 시간도 함께 담았습니다. 낯선 명리 용어는 눌러 보세요. 뜻과 오늘 그렇게 본 이유가 이어서 펼쳐집니다.\n\n■ 하루를 기록하고\n날마다 다른 질문 하나로 일기를 시작합니다. 하루에 여러 편을 써도, 지나간 날을 뒤늦게 적어도 괜찮습니다. 저장한 일기에는 사주 기운 태그가 붙어, 같은 태그의 기록을 모아 다시 읽을 수 있습니다. 좋았던 하루는 그날의 운세와 함께 기억해 두세요.\n\n■ 왜 그렇게 봤는지 궁금하다면\n풀이 한 문장 한 문장에 판정 근거가 있습니다. 궁통보감, 적천수, 삼명통회의 원문과 그 뜻을 함께 펼쳐 볼 수 있습니다.\n\n■ 중요한 일정이 있다면\n캘린더에서 잘 풀리는 날과 조심할 날을 미리 확인할 수 있습니다. 중요한 약속은 길일에 잡아 보세요. 날짜마다 그날의 길흉과 일정, 일기를 한자리에서 볼 수 있습니다.\n\n■ 나로 태어나서 어떻게 살아야 할까 고민될 때\n사주 원국과 오행 분포, 십성과 지장간, 12운성, 신살, 대운과 세운까지 내 사주를 표로 펼쳐 봅니다. 타고난 성향 풀이와 나를 돕는 기운도 함께 읽을 수 있습니다.\n\n■ 좋은 날에는\n오늘의 행운을 카드 한 장에 담아 친구와 나눠 보세요.\n\n\n*음력은 한국천문연구원 기준이며, 상세 계산 기준은 앱에서 확인할 수 있습니다."
+    },
+    "store.screenshot.caption": {
+      "today": "같은 날도\n내 사주로 보면 달라요",
+      "evidence": "한 문장 한 문장\n근거 있는 해석",
+      "calendar": "중요한 약속은\n길일에 잡아 보세요",
+      "daySheet": "좋았던 하루를\n운세와 함께 기억해요",
+      "mySaju": "사주에 비추어\n나를 다시 알아봐요",
+      "share": "내 행운을\n친구와 나눠요"
+    }
+  },
+  "en": {
+    "store.app-name": {
+      "appName": "Myungli Diary"
+    },
+    "store.subtitle": {
+      "subtitle": "Daily Readings for Your Chart"
+    },
+    "store.promotional-text": {
+      "promotionalText": "See today read for your own chart, then keep what happened beside it in your diary. Check smooth days and careful days ahead of time in the calendar."
+    },
+    "store.keywords": {
+      "keywords": "saju,korean astrology,four pillars,bazi,horoscope,fortune,daily fortune,lunar calendar,journal"
+    },
+    "store.short-description": {
+      "shortDescription": "The same day is different for everyone. See each day read for your own chart."
+    },
+    "store.description": {
+      "description": "Even on the same day, everyone's today is different.\n\nIf a zodiac-sign horoscope tells everyone the same thing, Myungli Diary sets the day's energy against your natal chart, built from the date and time you were born. The line it gives you is truly \"your own story.\"\n\n■ Open today\nFirst you meet the day's one-line reading and the character of the day. A badge tells you whether it's a Day in your favor or a Day of helpers, along with your lucky color, direction, number, and the best hours to focus. Tap any unfamiliar term to see what it means and why today reads that way.\n\n■ Write down your day\nStart each entry with a question that changes every day. Write several entries a day, or catch up on days that have passed. Saved entries get chart-energy tags, so you can gather and reread entries with the same tag. Keep your good days together with that day's reading.\n\n■ If you wonder why\nEvery sentence of a reading has its basis. Open the original passages from Gungtong Bogam, Jeokcheonsu, and Sammyeong Tonghoe along with what they mean.\n\n■ When something important is coming up\nCheck smooth days and careful days ahead of time in the calendar. Set big plans on auspicious days. Each date shows that day's fortune, plans, and diary in one place.\n\n■ When you wonder how to live as who you are\nLay out your whole chart in tables: natal chart and five elements, ten gods and hidden stems, 12 stages, shinsal, and your 10-year and yearly cycles. You can also read about your inborn nature and the energy that helps you.\n\n■ On good days\nPut today's luck on a single card and share it with friends.\n\n\n*The lunar calendar follows the Korea Astronomy and Space Science Institute. See the app for calculation details."
+    },
+    "store.screenshot.caption": {
+      "today": "The Same Day Reads\nDifferently for You",
+      "evidence": "Every Sentence,\nBacked by the Classics",
+      "calendar": "Set Big Plans\non Auspicious Days",
+      "daySheet": "Remember Good Days\nWith Their Readings",
+      "mySaju": "See Yourself Anew\nThrough Your Chart",
+      "share": "Share Your Luck\nWith Friends"
+    }
+  },
+  "ja": {
+    "store.app-name": {
+      "appName": "命理日記"
+    },
+    "store.subtitle": {
+      "subtitle": "今日の干支を、あなたの命式に合わせて読み解く日記"
+    },
+    "store.promotional-text": {
+      "promotionalText": "自分の命式で読み解いた今日を見て、その日の出来事は解説の横に日記として残しましょう。うまく運ぶ日と気をつける日は、カレンダーで前もって確かめられます。"
+    },
+    "store.keywords": {
+      "keywords": "四柱推命,占い,万年暦,干支,今日の運勢,命式,用神,吉凶,日記"
+    },
+    "store.short-description": {
+      "shortDescription": "同じ日でも、一人ひとりの今日は違います。あなたの命式で毎日の干支を読み解きます。"
+    },
+    "store.description": {
+      "description": "同じ日でも、一人ひとりの今日は違います。\n\n干支ひとつで見る占いが誰にでも同じ言葉をかけるなら、命理日記は生まれた日と時間から立てたあなたの命式に、その日の干支を重ねて読みます。命理日記があなたに届ける一文は、本当の「わたしの物語」です。\n\n■ 今日を開いたら\nその日の総合運の一文と、日の性格にまず出会います。用神の日か、貴人の日かをバッジでお知らせし、ラッキーカラーと方角、数字、集中しやすい時間も一緒に載せています。知らない命理の用語はタップしてみてください。意味と、今日そう読んだ理由が続けて開きます。\n\n■ 一日を記録したら\n日ごとに変わる問いひとつから日記を始めます。一日に何編書いても、過ぎた日を後から書いてもかまいません。保存した日記には命式の気のタグが付き、同じタグの記録をまとめて読み返せます。良かった一日は、その日の運勢と一緒に残しておきましょう。\n\n■ なぜそう読んだのか気になったら\n解説の一文一文に判定の根拠があります。窮通宝鑑、滴天髄、三命通会の原文とその意味を一緒に開いて読めます。\n\n■ 大切な予定があるなら\nカレンダーで、うまく運ぶ日と気をつける日を前もって確かめられます。大切な約束は吉日に決めましょう。日付ごとに、その日の吉凶と予定、日記をひとつの場所で見られます。\n\n■ 自分らしく生きるにはと迷ったとき\n命式と五行の分布、通変星と蔵干、十二運、神殺、大運と歳運まで、あなたの命式を表で広げて見られます。生まれ持った性向の解説と、自分を助ける気も一緒に読めます。\n\n■ いい日には\n今日の幸運をカード一枚にのせて、友だちとシェアしましょう。\n\n\n※旧暦は韓国天文研究院の基準です。詳しい計算の基準はアプリで確認できます。"
+    },
+    "store.screenshot.caption": {
+      "today": "同じ日でも\n命式で見ると違う",
+      "evidence": "一文一文に\n根拠のある解釈",
+      "calendar": "大切な約束は\n吉日に決めましょう",
+      "daySheet": "良かった一日は\n運勢と一緒に日記へ",
+      "mySaju": "命式に照らして\n自分を見つめ直す",
+      "share": "あなたの幸運を\n友だちにシェア"
+    }
+  }
+}

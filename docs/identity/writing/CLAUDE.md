@@ -70,6 +70,7 @@
   * ui 원고는 `content/<lang>/ui.yaml`(en·ja는 원어민 검수 전 초안), ARB는 `generated/arb/app_<lang>.arb`(`mlw gen-docs`). 용어 한자는 언어와 상관없이 `content/hanja.yaml` 한 벌입니다.
   * ui 키는 IA id의 lowerCamelCase + 숫자·상태 이름(#90). D77로 IA에 올린 기존 문구는 키를 바꾸지 않고 `ui.*` 슬롯에 `ia`로 적습니다(W20 개정, W33).
   * 글자 수 상한은 design `lengths.md` 값이고 테스트가 대조합니다(W26). 상한 없음은 `unbounded`, 확인 창은 키별 상한 `key_max_length`, design 측정 전은 `null`입니다.
+* 스토어 등록정보: 원고 `content/<lang>/store.yaml`, 슬롯 `slots/store/`, 업로드용 `generated/store/listing.json`(W80, `guide/store-copy.md`)
 * 생성 문서: `generated/`(슬롯 목록, IA 대응표, ARB 등), 라운드 기록: `artifacts/`, 설계·결정: `specs/`, `plans/`, `decisions.md`
 * 결정은 `decisions.md`(W#)입니다. 통째로 대체된 결정의 원문은 `decisions-history.md`에 있습니다. 지휘가 정한 것 중 writing에 닿는 것: D57(문장 유형은 총운 슬롯만), D59(콘텐츠 렌더는 server, ARB는 app), D60(evidence 잠금), D62(아침 알림 호칭 없음), D66(server 웹 페이지 문구도 content 슬롯), D70~D72(ja 용어 근거, 계산 기준 표현, 부정 신호와 잠금), D74(공개 저장소), D76(오늘 화면 대표 태그 칩), D77(ui 문구를 IA 슬롯으로 둘지의 기준), D78(규칙 정합성 점검: 일부 처리 Issue는 `참고 #`, D77 문구는 ARB 키 유지), D93(사용자에게 보이는 글에 긴 대시·범위 대시·가운뎃점 금지, `style.S9`).
 * 요청함은 GitHub Issues입니다(D44, `docs/workflow.md` §5.2).
@@ -77,7 +78,7 @@
 ## 현재 상태
 * 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 * 여기에는 진행 중인 일(브랜치, 열린 PR, 막힌 것)만 적고, 병합하면 지웁니다(`docs/workflow.md` §3 마무리 2번). 병합된 일의 경과는 PR 본문, `decisions.md`, git에 있습니다.
-* **진행 중:** drift #1183(IA 보상 고지 역할 변경 #1185) ARB 재생성, 브랜치 `writing/drift-1183-arb`.
+* **진행 중:** 스토어 소개 문구와 스크린샷 위 글(#1201, D133, W80, 라운드 R49), 브랜치 `writing/store-listing-1201`.
 
 ## 다음 할 일
 1. **열린 `drift` Issue가 있으면 먼저 맞춥니다**(`gh issue list --label drift --label to:writing`, `docs/workflow.md` §6.1).

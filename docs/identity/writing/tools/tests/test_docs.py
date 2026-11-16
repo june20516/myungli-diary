@@ -21,6 +21,7 @@ FILES = {
     "arb/app_ko.arb",
     "arb/app_en.arb",
     "arb/app_ja.arb",
+    "store/listing.json",
 }
 
 
@@ -124,3 +125,12 @@ def test_slot_doc_shows_unbounded_and_key_limits(rules: RuleSet, slots: dict[str
     [row] = [line for line in docs["slot-catalog.md"].splitlines() if line.startswith("| ui.action.button |")]
     assert "ko 10, en 상한 없음, ja -" in row
     assert "`actionClose` ko 4" in row
+
+
+def test_slot_doc_shows_line_and_byte_limits(rules: RuleSet, slots: dict[str, Slot]) -> None:
+    """스토어 슬롯의 줄 수 상한과 바이트 단위가 슬롯 목록에 보입니다(#1201)."""
+    slot = dataclass_replace(slots["ui.action.button"], max_lines=2, length_unit="utf8_bytes")
+    docs = render_docs(rules, {**slots, slot.id: slot}, load_ia(IA_FILE), load_content(CONTENT_DIR))
+    [row] = [line for line in docs["slot-catalog.md"].splitlines() if line.startswith("| ui.action.button |")]
+    assert "줄마다, 최대 2줄" in row
+    assert "UTF-8 바이트" in row

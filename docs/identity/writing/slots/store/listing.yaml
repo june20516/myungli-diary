@@ -1,0 +1,142 @@
+# 스토어 등록정보(#1201, D133). App Store와 Google Play 콘솔 칸마다 슬롯 하나이고, 키는 업로드 JSON의 칸 이름입니다.
+# 앱 화면 밖이라 IA 자리가 없고 ARB로 나가지 않습니다. 원고는 content/<lang>/store.yaml, 업로드용은 generated/store/listing.json.
+# 상한은 스토어 콘솔 값이고, 스크린샷 위 글은 design 스토어 명세(docs/identity/design/store/, V133) 값입니다.
+
+- id: store.app-name
+  where: "App Store, Google Play 앱 이름(언어별)"
+  purpose: info
+  user_state: "스토어 검색 결과와 앱 페이지에서 앱 이름을 봅니다."
+  structure: "앱 이름 그대로(W17). 설명이나 낱말을 덧붙이지 않습니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: 30, en: 30, ja: 30}
+  keys:
+    - appName
+  examples:
+    good:
+      - {lang: ko, key: appName, text: "명리일기", why: "앱 이름(W17)", source: writing}
+    bad:
+      - {lang: ko, text: "명리일기: 사주 운세 만세력", why: "이름 칸에 검색어를 덧붙임(스토어 정책상 키워드 나열 금지)", source: writing}
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "스토어가 읽습니다."
+
+- id: store.subtitle
+  where: "App Store 부제(앱 이름 아래 한 줄)"
+  purpose: info
+  user_state: "검색 결과에서 앱 이름 아래 한 줄로 무엇을 해 주는지 봅니다."
+  structure: "명사로 맺는 한 줄. 태그라인(W49)과 같은 문장입니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 4}
+  max_length: {ko: 30, en: 30, ja: 30}
+  keys:
+    - subtitle
+  examples:
+    good:
+      - {lang: ko, key: subtitle, text: "오늘 일진을 내 사주에 맞춰 풀어 주는 일기", why: "태그라인 그대로(라운드 R49 A)", source: round-R49}
+    bad:
+      - {lang: ko, text: "사주 일진 풀이, 길흉 달력, 일기", why: "기능 나열(라운드 R49 C)", source: round-R49}
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "스토어가 읽습니다."
+
+- id: store.promotional-text
+  where: "App Store 홍보 문구(설명 위, 심사 없이 바꿀 수 있음)"
+  purpose: info
+  user_state: "앱 페이지 설명 위에서 처음 두세 줄을 읽습니다."
+  structure: "두 문장. 내 사주로 본 오늘과 그 옆의 일기를 앞에, 달력을 뒤에 둡니다(라운드 R49, 일기를 더 중요하게)."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 4}
+  max_length: {ko: 170, en: 170, ja: 170}
+  keys:
+    - promotionalText
+  examples:
+    good:
+      - {lang: ko, key: promotionalText, text: "내 사주로 풀이한 오늘을 보고, 그날 있었던 일을 풀이 옆에 일기로 남겨요. 잘 풀리는 날과 조심할 날은 달력에서 미리 확인해요.", why: "라운드 R49 D, 일기를 달력보다 앞에", source: round-R49}
+    bad:
+      - {lang: ko, text: "같은 날이라도 사주가 다르면 오늘도 달라요. 왜 그렇게 봤는지 원전 근거까지 보여 드려요.", why: "근거를 앞세워 일기가 빠짐(라운드 R49 A)", source: round-R49}
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "스토어가 읽습니다."
+
+- id: store.keywords
+  where: "App Store 키워드(쉼표 구분, 검색에만 쓰이고 보이지 않음)"
+  purpose: info
+  user_state: "보이지 않습니다. App Store 검색 색인에 쓰입니다."
+  structure: "쉼표로만 구분하고 띄어쓰기를 넣지 않습니다. 앱 이름과 부제의 낱말, 앱에 없는 기능(궁합 등), 경쟁 앱 이름은 넣지 않습니다."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
+  max_length: {ko: 100, en: 100, ja: 100}
+  length_unit: utf8_bytes
+  keys:
+    - keywords
+  examples:
+    good:
+      - {lang: ko, key: keywords, text: "사주,운세,만세력,일진,오늘의운세,사주풀이,명리학,용신,길흉,다이어리", why: "앱에 있는 것만, 이름과 부제 낱말 제외", source: round-R49}
+    bad:
+      - {lang: ko, text: "사주, 운세, 궁합, 토정비결", why: "쉼표 뒤 띄어쓰기로 바이트 낭비, 앱에 없는 기능", source: writing}
+  a11y:
+    truncation: "보이지 않는 칸입니다."
+    screen_reader: "읽지 않습니다."
+
+- id: store.short-description
+  where: "Google Play 짧은 설명(검색 결과와 앱 페이지 첫 줄)"
+  purpose: info
+  user_state: "검색 결과에서 한두 문장으로 무엇을 해 주는지 봅니다."
+  structure: "두 문장. 같은 날이라도 사람마다 다른 오늘(개인화)을 먼저, 그다음 무엇을 해 주는지."
+  tone: {진지: 3, 격식: 2, 존중: 4, 담백: 4}
+  max_length: {ko: 80, en: 80, ja: 80}
+  keys:
+    - shortDescription
+  examples:
+    good:
+      - {lang: ko, key: shortDescription, text: "같은 날이라도 각자의 오늘은 달라요. 내 사주로 매일의 일진을 풀어 드려요.", why: "사용자 문장(라운드 R49)", source: round-R49}
+    bad:
+      - {lang: ko, text: "내 사주로 풀이한 오늘, 한 달 길흉 달력, 그날의 일정과 일기를 한 앱에서 봐요.", why: "기능 나열(라운드 R49 C)", source: round-R49}
+  a11y:
+    truncation: "잘리지 않게 씁니다."
+    screen_reader: "스토어가 읽습니다."
+
+- id: store.description
+  where: "App Store 설명, Google Play 자세한 설명(두 스토어 같은 글)"
+  purpose: info
+  user_state: "앱 페이지에서 더 읽기를 눌러 앱이 무엇을 해 주는지 봅니다."
+  structure: "개인화 약속 한 줄로 열고, 사용자가 앱을 찾는 순간을 ■ 제목으로 둔 짧은 문단들. 기능을 나열하지 않고, 의무가 아닌 결제, 광고, 언어, 주의 문구는 넣지 않습니다. 합니다체(라운드 R49 사용자 판)."
+  tone: {진지: 3, 격식: 3, 존중: 4, 담백: 3}
+  max_length: {ko: 4000, en: 4000, ja: 4000}
+  # 스토어에는 부를 호칭이 없어 "당신"(style.S6)을 허용합니다. 사용자가 쓴 판의 표현입니다(라운드 R49).
+  allowed: [style.S6]
+  keys:
+    - description
+  examples:
+    good:
+      - {lang: ko, key: description, text: "■ 중요한 일정이 있다면\n캘린더에서 잘 풀리는 날과 조심할 날을 미리 확인할 수 있습니다. 중요한 약속은 길일에 잡아 보세요.", why: "기능 이름 대신 쓰는 순간을 제목으로(사용자 판)", source: round-R49}
+    bad:
+      - {lang: ko, text: "[달력]\n• 한 달 길흉을 날짜 칸 색으로 보여 드립니다\n• 음력 날짜, 절기, 내 일정을 같은 달력에서 볼 수 있습니다", why: "기능 나열(사용자: 우리가 했던 걸 나열하지 말고)", source: round-R49}
+  a11y:
+    truncation: "스크롤 본문입니다."
+    screen_reader: "스토어가 읽습니다."
+
+- id: store.screenshot.caption
+  where: "App Store, Google Play 스크린샷 위 글(design 스토어 명세 V133, 장면 6장)"
+  select: "키는 design store.json scenes[].id(today, evidence, calendar, daySheet, mySaju, share)이고 app 생성 명령이 장면에 맞춰 넣습니다. 줄바꿈은 원고의 줄바꿈 그대로입니다."
+  purpose: info
+  user_state: "스토어에서 스크린샷을 넘기며 화면 위 한두 줄만 읽습니다. 앞 세 장이 검색 결과에 보입니다."
+  structure: "최대 두 줄. 장면 하나에 한 가지만, 기능 이름 나열 대신 사용자가 얻는 것이나 할 일로 씁니다. 느낌표는 쓰지 않습니다."
+  tone: {진지: 2, 격식: 2, 존중: 4, 담백: 3}
+  max_length: {ko: 14, en: 23, ja: 11}
+  max_lines: 2
+  keys:
+    - today
+    - evidence
+    - calendar
+    - daySheet
+    - mySaju
+    - share
+  examples:
+    good:
+      - {lang: ko, key: calendar, text: "중요한 약속은\n길일에 잡아 보세요", why: "사용자 문장, 할 일로(라운드 R49)", source: round-R49}
+      - {lang: ko, key: share, text: "내 행운을\n친구와 나눠요", why: "사용자 문장(라운드 R49)", source: round-R49}
+    bad:
+      - {lang: ko, text: "그날 판정 옆에\n일정과 일기를 함께", why: "기능 셋을 한 장에 나열(라운드 R49, 다 별로)", source: round-R49}
+      - {lang: ko, text: "왜 그런 날인지\n원전 근거까지 보여요", why: "주체가 애매한 피동 '보여요'(라운드 R49)", source: round-R49}
+      - {lang: ko, text: "내 사주를 아는 일기장이\n오늘을 알려 줘요", why: "사물 주어 의인화 slop.P3(라운드 R49 대조군)", source: round-R49}
+  a11y:
+    truncation: "줄마다 상한 안. 넘치면 app 생성 명령이 실패합니다(store.json caption.overflow)."
+    screen_reader: "이미지 안 글이라 읽지 않습니다."
