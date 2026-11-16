@@ -11,7 +11,7 @@ sql_max_connections = 100
 # 공개 주소가 아직 server에 연결되지 않아(GET /health 404, 2026-11-04) uptime check는 출시 연결 때 켭니다(S133).
 uptime_check_enabled = false
 test_login_enabled   = false
-billing_enabled      = true # AD_FREE_PRODUCT_IDS는 App Store, Play 상품의 RevenueCat 상품 id(prod…)입니다(S124).
+billing_enabled      = true # AD_FREE_PRODUCT_IDS는 Play, App Store 상품의 RevenueCat 상품 id입니다(S124, E12). RevenueCat 프로젝트는 staging과 같습니다.
 
 # 공개 값만 둡니다(spec §5). 빈 값은 아직 오지 않은 값이고, 필수 값이 비어 있으면 server 배포를 건너뜁니다.
 # TRUSTED_PROXY_HOPS=2: 공개 주소(Firebase Hosting)로 온 요청의 X-Forwarded-For가 [보낸 사람, Hosting]이라 오른쪽 두 번째가
@@ -20,7 +20,7 @@ billing_enabled      = true # AD_FREE_PRODUCT_IDS는 App Store, Play 상품의 R
 support_mail_enabled = false
 
 server_settings = {
-  AD_FREE_PRODUCT_IDS     = ""
+  AD_FREE_PRODUCT_IDS     = "prod2559315a97,prod083797223e"
   ANDROID_APP_PACKAGE     = "app.myungli.diary"
   ANDROID_CERT_SHA256     = "69:6D:33:B9:F7:41:1A:76:9A:70:23:C3:EC:F0:D6:36:B1:17:33:DC:D7:BC:7D:DB:78:FA:43:9B:4F:B3:9A:93"
   ANDROID_STORE_URL       = "https://play.google.com/store/apps/details?id=app.myungli.diary"
@@ -37,7 +37,7 @@ server_settings = {
   KAKAO_APP_KEY           = "8229ec22910b377c40ea71b1081c2a66"
   LINE_CHANNEL_ID         = "2012273411"
   LOG_LEVEL               = "info"
-  REVENUECAT_PROJECT_ID   = ""
+  REVENUECAT_PROJECT_ID   = "proj43a24b27"
   SUPPORT_MAIL_FROM       = "명리일기 <noreply@myungli-diary.app>"
   SUPPORT_MAIL_TO         = "support@myungli-diary.app"
   TOKEN_ENCRYPTION_KEY_ID = "tok-2026-1"
