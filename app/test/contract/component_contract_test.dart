@@ -2460,6 +2460,22 @@ void main() {
       expect(depthLink['uses'], containsAll(['unlock.glint', 'unlock.mark']));
     });
 
+    test('콘텐츠 문장의 한자는 font.family.hanja로 그립니다(8.2.0, V134)', () {
+      // 앱은 네 자리 모두 withHanjaFallback으로 붙입니다(위젯 테스트가 그린 글꼴을 확인).
+      const hanja = '{font.family.hanja}';
+      final text = _map(_map(specs['sentence-block']!['parts'])['text']);
+      expect(text['fontFallback'], hanja);
+      final sheet = _map(_map(specs['depth-link']!['parts'])['evidenceSheet']);
+      expect(_map(_map(sheet['target'])['sentence'])['fontFallback'], hanja);
+      expect(
+        _map(_map(_elements()['lock.veil'])['lead'])['fontFallback'],
+        hanja,
+      );
+      // 오늘 이유 줄은 segments가 sentence-block이라 같은 대체를 씁니다.
+      final reason = _map(_map(specs['day-character']!['parts'])['reason']);
+      expect(reason['segments'], 'sentence-block');
+    });
+
     test('sentence-block unlocked: 반짝임, 동작 줄이기면 세로선만', () {
       final unlocked = _map(
         _map(_map(specs['sentence-block']!['states'])['unlocked'])['parts'],
