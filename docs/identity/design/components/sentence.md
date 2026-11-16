@@ -78,7 +78,7 @@ server는 콘텐츠 문장을 조각 배열로 보냅니다(server S9, REST `Ren
 
 **근거가 여럿일 때(#218, app A42):** 한 슬롯의 `evidence[]`가 여러 개면 판정 근거는 항목마다 `sentence-block` `body` 문단으로 순서대로 쌓고, 원전 인용은 항목마다 뜻, 원문, 출처 묶음을 따로 둡니다(결정 V113 전에는 `bg.base` 상자). 판정 근거 문단 사이는 `space.12`(풀이 시트 `todayReason`과 같은 값), 원전 묶음 사이는 `space.16`이고, 문장이 없는 항목은 건너뜁니다(`repeat`). 원전마다 출처가 달라 한 묶음에 모으지 않습니다.
 
-**원전 인용의 한자:** 문장 글꼴(고운돋움)에는 한자 글리프가 없습니다. 한글은 문장 글꼴 그대로 두고 한자만 `font.family.hanja`로 그립니다(`fontFallback`, Flutter `fontFamilyFallback`). ja 문장 글꼴(Zen Maru Gothic)은 한자가 있어 그대로입니다.
+**콘텐츠 문장의 한자(결정 V113, V134):** 문장 글꼴(ko 고운돋움, en Pretendard)에는 한자 글리프가 없습니다. 원전 인용뿐 아니라 판정 근거, 내 사주에서는, 대상 문장에도 "巳월", "申" 같은 한자가 섞입니다. 그래서 server 콘텐츠 문장을 그리는 자리는 모두 한글은 문장 글꼴 그대로 두고 한자만 `font.family.hanja`로 그립니다(`fontFallback`, Flutter `fontFamilyFallback`, 토큰의 대체 목록 포함). 자리는 `sentence-block` 글자 전체, `segments`가 `sentence-block`인 자리, 근거 시트 대상 문장, `lock.veil` 앞부분, 원전입니다. 시스템 글꼴에 맡기지 않습니다: 같은 시트 안에서 원전 한자와 모양이 달라지고, 시스템 글꼴이 없는 렌더(golden, 스토어 이미지)에서는 빈 네모가 됩니다. 한자가 없는 문장은 모양이 같고, ja 문장 글꼴(Zen Maru Gothic)은 한자가 있어 그대로입니다.
 
 **빈 구역:** `unlocked`에서 본문이 없는 구역(판정 근거·원전·내 사주에서는)은 제목까지 그리지 않고 자리도 남기지 않습니다. `locked`의 `lock.veil`은 본문을 내려받기 전이라 지금처럼 그립니다.
 
