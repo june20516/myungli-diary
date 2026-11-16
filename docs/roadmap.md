@@ -28,7 +28,7 @@
 | I1 | 통합 1: server ↔ core 실제 gRPC 호출 | 지휘 판단 | C3, S2 | I3, T1 | **완료** |
 | I2 | 통합 2: app ↔ server. app E2E(A13)를 staging http 모드로 그대로 돌려 검증합니다(#87) | 지휘 판단 | A2, S3 | I3, T1 | **완료** |
 | DS1 | **디자인 시스템 재정비(D107):** 공개 디자인 시스템 레퍼런스 조사 → 규칙(간격, 아이콘, 목록 줄, 버튼 조합, 화면 묶음과 섹션 제목, 눌림, 설명 열기, 시트, 확인 창, 로딩, 전환, 키보드) → 화면 결정 시안(D105) → IA, 컴포넌트 계약, 원고 → app 일괄 구현. 검수 대장 F-001~F-031 | 지휘 + design + writing + app | 검수 회차1 | H1, T1 | **완료** (검수 회차2와 빌드 7 항목 F-032~F-058 모두 끝남, 2026-11-14) |
-| H1 | **기준 문서 정리:** 세션이 읽는 문서(`CLAUDE.md`, 결정 로그, 로드맵, 계약 목록)의 앞쪽은 경과 없는 지금 사실, 경과는 뒤쪽이나 별도 파일로 옮기고 2차 참조로 잇기. 처음 읽는 문서 크기 상한(D131) | 지휘 + 각 단위 | 검수 피드백 회차(`docs/review/`) | Q1 | **진행 중** (core, server, writing, design 정리 병합. app #1166 남음. [spec](specs/2026-11-13-h1-doc-slimming-design.md), [계획](plans/2026-11-14-h1-doc-slimming.md)) |
+| H1 | **기준 문서 정리:** 세션이 읽는 문서(`CLAUDE.md`, 결정 로그, 로드맵, 계약 목록)의 앞쪽은 경과 없는 지금 사실, 경과는 뒤쪽이나 별도 파일로 옮기고 2차 참조로 잇기. 처음 읽는 문서 크기 상한(D131) | 지휘 + 각 단위 | 검수 피드백 회차(`docs/review/`) | Q1 | **완료** (세션 시작 때 읽는 양 53~64% 줄임, [spec](specs/2026-11-13-h1-doc-slimming-design.md) §7) |
 | Q1 | **T1 전 보안 점검:** 인프라, 배포 경로, server, 엔진, app, 로컬 값 전반. 발견 상세는 비공개 저장소에만(D74). 관문: Critical과 High 0. 준비 메모 [`docs/specs/2026-10-30-security-review-design.md`](specs/2026-10-30-security-review-design.md) | 지휘 + 각 단위 + 독립 점검 | 검수 피드백 회차, H1, staging 기동(P9) | T1 | 시작 전 |
 | O1 | **관측:** 앱 크래시(Crashlytics 보고 확인, 심볼 업로드), server와 인프라 알림(5xx, 지연, 인스턴스 상한, DB, Job 실패), 외부 uptime check, 예산 알림. 준비 메모 [`docs/specs/2026-10-30-capacity-observability-design.md`](specs/2026-10-30-capacity-observability-design.md) | 지휘 + server + app | staging 기동(P9) | T1 | **완료** |
 | T1 | **비공개 테스트: 테스트용 클라우드에 server와 엔진을 올리고, 테스트 빌드를 배포해 테스터가 실제로 써 봅니다** ① 테스트 인프라: GCP staging 프로젝트, 도메인과 DNS, 비밀 값(외부 준비물 E4, E6~E12) ② server와 엔진 staging 배포(server P9, 엔진 실행 조건 #79). ①②는 I2가 staging에서 app E2E를 돌릴 때 먼저 세우고 T1에서 그대로 씁니다 ③ 테스트 빌드 배포: iOS TestFlight, Android Play 비공개 테스트 트랙(E2, E3) ④ 테스터 초대와 사용: Play 새 개인 계정 조건(테스터 12명 이상이 14일 연속) | 지휘 + server + app + 사용자 | I1, I2, Q1, O1 | I4(Play 비공개 테스트 의무를 이 단계에서 채움), E15(D92: 앱을 받아 본 뒤 사업자등록) | 시작 전 |
@@ -42,9 +42,9 @@
 ## 현재 진행 순서 (2026-11-14 기준)
 지휘 세션이 상태가 바뀔 때마다 고칩니다. 위 표의 선행 조건을 지금 상태에 대입한 결과입니다. 지난 순서는 [`roadmap-history.md`](roadmap-history.md)에 있습니다.
 
-* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금 열린 drift: server #1150(엔진 2026.11.9 따라잡기, PR #1159 병합, `main` 검사 통과 때 닫힘).
+* **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금 열린 drift: 없음(2026-11-16).
 * **동시에 도는 단위 세션은 둘까지입니다**(D78). 단위 PR은 사용자가 auto-merge를 걸어 두면 검사 통과 때 병합됩니다(D100 ②). CI는 `gh run watch` 없이 60초 이상 간격으로 확인합니다.
-* **목표는 T1(비공개 테스트)입니다. 가장 긴 경로:** H1(기준 문서 정리) → bootstrap 묶음 apply(D103) → Q1(보안 점검) → T1. DS1은 검수 회차2와 빌드 7 항목까지 끝났습니다.
+* **목표는 T1(비공개 테스트)입니다. 가장 긴 경로:** bootstrap 묶음 apply(D103) → Q1(보안 점검) → T1. DS1은 검수 회차2와 빌드 7 항목까지 끝났습니다.
 * **실기기:** 빌드 8(app #1162 기록)로 빌드 7 검수 반영(F-053~F-058)을 확인합니다.
 * **staging 상태:** server(REST 1.13.1), 엔진(ruleset 2026.11.9), Test Store 결제(D99), AdMob SSV(S126), health(S127), 미리 계산(S128), 아침 알림(S129), O1 알림(S133), 문의 메일(S134), 클라이언트 IP `TRUSTED_PROXY_HOPS=2`(S135), 런타임 DB 권한 분리(S137), 법적 문서 게시(사업자 정보는 server가 로컬 값으로 채움, D126)까지 배포됐습니다. prod 엔진도 2026.11.1입니다. prod server는 설정이 비어 배포를 건너뛰므로, 그동안 생기는 server prod 승인 대기는 지휘가 취소합니다. staging E2E는 `app/tool/patrol_staging.sh`로 돌리며, 실행마다 `support@`로 `[E2E]` 문의 메일이 한 통 옵니다.
 * **2026-12-15: Cloud SQL tier와 예산 점검(#903, 사용자 일정).** 그날 활성 사용자와 알림 켠 사용자 추이, L1 측정 결과를 보고 1월 최고 부하(L-1월) 전에 prod tier를 올릴지와 지출 범위를 사용자가 정합니다. I4가 1월 뒤로 가면 "I4 2주 전"으로 옮깁니다. 금액은 비공개 L1 리포트에 있습니다(D74).
@@ -54,9 +54,8 @@
 
 | 순서 | 담당 | 할 일 | 끝나면 풀리는 것 |
 | --- | --- | --- | --- |
-| 1 | app, 지휘 | H1 마무리: app #1166, 면제 지우기, 다시 재기 | bootstrap |
-| 2 | 사용자 + 지휘 | bootstrap 묶음 apply(D103) | Q1 |
-| 3 | 지휘 + 각 단위 | Q1 보안 점검 | T1 |
+| 1 | 사용자 + 지휘 | bootstrap 묶음 apply(D103) | Q1 |
+| 2 | 지휘 + 각 단위 | Q1 보안 점검 | T1 |
 | 뒤 | 각자 | core #59, writing #531(MVP 밖), server #794(staging 테스트 연결), #817(L1 후속) | 빈 줄이 생길 때 |
 | 관문 | 사용자 | 빌드 8 확인, 테스터 이메일 12개(#535) | T1 |
 | 2026-12-15 | 사용자 + 지휘 | Cloud SQL tier와 예산 점검(#903) | I4(1월 최고 부하) |
