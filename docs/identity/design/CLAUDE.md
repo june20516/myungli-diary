@@ -25,6 +25,7 @@
 | MVP 화면 목록 (IA, D39) | **사용** (V2의 선행 조건) | 지휘 |
 | 디자인 토큰 (`tokens/`) | **제공** (V1 freeze, 그 뒤는 추가만) | app |
 | 컴포넌트 명세 (`components/`) | **제공** | app |
+| 스토어 이미지 명세 (`store/store.json`) | **제공** | app, writing |
 | 글자 수 상한 | **주고받음** (요청함) | writing |
 
 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.

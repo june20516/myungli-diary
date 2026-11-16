@@ -18,7 +18,7 @@
 * `store/README.md`: 설명과 글자 수 상한 표(writing이 읽음).
 * `tools/store.py`: `store.json` 검사와 상한 계산. 저장소 루트에서 `python3 docs/identity/design/tools/store.py`(검사), `--font-dir .suberpowers/fonts`면 상한을 재어 README 표와 대조합니다.
 * `tools/test_store.py`: 위 검사의 테스트. 글꼴이 없으면 상한 대조만 skip(CI는 글꼴을 받음).
-* 계약 목록(`docs/contracts/README.md`) 행은 지휘가 정합니다(PR 본문으로 물음). 그 전까지 `store.json`의 `version`은 `1.0.0`이고 바뀌면 컴포넌트 계약과 같은 규칙(지움과 이름 바뀜은 주, 더함은 부, 값은 수)으로 올립니다.
+* `store.json`은 계약입니다(지휘 답 2026-11-16, PR #1206): design이 제공하고 app(이미지 생성)과 writing(글 상한)이 씁니다. 계약 목록 행과 `ci-gate.yml` 받는 경로는 병합 뒤 지휘가 root PR로 더합니다. 판은 `1.0.0`에서 시작해 컴포넌트 계약과 같은 규칙(지움과 이름 바뀜은 주, 더함은 부, 값은 수)으로 올리고, 판을 바꾸는 PR은 계약 목록 행과 `docs/contracts/CHANGELOG.md`를 함께 고칩니다.
 
 ## 4. 장면 (A안)
 두 스토어 같은 여섯 장, 같은 순서입니다(App Store 최대 10, Play 2~8). 앞 세 장이 검색 결과에 보입니다.
