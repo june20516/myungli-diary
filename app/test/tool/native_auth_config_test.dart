@@ -40,6 +40,8 @@ void main() {
       );
       // staging만 모의 광고와 staging 보상 경로를 켭니다(D101). prod는 상수 접힘으로 빠집니다.
       expect(config['STAGING_ADS'], env == 'staging' ? 'true' : 'false');
+      // 스토어 상품 id는 두 스토어, 두 환경이 같습니다(E12). RevenueCat 상품 id(S124)가 아닙니다.
+      expect(config['AD_FREE_PRODUCT_IDS'], 'ad_free_1m');
     });
   }
 

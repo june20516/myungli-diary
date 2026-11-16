@@ -3,5 +3,6 @@
   "FIREBASE_ENV": "staging",
   "APP_LINK_HOST": "api-staging.myungli-diary.app",
   "APPLE_REDIRECT_URI": "https://api-staging.myungli-diary.app/v1/auth/apple/callback",
-  "STAGING_ADS": "true"
+  "STAGING_ADS": "true",
+  "AD_FREE_PRODUCT_IDS": "ad_free_1m"
 }

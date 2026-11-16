@@ -28,7 +28,7 @@ VS Code에서 `.vscode/launch.json`의 구성을 고릅니다.
 | `http` | `--dart-define=API_MODE=http --dart-define=API_BASE_URL=http://localhost:8080` |
 
 터미널에서는 다음과 같습니다. `API_MODE`를 생략하면 `http`입니다. release 빌드에서는 fake 모드를 쓸 수 없습니다.
-실행·빌드 명령에는 늘 `--dart-define-from-file=config/auth.json`(로그인 제공자 공개 식별자, A81)을 붙입니다. staging이나 prod server를 쓰는 빌드는 그 뒤에 `--dart-define-from-file=config/env/<staging|prod>.json`(API 주소, Firebase 환경, App Link 호스트, Apple 복귀 주소, A97)을 하나 더 붙입니다. 환경 파일 없이 만든 빌드는 Android Apple 로그인이 `ProviderNotConfigured`로 실패합니다(로컬 server 개발은 Apple 웹 복귀를 받을 수 없음).
+실행·빌드 명령에는 늘 `--dart-define-from-file=config/auth.json`(로그인 제공자 공개 식별자, A81)을 붙입니다. staging이나 prod server를 쓰는 빌드는 그 뒤에 `--dart-define-from-file=config/env/<staging|prod>.json`(API 주소, Firebase 환경, App Link 호스트, Apple 복귀 주소, 광고 제거권 스토어 상품 id, A97)을 하나 더 붙입니다. 환경 파일 없이 만든 빌드는 Android Apple 로그인이 `ProviderNotConfigured`로 실패합니다(로컬 server 개발은 Apple 웹 복귀를 받을 수 없음).
 
 ```
 flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
@@ -44,9 +44,8 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
   chmod 600 "$D"/*
   flutter build appbundle --release --dart-define-from-file=config/auth.json \
     --dart-define-from-file=config/env/staging.json
-  # 상품이 생기면(E12) --dart-define=AD_FREE_PRODUCT_IDS=<상품 id>를 더합니다
   ```
-  상품 id는 스토어 상품이 생긴 뒤(E12, 판매는 E15 뒤) 로컬 값으로 넘깁니다. 그 전 빌드나 id를 빠뜨린 빌드는 상품 목록이 비어, 광고 제거 화면이 `offer-card` `unavailable`(가격, 기간 고지, 구매 버튼 대신 안내 한 줄 `ad-free.unavailable.body`, 구매 내역과 약관 안내는 그대로)을 보입니다(V123, A139 ①). 오류가 아니라 정상 상태라 Crashlytics에도 남지 않으니, 상품이 생긴 뒤 빌드에서는 구매 버튼이 보이는지 기기에서 직접 확인합니다(A126, #922). release + staging은 Test Store 상품을 받지 못하므로 광고 제거권은 결제 없이 시험합니다(D99 ④).
+  광고 제거권 스토어 상품 id `AD_FREE_PRODUCT_IDS`는 환경 파일에 있습니다(E12에서 `ad_free_1m`을 두 스토어에 만듦, 2026-11-16부터). 환경 파일 없이 만든 빌드는 상품 목록이 비어, 광고 제거 화면이 `offer-card` `unavailable`(가격, 기간 고지, 구매 버튼 대신 안내 한 줄 `ad-free.unavailable.body`, 구매 내역과 약관 안내는 그대로)을 보입니다(V123, A139 ①). 오류가 아니라 정상 상태라 Crashlytics에도 남지 않으니, 상품이 생긴 뒤 빌드에서는 구매 버튼이 보이는지 기기에서 직접 확인합니다(A126, #922). release + staging은 Test Store 상품을 받지 못하므로 광고 제거권은 결제 없이 시험합니다(D99 ④).
   `keytool -printcert -jarfile build/app/outputs/bundle/release/app-release.aab`의 SHA256이 업로드 키 저장소(`keytool -list -v`)의 지문과 같은지 확인합니다. 빌드 번호는 아래 "스토어 빌드 번호"를 따릅니다. 앱 서명 키는 Play가 보관합니다(E8).
 * **Play 트랙에 올리기(#944):** `tool/upload_play.sh build/app/outputs/bundle/release/app-release.aab [track]`(기본 `internal`). 서비스 계정 `play-publisher@myungli-diary.iam.gserviceaccount.com`(키 파일 없음)을 사용자 gcloud 계정이 impersonation으로 쓰고, 토큰은 출력하지 않습니다(D98). Android Publisher API v3로 edit를 열어, AAB의 versionCode가 Play에 이미 있으면(어느 트랙이든) 올리기 전에 멈추고, 업로드, 트랙 지정(`completed`), commit 순서로 진행합니다. 중간에 실패하면 edit를 지워 아무것도 남기지 않습니다. 출시 노트는 아직 넣지 않습니다. 필요: `gcloud`(로그인), `bundletool`, `jq`, `curl`.
 * **스토어 빌드 번호(A104, #735):** `pubspec.yaml`의 `+N` 하나를 두 플랫폼이 함께 쓰고, N은 커밋 하나를 가리킵니다. 스토어에 낼 빌드를 만들 때 `+N`을 올려 commit하고 그 커밋에서 빌드합니다. 바뀐 것이 한 플랫폼에만 해당하면 그 플랫폼만 빌드해 올리고, 다른 플랫폼은 그 번호를 건너뜁니다. 올린 플랫폼과 N은 바로 아래 "스토어 빌드 대장" 표에 적습니다. release에서만 나는 문제(R8 축소 등, #728)는 debug와 Patrol로 잡히지 않으니, 올리기 전에 release 빌드를 기기에서 한 번 실행합니다(Android는 `bundletool build-apks --mode=universal`로 AAB에서 APK를 뽑아 설치).
@@ -95,11 +94,10 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
   | release | 쓰지 않음 | T1 테스터(Play 내부 테스트). Play Integrity·DeviceCheck, 플랫폼 키라 Test Store 불가(결제 없이 광고 제거권은 #655) | 출시 |
 
   RevenueCat 키는 빌드 모드로 고릅니다(A98): debug는 Test Store 키, release는 Android `goog_…`, iOS `appl_…`이고, release 바이너리에는 Test Store 키 문자열이 들어가지 않습니다(SDK가 release에서 Test Store 키를 보면 앱을 종료함). App Check provider도 같은 축입니다(debug이고 staging이면 debug provider, A95).
-* **결제 시험(debug + staging, D99 ④):** staging server가 결제를 켠 뒤(server S123) 다음으로 실행합니다. `AD_FREE_PRODUCT_IDS`는 **스토어 상품 id**(`getProducts`로 찾는 값, 세 스토어가 같은 값)입니다. server의 같은 이름 설정은 RevenueCat 상품 id(`prod…`, S124)라 값이 다릅니다.
+* **결제 시험(debug + staging, D99 ④):** staging server가 결제를 켠 뒤(server S123) 다음으로 실행합니다. `AD_FREE_PRODUCT_IDS`는 **스토어 상품 id**(`getProducts`로 찾는 값, 세 스토어가 같은 값)이고 환경 파일에 들어 있습니다. server의 같은 이름 설정은 RevenueCat 상품 id(`prod…`, S124)라 값이 다릅니다.
   ```
   flutter run --dart-define-from-file=config/auth.json --dart-define-from-file=config/env/staging.json \
-    --dart-define-from-file="${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/app/staging/dart-defines.json" \
-    --dart-define=AD_FREE_PRODUCT_IDS=<스토어 상품 id>
+    --dart-define-from-file="${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/app/staging/dart-defines.json"
   ```
 * **광고 시험(staging, D101, A106):** 광고 단위는 빌드 모드로(debug는 Google 테스트 단위, release는 실제 단위, A99), 모의 광고와 보상 경로는 환경 파일의 `STAGING_ADS`(staging `"true"`, prod `"false"`)로 고릅니다.
   * staging: AdMob을 먼저 불러오고, 광고를 받지 못하면(채울 광고 없음, 앱 검토 전) 같은 자리, 같은 크기의 모의 광고("모의 광고" 배너, 15초 전체 화면 보상형)를 보입니다. 보상형을 끝까지 보면 광고 출처와 상관없이 staging 전용 경로(`POST /test/v1/billing/rewarded-ad`, server S131)로 SSV와 같은 값을 보내고, 실제와 같은 `getEntitlements`로 권한을 다시 읽습니다. 테스트 광고와 검토 전 앱에는 SSV 콜백이 오지 않기 때문입니다(#741).
