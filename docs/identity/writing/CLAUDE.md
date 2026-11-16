@@ -53,7 +53,7 @@
 * 검사기는 저장소 루트에서 실행합니다: `uv run --project docs/identity/writing/tools mlw <check | gen-docs | check-arb | judge>`.
   * 원고 검사: `mlw check docs/identity/writing/content`(W1 원고가 다 차서 `--partial` 없이 돌립니다. 일부러 비워 둔 원고는 슬롯 `pending`, W49). 슬롯 `params`를 `core/message_params.json`과, 근거 슬롯 키를 `core/evidence_*.json`과, 슬롯 자리를 IA와 대조합니다.
   * `engine.proto`가 바뀌면 `tools/gen_proto.sh`로 생성 코드를 다시 만듭니다(CI가 차이를 막습니다).
-  * core 엔진 버전이 바뀌면 한 주 고정 자료를 다시 만듭니다: `docs/identity/writing/tools`에서 `uv run python -m mlw.week_fixture --engine <엔진 주소> > fixtures/week_samples.json`
+  * core 엔진 버전이 바뀌면 한 주 고정 자료를 다시 만듭니다: `docs/identity/writing/tools`에서 `uv run mlw gen-week-fixture --engine <엔진 주소> > fixtures/week_samples.json`
   * 생성 문서·ARB 최신 여부: `mlw gen-docs --check`
   * LLM 1차 거르기: `mlw judge docs/identity/writing/content --lang ko [--slot <id>]`(로컬 `claude` CLI 필요)
   * **로컬 빠른 경로(반복 중, D81):** 바뀐 범위만 돌리고, PR 전에 한 번 전체를 돌립니다.
@@ -77,7 +77,7 @@
 ## 현재 상태
 * 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 * 여기에는 진행 중인 일(브랜치, 열린 PR, 막힌 것)만 적고, 병합하면 지웁니다(`docs/workflow.md` §3 마무리 2번). 병합된 일의 경과는 PR 본문, `decisions.md`, git에 있습니다.
-* **진행 중:** H1 기준 문서 정리(#1167, D131), 브랜치 `writing/h1-slimming-1167`.
+* **진행 중:** 보상형 광고 열림 2시간 문구와 drift #1183(#1178, D132, W79), 브랜치 `writing/d132-reward-2h-1178`.
 
 ## 다음 할 일
 1. **열린 `drift` Issue가 있으면 먼저 맞춥니다**(`gh issue list --label drift --label to:writing`, `docs/workflow.md` §6.1).
@@ -87,4 +87,3 @@
 5. **쓰지 않는 키 정리:** `errorDiaryDateTaken`은 app이 쓰지 않게 되면 지웁니다(D83). app이 `todayEventSummary`·`todayEventSummaryDone`을 쓰지 않는다고 알려 주면 지웁니다(#217).
 6. **server 확인:** server CI(`server.yml`)의 `mlw check --partial`은 server가 뺄 수 있다고 알립니다. 근거 basis 매개변수 종류가 바뀌어(W48) server 시드가 새 원고를 쓰는지 봅니다. server는 `content/hanja.yaml`로 `Glossary.hanja`를 채웁니다.
 7. **재출제 대기:** en 지장간 자리 표기("year hidden stem"), R9-15 재성 가이드(W31 ② 전제 기준).
-8. **지휘 확인 대상:** 출시 전 `evidence-sheet.lock.reward`의 AdMob 보상 고지 문구(라운드 R8-4 선택에 "끝까지"가 없음)를 다시 봅니다.

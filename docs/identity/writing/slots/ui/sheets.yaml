@@ -25,10 +25,10 @@
     screen_reader: "문장 그대로 읽습니다."
 
 - id: evidence-sheet.lock.reward
-  where: "근거 시트 화면(evidence-sheet): 보상 고지: 광고 한 편을 보면 오늘 하루 근거와 해석이 모두 열림(광고 전 매번)"
+  where: "근거 시트 화면(evidence-sheet): 보상 고지: 광고 한 편을 끝까지 보면 그때부터 2시간 동안 근거와 해석이 모두 열림(광고 전 매번, D132)"
   purpose: info
   user_state: "광고를 보기 전에 무엇을 얻는지 확인합니다."
-  structure: "한 문장. 필요한 행동(광고 한 편 끝까지)과 보상(오늘 자정까지 근거·해석 모두)을 정확히 말합니다. AdMob 정책상 유도·과장을 쓰지 않습니다(라운드 R8)."
+  structure: "한 문장. 필요한 행동(광고 한 편 끝까지)과 보상(끝까지 본 때부터 2시간 동안 근거·해석 모두, D132)을 정확히 말합니다. AdMob 정책상 유도·과장을 쓰지 않습니다(라운드 R8)."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: null, en: null, ja: null}
   keys:
@@ -36,7 +36,8 @@
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: evidenceSheetLockReward, text: "광고 한 편을 보면 오늘 하루 근거와 해석을 모두 볼 수 있어요.", why: "라운드 R8 선택", source: writing}
+      - {lang: ko, key: evidenceSheetLockReward, text: "광고 한 편을 끝까지 보면 그때부터 2시간 동안 근거와 해석을 모두 볼 수 있어요.", why: "라운드 R8 선택 틀에 D132 기간(2시간)과 행동(끝까지)을 정확히", source: writing}
+      - {lang: ko, key: evidenceSheetLockReward, text: "광고 한 편을 보면 오늘 하루 근거와 해석을 모두 볼 수 있어요.", why: "D132 전 기간(오늘 자정까지), 지금 보상과 다름", source: writing}
     bad:
       - {lang: ko, text: "지금 광고만 보면 숨겨진 운세가 전부 공개돼요!", why: "과장·유도, 들뜬 강조 slop.P8", source: writing}
   endings: ["~해요", "~어요"]
@@ -418,23 +419,24 @@
     screen_reader: "보이는 글자 그대로 읽습니다."
 
 - id: evidence-sheet.unlock.until
-  where: "근거 시트 제목 줄 오른쪽 열림 꼬리표(D118 ①, V112). 넘치면 제목 아래 한 줄. 열린 이유로 고릅니다: 광고 한 편이면 Midnight, 광고 제거권이면 Date"
-  select: "열린 이유가 광고 한 편 → evidenceSheetUnlockUntilMidnight, 광고 제거권 → evidenceSheetUnlockUntilDate({date}: 기간 끝 날짜)"
+  where: "근거 시트 제목 줄 오른쪽 열림 꼬리표(D118 ①, V112). 넘치면 제목 아래 한 줄. 열린 이유로 고릅니다: 광고 한 편이면 Time, 광고 제거권이면 Date"
+  select: "열린 이유가 광고 한 편 → evidenceSheetUnlockUntilTime({time}: 광고를 끝까지 본 때부터 2시간 뒤 시각, 기기 형식, D132), 광고 제거권 → evidenceSheetUnlockUntilDate({date}: 기간 끝 날짜)"
   purpose: info
   user_state: "근거와 해석을 연 뒤 시트를 봅니다. 언제까지 볼 수 있는지 알고 싶습니다."
   structure: "명사형 꼬리표 하나. 언제까지 열려 있는지만 알립니다. 재구매나 연장을 권하지 않습니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
   max_length: {ko: 27, en: 49, ja: 22}
   keys:
-    - evidenceSheetUnlockUntilMidnight
+    - params: {time: text}
+      keys: [evidenceSheetUnlockUntilTime]
     - params: {date: text}
       keys: [evidenceSheetUnlockUntilDate]
   variants: {count: 1, rotation: "변주가 하나입니다"}
   examples:
     good:
-      - {lang: ko, key: evidenceSheetUnlockUntilMidnight, text: "자정까지 열림", why: "상태만 짧게", source: round-R36-3}
+      - {lang: ko, key: evidenceSheetUnlockUntilTime, text: "{time}까지 열림", why: "상태만 짧게(라운드 R36-3 틀, D132 끝 시각)", source: round-R36-3}
     bad:
-      - {lang: ko, key: evidenceSheetUnlockUntilMidnight, text: "프리미엄 해제 완료! 자정까지", why: "과장 slop.P8, 구매 축하처럼 읽힘", source: round-R36-3}
+      - {lang: ko, key: evidenceSheetUnlockUntilTime, text: "프리미엄 해제 완료! {time}까지", why: "과장 slop.P8, 구매 축하처럼 읽힘", source: round-R36-3}
   a11y:
-    truncation: "한 줄에 들어갑니다(날짜 포함)."
+    truncation: "한 줄에 들어갑니다(시각, 날짜 포함)."
     screen_reader: "시트 제목 다음에 읽습니다."
