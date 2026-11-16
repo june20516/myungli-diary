@@ -51,7 +51,7 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 병합된 일의 경과는 적지 않습니다(PR 본문, 결정 행, git에 있음). 여기에는 진행 중인 일(브랜치, 열린 PR, 막힌 것)만 두고 병합하면 지웁니다(`docs/workflow.md` §3 마무리).
 
 * 기준 문서: spec [`docs/specs/2026-10-11-server-mvp-design.md`](docs/specs/2026-10-11-server-mvp-design.md), 결정 [`docs/decisions.md`](docs/decisions.md)(대체된 결정의 원문은 [`docs/decisions-history.md`](docs/decisions-history.md)). 구현 단계 P1~P9의 계획은 `docs/plans/`에 있습니다.
-* **진행 중:** 브랜치 `server/1217-support-page`(지원 페이지 `/support`, S161, #1217과 prod 문의 메일 켜기 #1198). 틀은 끝났고 writing 원고(#1216, `docs/identity/writing/pages/<언어>/support.md`)를 기다립니다. 원고가 main에 들어오면 main을 병합하고 `go generate ./legal/`로 내장한 뒤 draft를 풉니다.
+* **진행 중:** 브랜치 `server/1217-support-page`(draft PR #1221, 지원 페이지 `/support` S161, #1217과 prod 문의 메일 켜기 #1198). 페이지는 끝났고 writing 원고(#1219, content 슬롯 `system.support`)를 기다립니다. 원고가 main에 들어오면 main을 병합하고 `go generate ./seed/`로 시드를 다시 만든 뒤 draft를 풉니다.
 * 엔진 서비스의 컨테이너 이미지는 core가 `core/`만으로 빌드되게 맞춥니다(D33, D56). 엔진 쪽 요구(포트, 헬스 체크 등)는 요청함으로 주고받습니다.
 
 ## 다음 할 일

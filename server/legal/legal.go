@@ -1,7 +1,5 @@
-// Package legal은 이용약관·개인정보 처리방침 원문(docs/legal/<언어>/, D80)과 지원 페이지 원고
-// (docs/identity/writing/pages/<언어>/, D134)를 변환해 내장한 문서 묶음입니다.
-// 약관과 처리방침은 지휘가 쓰고 사용자가 확정하며, 지원 페이지는 writing이 씁니다.
-// server는 go generate로 HTML로 바꿔 바이너리에 담아 정적 페이지로 내줍니다.
+// Package legal은 이용약관·개인정보 처리방침 원문(docs/legal/<언어>/, D80)을 변환해 내장한 문서 묶음입니다.
+// 원문은 지휘가 쓰고 사용자가 확정하며, server는 go generate로 HTML로 바꿔 바이너리에 담아 정적 페이지로 내줍니다.
 package legal
 
 import (
@@ -11,26 +9,14 @@ import (
 	"slices"
 )
 
-// 문서 이름입니다. 원문 파일 이름(<이름>.md)이자 경로의 마지막 마디입니다.
+// 문서 이름입니다. 원문 파일 이름(<이름>.md)이자 경로(/legal/<이름>)의 마지막 마디입니다.
 const (
 	Terms   = "terms"
 	Privacy = "privacy"
-	Support = "support"
 )
 
-// Names는 /legal/<이름>으로 내주는 법적 문서 이름입니다(D80).
+// Names는 내주는 문서 이름입니다.
 var Names = []string{Terms, Privacy}
-
-// PageNames는 writing 원고로 /<이름>에 내주는 안내 페이지 이름입니다(D134).
-var PageNames = []string{Support}
-
-// SupportMail은 지원 페이지가 안내하는 문의 메일 주소입니다(E14). 지원 페이지 원고의 mailto 링크는 이 주소만 받습니다.
-const SupportMail = "support@myungli-diary.app"
-
-// AllNames는 내장하는 모든 문서 이름입니다. 법적 문서 뒤에 안내 페이지 순서이고, 내장 파일도 이 순서로 씁니다.
-func AllNames() []string {
-	return slices.Concat(Names, PageNames)
-}
 
 // Languages는 원문 언어입니다(D27·D28).
 var Languages = []string{"ko", "en", "ja"}
@@ -54,7 +40,7 @@ type Documents struct {
 func New(docs []Document) (Documents, error) {
 	out := Documents{docs: make(map[[2]string]Document, len(docs))}
 	for _, d := range docs {
-		if !slices.Contains(Languages, d.Lang) || !slices.Contains(AllNames(), d.Name) {
+		if !slices.Contains(Languages, d.Lang) || !slices.Contains(Names, d.Name) {
 			return Documents{}, fmt.Errorf("모르는 문서 %s/%s", d.Lang, d.Name)
 		}
 		key := [2]string{d.Lang, d.Name}
@@ -83,15 +69,14 @@ type file struct {
 	Documents []Document `json:"documents"`
 }
 
-// Marshal은 문서 목록을 내장 파일 형식으로 씁니다. 순서는 Languages·AllNames 순서라 같은 원문이면 같은 바이트입니다.
+// Marshal은 문서 목록을 내장 파일 형식으로 씁니다. 순서는 Languages·Names 순서라 같은 원문이면 같은 바이트입니다.
 func Marshal(docs []Document) ([]byte, error) {
-	names := AllNames()
 	sorted := slices.Clone(docs)
 	slices.SortFunc(sorted, func(a, b Document) int {
 		if c := slices.Index(Languages, a.Lang) - slices.Index(Languages, b.Lang); c != 0 {
 			return c
 		}
-		return slices.Index(names, a.Name) - slices.Index(names, b.Name)
+		return slices.Index(Names, a.Name) - slices.Index(Names, b.Name)
 	})
 	if sorted == nil {
 		sorted = []Document{}
