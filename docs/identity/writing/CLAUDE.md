@@ -78,7 +78,7 @@
 ## 현재 상태
 * 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 * 여기에는 진행 중인 일(브랜치, 열린 PR, 막힌 것)만 적고, 병합하면 지웁니다(`docs/workflow.md` §3 마무리 2번). 병합된 일의 경과는 PR 본문, `decisions.md`, git에 있습니다.
-* **진행 중:** 스토어 소개 문구와 스크린샷 위 글(#1201, D133, W80, 라운드 R49), 브랜치 `writing/store-listing-1201`.
+* **진행 중:** 지원 페이지 문구(#1216, D134, W81), 브랜치 `writing/support-page-1216`. 지휘의 IA 시스템 화면 `system-support` 병합을 기다립니다(그 전에는 `ia.unknown`).
 
 ## 다음 할 일
 1. **열린 `drift` Issue가 있으면 먼저 맞춥니다**(`gh issue list --label drift --label to:writing`, `docs/workflow.md` §6.1).
