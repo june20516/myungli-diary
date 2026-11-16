@@ -123,3 +123,33 @@ func TestSupportPage_MissingScriptIsPendingPage(t *testing.T) {
 		})
 	}
 }
+
+// 내장 시드의 실제 writing 원고(W81)로 세 언어 페이지가 모두 그려지고, 문의 메일이 mailto 링크가 됩니다.
+// 원고에서 키가 빠지거나 {email} 자리가 사라지면 여기서 잡습니다.
+func TestSupportPage_EmbeddedSeedRendersAllLanguages(t *testing.T) {
+	embedded, err := seed.Load()
+	require.NoError(t, err)
+	templates := map[string]content.Templates{}
+	for _, lang := range []string{"ko", "en", "ja"} {
+		tpl := fakeTemplates{lang: lang, slots: map[string]seed.Slot{"system.support": embedded.Slots["system.support"]}, bodies: map[string]string{}}
+		for _, row := range embedded.Templates {
+			if row.Slot == "system.support" && row.Lang == lang {
+				tpl.bodies[row.Slot+"/"+row.Key] = row.Body
+			}
+		}
+		templates[lang] = tpl
+	}
+	contents := &fakeContents{active: embedded.Version, templates: templates}
+
+	for _, lang := range []string{"ko", "en", "ja"} {
+		rec := getSupport(t, contents, "/support?lang="+lang)
+
+		require.Equal(t, http.StatusOK, rec.Code, lang)
+		body := rec.Body.String()
+		assert.Contains(t, body, `<a href="mailto:support@myungli-diary.app">support@myungli-diary.app</a>`, lang)
+		assert.Equal(t, 2, strings.Count(body, `href="/legal/privacy?lang=`+lang+`"`), lang)
+		assert.Contains(t, body, `href="/legal/terms?lang=`+lang+`"`, lang)
+		main := body[strings.Index(body, "<main>"):]
+		assert.NotContains(t, main, "{", "남은 자리표시자 없음: "+lang)
+	}
+}
