@@ -28,6 +28,7 @@ import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/design/elements/lock_veil.dart';
 import 'package:myungli_diary/design/interaction/unlock_glint.dart';
+import 'package:myungli_diary/design/theme/hanja_fallback.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:myungli_diary/features/depth/application/evidence_unlock_controller.dart';
@@ -659,7 +660,7 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('잠긴 원전 앞부분은 첫 원전 뜻 줄이고 원전 대체 글꼴을 쓰며 판정 근거는 대체하지 않습니다', (
+    testWidgets('잠긴 원전 앞부분은 첫 원전 뜻 줄이고 판정 근거와 함께 한자 대체 글꼴을 씁니다(V134)', (
       tester,
     ) async {
       // 미리보기는 새 순서(뜻, 원문)의 앞 두 줄입니다. 원문 줄의 한자 글꼴은 열린 시트의
@@ -683,10 +684,13 @@ void main() {
       final veils = tester
           .widgetList<LockVeil>(_inSheet(find.byType(LockVeil)))
           .toList();
-      expect(
-        [for (final veil in veils) veil.fontFallback],
-        [const <String>[], hanja],
-      );
+      final clears = tester
+          .widgetList<Text>(_inSheet(find.byKey(LockVeil.clearKey)))
+          .toList();
+      expect(clears, hasLength(2));
+      for (final clear in clears) {
+        expect(clear.style?.fontFamilyFallback?.take(hanja.length), hanja);
+      }
       expect(
         veils.last.lead?.segments.map((segment) => segment.text).join(),
         '넘치는 것은 덜고',
@@ -789,6 +793,13 @@ void main() {
       );
       expect(text.maxLines, 3);
       expect(text.overflow, TextOverflow.ellipsis);
+      // 대상 문장에 섞인 한자도 font.family.hanja로 그립니다(V134).
+      final typography = tester
+          .element(_inSheet(find.byType(EvidenceSheetBody)))
+          .tokens
+          .typography;
+      final hanja = hanjaFallbackFamilies(typography);
+      expect(text.style?.fontFamilyFallback?.take(hanja.length), hanja);
     });
 
     testWidgets('보조 문장에서 열면 시트 위에 대표 태그 1순위와 보조 문장', (tester) async {

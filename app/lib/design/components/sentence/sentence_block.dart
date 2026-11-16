@@ -13,6 +13,7 @@ import 'package:myungli_diary/design/elements/lock_veil.dart';
 import 'package:myungli_diary/design/elements/open_ring.dart';
 import 'package:myungli_diary/design/elements/unlock_mark.dart';
 import 'package:myungli_diary/design/interaction/unlock_glint.dart';
+import 'package:myungli_diary/design/theme/hanja_fallback.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
@@ -60,7 +61,6 @@ class SentenceBlock extends StatelessWidget {
     this.trailing,
     this.color,
     this.maxLines,
-    this.fontFallback = const [],
     super.key,
   }) : assert(
          variant != SentenceBlockVariant.preview ||
@@ -167,10 +167,6 @@ class SentenceBlock extends StatelessWidget {
   /// [SentenceBlockVariant.preview]는 기본 두 줄입니다(같은 날 여러 편 줄은 한 줄로 줄임).
   final int? maxLines;
 
-  /// 문장 글꼴의 대체 글꼴 맨 앞에 끼울 글꼴 family. 문장 글꼴에 없는 글리프만 이 글꼴로
-  /// 그립니다(원전 인용의 한자 `fontFallback: font.family.hanja`).
-  final List<String> fontFallback;
-
   @override
   Widget build(BuildContext context) {
     final content = locked
@@ -198,11 +194,10 @@ class SentenceBlock extends StatelessWidget {
     );
     return RenderedTextView(
       text: text,
-      style: base.copyWith(
-        color: color ?? context.tokens.colors.textPrimary,
-        fontFamilyFallback: fontFallback.isEmpty
-            ? null
-            : [...fontFallback, ...?base.fontFamilyFallback],
+      // 문장에 섞인 한자는 `font.family.hanja`로 그립니다(`text.fontFallback`, 결정 V134).
+      style: withHanjaFallback(
+        base.copyWith(color: color ?? context.tokens.colors.textPrimary),
+        context.tokens.typography,
       ),
       termStyle: onTerm == null ? TermStyle.plain : terms,
       onTerm: onTerm,

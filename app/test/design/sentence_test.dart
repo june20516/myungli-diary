@@ -25,6 +25,7 @@ import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/text/keep_all.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
+import 'package:myungli_diary/design/theme/hanja_fallback.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
@@ -385,6 +386,30 @@ void main() {
       expect(_childStyle(card).fontSize, 17);
       final body = await pump(SentenceBlockVariant.body);
       expect(_childStyle(body).fontSize, 15);
+    });
+
+    testWidgets('글자 대체 글꼴 맨 앞은 한자 글꼴입니다(text.fontFallback, V134)', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(SentenceBlock(variant: SentenceBlockVariant.body, text: _siksin)),
+      );
+      final typography = tester
+          .element(find.byType(SentenceBlock))
+          .tokens
+          .typography;
+      final rich = tester.widget<RichText>(
+        find
+            .descendant(
+              of: find.byType(SentenceBlock),
+              matching: find.byType(RichText),
+            )
+            .first,
+      );
+      expect(_childStyle(rich).fontFamilyFallback, [
+        ...hanjaFallbackFamilies(typography),
+        ...?typography.sentenceBody.fontFamilyFallback,
+      ]);
     });
 
     testWidgets('slotId는 Key와 Semantics identifier로 붙습니다', (tester) async {
@@ -1358,7 +1383,7 @@ void main() {
     });
 
     testWidgets(
-      '원전 세 줄은 한자만 font.family.hanja(대체 글꼴 맨 앞)와 그 대체 글꼴이고 판정 근거는 그대로입니다',
+      '원전 세 줄과 판정 근거는 한자만 font.family.hanja(대체 글꼴 맨 앞)와 그 대체 글꼴입니다(V134)',
       (tester) async {
         await tester.pumpWidget(
           _app(
@@ -1413,10 +1438,12 @@ void main() {
         final basis = rootStyle(
           find.byKey(const ValueKey(SlotIds.evidenceSheetBasisBody)),
         );
-        expect(
-          basis.fontFamilyFallback,
-          typography.sentenceBody.fontFamilyFallback,
-        );
+        // 판정 근거 문장의 한자도 같은 대체입니다(V134).
+        expect(basis.fontFamilyFallback, [
+          hanja,
+          ...?typography.hanjaPillar.fontFamilyFallback,
+          ...?typography.sentenceBody.fontFamilyFallback,
+        ]);
       },
     );
 
