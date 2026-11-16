@@ -4,6 +4,8 @@ spec: docs/identity/design/specs/2026-11-16-store-screenshots-design.md §9
 
 사용법 (저장소 루트에서):
     python3 docs/identity/design/tools/store.py
+    uv run --with fonttools==4.54.1 python docs/identity/design/tools/store.py --font-dir .suberpowers/fonts
+    # 글꼴을 주면 글 자리 한 줄 상한(spec §7)을 재어 store/README.md 표와 대조합니다.
 """
 from __future__ import annotations
 
@@ -16,6 +18,7 @@ import sys
 DESIGN_DIR = pathlib.Path(__file__).resolve().parent.parent
 REPO_ROOT = DESIGN_DIR.parents[2]
 STORE_JSON = DESIGN_DIR / "store" / "store.json"
+STORE_README = DESIGN_DIR / "store" / "README.md"
 IA_PATH = pathlib.Path("docs/ia/screens.json")
 APP_SHOTS_PATH = pathlib.Path("app/test/screenshots/screens_test.dart")
 FIXTURES_DIR = pathlib.Path("app/fixtures")
@@ -101,11 +104,48 @@ def validate(doc: dict, repo_root: pathlib.Path = REPO_ROOT) -> list[str]:
     return errors
 
 
+CAPTION_FONT = "ui-600"  # Pretendard SemiBold. ja는 lengths 규칙대로 전각 1em
+LANGUAGE_ORDER = ("ko", "ja", "en")
+
+
+def caption_limits(fonts, doc: dict) -> dict[str, int]:
+    """글 자리 한 줄 상한. 두 틀(App Store, Play) 가운데 작은 값입니다. 재는 법은 lengths.py와 같습니다."""
+    import lengths
+
+    tracking_em = doc["caption"]["tracking"]
+    limits: dict[str, int] = {}
+    for frame in doc["frames"].values():
+        text = frame["caption"]
+        size, width = text["size"], frame["size"][0] - 2 * text["side"]
+        tracking = tracking_em * size
+        measured = {
+            "ko": lengths.ko_name_chars(fonts.ko(CAPTION_FONT), size, tracking, width),
+            "ja": lengths.ja_line_chars(fonts.ja(CAPTION_FONT), size, width),
+            "en": lengths.en_line_chars(fonts.ko(CAPTION_FONT), size, tracking, width),
+        }
+        for language, value in measured.items():
+            limits[language] = min(limits.get(language, value), value)
+    return {language: limits[language] for language in LANGUAGE_ORDER}
+
+
+def render_limits_table(limits: dict[str, int], max_lines: int) -> str:
+    rows = ["| 언어 | 한 줄 | 두 줄 |", "| --- | --- | --- |"]
+    rows += [f"| {language} | {limits[language]} | {limits[language] * max_lines} |" for language in LANGUAGE_ORDER]
+    return "\n".join(rows)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.parse_args(argv)
+    parser.add_argument("--font-dir", type=pathlib.Path, help="측정 글꼴 디렉터리(주면 상한 표를 README와 대조)")
+    args = parser.parse_args(argv)
     doc = load()
     errors = validate(doc)
+    if args.font_dir:
+        import lengths
+
+        table = render_limits_table(caption_limits(lengths.Fonts(args.font_dir), doc), doc["caption"]["maxLines"])
+        if table not in STORE_README.read_text(encoding="utf-8"):
+            errors.append(f"{STORE_README.name} 상한 표가 실측과 다릅니다. 아래 표로 바꾸세요:\n{table}")
     for error in errors:
         print(error)
     if errors:

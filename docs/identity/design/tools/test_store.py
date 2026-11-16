@@ -109,3 +109,38 @@ def test_scene_order_has_no_gaps():
 def test_main_reports_ok(capsys):
     assert store.main([]) == 0
     assert "OK: 장면 6개" in capsys.readouterr().out
+
+
+# Task 2: 글자 수 상한 (spec §7). 글꼴이 없으면 skip, CI(DESIGN_FONTS_REQUIRED=1)는 실패
+README = store.DESIGN_DIR / "store" / "README.md"
+
+
+def test_caption_limits_measured(font_dir):
+    import lengths
+
+    limits = store.caption_limits(lengths.Fonts(font_dir), store.load())
+    assert limits == {"ko": 14, "ja": 11, "en": 24}
+
+
+def test_readme_table_matches_tool(font_dir):
+    import lengths
+
+    doc = store.load()
+    table = store.render_limits_table(store.caption_limits(lengths.Fonts(font_dir), doc), doc["caption"]["maxLines"])
+    assert table in README.read_text(encoding="utf-8")
+
+
+def test_render_limits_table_shape():
+    table = store.render_limits_table({"ko": 14, "ja": 11, "en": 24}, 2)
+    assert table.splitlines() == [
+        "| 언어 | 한 줄 | 두 줄 |",
+        "| --- | --- | --- |",
+        "| ko | 14 | 28 |",
+        "| ja | 11 | 22 |",
+        "| en | 24 | 48 |",
+    ]
+
+
+def test_readme_has_no_banned_dashes():
+    text = README.read_text(encoding="utf-8")
+    assert not {"—", "–", "·"} & set(text)
