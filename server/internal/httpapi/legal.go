@@ -14,7 +14,10 @@ import (
 // legalPathPrefix는 법적 문서 정적 페이지 경로의 앞부분입니다. 경로는 /legal/<문서 이름>입니다(D80).
 const legalPathPrefix = "/legal/"
 
-// legalPageTemplate은 법적 문서 페이지입니다. 스크립트 없이 원문 HTML만 둡니다.
+// pagePathPrefix는 안내 페이지(writing 원고) 경로의 앞부분입니다. 경로는 /<페이지 이름>이고 지원 페이지는 /support입니다(D134).
+const pagePathPrefix = "/"
+
+// legalPageTemplate은 법적 문서와 안내 페이지의 틀입니다. 스크립트 없이 원문 HTML만 둡니다.
 // Body는 저장소 원문을 변환할 때 raw HTML을 걸러 낸 조각이라 template.HTML로 그대로 넣습니다(legal/convert).
 var legalPageTemplate = template.Must(template.New("legal").Parse(`<!doctype html>
 <html lang="{{.Lang}}">
@@ -55,17 +58,23 @@ func legalURL(base *url.URL, name string) string {
 	return u.String()
 }
 
-// legalRoutes는 법적 문서마다 정적 경로 하나입니다.
+// legalRoutes는 법적 문서와 안내 페이지마다 정적 경로 하나입니다. 언어, 캐시, 준비 중 처리는 둘이 같습니다.
 func (a *API) legalRoutes() []staticRoute {
 	logger := a.logger()
-	routes := make([]staticRoute, 0, len(legal.Names))
-	for _, name := range legal.Names {
+	routes := make([]staticRoute, 0, len(legal.AllNames()))
+	add := func(path, name string) {
 		routes = append(routes, staticRoute{
-			pattern: http.MethodGet + " " + legalPath(name),
+			pattern: http.MethodGet + " " + path,
 			handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				serveLegalPage(a.Legal, name, logger, w, r)
 			}),
 		})
+	}
+	for _, name := range legal.Names {
+		add(legalPath(name), name)
+	}
+	for _, name := range legal.PageNames {
+		add(pagePathPrefix+name, name)
 	}
 	return routes
 }

@@ -12,12 +12,13 @@ import (
 	"github.com/june20516/myungli-diary/server/legal"
 )
 
-// getLegal은 ko 이용약관과 en 개인정보 처리방침만 있는 server에 target을 요청합니다.
+// getLegal은 ko 이용약관, en 개인정보 처리방침, ja 지원 페이지만 있는 server에 target을 요청합니다.
 func getLegal(t *testing.T, target string) *httptest.ResponseRecorder {
 	t.Helper()
 	docs, err := legal.New([]legal.Document{
 		{Lang: "ko", Name: legal.Terms, Title: "이용약관", HTML: "<h1>이용약관</h1>\n<p>제1조</p>\n"},
 		{Lang: "en", Name: legal.Privacy, Title: "Privacy Policy", HTML: "<h1>Privacy Policy</h1>\n"},
+		{Lang: "ja", Name: legal.Support, Title: "サポート", HTML: "<h1>サポート</h1>\n"},
 	})
 	require.NoError(t, err)
 	handler, _ := newHandlerAPI(t, &httpapi.API{Legal: docs})
@@ -87,4 +88,22 @@ func TestLegalPage_OnlyGetAndKnownNames(t *testing.T) {
 	rec = serve(handler, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/legal/refund", nil))
 	assert.Equal(t, http.StatusNotFound, rec.Code)
 	assert.Equal(t, "application/problem+json", rec.Header().Get("Content-Type"), "모르는 문서는 다른 경로처럼 problem 404")
+}
+
+// 지원 페이지는 /support에서 법적 문서와 같은 규칙(언어, 캐시, 준비 중)으로 내줍니다(D134).
+func TestLegalPage_SupportPage(t *testing.T) {
+	rec := getLegal(t, "/support?lang=ja")
+	require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+	assert.Contains(t, rec.Body.String(), `<html lang="ja">`)
+	assert.Contains(t, rec.Body.String(), "<title>サポート</title>")
+	assert.Equal(t, "public, max-age=3600", rec.Header().Get("Cache-Control"))
+
+	rec = getLegal(t, "/support")
+	assert.Equal(t, http.StatusNotFound, rec.Code, "lang 없으면 en이고 en 원고가 없음")
+	assert.Contains(t, rec.Body.String(), `<html lang="en">`)
+	assert.Equal(t, "no-store", rec.Header().Get("Cache-Control"))
+
+	rec = getLegal(t, "/legal/support?lang=ja")
+	assert.Equal(t, http.StatusNotFound, rec.Code, "안내 페이지는 /legal 아래에 없음")
+	assert.NotContains(t, rec.Body.String(), "サポート")
 }

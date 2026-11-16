@@ -1,6 +1,6 @@
-// Command convert는 법적 문서 원문(docs/legal)을 내장 문서 JSON으로 변환합니다.
+// Command convert는 법적 문서 원문(docs/legal)과 안내 페이지 원고(docs/identity/writing/pages)를 내장 문서 JSON으로 변환합니다.
 //
-// 사용: convert -legal <dir> -out <file>
+// 사용: convert -legal <dir> [-pages <dir>] -out <file>
 package main
 
 import (
@@ -31,6 +31,7 @@ func execute(args []string, stderr io.Writer) error {
 	fs := flag.NewFlagSet("convert", flag.ContinueOnError)
 	fs.SetOutput(stderr)
 	dir := fs.String("legal", "", "법적 문서 원문 디렉터리 (<언어>/<이름>.md가 있는 곳)")
+	pages := fs.String("pages", "", "안내 페이지 원고 디렉터리 (<언어>/<이름>.md가 있는 곳, 없으면 건너뜀)")
 	out := fs.String("out", "", "내장 문서 JSON 출력 파일")
 	if err := fs.Parse(args); err != nil {
 		return err
@@ -39,7 +40,7 @@ func execute(args []string, stderr io.Writer) error {
 		return fmt.Errorf("-legal과 -out이 필요합니다")
 	}
 
-	docs, err := convert.Run(*dir)
+	docs, err := convert.Run(*dir, *pages)
 	if err != nil {
 		return err
 	}

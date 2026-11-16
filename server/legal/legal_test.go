@@ -32,6 +32,19 @@ func TestMarshal_ParseRoundTripInFixedOrder(t *testing.T) {
 	assert.False(t, ok, "원문이 없는 조합")
 }
 
+// 안내 페이지는 같은 언어의 법적 문서 뒤에 쓰고, 읽으면 이름으로 찾습니다.
+func TestMarshal_SupportPageFollowsLegalDocuments(t *testing.T) {
+	data, err := legal.Marshal([]legal.Document{doc("ko", legal.Support), doc("ko", legal.Terms)})
+	require.NoError(t, err)
+	assert.Less(t, strings.Index(string(data), `"terms"`), strings.Index(string(data), `"support"`))
+
+	docs, err := legal.Parse(data)
+	require.NoError(t, err)
+	got, ok := docs.Get("ko", legal.Support)
+	require.True(t, ok)
+	assert.Equal(t, doc("ko", legal.Support), got)
+}
+
 func TestMarshal_EmptyIsEmptyArray(t *testing.T) {
 	data, err := legal.Marshal(nil)
 	require.NoError(t, err)
