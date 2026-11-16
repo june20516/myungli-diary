@@ -53,6 +53,7 @@
 * 검사기는 저장소 루트에서 실행합니다: `uv run --project docs/identity/writing/tools mlw <check | gen-docs | check-arb | judge>`.
   * 원고 검사: `mlw check docs/identity/writing/content`(W1 원고가 다 차서 `--partial` 없이 돌립니다. 일부러 비워 둔 원고는 슬롯 `pending`, W49). 슬롯 `params`를 `core/message_params.json`과, 근거 슬롯 키를 `core/evidence_*.json`과, 슬롯 자리를 IA와 대조합니다.
   * `engine.proto`가 바뀌면 `tools/gen_proto.sh`로 생성 코드를 다시 만듭니다(CI가 차이를 막습니다).
+  * core 엔진 버전이 바뀌면 한 주 고정 자료를 다시 만듭니다: `docs/identity/writing/tools`에서 `uv run python -m mlw.week_fixture --engine <엔진 주소> > fixtures/week_samples.json`
   * 생성 문서·ARB 최신 여부: `mlw gen-docs --check`
   * LLM 1차 거르기: `mlw judge docs/identity/writing/content --lang ko [--slot <id>]`(로컬 `claude` CLI 필요)
   * **로컬 빠른 경로(반복 중, D81):** 바뀐 범위만 돌리고, PR 전에 한 번 전체를 돌립니다.
