@@ -29,7 +29,7 @@ SIZE_LIMITS: dict[str, int] = {
     **{path: 16384 for path in UNIT_CLAUDE_FILES},
 }
 # 아직 정리하지 않은 파일. 상한 아래로 내려오면 검사가 면제를 지우라고 알립니다.
-SIZE_EXEMPT: frozenset[str] = frozenset(path for path in UNIT_CLAUDE_FILES if path != "core/CLAUDE.md")
+SIZE_EXEMPT: frozenset[str] = frozenset({"app/CLAUDE.md"})
 
 SKIPPED_DIRS = {".git", ".suberpowers", ".venv", "node_modules"}
 LINK_PATTERN = re.compile(r'\]\(([^)\s]+?)(?:\s+"[^"]*")?\)')
