@@ -139,10 +139,12 @@
 - {slot: account-delete.delete.confirm, key: accountDeleteDeleteConfirmCancel, text: "キャンセル"}
 - {slot: ad-free.offer.head, key: adFreeOfferHead, text: "1か月間、広告なしで、根拠と解釈まですべて開いて見られます。"}
 - {slot: ad-free.offer.price, key: adFreeOfferPrice, text: "{price}"}
-- {slot: ad-free.offer.period, key: adFreeOfferPeriod, text: "1か月、自動決済なし"}
+- {slot: ad-free.offer.period, key: adFreeOfferPeriod, text: "購入日から1か月"}
+- {slot: ui.ad-free.renewal, key: adFreeOfferRenewal, text: "期間が終わっても自動で決済されません"}
 - {slot: ad-free.buy.cta, key: adFreeBuyCta, text: "購入する"}
 - {slot: ad-free.unavailable.body, key: adFreeUnavailableBody, text: "今は広告除去パスを購入できません。"}
-- {slot: ad-free.status.remaining, key: adFreeStatusRemaining, text: "{date}まで広告なしで使えます"}
+- {slot: ad-free.status.remaining, key: adFreeStatusRemaining, text: "{date}まで"}
+- {slot: ui.ad-free.benefit, key: adFreeStatusBenefit, text: "すべての読み解きを自由にご利用ください。"}
 - {slot: ad-free.history.cta, key: adFreeHistoryCta, text: "購入履歴"}
 - {slot: ad-free.legal.notice, key: adFreeLegalNotice, text: "購入と同時に利用が始まる商品は、申込みの撤回が制限されることがあります。詳しくは利用規約とプライバシーポリシーでご確認いただけます。"}
 - {slot: purchase-history.empty.body, key: purchaseHistoryEmptyBody, text: "購入履歴はありません。"}

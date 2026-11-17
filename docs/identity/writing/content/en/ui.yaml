@@ -139,10 +139,12 @@
 - {slot: account-delete.delete.confirm, key: accountDeleteDeleteConfirmCancel, text: "Cancel"}
 - {slot: ad-free.offer.head, key: adFreeOfferHead, text: "One month with no ads, and the basis and interpretation fully unlocked."}
 - {slot: ad-free.offer.price, key: adFreeOfferPrice, text: "{price}"}
-- {slot: ad-free.offer.period, key: adFreeOfferPeriod, text: "1 month, no automatic charge"}
+- {slot: ad-free.offer.period, key: adFreeOfferPeriod, text: "1 month from purchase"}
+- {slot: ui.ad-free.renewal, key: adFreeOfferRenewal, text: "No automatic charge when the period ends"}
 - {slot: ad-free.buy.cta, key: adFreeBuyCta, text: "Buy"}
 - {slot: ad-free.unavailable.body, key: adFreeUnavailableBody, text: "The ad-free pass isn't available to purchase right now."}
-- {slot: ad-free.status.remaining, key: adFreeStatusRemaining, text: "Ad-free until {date}"}
+- {slot: ad-free.status.remaining, key: adFreeStatusRemaining, text: "Until {date}"}
+- {slot: ui.ad-free.benefit, key: adFreeStatusBenefit, text: "Enjoy every reading as you like."}
 - {slot: ad-free.history.cta, key: adFreeHistoryCta, text: "Purchase history"}
 - {slot: ad-free.legal.notice, key: adFreeLegalNotice, text: "Withdrawal of subscription may be restricted for products whose use begins immediately upon purchase. Details are in the Terms of Service and Privacy Policy."}
 - {slot: purchase-history.empty.body, key: purchaseHistoryEmptyBody, text: "No purchases yet."}
