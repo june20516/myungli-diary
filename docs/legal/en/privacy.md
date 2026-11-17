@@ -102,7 +102,7 @@ To perform the contract for providing the Service, the Company entrusts the proc
 
 | Recipient (contact) | Destination country | Items transferred | Purpose | Retention period |
 | --- | --- | --- | --- | --- |
-| Google LLC and affiliates (Firebase, [contact](https://firebase.google.com/support/privacy)) | The United States and other countries where Google has facilities | Device information, Firebase installation ID, crash records, device token for notifications, app integrity check data | Crash analysis, sending notifications, app integrity checks | Crash records 90 days; device token for notifications until the Company deletes it |
+| Google LLC and affiliates (Firebase, [contact](https://firebase.google.com/support/privacy)) | The United States and other countries where Google has facilities | Account ID, device information, Firebase installation ID, crash records, device token for notifications, app integrity check data | Crash analysis, sending notifications, app integrity checks | Crash records 90 days; device token for notifications until the Company deletes it |
 | RevenueCat, Inc. ([contact](https://www.revenuecat.com/privacy/)) | The United States | Account id, store purchase receipt and purchase token, device type, OS | Verifying purchases | Until the entrustment contract ends |
 | Plus Five Five, Inc. (Resend, [contact](https://resend.com/legal/privacy-policy)) | The United States | Inquiry email address, content of the inquiry, account id, app version, device information | Delivering inquiry emails | 30 days |
 | Cloudflare, Inc. ([contact](https://www.cloudflare.com/privacypolicy/)) | The United States and others | Inquiry emails | Delivering inquiry emails (not stored) | Not stored |
@@ -122,7 +122,7 @@ If you refuse the advertising identifier, ads will still appear, but they will n
 
 Users may at any time request access to, correction of, or deletion of their personal information, or request that its processing be suspended.
 
-* **Directly in the app:** You can change your saju information and name in Edit details on the Me tab, turn off notifications in Settings, and delete your account in Settings > Delete account. When you delete your account, your information is destroyed immediately, except the information kept by law as described in Section 3.
+* **Directly in the app:** You can change your saju information and name in Edit details on the Me tab, delete diary entries and schedules one by one, turn off notifications in Settings, and delete your account in Settings > Delete account. When you delete your account, your information is destroyed immediately, except the information kept by law as described in Section 3.
 * **By inquiry:** If you make a request through Contact us in the app or by emailing the privacy officer below, it will be handled without delay.
 * **Link records of sign-in methods:** For Kakao and Apple, when you delete your account or unlink a method, the Company also revokes its authorization for that service. For LINE and Google, a record may remain in the list of connected apps in each account's settings, and you can remove it yourself on that screen.
 
