@@ -2,6 +2,7 @@
 #
 # * 처리한 Issue는 `Closes #<번호>`, 일부만 처리했으면 `참고 #<번호>`, 없으면 `처리한 Issue: 없음`(docs/workflow.md §5.2, D78 ③).
 # * ci-gate와 나란히 필수 검사입니다. 본문만 고친 `edited`에서 단위 검사를 다시 돌리지 않으려고 ci-gate에서 떼었습니다(D81).
+# * Dependabot이 연 PR(D136 ③, 의존성과 Action 갱신)은 본문을 우리 형식으로 쓸 수 없어 건너뜁니다. 건너뛴 job은 필수 검사에서 통과로 칩니다.
 
 name: pr-body
 
@@ -17,6 +18,7 @@ permissions: {}
 
 jobs:
   pr-body:
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: 처리한 Issue 표기 확인

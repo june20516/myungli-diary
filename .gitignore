@@ -45,3 +45,6 @@ app/android/local.properties
 *.jks
 *.keystore
 key.properties
+
+# Playwright MCP 브라우저 도구의 작업 산출물(Q1 INFRA-10)
+.playwright-mcp/
