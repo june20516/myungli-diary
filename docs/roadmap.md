@@ -32,33 +32,35 @@
 | Q1 | **T1 전 보안 점검:** 인프라, 배포 경로, server, 엔진, app, 로컬 값 전반. 발견 상세는 비공개 저장소에만(D74). 관문: Critical과 High 0. 준비 메모 [`docs/specs/2026-10-30-security-review-design.md`](specs/2026-10-30-security-review-design.md) | 지휘 + 각 단위 + 독립 점검 | 검수 피드백 회차, H1, staging 기동(P9) | T1 | 시작 전 |
 | O1 | **관측:** 앱 크래시(Crashlytics 보고 확인, 심볼 업로드), server와 인프라 알림(5xx, 지연, 인스턴스 상한, DB, Job 실패), 외부 uptime check, 예산 알림. 준비 메모 [`docs/specs/2026-10-30-capacity-observability-design.md`](specs/2026-10-30-capacity-observability-design.md) | 지휘 + server + app | staging 기동(P9) | T1 | **완료** |
 | T1 | **비공개 테스트: 테스트용 클라우드에 server와 엔진을 올리고, 테스트 빌드를 배포해 테스터가 실제로 써 봅니다** ① 테스트 인프라: GCP staging 프로젝트, 도메인과 DNS, 비밀 값(외부 준비물 E4, E6~E12) ② server와 엔진 staging 배포(server P9, 엔진 실행 조건 #79). ①②는 I2가 staging에서 app E2E를 돌릴 때 먼저 세우고 T1에서 그대로 씁니다 ③ 테스트 빌드 배포: iOS TestFlight, Android Play 비공개 테스트 트랙(E2, E3) ④ 테스터 초대와 사용: Play 새 개인 계정 조건(테스터 12명 이상이 14일 연속) | 지휘 + server + app + 사용자 | I1, I2, Q1, O1 | I4(Play 비공개 테스트 의무를 이 단계에서 채움), E15(D92: 앱을 받아 본 뒤 사업자등록) | 시작 전 |
-| L1 | **부하 테스트와 용량 산정:** 비슷한 범주 앱의 대형, 중형, 소형 활성 사용자 규모를 시나리오로(수치는 비공개 `business/`, D74), 요청당 연산과 비용, 한계에서의 server 응답과 app 대응. 부하 전용 환경 우선. 준비 메모 같은 파일 | 지휘 + server + app | O1 | I4 | **진행 중** (3회차까지 잼, 남은 것 server #817, tier는 2026-12-15 점검 #903) |
+| L1 | **부하 테스트와 용량 산정:** 비슷한 범주 앱의 대형, 중형, 소형 활성 사용자 규모를 시나리오로(수치는 비공개 `business/`, D74), 요청당 연산과 비용, 한계에서의 server 응답과 app 대응. 부하 전용 환경 우선. 준비 메모 같은 파일 | 지휘 + server + app | O1 | I4 | **진행 중** (3회차까지 잼, 남은 것 server #817, tier는 I4 2주 전 점검 #903, D135) |
 | I3 | 통합 3: 데일리·나의 사주·캘린더·일기 전 과정 E2E(app E2E 재사용, #87) | 지휘 판단 | I1, I2, W1 | I4 | - |
 | I4 | 스토어 심사·출시 (iOS / Android) | 지휘 + app | I3, T1 | Phase 2 | - |
 
 **통합 마일스톤(I1~I4)의 시작 조건:** 위 선행 조건에 더해 열린 `drift` Issue가 0이어야 합니다(`docs/workflow.md` §6.1).
 
 
-## 현재 진행 순서 (2026-11-14 기준)
+## 현재 진행 순서 (2026-11-17 기준)
 지휘 세션이 상태가 바뀔 때마다 고칩니다. 위 표의 선행 조건을 지금 상태에 대입한 결과입니다. 지난 순서는 [`roadmap-history.md`](roadmap-history.md)에 있습니다.
 
 * **열린 `drift` Issue는 받는 단위의 다음 할 일 맨 앞에 둡니다**(D73, `docs/workflow.md` §6.1). 지금 열린 drift: 없음(2026-11-16).
 * **동시에 도는 단위 세션은 둘까지입니다**(D78). 단위 PR은 사용자가 auto-merge를 걸어 두면 검사 통과 때 병합됩니다(D100 ②). CI는 `gh run watch` 없이 60초 이상 간격으로 확인합니다.
 * **목표는 T1(비공개 테스트)입니다. 가장 긴 경로:** bootstrap 묶음 apply(D103) → Q1(보안 점검) → T1. DS1은 검수 회차2와 빌드 7 항목까지 끝났습니다.
-* **실기기:** 빌드 8(app #1162 기록)로 빌드 7 검수 반영(F-053~F-058)을 확인합니다.
-* **staging 상태:** server(REST 1.13.1), 엔진(ruleset 2026.11.9), Test Store 결제(D99), AdMob SSV(S126), health(S127), 미리 계산(S128), 아침 알림(S129), O1 알림(S133), 문의 메일(S134), 클라이언트 IP `TRUSTED_PROXY_HOPS=2`(S135), 런타임 DB 권한 분리(S137), 법적 문서 게시(사업자 정보는 server가 로컬 값으로 채움, D126)까지 배포됐습니다. prod 엔진도 2026.11.1입니다. prod server는 설정이 비어 배포를 건너뛰므로, 그동안 생기는 server prod 승인 대기는 지휘가 취소합니다. staging E2E는 `app/tool/patrol_staging.sh`로 돌리며, 실행마다 `support@`로 `[E2E]` 문의 메일이 한 통 옵니다.
-* **2026-12-15: Cloud SQL tier와 예산 점검(#903, 사용자 일정).** 그날 활성 사용자와 알림 켠 사용자 추이, L1 측정 결과를 보고 1월 최고 부하(L-1월) 전에 prod tier를 올릴지와 지출 범위를 사용자가 정합니다. I4가 1월 뒤로 가면 "I4 2주 전"으로 옮깁니다. 금액은 비공개 L1 리포트에 있습니다(D74).
+* **실기기:** 빌드 9(iPhone 전용, 실제 광고 제거권 상품 id)를 사용자가 확인 중입니다. iOS 광고 제거권 상품은 App Store 유료 앱 계약이 활성되기 전까지 빈 목록입니다(은행 처리와 세금 양식 진행 중, 2026-11-17).
+* **staging 상태:** server(REST 1.13.1), 엔진(ruleset 2026.11.9), 결제, SSV, 미리 계산, 아침 알림, O1 알림, 문의 메일, 법적 문서와 지원 페이지까지 배포됐습니다. prod server는 D135 최소 구성 배포 전까지 승인 대기를 지휘가 취소합니다. staging E2E는 `app/tool/patrol_staging.sh`이고 실행마다 `support@`로 `[E2E]` 메일이 옵니다.
+* **I4 2주 전: Cloud SQL tier와 예산 점검(#903, D135 ④, 원래 2026-12-15).** 활성 추이와 L1 결과로 사용자가 정합니다: prod SQL을 `db-g1-small`에서 `db-custom-1-3840` 이상으로 올릴지와 시각(재시작 몇 분), prod 최소 1대 복귀(#817 ④), CPU 과금 방식. 금액은 비공개 L1 리포트(D74).
+* **T1까지 비용 설정(D135):** T1은 staging(T1 동안 켜 둠). prod는 스토어 URL(처리방침, 약관, 지원)용 최소 구성으로 T1 전에 배포하고 사업자 정보 비밀 값(E16)도 넣습니다. server 비용 설정은 #1226(S163)으로 병합됐습니다.
 * **T1 전에 정할 것: server → app 관문(D110 ⑦).** 실기기 빌드(5)는 REST 1.5.0의 `LuckLevel.very_good`을 몰라 staging 달력 월 응답을 읽지 못했습니다(닫힌 enum). 테스터 기기에는 옛 빌드가 남으므로 T1 전에 앱 지원 REST 버전과 최소 지원 버전(업데이트 안내)을 server, app 설계로 정합니다.
 * **Q1로 넘긴 것:** server 직접 주소(run.app)가 열려 있어 IP 한도를 우회할 수 있음(S135, 직접 주소를 끄면 Hosting 공개 주소도 끊김).
-* **I4 전에 남은 일:** prod server 설정과 비밀 값, prod `RESEND_API_KEY`, SSV 주소 prod 전환, 스토어 출시 뒤 AdMob 앱 검토, LINE Published, 스토어 지원 연락처 `support@`, 법적 문서 시행일과 prod 사업자 정보 비밀 값(E16, 원문은 게시됨).
+* **I4 전에 남은 일:** SSV 주소 prod 전환, 스토어 출시 뒤 AdMob 앱 검토, LINE Published, 법적 문서 시행일. prod server 설정과 비밀 값, 사업자 정보 비밀 값(E16)은 D135로 T1 전(prod 최소 구성 배포)으로 당겼습니다. prod `RESEND_API_KEY`와 스토어 지원 연락처는 넣었습니다(#1198, D134).
 
 | 순서 | 담당 | 할 일 | 끝나면 풀리는 것 |
 | --- | --- | --- | --- |
 | 1 | 사용자 + 지휘 | bootstrap 묶음 apply(D103) | Q1 |
 | 2 | 지휘 + 각 단위 | Q1 보안 점검 | T1 |
 | 뒤 | 각자 | core #59, writing #531(MVP 밖), server #794(staging 테스트 연결), #817(L1 후속) | 빈 줄이 생길 때 |
-| 관문 | 사용자 | 빌드 8 확인, 테스터 이메일 12개(#535) | T1 |
-| 2026-12-15 | 사용자 + 지휘 | Cloud SQL tier와 예산 점검(#903) | I4(1월 최고 부하) |
+| 관문 | 사용자 | 빌드 9 확인, App Store 유료 앱 계약 활성, 테스터 이메일 12개(#535) | T1 |
+| 3 | 사용자 + 지휘 | prod 최소 구성 배포와 사업자 정보 비밀 값(E16) | T1(스토어 URL) |
+| I4 2주 전 | 사용자 + 지휘 | Cloud SQL tier와 예산 점검(#903, D135 ④) | I4(1월 최고 부하) |
 
 ## 외부 준비물
 대장과 절차는 [`docs/external-prep.md`](external-prep.md) 하나입니다(D91 ②). 지휘가 때가 된 항목을 `to:user`·`kind:prep` Issue로 안내합니다. 항목별 지금 상태는 대장이 기준입니다.
