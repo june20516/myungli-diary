@@ -111,8 +111,9 @@ class AppIcon extends StatelessWidget {
        _caution = true,
        _fill = null;
 
-  /// 낮과 밤 표시(`icon.weights.timeOfDay`): 채운 해와 달. 경고 표시 밖에서 Fill을 쓰는 유일한
-  /// 자리입니다(행운 시간 칩과 24시간 띠 머리, 결정 V115). 색은 놓는 쪽이 `color.time.*`로 줍니다.
+  /// 낮과 밤 표시(`icon.weights.timeOfDay`): 채운 해와 달(행운 시간 칩과 24시간 띠 머리,
+  /// 결정 V115). 색은 놓는 쪽이 `color.time.*`로 줍니다. 경고 표시와 이것 말고 Fill을 쓰는
+  /// 곳은 구매 내역 사용 중 알약의 `seal-check`입니다(결정 V135).
   const new timeOfDay(
     AppTimeOfDay period, {
     required AppIconSize this.size,

@@ -5,14 +5,20 @@ import 'package:myungli_diary/core/l10n/gen/app_localizations_ko.dart';
 import 'package:myungli_diary/design/components/action/offer_card.dart';
 import 'package:myungli_diary/design/components/action/primary_button.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
-import 'package:myungli_diary/design/elements/status_tag.dart';
+import 'package:myungli_diary/design/elements/unlock_mark.dart';
+import 'package:myungli_diary/design/interaction/patterns.dart';
+import 'package:myungli_diary/design/interaction/unlock_glint.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
 const _head = '한 달 동안 광고 없이 봐요';
 const _price = '가격';
-const _period = '1개월, 자동 갱신 없음';
+const _period = '1개월 동안 이용';
+const _renewal = '자동 결제 없음, 다음 달에 결제되지 않아요';
+const _statusLabel = '사용 중';
+const _until = '2026년 12월 17일까지';
+const _benefit = '광고 없이, 근거와 해석도 모두 열려 있어요.';
 const _unavailable = '지금은 광고 제거권을 구매할 수 없어요.';
 
 /// 카드 라벨의 항목 구분자(ko).
@@ -31,16 +37,21 @@ OfferCard _card(
   VoidCallback? onBuy,
   VoidCallback? onHistory,
   VoidCallback? onLegal,
+  String? benefit = _benefit,
+  bool justPurchased = false,
 }) => OfferCard(
   state: state,
   head: _head,
   price: _price,
   period: _period,
+  renewal: _renewal,
   buyLabel: '구매하기',
   historyLabel: '구매 내역',
   legalNotice: '구매 전에 약관을 확인해 주세요.',
-  statusLabel: '사용 중',
-  remaining: '11월 23일까지 광고 없이 볼 수 있어요',
+  statusLabel: _statusLabel,
+  remaining: _until,
+  benefit: benefit,
+  justPurchased: justPurchased,
   unavailableNote: _unavailable,
   onBuy: onBuy,
   onHistory: onHistory,
@@ -49,22 +60,119 @@ OfferCard _card(
 
 void main() {
   group('offer-card', () {
-    testWidgets('available은 구매 버튼, active는 꼬리표와 남은 기간이고 구매 버튼이 없다', (
-      tester,
-    ) async {
+    testWidgets('available은 가격, 확인 두 줄, 구매 버튼이고 이용 중 표시가 없다', (tester) async {
       await tester.pumpWidget(
         _app(_card(OfferCardState.available, onBuy: () {})),
       );
       expect(find.byKey(OfferCard.buyKey), findsOneWidget);
-      expect(find.byType(StatusTag), findsNothing);
-      expect(find.text('11월 23일까지 광고 없이 볼 수 있어요'), findsNothing);
+      expect(find.text(_price), findsOneWidget);
+      expect(find.text(_period), findsOneWidget);
+      expect(find.text(_renewal), findsOneWidget);
+      expect(find.byKey(OfferCard.ownedKey), findsNothing);
+      expect(find.text(_until), findsNothing);
+    });
 
+    testWidgets('active는 가격, 확인 두 줄, 구매 버튼 대신 이용 중 표시다(V135)', (tester) async {
+      final handle = tester.ensureSemantics();
       await tester.pumpWidget(_app(_card(OfferCardState.active)));
       await tester.pumpAndSettle();
       expect(find.byKey(OfferCard.buyKey), findsNothing);
-      expect(find.byType(StatusTag), findsOneWidget);
-      expect(find.text('사용 중'), findsOneWidget);
-      expect(find.text('11월 23일까지 광고 없이 볼 수 있어요'), findsOneWidget);
+      expect(find.text(_price), findsNothing);
+      expect(find.byKey(OfferCard.termsKey), findsNothing);
+      expect(find.byKey(OfferCard.ownedKey), findsOneWidget);
+      expect(find.byKey(OfferCard.historyKey), findsOneWidget);
+
+      final context = tester.element(find.byKey(OfferCard.cardKey));
+      final tokens = context.tokens;
+      // 사용 중: type.label.lg를 gradient.unlocked로 칠함(unlock.mark title).
+      expect(
+        find.ancestor(
+          of: find.text(_statusLabel),
+          matching: find.byType(UnlockMarkTitle),
+        ),
+        findsOneWidget,
+      );
+      final label = tester.widget<Text>(find.text(_statusLabel)).style!;
+      expect(label.fontSize, tokens.typography.labelLg.fontSize);
+      // 끝나는 날: type.title, text.primary, 사용 중 아래 4.
+      final until = tester.widget<Text>(find.text(_until)).style!;
+      expect(until.fontSize, tokens.typography.title.fontSize);
+      expect(until.color, tokens.colors.textPrimary);
+      expect(
+        tester.getTopLeft(find.text(_until)).dy -
+            tester.getBottomLeft(find.text(_statusLabel)).dy,
+        OfferCard.untilGap,
+      );
+      // 혜택 한 줄: type.caption.lg, text.secondary, 끝나는 날 아래 4.
+      final benefit = tester.widget<Text>(find.text(_benefit)).style!;
+      expect(benefit.fontSize, tokens.typography.captionLg.fontSize);
+      expect(benefit.color, tokens.colors.textSecondary);
+      expect(
+        tester.getTopLeft(find.text(_benefit)).dy -
+            tester.getBottomLeft(find.text(_until)).dy,
+        OfferCard.benefitGap,
+      );
+      // head 아래 24에서 시작하고, 왼쪽 밖 12에 세로선이 있습니다.
+      expect(
+        tester.getTopLeft(find.byKey(OfferCard.ownedKey)).dy -
+            tester.getBottomLeft(find.text(_head)).dy,
+        OfferCard.ownedGap,
+      );
+      expect(find.byKey(UnlockMarkRule.ruleKey), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.byKey(UnlockMarkRule.ruleKey)).dx,
+        tester.getTopLeft(find.text(_head)).dx + UnlockMark.ruleOffsetStart,
+      );
+      // 스크린리더는 주는 것 + 사용 중 + 끝나는 날 + 혜택을 한 묶음으로 읽습니다.
+      expect(
+        tester.getSemantics(find.byKey(OfferCard.cardKey)).label,
+        [_head, _statusLabel, _until, _benefit].join(_separator),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('active 혜택 한 줄이 비면 그리지 않는다', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(_app(_card(OfferCardState.active, benefit: '')));
+      await tester.pumpAndSettle();
+      expect(find.text(_benefit), findsNothing);
+      expect(
+        tester.getSemantics(find.byKey(OfferCard.cardKey)).label,
+        [_head, _statusLabel, _until].join(_separator),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('구매 직후 이용 중이 되면 head에 반짝임이 한 번 지나가고 반복하지 않는다', (tester) async {
+      // 여러 element가 같은 render object를 가리키므로 한 번씩만 셉니다.
+      int glinting() => tester.allRenderObjects
+          .whereType<RenderUnlockGlint>()
+          .toSet()
+          .where((render) => render.glinting)
+          .length;
+      await tester.pumpWidget(
+        _app(_card(OfferCardState.active, justPurchased: true)),
+      );
+      await tester.pump(InteractionPattern.appearSeep.duration);
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(glinting(), 1, reason: 'head 하나');
+      for (var i = 0; i < 6; i++) {
+        await tester.pump(const Duration(seconds: 5));
+        expect(glinting(), 0, reason: '다시 지나가지 않음');
+      }
+    });
+
+    testWidgets('구매 직후가 아니면 이용 중 카드에 반짝임이 없다', (tester) async {
+      await tester.pumpWidget(_app(_card(OfferCardState.active)));
+      for (var i = 0; i < 4; i++) {
+        await tester.pump(const Duration(seconds: 5));
+        expect(
+          tester.allRenderObjects.whereType<RenderUnlockGlint>().where(
+            (render) => render.glinting,
+          ),
+          isEmpty,
+        );
+      }
     });
 
     testWidgets('purchasing은 구매 버튼 loading이고 onBuy가 불리지 않는다', (tester) async {
@@ -112,7 +220,8 @@ void main() {
       expect(find.text(_price), findsNothing);
       expect(find.text(_period), findsNothing);
       expect(find.byKey(OfferCard.buyKey), findsNothing);
-      expect(find.byType(StatusTag), findsNothing);
+      expect(find.byKey(OfferCard.termsKey), findsNothing);
+      expect(find.byKey(OfferCard.ownedKey), findsNothing);
       expect(find.text(_head), findsOneWidget);
       expect(find.byType(AppIcon), findsOneWidget);
       expect(find.byKey(OfferCard.legalKey), findsOneWidget);
@@ -189,7 +298,7 @@ void main() {
       final node = tester.getSemantics(find.byKey(OfferCard.cardKey));
       final data = node.getSemanticsData();
       expect(data.flagsCollection.isButton, isFalse);
-      expect(data.label, [_head, _price, _period].join(_separator));
+      expect(data.label, [_head, _price, _period, _renewal].join(_separator));
       var children = 0;
       node.visitChildren((_) {
         children++;
@@ -199,23 +308,57 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('period는 가격 아래 작은 보조색 글씨이고 구매 버튼보다 위다', (tester) async {
+    testWidgets('확인 두 줄은 가격 아래 진한 본문 글씨와 check 16이고 구매 버튼보다 위다(V135)', (
+      tester,
+    ) async {
       await tester.pumpWidget(_app(_card(OfferCardState.available)));
       final priceBottom = tester.getBottomLeft(find.text(_price)).dy;
       final periodTop = tester.getTopLeft(find.text(_period)).dy;
       final periodBottom = tester.getBottomLeft(find.text(_period)).dy;
+      final renewalTop = tester.getTopLeft(find.text(_renewal)).dy;
+      final renewalBottom = tester.getBottomLeft(find.text(_renewal)).dy;
       final buyTop = tester.getTopLeft(find.byKey(OfferCard.buyKey)).dy;
-      expect(periodTop - priceBottom, OfferCard.periodGap);
-      expect(buyTop - periodBottom, OfferCard.buyGap);
+      expect(periodTop - priceBottom, OfferCard.termsGap);
+      expect(renewalTop - periodBottom, OfferCard.termsLineGap);
+      expect(buyTop - renewalBottom, OfferCard.buyGap);
 
       final context = tester.element(find.byKey(OfferCard.cardKey));
       final tokens = context.tokens;
-      final captionLg = tokens.typography.captionLg;
-      final style = tester.widget<Text>(find.text(_period)).style!;
-      expect(style.fontSize, captionLg.fontSize);
-      expect(style.fontWeight, captionLg.fontWeight);
-      expect(style.height, captionLg.height);
-      expect(style.color, tokens.colors.textSecondary);
+      final bodyUi = tokens.typography.bodyUi;
+      for (final text in [_period, _renewal]) {
+        final style = tester.widget<Text>(find.text(text)).style!;
+        expect(style.fontSize, bodyUi.fontSize, reason: text);
+        expect(style.color, tokens.colors.textPrimary, reason: text);
+      }
+      final checks = tester
+          .widgetList<AppIcon>(
+            find.descendant(
+              of: find.byKey(OfferCard.termsKey),
+              matching: find.byType(AppIcon),
+            ),
+          )
+          .toList();
+      expect(checks, hasLength(2));
+      for (final check in checks) {
+        expect(check.size, OfferCard.termsIconSize);
+        expect(check.weight, AppIconWeight.regular);
+        expect(check.color, tokens.colors.actionPrimary);
+      }
+      // 아이콘과 글자 사이 8.
+      final iconRight = tester
+          .getTopRight(
+            find
+                .descendant(
+                  of: find.byKey(OfferCard.termsKey),
+                  matching: find.byType(AppIcon),
+                )
+                .first,
+          )
+          .dx;
+      expect(
+        tester.getTopLeft(find.text(_period)).dx - iconRight,
+        OfferCard.termsIconGap,
+      );
     });
 
     testWidgets('period가 null이면 기간 줄이 없고 라벨에 끝 구분자가 남지 않는다', (tester) async {
@@ -282,11 +425,14 @@ void main() {
 
     testWidgets('아이콘은 명세대로 sparkle light 28이다', (tester) async {
       await tester.pumpWidget(_app(_card(OfferCardState.available)));
-      final icon = tester.widget<AppIcon>(find.byType(AppIcon));
+      final icon = tester.widget<AppIcon>(find.byType(AppIcon).first);
       expect(icon.weight, AppIconWeight.light);
       expect(icon.size!.logical, 28);
       final drawn = tester.widget<Icon>(
-        find.descendant(of: find.byType(AppIcon), matching: find.byType(Icon)),
+        find.descendant(
+          of: find.byType(AppIcon).first,
+          matching: find.byType(Icon),
+        ),
       );
       expect(drawn.icon, PhosphorIconsLight.sparkle);
     });
@@ -310,8 +456,8 @@ void main() {
         buyLabel: '구매하기',
         historyLabel: '구매 내역',
         legalNotice: '구매 전에 약관을 확인해 주세요.',
-        statusLabel: '사용 중',
-        remaining: '11월 23일까지 광고 없이 볼 수 있어요',
+        statusLabel: _statusLabel,
+        remaining: _until,
         onBuy: () {},
         identifiers: ids,
       );

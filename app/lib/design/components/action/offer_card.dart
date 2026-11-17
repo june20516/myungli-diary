@@ -8,7 +8,9 @@ import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
-import 'package:myungli_diary/design/elements/status_tag.dart';
+import 'package:myungli_diary/design/elements/unlock_mark.dart';
+import 'package:myungli_diary/design/interaction/patterns.dart';
+import 'package:myungli_diary/design/interaction/unlock_glint.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
 import 'package:phosphor_glyphs/phosphor_glyphs.dart';
@@ -18,7 +20,7 @@ enum OfferCardState {
   /// 살 수 있음. 구매 버튼이 보입니다.
   available,
 
-  /// 이용 중. 구매 버튼 대신 꼬리표와 남은 기간이 보입니다(`appear.seep`).
+  /// 이용 중. 가격, 확인 두 줄, 구매 버튼 대신 이용 중 표시(`owned`)가 보입니다(`appear.seep`).
   active,
 
   /// 구매 처리 중. 구매 버튼에서 점이 숨 쉽니다.
@@ -34,8 +36,8 @@ enum OfferCardState {
 
 /// [OfferCard] 부품별 IA 슬롯 id. 있는 것만 그 부품의 Semantics `identifier`로 붙습니다.
 ///
-/// 화면이 `SlotIds`(예 `ad-free.offer.head`)를 넘깁니다. 카드 묶음이 함께 읽는
-/// [head]·[price]·[period]는 읽기에서 빠진 글자라, 찾기용 빈 노드에 identifier만 답니다.
+/// 화면이 `SlotIds`(예 `ad-free.offer.head`)를 넘깁니다. 카드 묶음이 함께 읽는 글자는
+/// 읽기에서 빠진 글자라, 찾기용 빈 노드에 identifier만 답니다.
 @immutable
 final class OfferCardIdentifiers {
   /// 부품별 슬롯 id를 정합니다. 모두 선택입니다.
@@ -59,7 +61,7 @@ final class OfferCardIdentifiers {
   /// [OfferCard.period] 슬롯.
   final String? period;
 
-  /// [OfferCard.remaining] 슬롯.
+  /// [OfferCard.remaining] 슬롯(이용 중 끝나는 날).
   final String? remaining;
 
   /// 구매 버튼 슬롯.
@@ -77,20 +79,27 @@ final class OfferCardIdentifiers {
 
 /// 광고 제거권 카드(`offer-card`, D53·D54).
 ///
-/// 위에서 아래로 아이콘 → [head] → [price] → [period] →
-/// (이용 중이면 [statusLabel]·[remaining], 아니면 구매 버튼) → 구매 내역 조용한 버튼 →
-/// 약관 안내입니다. 상품이 없으면([OfferCardState.unavailable]) [price], [period], 구매 버튼
-/// 대신 [head] 아래 안내 한 줄([unavailableNote])이고 나머지는 그대로입니다(V123).
-/// 가격·기간·자동 갱신 아님 고지([price]·[period])는 구매 버튼보다 위, 같은 카드 안에
-/// 둡니다. 구매 내역 버튼은 [state]와 관계없이 늘 보입니다(따로 누르는 구매 복원 버튼은
-/// 없음, D88 ②).
+/// 위에서 아래로 아이콘 → [head] → [price] → 확인 두 줄(`terms`: [period], [renewal]) →
+/// 구매 버튼 → 구매 내역 조용한 버튼 → 약관 안내입니다(9.0.0, V135).
+///
+/// * 이용 중([OfferCardState.active]): 가격, 확인 두 줄, 구매 버튼 대신 이용 중 표시(`owned`,
+///   요소 `unlock.mark` 모양)입니다. [statusLabel]("사용 중")을 `gradient.unlocked` 글자로,
+///   끝나는 날([remaining])을 제목 크기로, 혜택 한 줄([benefit], 비면 그리지 않음)을 두고 왼쪽 밖
+///   12에 세로선을 긋습니다. [justPurchased]면 표시가 다 나타난 직후 [head]에
+///   `unlock.glint`가 한 번 지나갑니다(반복 없음, 동작 줄이기면 없음).
+/// * 상품 없음([OfferCardState.unavailable]): [price], 확인 두 줄, 구매 버튼 대신 [head]
+///   아래 안내 한 줄([unavailableNote])이고 나머지는 그대로입니다(V123).
+///
+/// 가격과 확인 두 줄은 구매 버튼보다 위, 같은 카드 안에 둡니다. 구매 내역 버튼은 [state]와
+/// 관계없이 늘 보입니다(따로 누르는 구매 복원 버튼은 없음, D88 ②).
 ///
 /// 문구는 모두 화면이 ARB에서 읽어 넘깁니다. 구매 완료 햅틱(light)도 화면의 몫입니다.
-/// 스크린리더는 카드를 한 묶음으로 보고 [head]·[price]·[period]를 함께 읽으며,
-/// 버튼은 따로 읽습니다.
+/// 스크린리더는 카드를 한 묶음으로 보고 보이는 글자(확인 아이콘, 세로선, 반짝임 빼고)를 함께
+/// 읽으며, 버튼은 따로 읽습니다.
 class OfferCard extends StatelessWidget {
-  /// 카드를 만듭니다. [statusLabel]("사용 중")과 [remaining]은 [state]가 `active`일 때 씁니다.
-  /// [animated]가 false면 구매 버튼의 점이 정지 상태로 그려집니다(golden).
+  /// 카드를 만듭니다. [statusLabel]("사용 중"), [remaining], [benefit], [justPurchased]는
+  /// [state]가 `active`일 때 씁니다. [animated]가 false면 구매 버튼의 점이 정지 상태로
+  /// 그려집니다(golden).
   const new({
     required this.state,
     required this.head,
@@ -99,8 +108,11 @@ class OfferCard extends StatelessWidget {
     this.buyLabel,
     this.price,
     this.period,
+    this.renewal,
     this.statusLabel,
     this.remaining,
+    this.benefit,
+    this.justPurchased = false,
     this.unavailableNote,
     this.onBuy,
     this.onHistory,
@@ -203,13 +215,47 @@ class OfferCard extends StatelessWidget {
   /// [head]와 [price] 사이(`parts.price.marginTop`, `space.16`).
   static const double priceGap = Space.s16;
 
-  /// [price]와 [period] 사이. 명세에 값이 없어 purchase-row 보조 줄 간격
-  /// (`PurchaseRowGroup.metaGap`, `space.4`)을 따릅니다.
-  static const double periodGap = Space.s4;
+  /// [price]와 확인 두 줄 사이(`parts.terms.marginTop`, `space.8`).
+  static const double termsGap = Space.s8;
 
-  /// 마지막 안내(가격·기간)와 구매 버튼·이용 중 표시 사이(`parts.buy.marginTop`, `space.24`).
+  /// 확인 줄 사이(`parts.terms.gap`, `space.4`).
+  static const double termsLineGap = Space.s4;
+
+  /// 확인 아이콘(`check`) 크기(`parts.terms.line.iconSize`).
+  static const AppIconSize termsIconSize = AppIconSize.s16;
+
+  /// 확인 아이콘과 글자 사이(`parts.terms.line.gap`, `space.8`).
+  static const double termsIconGap = Space.s8;
+
+  /// 기간 줄의 줄 수(`parts.terms.period.maxLines`). 원고 상한을 잰 줄 수이고, 큰 글자에서는
+  /// 자르지 않고 줄이 늡니다(A139와 같은 읽기).
+  static const int periodMaxLines = 1;
+
+  /// 자동 결제 없음 줄의 줄 수(`parts.terms.renewal.maxLines`). 읽기는 [periodMaxLines]와
+  /// 같습니다.
+  static const int renewalMaxLines = 2;
+
+  /// 마지막 안내(가격, 확인 두 줄)와 구매 버튼 사이(`parts.buy.marginTop`, `space.24`).
   /// 상품 없음 안내 아래 구매 내역 버튼까지도 같은 간격입니다(구매 버튼이 빠진 자리, A139).
   static const double buyGap = Space.s24;
+
+  /// [head]와 이용 중 표시 사이(`parts.owned.marginTop`, `space.24`).
+  static const double ownedGap = Space.s24;
+
+  /// "사용 중"과 끝나는 날 사이(`parts.owned.until.marginTop`, `space.4`).
+  static const double untilGap = Space.s4;
+
+  /// 끝나는 날과 혜택 한 줄 사이(`parts.owned.benefit.marginTop`, `space.4`).
+  static const double benefitGap = Space.s4;
+
+  /// 혜택 한 줄의 줄 수(`parts.owned.benefit.maxLines`). [periodMaxLines]와 같은 읽기입니다.
+  static const int benefitMaxLines = 2;
+
+  /// 이용 중 표시를 찾는 테스트용 키.
+  static const Key ownedKey = ValueKey('offer-card-owned');
+
+  /// 확인 두 줄을 찾는 테스트용 키.
+  static const Key termsKey = ValueKey('offer-card-terms');
 
   /// [head]와 상품 없음 안내 사이(`parts.unavailable.marginTop`, `space.16`).
   static const double unavailableGap = Space.s16;
@@ -221,14 +267,16 @@ class OfferCard extends StatelessWidget {
   /// 구매 내역 버튼과 약관 안내 사이(`parts.legal.marginTop`, `space.12`).
   static const double legalGap = Space.s12;
 
-  /// 이용 중 꼬리표와 남은 기간 사이.
-  static const double _statusGap = Space.s8;
-
   static const List<FontFeature> _tabular = [FontFeature.tabularFigures()];
 
   static const AppGlyph _sparkle = AppGlyph(
     light: PhosphorIconsLight.sparkle,
     regular: PhosphorIconsRegular.sparkle,
+  );
+
+  static const AppGlyph _check = AppGlyph(
+    light: PhosphorIconsLight.check,
+    regular: PhosphorIconsRegular.check,
   );
 
   /// 카드 상태.
@@ -242,10 +290,13 @@ class OfferCard extends StatelessWidget {
   /// null이면 가격 줄과 그 간격을 그리지 않습니다(상품을 받지 못한 오프라인 등).
   final String? price;
 
-  /// 기간과 자동 갱신 아님 고지(`ad-free.offer.period`). 가격 아래 작은 글씨입니다.
+  /// 확인 첫 줄, 기간(`ad-free.offer.period`).
   ///
-  /// 가격과 상관없는 고지라 [price]가 null이어도 보입니다. null이면 그리지 않습니다.
+  /// 가격과 상관없는 고지라 [price]가 null이어도 보입니다. null이면 그 줄을 그리지 않습니다.
   final String? period;
+
+  /// 확인 둘째 줄, 자동 결제 없음(IA 밖 `ui.ad-free.renewal`). null이면 그 줄을 그리지 않습니다.
+  final String? renewal;
 
   /// 구매 버튼 문구. [OfferCardState.unavailable]에서는 쓰지 않습니다(구매 버튼 없음, V123).
   final String? buyLabel;
@@ -256,11 +307,17 @@ class OfferCard extends StatelessWidget {
   /// 약관·정책 안내(`ad-free.legal.notice`).
   final String legalNotice;
 
-  /// 이용 중 꼬리표 문구("사용 중", `tag.status`).
+  /// 이용 중 표시의 "사용 중"(`ui.purchase.status` `purchaseStatusActive`).
   final String? statusLabel;
 
-  /// 남은 기간·만료일 문장(`ad-free.status.remaining`).
+  /// 이용 중 끝나는 날(`ad-free.status.remaining`, 예 "2026년 12월 17일까지").
   final String? remaining;
+
+  /// 이용 중 혜택 한 줄(IA 밖 `ui.ad-free.benefit`). null이거나 비면 그리지 않습니다.
+  final String? benefit;
+
+  /// 이 화면에서 구매가 끝나 이용 중이 됐는지. true면 [head]에 반짝임이 한 번 지나갑니다.
+  final bool justPurchased;
 
   /// 상품 없음 안내(`ad-free.unavailable.body`). [OfferCardState.unavailable]에서만 씁니다.
   final String? unavailableNote;
@@ -295,10 +352,35 @@ class OfferCard extends StatelessWidget {
     // 상품이 없으면 가격, 기간, 구매 버튼 대신 안내 한 줄입니다(이용 중이면 active가 먼저, V123).
     final unavailable = state == OfferCardState.unavailable;
     final unavailableNote = unavailable ? this.unavailableNote : null;
-    final price = unavailable ? null : this.price;
-    final period = unavailable ? null : this.period;
+    // 이용 중과 상품 없음에는 가격과 확인 두 줄을 그리지 않습니다(V123, V135).
+    final offered = !active && !unavailable;
+    final price = offered ? this.price : null;
+    final period = offered ? this.period : null;
+    final renewal = offered ? this.renewal : null;
+    final benefit = this.benefit;
+    final owned = active
+        ? (
+            label: statusLabel,
+            until: remaining,
+            benefit: benefit == null || benefit.isEmpty ? null : benefit,
+          )
+        : null;
 
-    return Semantics(
+    final headText = _identified(
+      identifiers.head,
+      ExcludeSemantics(
+        child: UnlockGlint(
+          child: Text(
+            head,
+            style: tokens.typography.subtitle.copyWith(
+              color: colors.textPrimary,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final card = Semantics(
       key: cardKey,
       container: true,
       explicitChildNodes: true,
@@ -306,6 +388,10 @@ class OfferCard extends StatelessWidget {
         head,
         ?price,
         ?period,
+        ?renewal,
+        ?owned?.label,
+        ?owned?.until,
+        ?owned?.benefit,
         ?unavailableNote,
       ].join(l10n.a11yListSeparator),
       child: DecoratedBox(
@@ -329,17 +415,7 @@ class OfferCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: headGap),
-              _identified(
-                identifiers.head,
-                ExcludeSemantics(
-                  child: Text(
-                    head,
-                    style: tokens.typography.subtitle.copyWith(
-                      color: colors.textPrimary,
-                    ),
-                  ),
-                ),
-              ),
+              headText,
               if (price != null) ...[
                 const SizedBox(height: priceGap),
                 _identified(
@@ -355,19 +431,21 @@ class OfferCard extends StatelessWidget {
                   ),
                 ),
               ],
-              if (period != null) ...[
+              if (period != null || renewal != null) ...[
                 // 가격이 없으면 head 바로 아래에서 시작하므로 가격 자리의 간격을 씁니다.
-                SizedBox(height: price != null ? periodGap : priceGap),
-                _identified(
-                  identifiers.period,
-                  ExcludeSemantics(
-                    child: Text(
-                      period,
-                      style: tokens.typography.captionLg.copyWith(
-                        color: colors.textSecondary,
+                SizedBox(height: price != null ? termsGap : priceGap),
+                Column(
+                  key: termsKey,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: termsLineGap,
+                  children: [
+                    if (period != null)
+                      _identified(
+                        identifiers.period,
+                        _termLine(context, period),
                       ),
-                    ),
-                  ),
+                    if (renewal != null) _termLine(context, renewal),
+                  ],
                 ),
               ],
               if (unavailableNote != null) ...[
@@ -386,12 +464,23 @@ class OfferCard extends StatelessWidget {
                   ),
                 ),
               ],
-              const SizedBox(height: buyGap),
-              if (active)
-                SeepOnChange(changeKey: active, child: _activeStatus(context))
-              else if (!unavailable)
-                if (buyLabel case final label?)
-                  SeepOnChange(changeKey: active, child: _buyButton(label)),
+              if (owned != null) ...[
+                const SizedBox(height: ownedGap),
+                SeepOnChange(
+                  changeKey: active,
+                  child: _owned(
+                    context,
+                    label: owned.label,
+                    until: owned.until,
+                    benefit: owned.benefit,
+                  ),
+                ),
+              ] else ...[
+                const SizedBox(height: buyGap),
+                if (!unavailable)
+                  if (buyLabel case final label?)
+                    SeepOnChange(changeKey: active, child: _buyButton(label)),
+              ],
               PrimaryButton(
                 key: historyKey,
                 label: historyLabel,
@@ -407,6 +496,45 @@ class OfferCard extends StatelessWidget {
         ),
       ),
     );
+    // 구매 직후 이용 중이 되면 표시가 다 나타난 뒤 head에 한 번(`active.justPurchased`).
+    if (!active || !justPurchased) return card;
+    return UnlockGlintScope(
+      once: true,
+      firstDelay: InteractionPattern.appearSeep.duration,
+      child: card,
+    );
+  }
+
+  /// 확인 한 줄: `check` 16(첫 줄 가운데) + [space.8] + `type.body.ui` 진한 글자.
+  Widget _termLine(BuildContext context, String text) {
+    final tokens = context.tokens;
+    final style = tokens.typography.bodyUi.copyWith(
+      color: tokens.colors.textPrimary,
+    );
+    final scaler = MediaQuery.textScalerOf(context);
+    final firstLineHeight =
+        scaler.scale(style.fontSize ?? 0) * (style.height ?? 1);
+    // 카드 묶음이 함께 읽으므로 글자와 아이콘은 읽기에서 뺍니다(슬롯 id는 부르는 쪽이 바깥에 담).
+    return ExcludeSemantics(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: firstLineHeight,
+            child: Center(
+              child: AppIcon(
+                _check,
+                size: termsIconSize,
+                weight: AppIconWeight.regular,
+                color: tokens.colors.actionPrimary,
+              ),
+            ),
+          ),
+          const SizedBox(width: termsIconGap),
+          Expanded(child: Text(text, style: style)),
+        ],
+      ),
+    );
   }
 
   Widget _buyButton(String label) => PrimaryButton(
@@ -419,26 +547,56 @@ class OfferCard extends StatelessWidget {
     animated: animated,
   );
 
-  /// 이용 중: `tag.status` 꼬리표 + 남은 기간·만료일.
-  Widget _activeStatus(BuildContext context) {
+  /// 이용 중 표시(`owned`, 요소 `unlock.mark` 모양): "사용 중"(`gradient.unlocked` 글자) →
+  /// [untilGap] 끝나는 날(`type.title`) → [benefitGap] 혜택 한 줄. 왼쪽 밖 12에 세로선.
+  /// 카드 묶음이 함께 읽으므로 글자는 읽기에서 빼고, 끝나는 날의 슬롯 id는 남깁니다.
+  Widget _owned(
+    BuildContext context, {
+    required String? label,
+    required String? until,
+    required String? benefit,
+  }) {
     final tokens = context.tokens;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: _statusGap,
-      children: [
-        if (statusLabel != null) StatusTag(statusLabel!),
-        if (remaining != null)
-          Semantics(
-            identifier: identifiers.remaining,
-            child: Text(
-              remaining!,
-              style: tokens.typography.bodyUi.copyWith(
-                color: tokens.colors.textPrimary,
-                fontFeatures: _tabular,
+    final typography = tokens.typography;
+    return UnlockMarkRule(
+      key: ownedKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (label != null)
+            ExcludeSemantics(
+              child: UnlockMarkTitle(
+                child: Text(label, style: typography.labelLg),
               ),
             ),
-          ),
-      ],
+          if (until != null) ...[
+            if (label != null) const SizedBox(height: untilGap),
+            _identified(
+              identifiers.remaining,
+              ExcludeSemantics(
+                child: Text(
+                  until,
+                  style: typography.title.copyWith(
+                    color: tokens.colors.textPrimary,
+                    fontFeatures: _tabular,
+                  ),
+                ),
+              ),
+            ),
+          ],
+          if (benefit != null) ...[
+            const SizedBox(height: benefitGap),
+            ExcludeSemantics(
+              child: Text(
+                benefit,
+                style: typography.captionLg.copyWith(
+                  color: tokens.colors.textSecondary,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 

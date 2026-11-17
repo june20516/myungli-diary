@@ -25,12 +25,23 @@ import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 ///
 /// 동작 줄이기면(`reduceMotion: replace`) 박자를 돌리지 않고, 대상은 띠를 그리지 않습니다.
 /// 그 자리의 `unlock.mark`는 부르는 쪽이 [UnlockGlintScope.replacedOf]를 보고 그립니다.
+///
+/// [once]면(`unlock.glint` `once`, 광고 제거권 구매 직후, V135) [firstDelay] 뒤 한 번만 지나가고
+/// 10초 반복과 위 멈춤 조건을 쓰지 않습니다. 동작 줄이기면 지나가지 않습니다.
 class UnlockGlintScope extends StatefulWidget {
   /// [child] 안 [UnlockGlint]의 박자를 만듭니다.
-  const new({required this.child, this.firstDelay = Duration.zero, super.key});
+  const new({
+    required this.child,
+    this.firstDelay = Duration.zero,
+    this.once = false,
+    super.key,
+  });
 
   /// 첫 반짝임까지 기다리는 시간(열린 내용이 나타나는 시간).
   final Duration firstDelay;
+
+  /// true면 한 번만 지나갑니다(`once`).
+  final bool once;
 
   /// 대상을 담은 내용.
   final Widget child;
@@ -124,6 +135,10 @@ class _UnlockGlintScopeState extends State<UnlockGlintScope>
   /// 멈춤 조건을 다시 보고 박자를 켜거나 끕니다.
   void _update() {
     if (!mounted) return;
+    if (widget.once) {
+      _scheduleOnce();
+      return;
+    }
     final shouldRun =
         !_replaced &&
         _appActive &&
@@ -147,11 +162,22 @@ class _UnlockGlintScopeState extends State<UnlockGlintScope>
     }
   }
 
-  /// 띠를 한 번 보내고 다음 박자를 잡습니다.
+  /// [UnlockGlintScope.once]: 동작 줄이기가 아니면 첫 기다림 뒤 한 번만 잡습니다.
+  void _scheduleOnce() {
+    if (_replaced || _running || _glinted) return;
+    _running = true;
+    _next = Timer(widget.firstDelay, _beat);
+  }
+
+  /// 띠를 한 번 보내고 다음 박자를 잡습니다([UnlockGlintScope.once]면 잡지 않음).
   void _beat() {
     if (!mounted || !_running) return;
     _glinted = true;
     _sweep.forward(from: 0);
+    if (widget.once) {
+      _running = false;
+      return;
+    }
     _next = Timer(PatternValues.glintInterval, _beat);
   }
 
