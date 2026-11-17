@@ -30,6 +30,7 @@ roadmap.md 마일스톤 표에서 옮긴 끝난 단계의 행 원문입니다.
 | DS1 | **디자인 시스템 재정비(D107):** 공개 디자인 시스템 레퍼런스 조사 → 규칙(간격, 아이콘, 목록 줄, 버튼 조합, 화면 묶음과 섹션 제목, 눌림, 설명 열기, 시트, 확인 창, 로딩, 전환, 키보드) → 화면 결정 시안(D105) → IA, 컴포넌트 계약, 원고 → app 일괄 구현. 검수 대장 F-001~F-031 | 지휘 + design + writing + app | 검수 회차1 | H1, T1 | **완료** (검수 회차2와 빌드 7 항목 F-032~F-058 모두 끝남, 2026-11-14) |
 | H1 | **기준 문서 정리:** 세션이 읽는 문서(`CLAUDE.md`, 결정 로그, 로드맵, 계약 목록)의 앞쪽은 경과 없는 지금 사실, 경과는 뒤쪽이나 별도 파일로 옮기고 2차 참조로 잇기. 처음 읽는 문서 크기 상한(D131) | 지휘 + 각 단위 | 검수 피드백 회차(`docs/review/`) | Q1 | **완료** (세션 시작 때 읽는 양 53~64% 줄임, [spec](specs/2026-11-13-h1-doc-slimming-design.md) §7) |
 | O1 | **관측:** 앱 크래시(Crashlytics 보고 확인, 심볼 업로드), server와 인프라 알림(5xx, 지연, 인스턴스 상한, DB, Job 실패), 외부 uptime check, 예산 알림. 준비 메모 [`docs/specs/2026-10-30-capacity-observability-design.md`](specs/2026-10-30-capacity-observability-design.md) | 지휘 + server + app | staging 기동(P9) | T1 | **완료** |
+| Q1 | **T1 전 보안 점검:** 인프라, 배포 경로, server, 엔진, app, 로컬 값 전반. 발견 상세는 비공개 저장소에만(D74). 관문: Critical과 High 0. 준비 메모 [`docs/specs/2026-10-30-security-review-design.md`](specs/2026-10-30-security-review-design.md) | 지휘 + 각 단위 + 독립 점검 | 검수 피드백 회차, H1, staging 기동(P9) | T1 | **완료** (2026-11-17. 독립 점검 3갈래와 단위 자기 점검 3: Critical 0, High 0. High 1(INFRA-1)은 D136으로 처리. 고지 불일치는 D137. Medium 이하는 I4 전 #1253~#1255, 상세는 비공개 기록) |
 
 ## 끝난 마일스톤 상태 원문(2026-11-14까지)
 
