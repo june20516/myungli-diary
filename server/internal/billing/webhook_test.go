@@ -196,10 +196,61 @@ func TestWebhooks_Handle_FirstEvent_StoresAndSyncs(t *testing.T) {
 	assert.True(t, rows[0].ProcessedAt.Equal(now))
 	var payload map[string]any
 	require.NoError(t, json.Unmarshal(rows[0].Payload, &payload))
-	assert.Equal(t, body, payload)
+	assert.Equal(t, map[string]any{"event": map[string]any{
+		"id": "evt-1", "type": "INITIAL_PURCHASE", "app_user_id": accountID.String(),
+	}}, payload)
 
 	assert.EqualValues(t, 1, f.source.calls.Load())
 	assertPeriod(t, allGrants(t, f.pool), "p1", oct1, nov1, nil)
+}
+
+// 저장하는 칸은 회계와 분쟁 대응에 쓰는 것뿐이고 고객 속성, 별칭, 국가, 수수료 같은 칸은 남기지 않습니다(D137 ③, S164).
+func TestWebhooks_Handle_StoresOnlyRecordFields(t *testing.T) {
+	f := newWebhookFixture(t)
+	accountID := newAccount(t, f.pool)
+	f.source.set(accountID, owned("p1", oct1))
+	kept := map[string]any{
+		"event_timestamp_ms": float64(1792497600000), "environment": "PRODUCTION", "store": "APP_STORE",
+		"app_user_id": accountID.String(), "original_app_user_id": accountID.String(),
+		"product_id": "ad_free_1m", "entitlement_ids": []any{"ad_free"}, "period_type": "NORMAL",
+		"purchased_at_ms": float64(1792497600000), "expiration_at_ms": float64(1795176000000),
+		"transaction_id": "tx-2", "original_transaction_id": "tx-1",
+		"price": 1.5, "currency": "USD", "price_in_purchased_currency": 1.5,
+		"cancel_reason": "CUSTOMER_SUPPORT", "expiration_reason": "UNSUBSCRIBE",
+		"transferred_from": []any{"a"}, "transferred_to": []any{"b"},
+	}
+	dropped := map[string]any{
+		"subscriber_attributes": map[string]any{"$email": map[string]any{"value": "someone@example.com"}},
+		"aliases":               []any{"$RCAnonymousID:1"},
+		"country_code":          "KR",
+		"takehome_percentage":   0.7,
+		"tax_percentage":        0.1,
+		"commission_percentage": 0.15,
+		"offer_code":            "SPRING",
+		"presented_offering_id": "default",
+		"app_id":                "app1",
+	}
+	fields := map[string]any{}
+	for k, v := range kept {
+		fields[k] = v
+	}
+	for k, v := range dropped {
+		fields[k] = v
+	}
+	body := webhookBody("evt-1", "CANCELLATION", fields)
+
+	require.NoError(t, f.webhooks.Handle(context.Background(), body))
+
+	rows := eventRows(t, f.pool, "evt-1")
+	require.Len(t, rows, 1)
+	var payload map[string]any
+	require.NoError(t, json.Unmarshal(rows[0].Payload, &payload))
+	want := map[string]any{"id": "evt-1", "type": "CANCELLATION"}
+	for k, v := range kept {
+		want[k] = v
+	}
+	assert.Equal(t, map[string]any{"event": want}, payload)
+	assert.NotContains(t, string(rows[0].Payload), "someone@example.com")
 }
 
 func TestWebhooks_Handle_SameEventAgain_DoesNotSync(t *testing.T) {

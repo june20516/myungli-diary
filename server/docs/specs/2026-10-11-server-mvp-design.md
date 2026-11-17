@@ -174,8 +174,8 @@ Apple refresh token은 애플리케이션 단에서 AES-GCM으로 암호화합�
 | `devices` | account_id, fcm_token(unique, nullable), platform, active, last_seen_at | 무효 토큰이면 active=false. 익명화 때 토큰을 지움. **S119로 개정:** fcm_token은 NOT NULL이고 unique는 SHA-256 `token_hash`에 걸며, 해제·상한 초과는 비활성 행으로 남기고, 계정 삭제와 합치기의 B 삭제가 행을 지움 |
 | `notification_log` | account_id, local_date, result(`pending`·`sent`·`failed`), claimed_at, sent_at | PK(account_id, local_date), 30일 보관(S129) |
 | `entitlement_grants` | account_id, entitlement(`ad_free`·`insight`), source(`ad_free_pass`·`rewarded_ad`·`subscription`, staging만 `test_grant`(S125)), source_ref(구매 id·`transaction_id`), starts_at, expires_at, revoked_at | 권한 부여 한 건이 한 행입니다. 판정은 같은 entitlement의 유효한 행(`revoked_at`이 없고 `starts_at ≤ now < expires_at`)이 하나라도 있는지입니다. 출처를 기록하라는 D60④를 이 구조가 만족하고, 구독도 같은 모양으로 담습니다 (D53·D60) |
-| `reward_events` | transaction_id(unique), account_id, ad_unit, reward_item, raw_query, received_at | AdMob SSV 원본. 같은 `transaction_id`는 한 번만 처리 (D60④) |
-| `billing_events` | event_id(unique), account_id, payload(jsonb), received_at, processed_at | 전자상거래법에 따라 5년 보관 |
+| `reward_events` | transaction_id(unique), account_id, ad_unit, reward_item, callback_at, source, received_at | AdMob SSV 콜백 기록(원본 쿼리는 저장하지 않음, S164). 같은 `transaction_id`는 한 번만 처리 (D60④) |
+| `billing_events` | event_id(unique), account_id, payload(jsonb, 허용한 event 칸만, S164), received_at, processed_at | 전자상거래법에 따라 5년 보관 |
 | `preview_usage` | device_hash(PK, 설치 id의 SHA-256 32바이트), used_at | 지우지 않음. 지우면 1회 제한이 풀림. 출생 정보는 저장하지 않음(S70) |
 | `rate_limits` | key(`<operation>:<IP의 SHA-256 hex>`), window_start(분 단위 내림), count. PK (key, window_start) | 지난 창은 정리 대상(`window_start` 인덱스) |
 | `idempotency_keys` | PK (account_id, key), request_hash(SHA-256), status, headers(jsonb), body, created_at, completed_at | 24시간 뒤 정리. `completed_at`이 NULL이면 처리 중 |

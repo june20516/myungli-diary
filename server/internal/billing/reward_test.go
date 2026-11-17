@@ -56,19 +56,20 @@ type rewardEventRow struct {
 	AccountID  uuid.NullUUID
 	AdUnit     *string
 	RewardItem *string
-	RawQuery   string
+	CallbackAt time.Time
+	Source     string
 }
 
 func rewardEvents(t *testing.T, pool *pgxpool.Pool, transactionID string) []rewardEventRow {
 	t.Helper()
 	rows, err := pool.Query(context.Background(),
-		"SELECT account_id, ad_unit, reward_item, raw_query FROM reward_events WHERE transaction_id = $1", transactionID)
+		"SELECT account_id, ad_unit, reward_item, callback_at, source FROM reward_events WHERE transaction_id = $1", transactionID)
 	require.NoError(t, err)
 	defer rows.Close()
 	var out []rewardEventRow
 	for rows.Next() {
 		var row rewardEventRow
-		require.NoError(t, rows.Scan(&row.AccountID, &row.AdUnit, &row.RewardItem, &row.RawQuery))
+		require.NoError(t, rows.Scan(&row.AccountID, &row.AdUnit, &row.RewardItem, &row.CallbackAt, &row.Source))
 		out = append(out, row)
 	}
 	require.NoError(t, rows.Err())
@@ -100,20 +101,21 @@ func callback(txID, userID string) billing.RewardCallback {
 	return billing.RewardCallback{TransactionID: txID, UserID: userID, AdUnit: "123", RewardItem: "insight", Timestamp: now}
 }
 
-const rawQuery = "ad_unit=123&transaction_id=tx-1&user_id=x&signature=sig&key_id=1"
-
 func TestRewards_Grant_AccountWithProfile_GrantsForTwoHours(t *testing.T) {
 	f := newRewardFixture(t)
 	accountID := newAccount(t, f.pool)
 	insertProfile(t, f.pool, accountID, "Asia/Seoul")
 
-	require.NoError(t, f.rewards.Grant(context.Background(), callback("tx-1", accountID.String()), rawQuery))
+	cb := callback("tx-1", accountID.String())
+	cb.Timestamp = now.Add(-30 * time.Second)
+	require.NoError(t, f.rewards.Grant(context.Background(), cb))
 
 	events := rewardEvents(t, f.pool, "tx-1")
 	require.Len(t, events, 1)
 	assert.Equal(t, accountID, events[0].AccountID.UUID)
 	assert.True(t, events[0].AccountID.Valid)
-	assert.Equal(t, rawQuery, events[0].RawQuery)
+	assert.True(t, cb.Timestamp.Equal(events[0].CallbackAt), "콜백 시각은 서명된 SSV timestamp입니다")
+	assert.Equal(t, "ssv", events[0].Source)
 	require.NotNil(t, events[0].AdUnit)
 	assert.Equal(t, "123", *events[0].AdUnit)
 	grants := rewardGrants(t, f.pool)
@@ -145,7 +147,7 @@ func TestRewards_Grant_ExpiryIgnoresTimezone(t *testing.T) {
 				insertProfile(t, f.pool, accountID, timezone)
 			}
 
-			require.NoError(t, f.rewards.Grant(context.Background(), callback("tx-1", accountID.String()), rawQuery))
+			require.NoError(t, f.rewards.Grant(context.Background(), callback("tx-1", accountID.String())))
 
 			grants := rewardGrants(t, f.pool)
 			require.Len(t, grants, 1)
@@ -158,8 +160,8 @@ func TestRewards_Grant_SameTransactionTwice_OneRowEach(t *testing.T) {
 	f := newRewardFixture(t)
 	accountID := newAccount(t, f.pool)
 
-	require.NoError(t, f.rewards.Grant(context.Background(), callback("tx-1", accountID.String()), rawQuery))
-	require.NoError(t, f.rewards.Grant(context.Background(), callback("tx-1", accountID.String()), rawQuery))
+	require.NoError(t, f.rewards.Grant(context.Background(), callback("tx-1", accountID.String())))
+	require.NoError(t, f.rewards.Grant(context.Background(), callback("tx-1", accountID.String())))
 
 	assert.Len(t, rewardEvents(t, f.pool, "tx-1"), 1)
 	assert.Len(t, rewardGrants(t, f.pool), 1)
@@ -176,7 +178,7 @@ func TestRewards_Grant_SameTransactionConcurrently_OneRowEach(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			errs[i] = f.rewards.Grant(context.Background(), callback("tx-1", accountID.String()), rawQuery)
+			errs[i] = f.rewards.Grant(context.Background(), callback("tx-1", accountID.String()))
 		}()
 	}
 	wg.Wait()
@@ -202,7 +204,7 @@ func TestRewards_Grant_NoAccount_RecordsOnlyAndWarns(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			f := newRewardFixture(t)
 
-			require.NoError(t, f.rewards.Grant(context.Background(), callback("tx-1", tt.userID), rawQuery))
+			require.NoError(t, f.rewards.Grant(context.Background(), callback("tx-1", tt.userID)))
 
 			events := rewardEvents(t, f.pool, "tx-1")
 			require.Len(t, events, 1)
@@ -221,9 +223,9 @@ func TestRewards_Grant_NoAccount_DuplicateCallbackWarnsOnce(t *testing.T) {
 	f := newRewardFixture(t)
 	cb := callback("tx-1", uuid.NewString())
 
-	require.NoError(t, f.rewards.Grant(context.Background(), cb, rawQuery))
-	require.NoError(t, f.rewards.Grant(context.Background(), cb, rawQuery))
-	require.NoError(t, f.rewards.Grant(context.Background(), cb, rawQuery))
+	require.NoError(t, f.rewards.Grant(context.Background(), cb))
+	require.NoError(t, f.rewards.Grant(context.Background(), cb))
+	require.NoError(t, f.rewards.Grant(context.Background(), cb))
 
 	assert.Equal(t, 1, strings.Count(f.logs.String(), `"severity":"WARNING"`), "중복 콜백은 Warn을 늘리지 않습니다")
 }
@@ -234,7 +236,7 @@ func TestRewards_Grant_DeletedAccount_StillGrants(t *testing.T) {
 	_, err := f.pool.Exec(context.Background(), "UPDATE accounts SET status = 'deleted', deleted_at = now() WHERE id = $1", accountID)
 	require.NoError(t, err)
 
-	require.NoError(t, f.rewards.Grant(context.Background(), callback("tx-1", accountID.String()), rawQuery))
+	require.NoError(t, f.rewards.Grant(context.Background(), callback("tx-1", accountID.String())))
 
 	assert.Len(t, rewardGrants(t, f.pool), 1)
 }

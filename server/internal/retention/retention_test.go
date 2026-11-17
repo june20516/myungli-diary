@@ -278,7 +278,7 @@ func (f *fixture) grantExists(sourceRef string) bool {
 func TestSteps_DeletesRewardRecordsAfterOneYear(t *testing.T) {
 	f := newFixture(t)
 	account := f.account()
-	insert := `INSERT INTO reward_events (transaction_id, account_id, raw_query, received_at) VALUES ($1, $2, '', $3)`
+	insert := `INSERT INTO reward_events (transaction_id, account_id, callback_at, source, received_at) VALUES ($1, $2, $3, 'ssv', $3)`
 	f.exec(insert, "old", account, now.AddDate(-1, 0, -1))
 	f.exec(insert, "recent", account, now.AddDate(-1, 0, 1))
 	f.insertGrant(account, "rewarded_ad", "old", now.AddDate(-1, 0, -1))

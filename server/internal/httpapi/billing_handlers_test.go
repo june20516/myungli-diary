@@ -333,14 +333,12 @@ func (f *fakeRewardVerifier) Verify(_ context.Context, rawQuery string) (billing
 type fakeRewards struct {
 	err       error
 	calls     int
-	gotQuery  string
 	gotCaller billing.RewardCallback
 }
 
-func (f *fakeRewards) Grant(_ context.Context, cb billing.RewardCallback, rawQuery string) error {
+func (f *fakeRewards) Grant(_ context.Context, cb billing.RewardCallback) error {
 	f.calls++
 	f.gotCaller = cb
-	f.gotQuery = rawQuery
 	return f.err
 }
 
@@ -355,7 +353,7 @@ func getReward(t *testing.T, api *httpapi.API) (*httptest.ResponseRecorder, *byt
 	return rec, logs, func() { expectContractResponse(t, spec, req, rec) }
 }
 
-func TestAdmobRewardCallback_Success_PassesRawQueryAndReturns200WithoutBody(t *testing.T) {
+func TestAdmobRewardCallback_Success_VerifiesRawQueryAndReturns200WithoutBody(t *testing.T) {
 	verifier := &fakeRewardVerifier{callback: billing.RewardCallback{TransactionID: "tx+1", UserID: "a-b"}}
 	rewards := &fakeRewards{}
 	rec, logs, check := getReward(t, &httpapi.API{RewardVerifier: verifier, Rewards: rewards})
@@ -365,7 +363,6 @@ func TestAdmobRewardCallback_Success_PassesRawQueryAndReturns200WithoutBody(t *t
 	assert.Empty(t, rec.Body.String())
 	assert.Equal(t, rewardQuery, verifier.gotQuery, "원본 쿼리를 계약 검증 뒤에도 같은 문자열로 넘깁니다")
 	assert.Equal(t, 1, rewards.calls)
-	assert.Equal(t, rewardQuery, rewards.gotQuery)
 	assert.Equal(t, "tx+1", rewards.gotCaller.TransactionID)
 	assert.NotContains(t, logs.String(), "signature-marker-value")
 }
