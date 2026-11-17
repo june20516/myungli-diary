@@ -43,7 +43,7 @@
 CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범위를 고릅니다(D81, `docs/workflow.md` §6.2). own은 전체를 돌리고, drift·gate는 계약을 읽는 검사만 돌립니다. 반복 중에는 아래 빠른 경로를 로컬에서 돌립니다(`server/`에서 실행).
 
 * **바뀐 패키지만:** `go test -race $(git diff --name-only origin/main... -- . | grep '\.go$' | sed 's#^server/##' | xargs -n1 dirname | sort -u | sed 's#^#./#')`. DB 테스트(testcontainers)는 Docker가 켜져 있어야 합니다.
-* **계약을 바꿨을 때:** `go generate ./... && git status --porcelain`(출력이 비어야 함), `go test -race ./api/ ./seed/... ./legal/... ./internal/content/render/ ./internal/profile/honorific/`, `go test -race -run 'TestRegisterAPI_|TestProblemCodes_|TestLegalPage_|TestAppCheck_' ./internal/httpapi/`
+* **계약을 바꿨을 때:** `go run ./cmd/contractgate -base origin/main`(이미 나간 앱을 깨는 변경 관문, D138, S165), `go generate ./... && git status --porcelain`(출력이 비어야 함), `go test -race ./api/ ./seed/... ./legal/... ./internal/content/render/ ./internal/profile/honorific/`, `go test -race -run 'TestRegisterAPI_|TestProblemCodes_|TestLegalPage_|TestAppCheck_' ./internal/httpapi/`
 * **엔진 클라이언트나 proto를 바꿨을 때만:** `go test -count=1 -tags enginecontract ./internal/engine/...`(core 이미지를 빌드해 띄우므로 느립니다)
 * **commit 전:** `go vet ./... && golangci-lint run ./... && go test -race ./...`. staging 태그를 건드렸으면 `-tags staging`으로 vet·lint를 한 번 더 돌립니다.
 
