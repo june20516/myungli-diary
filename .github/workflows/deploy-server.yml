@@ -188,5 +188,5 @@ jobs:
           done
           terraform destroy -input=false -auto-approve -var-file=load.tfvars -target=google_sql_database_instance.main
       - name: engine 최소 인스턴스 0으로 내리기
-        # 측정 때 최소 인스턴스 1(#817)로 둔 engine이 teardown 뒤에도 켜져 있지 않게 합니다(2026-11-09).
+        # load.tfvars가 다시 최소 인스턴스를 두더라도(#817, S143) engine이 teardown 뒤에 켜져 있지 않게 합니다(2026-11-09). 지금 값은 0입니다(S163).
         run: gcloud run services update engine --project myungli-diary-load --region asia-northeast3 --min-instances 0 --quiet

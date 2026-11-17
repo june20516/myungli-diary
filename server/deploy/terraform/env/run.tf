@@ -12,7 +12,7 @@ resource "google_cloud_run_v2_service" "engine" {
     # 값은 MAX_WORKERS와 같아야 하며 internal/engine의 TestEngineConcurrency_MatchesCoreWorkers가 대조합니다.
     max_instance_request_concurrency = 8
 
-    # 아침 몰림의 첫 증설 지연을 줄이려고 prod(와 같은 용량으로 재는 load)는 하나를 늘 띄워 둡니다(#817 ④).
+    # 최소 인스턴스는 환경 값입니다. I4 전까지는 모든 환경이 0이고, prod를 다시 1로 둘지는 I4 2주 전 점검(#903)에서 정합니다(S163).
     scaling {
       min_instance_count = var.min_instances
     }
@@ -27,6 +27,9 @@ resource "google_cloud_run_v2_service" "engine" {
           cpu    = "1"
           memory = "512Mi"
         }
+        # 요청을 처리하는 동안에만 CPU를 받고 과금합니다(S163). 응답 뒤에 도는 작업이 없어야 하므로 그런 작업은 Job으로 둡니다.
+        # resources를 두면 provider 기본값이 상시 할당이라 명시합니다.
+        cpu_idle          = true
         startup_cpu_boost = true
       }
 
@@ -77,7 +80,7 @@ resource "google_cloud_run_v2_service" "server" {
   template {
     service_account = google_service_account.server.email
 
-    # 아침 몰림의 첫 증설 지연을 줄이려고 prod(와 같은 용량으로 재는 load)는 하나를 늘 띄워 둡니다(#817 ④).
+    # 최소 인스턴스는 환경 값입니다. I4 전까지는 모든 환경이 0이고, prod를 다시 1로 둘지는 I4 2주 전 점검(#903)에서 정합니다(S163).
     scaling {
       min_instance_count = var.min_instances
     }
@@ -101,6 +104,9 @@ resource "google_cloud_run_v2_service" "server" {
           cpu    = "1"
           memory = "512Mi"
         }
+        # 요청을 처리하는 동안에만 CPU를 받고 과금합니다(S163). 응답 뒤에 도는 작업이 없어야 하므로 그런 작업은 Job으로 둡니다.
+        # resources를 두면 provider 기본값이 상시 할당이라 명시합니다.
+        cpu_idle          = true
         startup_cpu_boost = true
       }
     }

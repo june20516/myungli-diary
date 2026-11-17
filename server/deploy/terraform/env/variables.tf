@@ -86,7 +86,7 @@ variable "support_mail_enabled" {
 }
 
 variable "min_instances" {
-  description = "server와 엔진 서비스가 늘 띄워 두는 인스턴스 수. 아침 알림 몰림의 첫 증설 지연(L1 1회차 10~13초)을 줄이려고 prod는 1이고, prod와 같은 용량으로 재는 load도 1입니다(#817 ④, S143)"
+  description = "server와 엔진 서비스가 늘 띄워 두는 인스턴스 수. I4 전까지 모든 환경이 0입니다(D135, S163). 아침 알림 몰림의 첫 증설 지연(L1 1회차 10~13초)을 줄이려고 prod를 1로 둘지는 I4 2주 전 점검(#903)에서 정하고, load는 prod와 같게 둡니다(#817 ④, S143)"
   type        = number
   default     = 0
 }

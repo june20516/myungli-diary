@@ -44,8 +44,11 @@ func OpenWithDialer(ctx context.Context, url, instance string, dial DialFunc) (*
 // OpenCloudSQL은 Cloud SQL Go connector와 IAM DB 인증으로 instance에 붙는 풀을 만듭니다(S121).
 // url에는 IAM DB 사용자와 DB 이름만 있으면 되고 비밀번호는 없습니다. 자격 증명은 실행 서비스 계정(ADC)입니다.
 // dialer는 풀이 살아 있는 동안 쓰이므로, 풀을 닫을 때 함께 닫도록 호출한 쪽이 돌려받은 close를 부릅니다.
+//
+// Cloud Run은 요청 밖에서 CPU를 거의 주지 않으므로(cpu_idle, S163) 인증서를 미리 갱신하는 백그라운드 goroutine 대신
+// 연결을 열 때 만료됐으면 그 자리에서 갱신하는 lazy refresh를 씁니다(cloudsqlconn WithLazyRefresh 설명).
 func OpenCloudSQL(ctx context.Context, url, instance string) (pool *pgxpool.Pool, closeDialer func() error, err error) {
-	dialer, err := cloudsqlconn.NewDialer(ctx, cloudsqlconn.WithIAMAuthN())
+	dialer, err := cloudsqlconn.NewDialer(ctx, cloudsqlconn.WithIAMAuthN(), cloudsqlconn.WithLazyRefresh())
 	if err != nil {
 		return nil, nil, fmt.Errorf("cloudsqlconn dialer 생성: %w", err)
 	}
