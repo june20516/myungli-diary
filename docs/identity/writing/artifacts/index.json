@@ -850,5 +850,22 @@
     ],
     "status": "chosen",
     "note": "캡션 4장과 설명은 사용자 문장, 비교 페이지 2026-11-16-round-R49-questions.html"
+  },
+  {
+    "id": "round-R50",
+    "title": "라운드 R50: 광고 제거권 사용 중과 자동 결제 없음 문구 (W82)",
+    "kind": "copy-sample",
+    "file": "2026-11-17-round-R50.md",
+    "date": "2026-11-17",
+    "milestone": "T1",
+    "screens": [
+      "ad-free",
+      "purchase-history"
+    ],
+    "decisions": [
+      "W82"
+    ],
+    "status": "chosen",
+    "note": "혜택 줄은 사용자 문장, 비교 페이지 2026-11-17-round-R50-questions.html"
   }
 ]
