@@ -69,7 +69,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       # setup-uv는 v8부터 메이저 태그(v10)를 두지 않아 정확한 버전으로 고정한다.
-      - uses: astral-sh/setup-uv@v10.3.0
+      - uses: astral-sh/setup-uv@v10.3.3
         with:
           version: "0.11.3"
           python-version: "3.13"
@@ -98,7 +98,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       # setup-uv는 v8부터 메이저 태그(v10)를 두지 않아 정확한 버전으로 고정한다.
-      - uses: astral-sh/setup-uv@v10.3.0
+      - uses: astral-sh/setup-uv@v10.3.3
         with:
           version: "0.11.3"
           python-version: "3.13"
@@ -143,7 +143,7 @@ jobs:
             echo "exists=false" >> "$GITHUB_OUTPUT"
             echo "::notice::기준 커밋에 $PROTO_FILE 이 없어 buf breaking 비교를 건너뜁니다."
           fi
-      - uses: bufbuild/buf-action@v1.6.0
+      - uses: bufbuild/buf-action@v1.7.0
         with:
           version: "1.73.0"
           input: proto
@@ -167,7 +167,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       # setup-uv는 v8부터 메이저 태그(v10)를 두지 않아 정확한 버전으로 고정한다.
-      - uses: astral-sh/setup-uv@v10.3.0
+      - uses: astral-sh/setup-uv@v10.3.3
         with:
           version: "0.11.3"
           python-version: "3.13"
