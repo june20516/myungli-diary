@@ -10,7 +10,7 @@
 
 | ID | 마일스톤 | 담당 | 선행 조건 | 끝나면 열리는 것 | 상태 |
 | --- | --- | --- | --- | --- | --- |
-| Q1 | **T1 전 보안 점검:** 인프라, 배포 경로, server, 엔진, app, 로컬 값 전반. 발견 상세는 비공개 저장소에만(D74). 관문: Critical과 High 0. 준비 메모 [`docs/specs/2026-10-30-security-review-design.md`](specs/2026-10-30-security-review-design.md) | 지휘 + 각 단위 + 독립 점검 | 검수 피드백 회차, H1, staging 기동(P9) | T1 | 시작 전 |
+| Q1 | **T1 전 보안 점검:** 인프라, 배포 경로, server, 엔진, app, 로컬 값 전반. 발견 상세는 비공개 저장소에만(D74). 관문: Critical과 High 0. 준비 메모 [`docs/specs/2026-10-30-security-review-design.md`](specs/2026-10-30-security-review-design.md) | 지휘 + 각 단위 + 독립 점검 | 검수 피드백 회차, H1, staging 기동(P9) | T1 | **진행 중** (독립 점검 3갈래 끝남: High 1은 D136으로 처리 중, 단위 자기 점검 #1230~#1232, server 배포 workflow SHA 고정 #1233) |
 | T1 | **비공개 테스트: 테스트용 클라우드에 server와 엔진을 올리고, 테스트 빌드를 배포해 테스터가 실제로 써 봅니다** ① 테스트 인프라: GCP staging 프로젝트, 도메인과 DNS, 비밀 값(외부 준비물 E4, E6~E12) ② server와 엔진 staging 배포(server P9, 엔진 실행 조건 #79). ①②는 I2가 staging에서 app E2E를 돌릴 때 먼저 세우고 T1에서 그대로 씁니다 ③ 테스트 빌드 배포: iOS TestFlight, Android Play 비공개 테스트 트랙(E2, E3) ④ 테스터 초대와 사용: Play 새 개인 계정 조건(테스터 12명 이상이 14일 연속) | 지휘 + server + app + 사용자 | I1, I2, Q1, O1 | I4(Play 비공개 테스트 의무를 이 단계에서 채움), E15(D92: 앱을 받아 본 뒤 사업자등록) | 시작 전 |
 | L1 | **부하 테스트와 용량 산정:** 비슷한 범주 앱의 대형, 중형, 소형 활성 사용자 규모를 시나리오로(수치는 비공개 `business/`, D74), 요청당 연산과 비용, 한계에서의 server 응답과 app 대응. 부하 전용 환경 우선. 준비 메모 같은 파일 | 지휘 + server + app | O1 | I4 | **진행 중** (3회차까지 잼, 남은 것 server #817, tier는 I4 2주 전 점검 #903, D135) |
 | I3 | 통합 3: 데일리·나의 사주·캘린더·일기 전 과정 E2E(app E2E 재사용, #87) | 지휘 판단 | I1, I2, W1 | I4 | - |
@@ -31,7 +31,7 @@
 * **T1까지 비용 설정(D135):** T1은 staging(T1 동안 켜 둠). prod는 스토어 URL(처리방침, 약관, 지원)용 최소 구성으로 T1 전에 배포하고 사업자 정보 비밀 값(E16)도 넣습니다. server 비용 설정은 #1226(S163)으로 병합됐습니다.
 * **T1 전에 정할 것: server → app 관문(D110 ⑦).** 실기기 빌드(5)는 REST 1.5.0의 `LuckLevel.very_good`을 몰라 staging 달력 월 응답을 읽지 못했습니다(닫힌 enum). 테스터 기기에는 옛 빌드가 남으므로 T1 전에 앱 지원 REST 버전과 최소 지원 버전(업데이트 안내)을 server, app 설계로 정합니다.
 * **Q1로 넘긴 것:** server 직접 주소(run.app)가 열려 있어 IP 한도를 우회할 수 있음(S135, 직접 주소를 끄면 Hosting 공개 주소도 끊김).
-* **I4 전에 남은 일:** SSV 주소 prod 전환, 스토어 출시 뒤 AdMob 앱 검토, LINE Published, 법적 문서 시행일. prod server 설정과 비밀 값, 사업자 정보 비밀 값(E16)은 D135로 T1 전(prod 최소 구성 배포)으로 당겼습니다. prod `RESEND_API_KEY`와 스토어 지원 연락처는 넣었습니다(#1198, D134).
+* **I4 전에 남은 일:** main과 staging 브랜치 분리(D136 ①, 설계는 Q1 뒤), 단위 workflow의 Action SHA 고정(D136 ③), SSV 주소 prod 전환, 스토어 출시 뒤 AdMob 앱 검토, LINE Published, 법적 문서 시행일. prod server 설정과 비밀 값, 사업자 정보 비밀 값(E16)은 D135로 T1 전(prod 최소 구성 배포)으로 당겼습니다. prod `RESEND_API_KEY`와 스토어 지원 연락처는 넣었습니다(#1198, D134).
 
 | 순서 | 담당 | 할 일 | 끝나면 풀리는 것 |
 | --- | --- | --- | --- |
