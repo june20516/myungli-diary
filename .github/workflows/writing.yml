@@ -31,7 +31,7 @@ jobs:
         working-directory: docs/identity/writing/tools
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10.3.0
+      - uses: astral-sh/setup-uv@v10.3.3
         with:
           version: "0.11.3"
           python-version: "3.13"
