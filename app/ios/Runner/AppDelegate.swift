@@ -17,6 +17,25 @@ import UIKit
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "TrackingAuthorization") {
       registerTrackingChannel(messenger: registrar.messenger())
     }
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "Distribution") {
+      registerDistributionChannel(messenger: registrar.messenger())
+    }
+  }
+
+  /// 앱이 TestFlight로 설치됐는지 Dart에 알려 주는 채널(#1258). 업데이트 안내의 스토어 버튼이
+  /// TestFlight 설치본이면 TestFlight 앱을 엽니다. TestFlight 설치본의 App Store 영수증 이름은
+  /// `sandboxReceipt`입니다. StoreKit 2 `AppTransaction`은 로컬에 없을 때 App Store 로그인 창을
+  /// 띄울 수 있어 버튼을 누르는 순간에 쓰지 않습니다. 이름은 Dart `_distributionChannel`과 같습니다.
+  private func registerDistributionChannel(messenger: FlutterBinaryMessenger) {
+    let channel = FlutterMethodChannel(
+      name: "app.myungli.diary/distribution", binaryMessenger: messenger)
+    channel.setMethodCallHandler { call, result in
+      guard call.method == "isTestFlight" else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      result(Bundle.main.appStoreReceiptURL?.lastPathComponent == "sandboxReceipt")
+    }
   }
 
   /// ATT 허용 상태를 Dart에 알려 주는 채널(결정 A101). 권한 창은 UMP 동의 창이 띄우고,
