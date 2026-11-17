@@ -308,7 +308,7 @@ def test_offer_card_states():
     assert "history" not in offer["states"]["offline"]["parts"]
     # #548: 구매 버튼과 기간 고지를 IA 슬롯에 걸음
     assert offer["parts"]["buy"]["slot"] == "ad-free.buy.cta"
-    assert offer["parts"]["period"]["slot"] == "ad-free.offer.period"
+    assert offer["parts"]["terms"]["period"]["slot"] == "ad-free.offer.period"  # V135: 확인 두 줄의 첫 줄
     assert any("구매 내역 버튼은 상태와 관계없이 늘 보인다" in rule for rule in offer["rules"])
     assert offer["haptic"] == [{"when": "구매 완료", "strength": "light"}]
 
@@ -446,7 +446,8 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_8_2_0():
+def test_contract_version_is_9_0_0():
+    # 9.0.0은 #1266(V135): offer-card 부품 period, status, remaining을 지우고 terms, owned로 바꿔 주 버전.
     # 8.2.0은 #1211(V134): sentence-block 글자, 근거 시트 대상 문장, lock.veil 앞부분에 한자 대체 글꼴을 더해 부 버전.
     # 8.1.0은 #1180(D132, V132): 열림 꼬리표 params에 time 추가와 광고 권한 끝 "자정"을 "광고 2시간"으로 고친 문구라 부 버전.
     # 8.0.1은 H1 지휘 점검(#1172): 요소 seal의 모양 기준을 elements.json seal.path로 적은 문구만이라 수 버전.
@@ -459,7 +460,7 @@ def test_contract_version_is_8_2_0():
     # 7.2.0은 #1029 ①, #1034 drift(D124 ⑤, V119): 날짜 머리 덕일 virtue와 hanja-tag compact 추가라 부 버전.
     # 7.1.0은 #1020 drift(D123, V118): 행운 색, 시간 시트 근거 진입점과 시간 시트 제목 슬롯 추가라 부 버전.
     # 7.0.0은 #982, #1003(V114~V117), 6.3.0은 V110~V113, 6.2.0은 검수 회차2 묶음(V100~V109), 6.1.1은 #908(V99), 6.1.0은 #892(V98), 6.0.0은 #859 drift(V96)
-    assert VERSION == "8.2.0"
+    assert VERSION == "9.0.0"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -572,6 +573,8 @@ SLOTS_OUTSIDE_IA |= {"ui.keyboard.dismiss"}
 SLOTS_OUTSIDE_IA |= {"ui.shinsal.weighing"}
 # 뜻도 근거 출처도 없는 용어의 풀이 시트 빈 안내 (#957, #1058, V123). ui.evidence.personal-empty처럼 IA 밖 writing 슬롯
 SLOTS_OUTSIDE_IA |= {"ui.explain.term-empty"}
+# 광고 제거권 자동 결제 없음 둘째 줄과 이용 중 혜택 한 줄 (#1266, V135). IA 밖 writing 슬롯
+SLOTS_OUTSIDE_IA |= {"ui.ad-free.renewal", "ui.ad-free.benefit"}
 
 
 def _slot_values(node):
@@ -1122,11 +1125,12 @@ def test_purchase_row():
     assert parts["product"]["type"] == "{type.subtitle}" and parts["product"]["overflow"] == "wrap"
     assert "스토어" in parts["product"]["fallback"]
     status = parts["status"]
-    assert status["active"] == {"element": "tag.status"} and status["align"] == "product-first-line"
+    assert status["active"]["bg"] == "{color.action.primary}" and status["align"] == "product-first-line"  # V135
     assert status["other"]["type"] == "{type.label.md}" and status["other"]["fg"] == "{color.text.secondary}"
     assert parts["meta"]["type"] == "{type.caption.lg}" and parts["meta"]["fontFeatures"] == ["tnum"]
     assert "기간" in parts["meta"]["periodOnlyWhen"]
-    assert parts["row"]["divider"] == {"element": "list.divider", "between": "rows-only"}  # V58
+    assert {k: parts["row"]["divider"][k] for k in ("element", "between")} == {"element": "list.divider", "between": "rows-only"}  # V58
+    assert parts["row"]["divider"]["insetX"] == 0  # V135: 카드 안쪽 16 안에서 더 들이지 않음
     assert parts["group"]["bg"] == "{color.bg.sheet}" and parts["group"]["radius"] == "{radius.lg}"
     assert "pressed" not in row["states"] and row["states"]["loading"]["component"] == "skeleton"
     assert any("server" in rule and "순서" in rule for rule in row["rules"])
@@ -1159,7 +1163,7 @@ def test_issue_475_values():
 def test_purchase_row_slots_are_split_by_limit():
     parts = component("action", "purchase-row")["parts"]
     assert parts["status"]["slot"] == "ui.purchase.status" and parts["status"]["key"] == "purchaseStatus*"
-    assert parts["status"]["maxWidth"] == {"value": 80, "unit": "px"}
+    assert parts["status"]["maxWidth"] == {"value": 100, "unit": "px"}  # V135: 사용 중 알약에 아이콘, 글자 자리는 64 그대로
     assert parts["meta"]["slot"] == "ui.purchase.meta"
 
 
@@ -3168,7 +3172,7 @@ def test_v112_unlocked_evidence_glints_and_marks():
     mark = documents["elements"]["elements"]["unlock.mark"]
     assert mark["title"]["fill"] == mark["rule"]["fill"] == "{gradient.unlocked}"
     assert mark["rule"]["width"] == {"value": 2, "unit": "px"}
-    assert len(mark["where"]) == 2 and "appear.seep" in mark["appear"] and mark["a11y"] == "읽지 않음. 장식"
+    assert len(mark["where"]) == 3 and "appear.seep" in mark["appear"] and mark["a11y"] == "읽지 않음. 장식"
     link = component("sentence", "depth-link")
     assert {"unlock.glint", "unlock.mark"} <= set(link["uses"])
     assert link["parts"]["icon"]["unlocked"]["fill"] == "{gradient.unlocked}"
@@ -3295,7 +3299,7 @@ def test_v123_empty_states():
     unavailable = offer["states"]["unavailable"]["parts"]
     assert offer["parts"]["unavailable"]["slot"] == "ad-free.unavailable.body"
     assert unavailable["unavailable"] == {"visible": True}
-    assert all(unavailable[part] == {"visible": False} for part in ("price", "period", "buy", "status", "remaining"))
+    assert all(unavailable[part] == {"visible": False} for part in ("price", "terms", "buy", "owned"))  # V135 부품 이름
     assert "head" not in unavailable and "history" not in unavailable  # 주는 것 한 줄과 구매 내역은 그대로
     assert offer["states"]["available"]["parts"]["unavailable"] == {"visible": False}
     note = c["term-token"]["parts"]["explainSheet"]["emptyNote"]
@@ -3408,3 +3412,37 @@ def test_v131_glint_has_own_duration():
     assert primitive["motion"]["duration"]["glint"]["$value"]["value"] == 2600 < glint["interval"]["value"]
     assert "breathe" in glint["durationNote"] and "V131" in glint["durationNote"]
     assert "10초마다" in glint["first"]
+
+
+# 광고 제거권 사용 중 강조와 자동 결제 없음 강조 (#1266, 결정 V135)
+def test_v135_owned_state_and_no_renewal():
+    documents = load_documents(COMPONENTS_DIR)
+    offer = component("action", "offer-card")
+    parts = offer["parts"]
+    assert not {"period", "status", "remaining"} & set(parts)
+    terms = parts["terms"]
+    assert terms["line"]["icon"] == "check" and terms["line"]["iconSize"] == "{size.icon.16}"
+    assert terms["line"]["type"] == "{type.body.ui}" and terms["line"]["fg"] == "{color.text.primary}"
+    assert terms["period"]["slot"] == "ad-free.offer.period" and terms["renewal"]["slot"] == "ui.ad-free.renewal"
+    owned = parts["owned"]
+    assert owned["element"] == "unlock.mark" and owned["label"]["fill"] == "{gradient.unlocked}"
+    assert owned["label"]["key"] == "purchaseStatusActive" and owned["until"]["type"] == "{type.title}"
+    assert owned["until"]["slot"] == "ad-free.status.remaining" and owned["benefit"]["slot"] == "ui.ad-free.benefit"
+    assert owned["benefit"]["whenEmpty"] == "그리지 않음"
+    active = offer["states"]["active"]
+    assert all(active["parts"][part] == {"visible": False} for part in ("price", "terms", "buy"))
+    assert active["parts"]["owned"] == {"visible": True}
+    once = active["justPurchased"]
+    assert once["pattern"] == "unlock.glint" and once["target"] == "head" and once["repeat"] is False
+    assert once["reduceMotion"] == "none"
+    assert {"unlock.mark", "unlock.glint"} <= set(offer["uses"]) and "tag.status" not in offer["uses"]
+    glint = documents["interaction"]["patterns"]["unlock.glint"]
+    assert "offer-card" in glint["once"]["where"]
+    assert any("offer-card owned" in where for where in documents["elements"]["elements"]["unlock.mark"]["where"])
+    status = component("action", "purchase-row")["parts"]["status"]["active"]
+    assert status["fg"] == "{color.action.on-primary}" and status["icon"]["name"] == "seal-check"
+    assert status["icon"]["weight"] == "fill" and status["icon"]["size"] == "adjacent-text"
+    assert "insetX 0" in documents["elements"]["elements"]["list.divider"]["insetRule"]
+    action_md = _md_section("action.md", "## offer-card")
+    for text in ("`terms`", "`owned`", "`justPurchased`", "V135"):
+        assert text in action_md, text

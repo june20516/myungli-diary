@@ -28,6 +28,8 @@
 
 ## 컴포넌트 명세
 
+**9.0.0:** (2026-11-17, #1266, V135, 하위 호환이 깨짐) 광고 제거권 사용 중 강조와 자동 결제 없음 강조. `offer-card` 부품 `period`, `status`, `remaining`을 지우고 `terms`(가격 아래 확인 두 줄: 기간 `ad-free.offer.period`, 자동 결제 없음 IA 밖 `ui.ad-free.renewal`)와 `owned`(이용 중 표시, `unlock.mark` 모양: 사용 중 글자 `gradient.unlocked`, 끝나는 날 `type.title`, 혜택 한 줄 IA 밖 `ui.ad-free.benefit`)를 더함. `active`는 가격과 확인 두 줄을 그리지 않고, 이 화면에서 산 직후만 head에 `unlock.glint` 한 번(`justPurchased`, 반복 없음, 동작 줄이기면 없음). `purchase-row` 사용 중은 채운 sage 알약 + `seal-check` Fill(전에는 `tag.status`), 구분선은 카드 좌우 안쪽 16 안에서 더 들이지 않아 글자 폭과 같음(`insetX` 0). IA 컴포넌트 56개, 상호작용 패턴 15개, 요소 21개.
+
 **8.2.0:** (2026-11-17, #1211, V134) 한자 대체 글꼴 `fontFallback: {font.family.hanja}`를 `sentence-block` 글자(`segments`가 `sentence-block`인 자리 포함), 근거 시트 대상 문장, `lock.veil` 앞부분에 더함. 판정 근거, 내 사주에서는 문단의 한자가 원전과 같은 글꼴로 그려짐. IA 컴포넌트 56개, 상호작용 패턴 15개, 요소 21개.
 
 **8.1.0:** (2026-11-16, #1180, D132) 근거 시트 열림 꼬리표 `unlockTag` `params`에 `time` 더함(광고 한 편으로 연 끝 시각, 본 때부터 2시간). 광고로 연 권한의 끝을 "자정"에서 "광고 2시간"으로 고친 문구(근거 시트 잠금 규칙, 근거 아이콘, `unlock.glint`). IA 컴포넌트 56개, 상호작용 패턴 15개, 요소 21개.

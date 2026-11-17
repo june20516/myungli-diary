@@ -1275,5 +1275,23 @@
     ],
     "status": "chosen",
     "note": "1024×500에 G1 로고만, G2 로고와 화면 세 장, G3 로고와 한 줄 글. 사용자 답(2026-11-16): G1"
+  },
+  {
+    "id": "design-owned-state-questions",
+    "title": "광고 제거권 사용 중 강조와 자동 결제 없음 관문 질문(#1266)",
+    "kind": "concept",
+    "file": "2026-11-17-owned-state-questions.html",
+    "source": "2026-11-17-owned-state-questions.html",
+    "date": "2026-11-17",
+    "milestone": "T1",
+    "screens": [
+      "ad-free",
+      "purchase-history"
+    ],
+    "decisions": [
+      "V135"
+    ],
+    "status": "chosen",
+    "note": "토큰 CSS(ds1/tokens.css)와 Phosphor 2.1.1 SVG(인라인). 라이트와 다크, 구매 직후 움직임은 CSS 재생. 문구는 design 가안(확정 writing #1267), 가격은 자리표시. 사용자 답(2026-11-17): 질문 1 B(열림 그라데이션), 질문 2 B(혜택 문장 반짝임 한 번), 질문 3 A(채운 알약과 아이콘, 구분선을 글자 폭으로), 질문 4 B(확인 두 줄)"
   }
 ]

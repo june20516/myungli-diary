@@ -1,5 +1,5 @@
 {
-  "version": "8.2.0",
+  "version": "9.0.0",
   "group": "action",
   "components": [
     {
@@ -150,15 +150,30 @@
     {
       "id": "offer-card",
       "summary": "광고 제거권 상품 설명·가격·기간 카드 (D53·D54)",
-      "uses": ["icon", "tag.status", "appear.seep"],
+      "uses": ["icon", "unlock.mark", "unlock.glint", "appear.seep"],
       "parts": {
         "container": { "bg": "{color.bg.sheet}", "radius": "{radius.lg}", "padding": "{space.20}" },
         "icon": { "name": "sparkle", "weight": "light", "size": "{size.icon.28}", "color": "{color.action.primary}" },
         "head": { "type": "{type.subtitle}", "fg": "{color.text.primary}", "slot": "ad-free.offer.head", "marginTop": "{space.12}" },
         "price": { "type": "{type.title}", "fg": "{color.text.primary}", "slot": "ad-free.offer.price", "marginTop": "{space.16}", "fontFeatures": ["tnum"] },
-        "period": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "slot": "ad-free.offer.period", "note": "기간과 자동 결제 없음 고지(#548)" },
-        "status": { "element": "tag.status", "slot": "ad-free.status.remaining" },
-        "remaining": { "type": "{type.body.ui}", "fg": "{color.text.primary}", "fontFeatures": ["tnum"] },
+        "terms": {
+          "marginTop": "{space.8}",
+          "layout": "lines",
+          "gap": "{space.4}",
+          "line": { "icon": "check", "iconWeight": "regular", "iconSize": "{size.icon.16}", "iconColor": "{color.action.primary}", "iconAlign": "first-line", "gap": "{space.8}", "type": "{type.body.ui}", "fg": "{color.text.primary}" },
+          "period": { "slot": "ad-free.offer.period", "maxLines": 1, "note": "기간(1개월 동안 이용)" },
+          "renewal": { "slot": "ui.ad-free.renewal", "maxLines": 2, "note": "자동 결제 없음 고지(다음 달에 결제되지 않음)" },
+          "note": "가격 아래 확인 표시 두 줄. 옛 caption 한 줄(period)을 기간 줄과 자동 결제 없음 줄로 나누고 본문 크기 진한 글자로 올림 (#1266, 관문 답 2026-11-17 질문 4 B, 결정 V135)"
+        },
+        "owned": {
+          "element": "unlock.mark",
+          "marginTop": "{space.24}",
+          "label": { "type": "{type.label.lg}", "fill": "{gradient.unlocked}", "slot": "ui.purchase.status", "key": "purchaseStatusActive", "note": "사용 중 낱말. 글자를 gradient.unlocked로 칠함(unlock.mark title)" },
+          "until": { "type": "{type.title}", "fg": "{color.text.primary}", "slot": "ad-free.status.remaining", "marginTop": "{space.4}", "fontFeatures": ["tnum"], "note": "끝나는 날(프로필 시간대 날짜, A76)" },
+          "benefit": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "slot": "ui.ad-free.benefit", "marginTop": "{space.4}", "maxLines": 2, "whenEmpty": "그리지 않음", "note": "이용 중인 혜택을 다시 알려 주는 한 줄" },
+          "rule": "unlock.mark rule 그대로: 카드 안쪽 여백 안, owned 왼쪽 밖 12에 2px 세로선(label 첫 줄 위 ~ benefit 끝). 글자는 head와 같은 시작선",
+          "note": "이용 중 표시. 열린 근거 표시(V111)를 이어 써 광고 제거권이 근거와 해석도 연다는 뜻을 잇습니다 (#1266, 관문 답 2026-11-17 질문 1 B, 결정 V135)"
+        },
         "buy": { "component": "primary-button", "variant": "filled", "slot": "ad-free.buy.cta", "marginTop": "{space.24}" },
         "unavailable": { "type": "{type.body.ui}", "fg": "{color.text.secondary}", "slot": "ad-free.unavailable.body", "marginTop": "{space.16}", "maxLines": 2, "note": "상품 목록이 빌 때(unavailable)만 가격, 기간 고지, 구매 버튼 자리에. 아이콘 없음, 누르지 않음 (#922, 결정 V123)" },
         "history": { "component": "primary-button", "variant": "quiet", "slot": "ad-free.history.cta" },
@@ -166,17 +181,23 @@
       },
       "states": {
         "loading": { "skeleton": [{ "bone": "container", "shape": "card" }, { "bone": "icon", "shape": "circle", "size": "{size.icon.28}" }, { "bone": "head", "shape": "textLine", "width": "60%" }, { "bone": "price", "shape": "textLine", "width": "40%" }] },
-        "available": { "parts": { "status": { "visible": false }, "remaining": { "visible": false }, "buy": { "visible": true }, "unavailable": { "visible": false } } },
-        "active": { "pattern": "appear.seep", "parts": { "status": { "visible": true }, "remaining": { "visible": true }, "buy": { "visible": false } }, "note": "이용 중: 꼬리표 + 남은 기간·만료일" },
-        "unavailable": { "parts": { "price": { "visible": false }, "period": { "visible": false }, "buy": { "visible": false }, "status": { "visible": false }, "remaining": { "visible": false }, "unavailable": { "visible": true } }, "note": "상품 목록이 비어 있음(스토어 상품 전, 지역 미지원 등, app A126). 오류가 아닌 정상 상태라 카드 모양은 available과 같고 아이콘과 주는 것 한 줄(head)은 남김. 구매 내역과 약관 안내 그대로. 이용 중이면 active가 먼저이고 안내는 없음 (IA ad-free empty, 관문 답 2026-11-12 A, 결정 V123)" },
+        "available": { "parts": { "owned": { "visible": false }, "buy": { "visible": true }, "unavailable": { "visible": false } } },
+        "active": {
+          "pattern": "appear.seep",
+          "parts": { "price": { "visible": false }, "terms": { "visible": false }, "owned": { "visible": true }, "buy": { "visible": false }, "unavailable": { "visible": false } },
+          "justPurchased": { "pattern": "unlock.glint", "target": "head", "repeat": false, "reduceMotion": "none", "note": "이 화면에서 구매가 끝나 active가 된 때만, owned가 appear.seep으로 다 나타난 직후 head 문장에 한 번. 10초 반복 없음. 화면에 다시 들어오거나 이미 이용 중으로 열면 없음. 동작 줄이기면 반짝임 없이 owned 표시만(owned가 이미 unlock.mark 모양) (관문 답 2026-11-17 질문 2 B, 결정 V135)" },
+          "note": "이용 중: 가격과 확인 두 줄(이용 중 연장 구매 없음, D53 ⑥), 구매 버튼 대신 owned(사용 중, 끝나는 날, 혜택 한 줄)"
+        },
+        "unavailable": { "parts": { "price": { "visible": false }, "terms": { "visible": false }, "buy": { "visible": false }, "owned": { "visible": false }, "unavailable": { "visible": true } }, "note": "상품 목록이 비어 있음(스토어 상품 전, 지역 미지원 등, app A126). 오류가 아닌 정상 상태라 카드 모양은 available과 같고 아이콘과 주는 것 한 줄(head)은 남김. 구매 내역과 약관 안내 그대로. 이용 중이면 active가 먼저이고 안내는 없음 (IA ad-free empty, 관문 답 2026-11-12 A, 결정 V123)" },
         "purchasing": { "parts": { "buy": { "state": "loading" } } },
         "offline": { "parts": { "buy": { "state": "disabled" } }, "note": "화면 위 notice-banner offline. 구매 내역 버튼은 누를 수 있음(purchase-history가 자기 offline 상태를 가짐)" }
       },
       "haptic": [{ "when": "구매 완료", "strength": "light" }],
-      "a11y": { "role": "group", "label": "상품 이름 + 가격 + 기간", "priceAnnounced": "가격과 기간 고지(ad-free.offer.period)를 함께 읽음", "unavailableLabel": "unavailable에서는 주는 것 한 줄 + 안내(ad-free.unavailable.body)" },
+      "a11y": { "role": "group", "label": "상품 이름 + 가격 + 기간", "priceAnnounced": "가격과 확인 두 줄(ad-free.offer.period, ui.ad-free.renewal)을 함께 읽음. 확인 아이콘은 읽지 않음", "activeLabel": "active에서는 주는 것 한 줄 + 사용 중 + 끝나는 날 + 혜택 한 줄. 세로선과 반짝임은 읽지 않음", "unavailableLabel": "unavailable에서는 주는 것 한 줄 + 안내(ad-free.unavailable.body)" },
       "rules": [
         "가격·기간·자동 갱신 아님 고지는 구매 버튼보다 위에, 같은 카드 안에서 보인다.",
-        "이용 중에는 구매 버튼 대신 남은 기간을 보이고, 만료되면 available로 돌아간다.",
+        "이용 중에는 가격, 확인 두 줄, 구매 버튼 대신 owned(사용 중, 끝나는 날, 혜택 한 줄)를 보이고, 만료되면 available로 돌아간다.",
+        "구매 직후 반짝임은 한 번뿐이다. 축하 효과, 색종이, 소리를 쓰지 않는다.",
         "구매 내역 버튼은 상태와 관계없이 늘 보인다(D88 ②, 구매 복원 버튼 없음).",
         "빨간색·카운트다운·과장 표시를 쓰지 않는다.",
         "상품 목록이 비면(unavailable) 오류로 보이지 않게 카드를 그대로 두고 가격과 구매 버튼 자리에 안내 한 줄만 둔다. 경고 아이콘, 다시 시도 버튼, notice-banner를 쓰지 않는다(결정 V123)."
@@ -186,7 +207,7 @@
       "id": "purchase-row",
       "summary": "산 상품의 구매 한 건 (D88 ②, 결정 V45)",
       "uses": [
-        "tag.status",
+        "icon",
         "skeleton.bone",
         "list.divider"
       ],
@@ -202,7 +223,9 @@
           "pressable": false,
           "divider": {
             "element": "list.divider",
-            "between": "rows-only"
+            "between": "rows-only",
+            "insetX": 0,
+            "note": "group paddingX(16) 안에서 더 들이지 않음. 선은 카드 가장자리에서 16, 글자 폭과 같음 (#1266, 결정 V135)"
           }
         },
         "product": {
@@ -220,19 +243,27 @@
           "gap": "{space.12}",
           "slot": "ui.purchase.status",
           "active": {
-            "element": "tag.status"
+            "bg": "{color.action.primary}",
+            "fg": "{color.action.on-primary}",
+            "type": "{type.label.md}",
+            "weight": 600,
+            "radius": "{radius.full}",
+            "padding": { "x": { "value": 8, "unit": "px" }, "y": { "value": 2, "unit": "px" } },
+            "icon": { "name": "seal-check", "weight": "fill", "size": "adjacent-text", "color": "{color.action.on-primary}", "gap": "{space.4}" },
+            "note": "채운 sage 알약 + 도장 확인 아이콘. 목록에서 채운 것은 이 하나 (#1266, 관문 답 2026-11-17 질문 3 A, 결정 V135)"
           },
           "other": {
             "type": "{type.label.md}",
             "fg": "{color.text.secondary}",
             "bg": "none"
           },
-          "note": "사용 중이면 tag.status, 대기·만료·환불은 바탕 없는 글자. 낱말은 상품 종류에 따라 다를 수 있음(D88 ②)",
+          "note": "사용 중이면 채운 알약(active), 대기·만료·환불은 바탕 없는 글자. 낱말은 상품 종류에 따라 다를 수 있음(D88 ②)",
           "key": "purchaseStatus*",
           "maxWidth": {
-            "value": 80,
+            "value": 100,
             "unit": "px"
-          }
+          },
+          "maxWidthNote": "사용 중 알약에 아이콘이 들어가 80에서 100으로. 글자 자리는 옛 꼬리표와 같은 64 (결정 V135)"
         },
         "meta": {
           "type": "{type.caption.lg}",
@@ -270,7 +301,7 @@
         "순서는 server가 준 순서 그대로다(최근 구매가 위). app이 다시 정렬하지 않는다.",
         "합치기로 옮겨 온 구매나 산 계정을 표시하지 않는다(D88 ②). 옮겨 온 구매는 이 계정에서 쓰는 구간만 오므로 구매일이 사용 기간 시작보다 이를 수 있다.",
         "누르지 않는 줄이다. 눌림 상태가 없다.",
-        "강조는 사용 중 꼬리표 하나다. 빨간색·카운트다운을 쓰지 않는다."
+        "강조는 사용 중 알약 하나다. 빨간색·카운트다운을 쓰지 않는다."
       ]
     }
   ]

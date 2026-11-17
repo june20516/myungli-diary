@@ -1,5 +1,5 @@
 {
-  "version": "8.2.0",
+  "version": "9.0.0",
   "elements": {
     "seal": {
       "summary": "낙관 도장. 로고 낙관 모양을 브랜드 요소로 씀",
@@ -167,7 +167,7 @@
       "color": "{color.line}",
       "width": "{border.width.hairline}",
       "insetX": "{space.16}",
-      "insetRule": "묶음 좌우에서 같은 거리. 줄 안쪽 여백(paddingX)과 같음",
+      "insetRule": "묶음 카드 가장자리에서 좌우 같은 거리 16. 선은 줄 글자 폭과 같음. 여백이 줄(paddingX)에 있으면 카드 기준 16, 여백이 묶음 카드(group paddingX 16)에 있으면 그 안에서 더 들이지 않음(insetX 0, purchase-row, 결정 V135)",
       "inSheet": { "insetX": 0, "rule": "묶음 카드 없이 시트 본문에 바로 놓인 목록과 구역(색 둘 시트 두 색 사이, 사주 기운 시트 문장 목록)은 줄 안쪽 여백이 없으므로 들임 0. 선은 시트 본문 폭(시트 안쪽 24 안) 그대로 (결정 V124, #1072)" },
       "underLeading": true,
       "between": "rows-only",
@@ -228,7 +228,7 @@
       "summary": "열린 구역 표시, 동작 줄이기에서 unlock.glint 대신(D118 ②, 결정 V112)",
       "title": { "fill": "{gradient.unlocked}", "note": "구역 제목 글자를 그라데이션으로 칠함. 멈춤 색마다 글자 대비 4.5:1 이상(V111)" },
       "rule": { "fill": "{gradient.unlocked}", "angle": 180, "width": { "value": 2, "unit": "px" }, "radius": "{radius.full}", "offsetStart": { "value": -12, "unit": "px" }, "from": "구역 제목 첫 줄 위", "to": "구역 본문 끝", "note": "시트 안쪽 여백(24) 안, 구역 왼쪽 밖 12에 세로선. 글자 배치는 움직이지 않음" },
-      "where": ["depth-link evidenceSheet basis·source·personal(unlocked)", "sentence-block unlocked (saju-chart.yongsin.basis)"],
+      "where": ["depth-link evidenceSheet basis·source·personal(unlocked)", "sentence-block unlocked (saju-chart.yongsin.basis)", "offer-card owned (광고 제거권 사용 중, 동작 줄이기와 관계없이 늘, 결정 V135)"],
       "appear": "appear.seep에 함께. 따로 움직이지 않음",
       "a11y": "읽지 않음. 장식"
     },
