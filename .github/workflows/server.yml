@@ -59,7 +59,7 @@ jobs:
       - if: env.OWN == 'true'
         run: go vet -tags staging ./...
       # 시드의 원본인 writing 원고를 검사합니다(spec §6.1). 원고가 W1로 다 오기 전까지 --partial입니다(P4-8).
-      - uses: astral-sh/setup-uv@v10.3.0
+      - uses: astral-sh/setup-uv@v10.3.3
         with:
           version: "0.11.3"
           python-version: "3.13"
