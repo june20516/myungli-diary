@@ -16,7 +16,7 @@
 
 | 원본 | 지도 영역 |
 | --- | --- |
-| `docs/roadmap.md` 마일스톤 표, "현재 진행 순서" | 노선도, 진행 순서 |
+| `docs/roadmap.md` 마일스톤 표, "현재 진행 순서", `docs/roadmap-history.md` "끝난 마일스톤 행" | 노선도(끝난 단계는 history에서), 진행 순서 |
 | 모든 결정 로그(D·C·S·A·W·V) | 결정 |
 | 모든 `artifacts/index.json`과 이미지 | 산출물, 역·화면 상세 |
 | 비공개 내부 저장소의 모든 `artifacts/index.json`과 이미지(세 번째 인자로 넘길 때만, 단위 `internal`, 경로 `internal/…`, D74) | 산출물, 역·화면 상세 |
