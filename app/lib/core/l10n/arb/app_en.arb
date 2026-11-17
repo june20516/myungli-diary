@@ -174,7 +174,7 @@
   "adFreeLegalNotice": "Withdrawal of subscription may be restricted for products whose use begins immediately upon purchase. Details are in the Terms of Service and Privacy Policy.",
   "adFreeOfferHead": "One month with no ads, and the basis and interpretation fully unlocked.",
   "adFreeOfferPrice": "{price}",
-  "adFreeStatusRemaining": "Ad-free until {date}",
+  "adFreeStatusRemaining": "Until {date}",
   "calcBasisConventionBody": "Readings follow the standard widely used in Korea. It's one well-grounded approach among several schools.",
   "calcBasisLunarBody": "Lunar dates follow the Korean lunar calendar published by the Korea Astronomy and Space Science Institute.",
   "calendarLegendBodyGood": "Smooth day",
@@ -415,7 +415,7 @@
   "purchaseStatusRefunded": "Refunded",
   "errorMergeTokenInvalid": "We couldn't continue the merge. Verify the account you're bringing in again.",
   "adFreeBuyCta": "Buy",
-  "adFreeOfferPeriod": "1 month, no automatic charge",
+  "adFreeOfferPeriod": "1 month from purchase",
   "forceUpdateNoticeBodyConsent": "You need to update to see the new terms.",
   "systemPushChannelMorning": "Today's reading alerts",
   "accountChoiceSajuLeap": "{calendar} leap month {date} {time}",
@@ -561,5 +561,7 @@
   "branchReadingHae": "Hae",
   "sajuChartManseBasisStemSuffix": " ({stemName})",
   "consentRequiredLabelAge": "(Required) I am 14 or older",
-  "evidenceSheetUnlockUntilTime": "Open until {time}"
+  "evidenceSheetUnlockUntilTime": "Open until {time}",
+  "adFreeStatusBenefit": "Enjoy every reading as you like.",
+  "adFreeOfferRenewal": "No automatic charge when the period ends"
 }

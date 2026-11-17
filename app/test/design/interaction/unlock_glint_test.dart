@@ -32,6 +32,7 @@ Set<RenderUnlockGlint> _glints(WidgetTester tester) =>
 Widget _app({
   MotionPrefs prefs = _normal,
   Duration firstDelay = Duration.zero,
+  bool once = false,
   ScrollController? controller,
 }) => MaterialApp(
   theme: buildTheme(brightness: Brightness.light, locale: const Locale('ko')),
@@ -40,6 +41,7 @@ Widget _app({
       prefs: prefs,
       child: UnlockGlintScope(
         firstDelay: firstDelay,
+        once: once,
         child: Builder(
           builder: (context) => SingleChildScrollView(
             controller: controller,
@@ -195,6 +197,39 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pump(const Duration(seconds: 30));
+      expect(_glints(tester), isEmpty);
+    });
+  });
+
+  group('unlock.glint once(구매 직후 한 번, V135)', () {
+    testWidgets('첫 기다림 뒤 한 번 지나가고 10초 박자로 반복하지 않습니다', (tester) async {
+      await tester.pumpWidget(
+        _app(firstDelay: InteractionPattern.appearSeep.duration, once: true),
+      );
+      await tester.pump();
+      await tester.pump(
+        InteractionPattern.appearSeep.duration -
+            const Duration(milliseconds: 20),
+      );
+      expect(_glinting(tester), 0, reason: '내용이 다 나타나기 전');
+      await tester.pump(const Duration(milliseconds: 40));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(_glinting(tester), 2, reason: '한 번 지나감');
+
+      await tester.pump(_sweep);
+      for (var i = 0; i < 6; i++) {
+        await tester.pump(const Duration(seconds: 5));
+        expect(_glinting(tester), 0, reason: '다시 지나가지 않음');
+      }
+    });
+
+    testWidgets('동작 줄이기면 지나가지 않습니다', (tester) async {
+      await tester.pumpWidget(_app(prefs: _reduce, once: true));
+      await tester.pump();
+      for (var i = 0; i < 4; i++) {
+        await tester.pump(const Duration(seconds: 5));
+        expect(_glinting(tester), 0);
+      }
       expect(_glints(tester), isEmpty);
     });
   });

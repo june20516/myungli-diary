@@ -962,17 +962,62 @@ void main() {
       expect(_map(parts['price'])['fontFeatures'], ['tnum']);
       expect(_map(parts['price'])['marginTop'], '{space.16}');
       expect(OfferCard.priceGap, Space.s16);
-      // period(IA ad-free.offer.period): 글자 값은 명세, 가격과의 간격은 명세에 없어
-      // purchase-row 보조 줄 간격(space.4)을 따릅니다.
-      final period = _map(parts['period']);
-      expect(period['type'], '{type.caption.lg}');
-      expect(period['fg'], '{color.text.secondary}');
-      expect(period, isNot(contains('marginTop')));
-      expect(OfferCard.periodGap, PurchaseRowGroup.metaGap);
-      expect(OfferCard.periodGap, Space.s4);
-      expect(_map(parts['status'])['element'], 'tag.status');
-      expect(_map(parts['remaining'])['type'], '{type.body.ui}');
-      expect(_map(parts['remaining'])['fontFeatures'], ['tnum']);
+      // terms(9.0.0, V135): 가격 아래 확인 두 줄(기간, 자동 결제 없음).
+      final terms = _map(parts['terms']);
+      expect(terms['marginTop'], '{space.8}');
+      expect(OfferCard.termsGap, Space.s8);
+      expect(terms['layout'], 'lines');
+      expect(terms['gap'], '{space.4}');
+      expect(OfferCard.termsLineGap, Space.s4);
+      final termLine = _map(terms['line']);
+      expect(termLine['icon'], 'check');
+      expect(termLine['iconWeight'], 'regular');
+      expect(termLine['iconSize'], '{size.icon.16}');
+      expect(OfferCard.termsIconSize, AppIconSize.s16);
+      expect(termLine['iconColor'], '{color.action.primary}');
+      expect(termLine['iconAlign'], 'first-line');
+      expect(termLine['gap'], '{space.8}');
+      expect(OfferCard.termsIconGap, Space.s8);
+      expect(termLine['type'], '{type.body.ui}');
+      expect(termLine['fg'], '{color.text.primary}');
+      expect(_map(terms['period'])['slot'], SlotIds.adFreeOfferPeriod);
+      expect(_map(terms['period'])['maxLines'], OfferCard.periodMaxLines);
+      expect(_map(terms['renewal'])['slot'], 'ui.ad-free.renewal');
+      expect(_map(terms['renewal'])['maxLines'], OfferCard.renewalMaxLines);
+      expect(parts, isNot(contains('period')));
+      expect(parts, isNot(contains('status')));
+      expect(parts, isNot(contains('remaining')));
+      // owned(9.0.0, V135): 이용 중 표시, 요소 unlock.mark 모양.
+      final owned = _map(parts['owned']);
+      expect(owned['element'], 'unlock.mark');
+      expect(owned['marginTop'], '{space.24}');
+      expect(OfferCard.ownedGap, Space.s24);
+      final ownedLabel = _map(owned['label']);
+      expect(ownedLabel['type'], '{type.label.lg}');
+      expect(ownedLabel['fill'], '{gradient.unlocked}');
+      expect(ownedLabel['key'], 'purchaseStatusActive');
+      final until = _map(owned['until']);
+      expect(until['type'], '{type.title}');
+      expect(until['fg'], '{color.text.primary}');
+      expect(until['slot'], SlotIds.adFreeStatusRemaining);
+      expect(until['marginTop'], '{space.4}');
+      expect(until['fontFeatures'], ['tnum']);
+      expect(OfferCard.untilGap, Space.s4);
+      final benefit = _map(owned['benefit']);
+      expect(benefit['type'], '{type.caption.lg}');
+      expect(benefit['fg'], '{color.text.secondary}');
+      expect(benefit['slot'], 'ui.ad-free.benefit');
+      expect(benefit['marginTop'], '{space.4}');
+      expect(OfferCard.benefitGap, Space.s4);
+      expect(benefit['maxLines'], OfferCard.benefitMaxLines);
+      expect(benefit['whenEmpty'], '그리지 않음');
+      final justPurchased = _map(
+        _map(_map(offer['states'])['active'])['justPurchased'],
+      );
+      expect(justPurchased['pattern'], 'unlock.glint');
+      expect(justPurchased['target'], 'head');
+      expect(justPurchased['repeat'], isFalse);
+      expect(justPurchased['reduceMotion'], 'none');
       expect(_map(parts['buy'])['marginTop'], '{space.24}');
       expect(OfferCard.buyGap, Space.s24);
       expect(_map(parts['legal'])['type'], '{type.caption.md}');
@@ -992,10 +1037,9 @@ void main() {
             .map((part, value) => MapEntry(part, _map(value)['visible'])),
         {
           'price': false,
-          'period': false,
+          'terms': false,
           'buy': false,
-          'status': false,
-          'remaining': false,
+          'owned': false,
           'unavailable': true,
         },
       );
@@ -1011,54 +1055,88 @@ void main() {
       expect(_map(parts['buy'])['variant'], 'filled');
       expect(_map(parts['history'])['variant'], 'quiet');
       expect(_map(_map(offer['states'])['active'])['pattern'], 'appear.seep');
-    });
-
-    test('purchase-row 부품 값(바탕, radius, 간격 16/16/4/2/12, 상태 폭 80)이 명세와 같다', () {
-      final purchase = specs['purchase-row']!;
-      final parts = _map(purchase['parts']);
-      final group = _map(parts['group']);
-      expect(group['bg'], '{color.bg.sheet}');
-      expect(group['radius'], '{radius.lg}');
-      expect(group['paddingX'], '{space.16}');
-      expect(PurchaseRowGroup.paddingX, Space.s16);
-
-      final row = _map(parts['row']);
-      expect(row['paddingY'], '{space.16}');
-      expect(PurchaseRowGroup.rowPaddingY, Space.s16);
-      expect(row['pressable'], isFalse);
-      // 4.0.0: 줄 사이 선은 요소 list.divider(0.5px, V58).
-      final divider = _map(row['divider']);
-      expect(divider['element'], 'list.divider');
-      expect(divider['between'], 'rows-only');
-      expect(PurchaseRowGroup.dividerKey, isNotNull);
-
-      expect(_map(parts['product'])['type'], '{type.subtitle}');
-      expect(_map(parts['product'])['overflow'], 'wrap');
-
-      final status = _map(parts['status']);
-      expect(status['gap'], '{space.12}');
-      expect(PurchaseRowGroup.statusGap, Space.s12);
-      expect(_px(status['maxWidth']), PurchaseRowGroup.statusMaxWidth);
-      expect(_map(status['active'])['element'], 'tag.status');
-      expect(_map(status['other'])['type'], '{type.label.md}');
-      expect(_map(status['other'])['fg'], '{color.text.secondary}');
-
-      final meta = _map(parts['meta']);
-      expect(meta['type'], '{type.caption.lg}');
-      expect(meta['fontFeatures'], ['tnum']);
-      expect(meta['marginTop'], '{space.4}');
-      expect(PurchaseRowGroup.metaGap, Space.s4);
-      // 3.1.0(V47): 구매일 줄 아래 space.2에 사용 기간 줄, 구분자로 잇지 않음.
-      expect(meta['layout'], 'lines');
-      expect(meta, isNot(contains('join')));
-      expect(_map(meta['period'])['marginTop'], '{space.2}');
-      expect(PurchaseRowGroup.periodGap, Space.s2);
-
       expect(
-        _map(_map(purchase['states'])['loading'])['component'],
-        'skeleton',
+        _map(_map(_map(offer['states'])['active'])['parts'])
+            .map((part, value) => MapEntry(part, _map(value)['visible'])),
+        {
+          'price': false,
+          'terms': false,
+          'owned': true,
+          'buy': false,
+          'unavailable': false,
+        },
       );
     });
+
+    test(
+      'purchase-row 부품 값(바탕, radius, 간격 16/16/4/2/12, 상태 폭 100)이 명세와 같다',
+      () {
+        final purchase = specs['purchase-row']!;
+        final parts = _map(purchase['parts']);
+        final group = _map(parts['group']);
+        expect(group['bg'], '{color.bg.sheet}');
+        expect(group['radius'], '{radius.lg}');
+        expect(group['paddingX'], '{space.16}');
+        expect(PurchaseRowGroup.paddingX, Space.s16);
+
+        final row = _map(parts['row']);
+        expect(row['paddingY'], '{space.16}');
+        expect(PurchaseRowGroup.rowPaddingY, Space.s16);
+        expect(row['pressable'], isFalse);
+        // 4.0.0: 줄 사이 선은 요소 list.divider(0.5px, V58).
+        final divider = _map(row['divider']);
+        expect(divider['element'], 'list.divider');
+        expect(divider['between'], 'rows-only');
+        // 9.0.0(V135): 묶음 안쪽 16 안에서 더 들이지 않아 선이 글자 폭과 같음.
+        expect(divider['insetX'], 0);
+        expect(PurchaseRowGroup.dividerInsetX, 0);
+        expect(PurchaseRowGroup.dividerKey, isNotNull);
+
+        expect(_map(parts['product'])['type'], '{type.subtitle}');
+        expect(_map(parts['product'])['overflow'], 'wrap');
+
+        final status = _map(parts['status']);
+        expect(status['gap'], '{space.12}');
+        expect(PurchaseRowGroup.statusGap, Space.s12);
+        expect(_px(status['maxWidth']), PurchaseRowGroup.statusMaxWidth);
+        // 9.0.0(V135): 사용 중은 채운 sage 알약 + seal-check Fill.
+        final activePill = _map(status['active']);
+        expect(activePill['bg'], '{color.action.primary}');
+        expect(activePill['fg'], '{color.action.on-primary}');
+        expect(activePill['type'], '{type.label.md}');
+        expect(activePill['weight'], 600);
+        expect(activePill['radius'], '{radius.full}');
+        final pillPadding = _map(activePill['padding']);
+        const activePadding = PurchaseRowGroup.activePillPadding;
+        expect(_px(pillPadding['x']), activePadding.horizontal / 2);
+        expect(_px(pillPadding['y']), activePadding.vertical / 2);
+        final pillIcon = _map(activePill['icon']);
+        expect(pillIcon['name'], 'seal-check');
+        expect(pillIcon['weight'], 'fill');
+        expect(pillIcon['size'], 'adjacent-text');
+        expect(pillIcon['color'], '{color.action.on-primary}');
+        expect(pillIcon['gap'], '{space.4}');
+        expect(PurchaseRowGroup.activePillIconGap, Space.s4);
+        expect(_map(status['other'])['type'], '{type.label.md}');
+        expect(_map(status['other'])['fg'], '{color.text.secondary}');
+
+        final meta = _map(parts['meta']);
+        expect(meta['type'], '{type.caption.lg}');
+        expect(meta['fontFeatures'], ['tnum']);
+        expect(meta['marginTop'], '{space.4}');
+        expect(PurchaseRowGroup.metaGap, Space.s4);
+        // 3.1.0(V47): 구매일 줄 아래 space.2에 사용 기간 줄, 구분자로 잇지 않음.
+        expect(meta['layout'], 'lines');
+        expect(meta, isNot(contains('join')));
+        expect(_map(meta['period'])['marginTop'], '{space.2}');
+        expect(PurchaseRowGroup.periodGap, Space.s2);
+
+        expect(
+          _map(_map(purchase['states'])['loading'])['component'],
+          'skeleton',
+        );
+      },
+    );
   });
 
   test(

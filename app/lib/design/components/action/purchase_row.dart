@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/feedback/skeleton.dart';
+import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/list_divider.dart';
-import 'package:myungli_diary/design/elements/status_tag.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
+import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
 /// 구매 한 건의 표시 값(`purchase-row`). 문자열은 모두 화면이 ARB에서 만들어 넘깁니다.
 final class PurchaseRowData {
@@ -24,7 +25,7 @@ final class PurchaseRowData {
   /// 상태 낱말(`ui.purchase.status`). null이면 보이지 않습니다.
   final String? status;
 
-  /// true면 상태를 `tag.status` 꼬리표로, 아니면 바탕 없는 글자로 그립니다.
+  /// true면 상태를 채운 sage 알약(`seal-check` Fill)으로, 아니면 바탕 없는 글자로 그립니다.
   final bool active;
 
   /// 구매일 줄(`ui.purchase.meta`의 `purchaseMetaPurchased`).
@@ -39,7 +40,8 @@ final class PurchaseRowData {
 
 /// 산 상품 줄들을 카드 한 장에 담은 묶음(`purchase-row`, D88 ②, V45).
 ///
-/// 줄은 누를 수 없고(눌림 상태 없음) 줄 사이에만 1px `line` 구분선이 있습니다. 순서는
+/// 줄은 누를 수 없고(눌림 상태 없음) 줄 사이에만 `list.divider`가 있습니다. 선은 묶음 안쪽
+/// 여백([paddingX]) 안에서 더 들이지 않아 줄 글자 폭과 같습니다(V135). 순서는
 /// 넘겨받은 [rows] 그대로이며 다시 정렬하지 않습니다. 스크린리더는 한 줄을 상품 이름, 상태, 구매일,
 /// 사용 기간 한 덩어리로 읽습니다.
 class PurchaseRowGroup extends StatelessWidget {
@@ -83,8 +85,31 @@ class PurchaseRowGroup extends StatelessWidget {
   /// 구매일 줄과 사용 기간 줄 사이(`parts.meta.period.marginTop`, `space.2`).
   static const double periodGap = Space.s2;
 
-  /// 상태 글자 최대 폭(`parts.status.maxWidth`).
-  static const double statusMaxWidth = 80;
+  /// 상태 자리 최대 폭(`parts.status.maxWidth`). 사용 중 알약에 아이콘이 들어가 100입니다
+  /// (글자 자리는 옛 꼬리표와 같은 64, V135).
+  static const double statusMaxWidth = 100;
+
+  /// 줄 사이 선의 좌우 들임(`parts.row.divider.insetX`, 0). 묶음 안쪽 여백 안에서 더 들이지
+  /// 않습니다.
+  static const double dividerInsetX = 0;
+
+  /// 사용 중 알약 안쪽 여백(`parts.status.active.padding`, x 8, y 2).
+  static const EdgeInsets activePillPadding = EdgeInsets.symmetric(
+    horizontal: 8,
+    vertical: 2,
+  );
+
+  /// 사용 중 알약의 아이콘과 글자 사이(`parts.status.active.icon.gap`, `space.4`).
+  static const double activePillIconGap = Space.s4;
+
+  /// 사용 중 알약을 찾는 테스트용 키.
+  static const Key activePillKey = ValueKey('purchase-row-active');
+
+  // seal-check는 Fill 한 가지뿐이라 쌍의 두 값을 같게 둡니다.
+  static const AppGlyph _sealCheck = AppGlyph(
+    light: PhosphorIconsFill.sealCheck,
+    regular: PhosphorIconsFill.sealCheck,
+  );
 
   static const int _skeletonRowCount = 3;
 
@@ -189,7 +214,7 @@ class PurchaseRowGroup extends StatelessWidget {
     );
   }
 
-  /// 상태: 사용 중은 `tag.status`, 그 밖은 바탕 없는 `type.label.md` 글자.
+  /// 상태: 사용 중은 채운 sage 알약([_activePill]), 그 밖은 바탕 없는 `type.label.md` 글자.
   ///
   /// 상품 이름 첫 줄 높이 안에서 세로 가운데에 놓아 줄 높이가 다른 글자도 첫 줄과 맞춥니다
   /// (`align: product-first-line`).
@@ -204,7 +229,7 @@ class PurchaseRowGroup extends StatelessWidget {
       child: Center(
         widthFactor: 1,
         child: active
-            ? StatusTag(status)
+            ? _activePill(context, status)
             : Text(
                 status,
                 textAlign: TextAlign.end,
@@ -212,6 +237,41 @@ class PurchaseRowGroup extends StatelessWidget {
                   color: tokens.colors.textSecondary,
                 ),
               ),
+      ),
+    );
+  }
+
+  /// 사용 중 알약: `action.primary` 바탕, `seal-check` Fill(글자 옆 크기) +
+  /// [activePillIconGap] + `type.label.md` 600 `action.on-primary` 글자. 목록에서 채운
+  /// 것은 이 하나입니다(V135).
+  Widget _activePill(BuildContext context, String status) {
+    final tokens = context.tokens;
+    final colors = tokens.colors;
+    final style = tokens.typography.labelMd.copyWith(
+      color: colors.actionOnPrimary,
+      fontWeight: FontWeight.w600,
+    );
+    return DecoratedBox(
+      key: activePillKey,
+      decoration: BoxDecoration(
+        color: colors.actionPrimary,
+        borderRadius: const BorderRadius.all(Radius.circular(Radii.full)),
+      ),
+      child: Padding(
+        padding: activePillPadding,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AppIcon(
+              _sealCheck,
+              size: AppIconSize.adjacentText(style.fontSize ?? 0),
+              color: colors.actionOnPrimary,
+              scalesWithText: true,
+            ),
+            const SizedBox(width: activePillIconGap),
+            Flexible(child: Text(status, style: style)),
+          ],
+        ),
       ),
     );
   }
@@ -258,6 +318,9 @@ class _KeyedDivider extends StatelessWidget {
   const new();
 
   @override
-  Widget build(BuildContext context) =>
-      const ListDivider(key: PurchaseRowGroup.dividerKey);
+  Widget build(BuildContext context) => const ListDivider(
+    key: PurchaseRowGroup.dividerKey,
+    indentStart: PurchaseRowGroup.dividerInsetX,
+    indentEnd: PurchaseRowGroup.dividerInsetX,
+  );
 }

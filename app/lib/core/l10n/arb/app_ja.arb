@@ -174,7 +174,7 @@
   "adFreeLegalNotice": "購入と同時に利用が始まる商品は、申込みの撤回が制限されることがあります。詳しくは利用規約とプライバシーポリシーでご確認いただけます。",
   "adFreeOfferHead": "1か月間、広告なしで、根拠と解釈まですべて開いて見られます。",
   "adFreeOfferPrice": "{price}",
-  "adFreeStatusRemaining": "{date}まで広告なしで使えます",
+  "adFreeStatusRemaining": "{date}まで",
   "calcBasisConventionBody": "読み解きは、韓国で広く使われている基準に従います。いくつかある流派のひとつとして、根拠のある基準です。",
   "calcBasisLunarBody": "旧暦は、韓国天文研究院の基準による韓国の旧暦に従います。",
   "calendarLegendBodyGood": "うまく運ぶ日",
@@ -415,7 +415,7 @@
   "purchaseStatusRefunded": "返金済み",
   "errorMergeTokenInvalid": "統合を続けられませんでした。取り込むアカウントを再認証してください。",
   "adFreeBuyCta": "購入する",
-  "adFreeOfferPeriod": "1か月、自動決済なし",
+  "adFreeOfferPeriod": "購入日から1か月",
   "forceUpdateNoticeBodyConsent": "新しい規約を確認するには、アップデートが必要です。",
   "systemPushChannelMorning": "今日の読み解きの通知",
   "accountChoiceSajuLeap": "{calendar} 閏月 {date} {time}",
@@ -561,5 +561,7 @@
   "branchReadingHae": "い",
   "sajuChartManseBasisStemSuffix": "（{reading}）",
   "consentRequiredLabelAge": "(必須)満14歳以上です",
-  "evidenceSheetUnlockUntilTime": "{time}まで閲覧可"
+  "evidenceSheetUnlockUntilTime": "{time}まで閲覧可",
+  "adFreeStatusBenefit": "すべての読み解きを自由にご利用ください。",
+  "adFreeOfferRenewal": "期間が終わっても自動で決済されません"
 }

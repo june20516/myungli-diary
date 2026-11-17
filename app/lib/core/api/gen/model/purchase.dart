@@ -29,7 +29,7 @@ class Purchase {
     this.period,
   });
 
-  /// 상품 id. 이름은 app이 자기 문구나 스토어 이름에서 찾습니다.
+  /// 스토어 상품 식별자(App Store, Google Play 상품 id, 예 `ad_free_1m`)입니다. RevenueCat 내부 상품 id(`prod…`)가 아닙니다. 광고 제거권은 두 스토어와 RevenueCat Test Store가 같은 식별자 하나를 씁니다. 이름은 app이 자기 문구나 스토어 이름에서 찾습니다. server 상품 목록에 없는 상품(설정 실수)은 바꿀 값이 없어 RevenueCat 상품 id가 그대로 올 수 있습니다(1.13.3에서 분명히 함, server S166).
   @JsonKey(name: r'productId', required: true, includeIfNull: false)
   final String productId;
 

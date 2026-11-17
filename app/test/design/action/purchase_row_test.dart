@@ -3,11 +3,12 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/action/purchase_row.dart';
+import 'package:myungli_diary/design/elements/app_icon.dart';
 import 'package:myungli_diary/design/elements/skeleton_bone.dart';
-import 'package:myungli_diary/design/elements/status_tag.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
+import 'package:phosphor_glyphs/phosphor_glyphs.dart';
 
 Widget _app(Widget child, {double width = 360, double scale = 1}) =>
     MaterialApp(
@@ -77,9 +78,18 @@ void main() {
         find.descendant(of: dividers.first, matching: find.byType(ColoredBox)),
       );
       expect(box.color, Theme.of(context).colorScheme.outline);
+      // 선은 묶음 안쪽 16 안에서 더 들이지 않아 줄 글자 폭과 같습니다(V135).
+      final row = tester.getRect(find.text('광고 제거 1개월').first);
+      final line = tester.getRect(dividers.first);
+      expect(line.left, row.left);
+      expect(
+        line.width,
+        tester.getSize(find.byType(PurchaseRowGroup)).width -
+            PurchaseRowGroup.paddingX * 2,
+      );
     });
 
-    testWidgets('active는 tag.status, 그 밖의 상태는 바탕 없는 글자, status null이면 자리가 없다', (
+    testWidgets('active는 채운 알약, 그 밖의 상태는 바탕 없는 글자, status null이면 자리가 없다', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -108,19 +118,37 @@ void main() {
           ),
         ),
       );
-      expect(find.byType(StatusTag), findsOneWidget);
+      final pill = find.byKey(PurchaseRowGroup.activePillKey);
+      expect(pill, findsOneWidget);
       expect(find.text('사용 중'), findsOneWidget);
       expect(
-        find.descendant(
-          of: find.byType(StatusTag),
-          matching: find.text('사용 중'),
-        ),
+        find.descendant(of: pill, matching: find.text('사용 중')),
         findsOneWidget,
       );
       expect(find.text('만료'), findsOneWidget);
       expect(
-        find.descendant(of: find.byType(StatusTag), matching: find.text('만료')),
+        find.descendant(of: pill, matching: find.text('만료')),
         findsNothing,
+      );
+      // 사용 중 알약: action.primary 바탕, on-primary 600 글자, seal-check Fill(V135).
+      final pillContext = tester.element(pill);
+      final pillTokens = pillContext.tokens;
+      final decoration =
+          tester.widget<DecoratedBox>(pill).decoration as BoxDecoration;
+      expect(decoration.color, pillTokens.colors.actionPrimary);
+      final active = tester.widget<Text>(find.text('사용 중')).style!;
+      expect(active.color, pillTokens.colors.actionOnPrimary);
+      expect(active.fontWeight, FontWeight.w600);
+      expect(active.fontSize, pillTokens.typography.labelMd.fontSize);
+      final icon = tester.widget<Icon>(
+        find.descendant(of: pill, matching: find.byType(Icon)),
+      );
+      expect(icon.icon, PhosphorIconsFill.sealCheck);
+      expect(icon.color, pillTokens.colors.actionOnPrimary);
+      expect(
+        tester.getTopLeft(find.text('사용 중')).dx -
+            tester.getTopRight(find.byType(AppIcon)).dx,
+        PurchaseRowGroup.activePillIconGap,
       );
       expect(
         find.descendant(
@@ -204,7 +232,7 @@ void main() {
       expect(lineHeight, greaterThan(single * 1.5));
     });
 
-    testWidgets('상태 글자 최대 폭 80, 넘으면 폭 안에서 감긴다', (tester) async {
+    testWidgets('상태 자리 최대 폭 100, 넘으면 폭 안에서 감긴다', (tester) async {
       Future<Size> statusSize(String status) async {
         await tester.pumpWidget(
           _app(
@@ -223,11 +251,11 @@ void main() {
         return tester.getSize(find.byKey(PurchaseRowGroup.statusKey));
       }
 
-      expect(PurchaseRowGroup.statusMaxWidth, 80);
+      expect(PurchaseRowGroup.statusMaxWidth, 100);
       final short = await statusSize('만료');
       final long = await statusSize('아주아주아주아주아주 긴 상태 낱말입니다 정말로');
-      expect(short.width, lessThan(80));
-      expect(long.width, lessThanOrEqualTo(80));
+      expect(short.width, lessThan(100));
+      expect(long.width, lessThanOrEqualTo(100));
       expect(long.height, greaterThan(short.height * 1.5));
       expect(tester.takeException(), isNull);
     });
@@ -257,7 +285,7 @@ void main() {
       });
     }
 
-    testWidgets('사용 중 꼬리표는 글자 1배에서 상품 첫 줄과 세로 가운데가 맞다', (tester) async {
+    testWidgets('사용 중 알약은 글자 1배에서 상품 첫 줄과 세로 가운데가 맞다', (tester) async {
       await tester.pumpWidget(
         _app(
           const PurchaseRowGroup(
@@ -274,12 +302,12 @@ void main() {
         ),
       );
       final product = tester.getRect(find.text('광고 제거'));
-      final tag = tester.getRect(find.byType(StatusTag));
+      final tag = tester.getRect(find.byKey(PurchaseRowGroup.activePillKey));
       expect(tag.center.dy, closeTo(product.center.dy, 1));
     });
 
     for (final scale in [1.3, 2.0]) {
-      testWidgets('꼬리표가 첫 줄보다 커지면 위쪽을 맞춘다 (글자 $scale배)', (tester) async {
+      testWidgets('알약이 첫 줄보다 커지면 위쪽을 맞춘다 (글자 $scale배)', (tester) async {
         await tester.pumpWidget(
           _app(
             const PurchaseRowGroup(
@@ -297,7 +325,7 @@ void main() {
           ),
         );
         final product = tester.getRect(find.text('광고 제거'));
-        final tag = tester.getRect(find.byType(StatusTag));
+        final tag = tester.getRect(find.byKey(PurchaseRowGroup.activePillKey));
         expect(tag.top, closeTo(product.top, 1));
       });
     }

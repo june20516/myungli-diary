@@ -19,6 +19,7 @@ OfferCard offerCardSample(
   head: l10n.adFreeOfferHead,
   price: '가격',
   period: l10n.adFreeOfferPeriod,
+  renewal: l10n.adFreeOfferRenewal,
   buyLabel: l10n.adFreeBuyCta,
   historyLabel: l10n.adFreeHistoryCta,
   legalNotice: l10n.adFreeLegalNotice,
@@ -26,6 +27,7 @@ OfferCard offerCardSample(
   remaining: l10n.adFreeStatusRemaining(
     DateFormat.yMMMd(localeTag).format(DateTime(2026, 11, 23)),
   ),
+  benefit: l10n.adFreeStatusBenefit,
   unavailableNote: l10n.adFreeUnavailableBody,
   onBuy: () {},
   onHistory: () {},

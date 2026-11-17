@@ -575,7 +575,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String adFreeStatusRemaining(String date) {
-    return '$date까지 광고 없이 볼 수 있어요';
+    return '$date까지';
   }
 
   @override
@@ -1416,7 +1416,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get adFreeBuyCta => '구매하기';
 
   @override
-  String get adFreeOfferPeriod => '1개월, 자동 결제 없음';
+  String get adFreeOfferPeriod => '구매한 날부터 1개월';
 
   @override
   String get forceUpdateNoticeBodyConsent => '새 약관을 확인하려면 업데이트가 필요해요.';
@@ -1941,4 +1941,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String evidenceSheetUnlockUntilTime(String time) {
     return '$time까지 열림';
   }
+
+  @override
+  String get adFreeStatusBenefit => '모든 풀이를 자유롭게 이용하세요.';
+
+  @override
+  String get adFreeOfferRenewal => '기간이 끝나도 자동으로 결제되지 않습니다';
 }

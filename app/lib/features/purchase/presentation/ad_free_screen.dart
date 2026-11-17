@@ -62,10 +62,17 @@ class AdFreeScreen extends ConsumerStatefulWidget {
 
 class _AdFreeScreenState extends ConsumerState<AdFreeScreen>
     with SingleOpenGuard<AdFreeScreen> {
+  /// 이 화면에서 구매가 끝났는지. 이용 중 카드가 나타날 때 head에 반짝임을 한 번 냅니다
+  /// (`offer-card` `active.justPurchased`, V135). 화면에 다시 들어오면 false입니다.
+  bool _justPurchased = false;
+
   Future<void> _buy(StoreProduct product) async {
     final outcome = await ref
         .read(adFreeControllerProvider.notifier)
         .buy(product.id);
+    if (outcome is PurchaseSucceeded && mounted) {
+      setState(() => _justPurchased = true);
+    }
     if (outcome is PurchaseFailed && mounted) {
       showMyungliToast(
         context,
@@ -165,14 +172,17 @@ class _AdFreeScreenState extends ConsumerState<AdFreeScreen>
             hasProduct: product != null,
           ),
           head: l10n.adFreeOfferHead,
-          // 가격은 스토어 문자열 그대로, 기간·자동 갱신 아님은 가격과 상관없이 늘 보입니다.
+          // 가격은 스토어 문자열 그대로, 확인 두 줄은 가격과 상관없이 늘 보입니다.
           price: product?.priceLabel,
           period: l10n.adFreeOfferPeriod,
+          renewal: l10n.adFreeOfferRenewal,
           buyLabel: l10n.adFreeBuyCta,
           historyLabel: l10n.adFreeHistoryCta,
           legalNotice: l10n.adFreeLegalNotice,
           statusLabel: l10n.purchaseStatusActive,
           remaining: expiry == null ? null : l10n.adFreeStatusRemaining(expiry),
+          benefit: l10n.adFreeStatusBenefit,
+          justPurchased: _justPurchased,
           unavailableNote: l10n.adFreeUnavailableBody,
           onBuy: product == null ? null : () => _buy(product),
           onHistory: () => _open(ScreenIds.purchaseHistory),
