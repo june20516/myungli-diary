@@ -175,11 +175,13 @@ class _AdFreeScreenState extends ConsumerState<AdFreeScreen>
           // 가격은 스토어 문자열 그대로, 확인 두 줄은 가격과 상관없이 늘 보입니다.
           price: product?.priceLabel,
           period: l10n.adFreeOfferPeriod,
+          renewal: l10n.adFreeOfferRenewal,
           buyLabel: l10n.adFreeBuyCta,
           historyLabel: l10n.adFreeHistoryCta,
           legalNotice: l10n.adFreeLegalNotice,
           statusLabel: l10n.purchaseStatusActive,
           remaining: expiry == null ? null : l10n.adFreeStatusRemaining(expiry),
+          benefit: l10n.adFreeStatusBenefit,
           justPurchased: _justPurchased,
           unavailableNote: l10n.adFreeUnavailableBody,
           onBuy: product == null ? null : () => _buy(product),

@@ -572,7 +572,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String adFreeStatusRemaining(String date) {
-    return '$dateまで広告なしで使えます';
+    return '$dateまで';
   }
 
   @override
@@ -1413,7 +1413,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get adFreeBuyCta => '購入する';
 
   @override
-  String get adFreeOfferPeriod => '1か月、自動決済なし';
+  String get adFreeOfferPeriod => '購入日から1か月';
 
   @override
   String get forceUpdateNoticeBodyConsent => '新しい規約を確認するには、アップデートが必要です。';
@@ -1937,4 +1937,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String evidenceSheetUnlockUntilTime(String time) {
     return '$timeまで閲覧可';
   }
+
+  @override
+  String get adFreeStatusBenefit => 'すべての読み解きを自由にご利用ください。';
+
+  @override
+  String get adFreeOfferRenewal => '期間が終わっても自動で決済されません';
 }

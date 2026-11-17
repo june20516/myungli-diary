@@ -624,7 +624,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String adFreeStatusRemaining(String date) {
-    return 'Ad-free until $date';
+    return 'Until $date';
   }
 
   @override
@@ -1528,7 +1528,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adFreeBuyCta => 'Buy';
 
   @override
-  String get adFreeOfferPeriod => '1 month, no automatic charge';
+  String get adFreeOfferPeriod => '1 month from purchase';
 
   @override
   String get forceUpdateNoticeBodyConsent =>
@@ -2069,4 +2069,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String evidenceSheetUnlockUntilTime(String time) {
     return 'Open until $time';
   }
+
+  @override
+  String get adFreeStatusBenefit => 'Enjoy every reading as you like.';
+
+  @override
+  String get adFreeOfferRenewal => 'No automatic charge when the period ends';
 }

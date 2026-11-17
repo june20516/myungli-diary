@@ -1068,70 +1068,75 @@ void main() {
       );
     });
 
-    test('purchase-row 부품 값(바탕, radius, 간격 16/16/4/2/12, 상태 폭 100)이 명세와 같다', () {
-      final purchase = specs['purchase-row']!;
-      final parts = _map(purchase['parts']);
-      final group = _map(parts['group']);
-      expect(group['bg'], '{color.bg.sheet}');
-      expect(group['radius'], '{radius.lg}');
-      expect(group['paddingX'], '{space.16}');
-      expect(PurchaseRowGroup.paddingX, Space.s16);
+    test(
+      'purchase-row 부품 값(바탕, radius, 간격 16/16/4/2/12, 상태 폭 100)이 명세와 같다',
+      () {
+        final purchase = specs['purchase-row']!;
+        final parts = _map(purchase['parts']);
+        final group = _map(parts['group']);
+        expect(group['bg'], '{color.bg.sheet}');
+        expect(group['radius'], '{radius.lg}');
+        expect(group['paddingX'], '{space.16}');
+        expect(PurchaseRowGroup.paddingX, Space.s16);
 
-      final row = _map(parts['row']);
-      expect(row['paddingY'], '{space.16}');
-      expect(PurchaseRowGroup.rowPaddingY, Space.s16);
-      expect(row['pressable'], isFalse);
-      // 4.0.0: 줄 사이 선은 요소 list.divider(0.5px, V58).
-      final divider = _map(row['divider']);
-      expect(divider['element'], 'list.divider');
-      expect(divider['between'], 'rows-only');
-      // 9.0.0(V135): 묶음 안쪽 16 안에서 더 들이지 않아 선이 글자 폭과 같음.
-      expect(divider['insetX'], 0);
-      expect(PurchaseRowGroup.dividerInsetX, 0);
-      expect(PurchaseRowGroup.dividerKey, isNotNull);
+        final row = _map(parts['row']);
+        expect(row['paddingY'], '{space.16}');
+        expect(PurchaseRowGroup.rowPaddingY, Space.s16);
+        expect(row['pressable'], isFalse);
+        // 4.0.0: 줄 사이 선은 요소 list.divider(0.5px, V58).
+        final divider = _map(row['divider']);
+        expect(divider['element'], 'list.divider');
+        expect(divider['between'], 'rows-only');
+        // 9.0.0(V135): 묶음 안쪽 16 안에서 더 들이지 않아 선이 글자 폭과 같음.
+        expect(divider['insetX'], 0);
+        expect(PurchaseRowGroup.dividerInsetX, 0);
+        expect(PurchaseRowGroup.dividerKey, isNotNull);
 
-      expect(_map(parts['product'])['type'], '{type.subtitle}');
-      expect(_map(parts['product'])['overflow'], 'wrap');
+        expect(_map(parts['product'])['type'], '{type.subtitle}');
+        expect(_map(parts['product'])['overflow'], 'wrap');
 
-      final status = _map(parts['status']);
-      expect(status['gap'], '{space.12}');
-      expect(PurchaseRowGroup.statusGap, Space.s12);
-      expect(_px(status['maxWidth']), PurchaseRowGroup.statusMaxWidth);
-      // 9.0.0(V135): 사용 중은 채운 sage 알약 + seal-check Fill.
-      final activePill = _map(status['active']);
-      expect(activePill['bg'], '{color.action.primary}');
-      expect(activePill['fg'], '{color.action.on-primary}');
-      expect(activePill['type'], '{type.label.md}');
-      expect(activePill['weight'], 600);
-      expect(activePill['radius'], '{radius.full}');
-      expect(_px(_map(activePill['padding'])['x']), PurchaseRowGroup.activePillPadding.horizontal / 2);
-      expect(_px(_map(activePill['padding'])['y']), PurchaseRowGroup.activePillPadding.vertical / 2);
-      final pillIcon = _map(activePill['icon']);
-      expect(pillIcon['name'], 'seal-check');
-      expect(pillIcon['weight'], 'fill');
-      expect(pillIcon['size'], 'adjacent-text');
-      expect(pillIcon['color'], '{color.action.on-primary}');
-      expect(pillIcon['gap'], '{space.4}');
-      expect(PurchaseRowGroup.activePillIconGap, Space.s4);
-      expect(_map(status['other'])['type'], '{type.label.md}');
-      expect(_map(status['other'])['fg'], '{color.text.secondary}');
+        final status = _map(parts['status']);
+        expect(status['gap'], '{space.12}');
+        expect(PurchaseRowGroup.statusGap, Space.s12);
+        expect(_px(status['maxWidth']), PurchaseRowGroup.statusMaxWidth);
+        // 9.0.0(V135): 사용 중은 채운 sage 알약 + seal-check Fill.
+        final activePill = _map(status['active']);
+        expect(activePill['bg'], '{color.action.primary}');
+        expect(activePill['fg'], '{color.action.on-primary}');
+        expect(activePill['type'], '{type.label.md}');
+        expect(activePill['weight'], 600);
+        expect(activePill['radius'], '{radius.full}');
+        final pillPadding = _map(activePill['padding']);
+        const activePadding = PurchaseRowGroup.activePillPadding;
+        expect(_px(pillPadding['x']), activePadding.horizontal / 2);
+        expect(_px(pillPadding['y']), activePadding.vertical / 2);
+        final pillIcon = _map(activePill['icon']);
+        expect(pillIcon['name'], 'seal-check');
+        expect(pillIcon['weight'], 'fill');
+        expect(pillIcon['size'], 'adjacent-text');
+        expect(pillIcon['color'], '{color.action.on-primary}');
+        expect(pillIcon['gap'], '{space.4}');
+        expect(PurchaseRowGroup.activePillIconGap, Space.s4);
+        expect(_map(status['other'])['type'], '{type.label.md}');
+        expect(_map(status['other'])['fg'], '{color.text.secondary}');
 
-      final meta = _map(parts['meta']);
-      expect(meta['type'], '{type.caption.lg}');
-      expect(meta['fontFeatures'], ['tnum']);
-      expect(meta['marginTop'], '{space.4}');
-      expect(PurchaseRowGroup.metaGap, Space.s4);
-      // 3.1.0(V47): 구매일 줄 아래 space.2에 사용 기간 줄, 구분자로 잇지 않음.
-      expect(meta['layout'], 'lines');
-      expect(meta, isNot(contains('join')));
-      expect(_map(meta['period'])['marginTop'], '{space.2}');
-      expect(PurchaseRowGroup.periodGap, Space.s2);
+        final meta = _map(parts['meta']);
+        expect(meta['type'], '{type.caption.lg}');
+        expect(meta['fontFeatures'], ['tnum']);
+        expect(meta['marginTop'], '{space.4}');
+        expect(PurchaseRowGroup.metaGap, Space.s4);
+        // 3.1.0(V47): 구매일 줄 아래 space.2에 사용 기간 줄, 구분자로 잇지 않음.
+        expect(meta['layout'], 'lines');
+        expect(meta, isNot(contains('join')));
+        expect(_map(meta['period'])['marginTop'], '{space.2}');
+        expect(PurchaseRowGroup.periodGap, Space.s2);
 
-      expect(
-        _map(_map(purchase['states'])['loading'])['component'],
-        'skeleton',
-      );
-    });
+        expect(
+          _map(_map(purchase['states'])['loading'])['component'],
+          'skeleton',
+        );
+      },
+    );
   });
 
   test(

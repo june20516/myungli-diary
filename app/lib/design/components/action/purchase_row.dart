@@ -242,8 +242,8 @@ class PurchaseRowGroup extends StatelessWidget {
   }
 
   /// 사용 중 알약: `action.primary` 바탕, `seal-check` Fill(글자 옆 크기) +
-  /// [activePillIconGap] + `type.label.md` 600 `action.on-primary` 글자. 목록에서 채운 것은
-  /// 이 하나입니다(V135).
+  /// [activePillIconGap] + `type.label.md` 600 `action.on-primary` 글자. 목록에서 채운
+  /// 것은 이 하나입니다(V135).
   Widget _activePill(BuildContext context, String status) {
     final tokens = context.tokens;
     final colors = tokens.colors;

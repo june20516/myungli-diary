@@ -1147,7 +1147,7 @@ abstract class AppLocalizations {
   /// ad-free.status.remaining: 광고 제거 남은 기간 또는 만료일
   ///
   /// In ko, this message translates to:
-  /// **'{date}까지 광고 없이 볼 수 있어요'**
+  /// **'{date}까지'**
   String adFreeStatusRemaining(String date);
 
   /// calc-basis.convention.body: 한국에서 보편적으로 쓰는 해석 기준을 쓴다는 안내. 여러 유파 가운데 하나로서의 근거를 밝히고 우열은 말하지 않습니다(D28·D71)
@@ -2562,25 +2562,25 @@ abstract class AppLocalizations {
   /// **'광고 제거 1개월'**
   String get purchaseProductAdFreeMonth;
 
-  /// 구매 내역 화면(purchase-history) purchase-row: 상태 낱말(기간권)
+  /// 구매 내역 화면(purchase-history) purchase-row: 상태 낱말(기간권). `Active`는 광고 제거 화면 offer-card 이용 중 표시에도 씀
   ///
   /// In ko, this message translates to:
   /// **'사용 중'**
   String get purchaseStatusActive;
 
-  /// 구매 내역 화면(purchase-history) purchase-row: 상태 낱말(기간권)
+  /// 구매 내역 화면(purchase-history) purchase-row: 상태 낱말(기간권). `Active`는 광고 제거 화면 offer-card 이용 중 표시에도 씀
   ///
   /// In ko, this message translates to:
   /// **'사용 전'**
   String get purchaseStatusPending;
 
-  /// 구매 내역 화면(purchase-history) purchase-row: 상태 낱말(기간권)
+  /// 구매 내역 화면(purchase-history) purchase-row: 상태 낱말(기간권). `Active`는 광고 제거 화면 offer-card 이용 중 표시에도 씀
   ///
   /// In ko, this message translates to:
   /// **'만료'**
   String get purchaseStatusExpired;
 
-  /// 구매 내역 화면(purchase-history) purchase-row: 상태 낱말(기간권)
+  /// 구매 내역 화면(purchase-history) purchase-row: 상태 낱말(기간권). `Active`는 광고 제거 화면 offer-card 이용 중 표시에도 씀
   ///
   /// In ko, this message translates to:
   /// **'환불'**
@@ -2601,7 +2601,7 @@ abstract class AppLocalizations {
   /// ad-free.offer.period: 기간(1개월)과 자동 갱신 아님 고지. 가격 아래 작은 글씨이고 구매 버튼보다 위(D53, design offer-card)
   ///
   /// In ko, this message translates to:
-  /// **'1개월, 자동 결제 없음'**
+  /// **'구매한 날부터 1개월'**
   String get adFreeOfferPeriod;
 
   /// force-update.notice.body: 업데이트해야 하는 이유
@@ -3479,6 +3479,18 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{time}까지 열림'**
   String evidenceSheetUnlockUntilTime(String time);
+
+  /// 광고 제거 화면(ad-free) offer-card 이용 중 표시: 끝나는 날 아래 혜택 한 줄. 작은 글씨(type.caption.lg) 두 줄까지, 비우면 그리지 않음. 구매 직후 열림 반짝임이 걸리는 줄. IA 밖 writing 슬롯(design V135)
+  ///
+  /// In ko, this message translates to:
+  /// **'모든 풀이를 자유롭게 이용하세요.'**
+  String get adFreeStatusBenefit;
+
+  /// 광고 제거 화면(ad-free) offer-card: 가격 아래 확인 두 줄의 둘째 줄, 자동 결제 없음. 앞에 체크 아이콘, 본문 크기 두 줄까지. IA 밖 writing 슬롯(design V135)
+  ///
+  /// In ko, this message translates to:
+  /// **'기간이 끝나도 자동으로 결제되지 않습니다'**
+  String get adFreeOfferRenewal;
 }
 
 class _AppLocalizationsDelegate
