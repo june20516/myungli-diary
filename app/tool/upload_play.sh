@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 # Android 스토어 빌드(AAB)를 Play Console 트랙에 올립니다(#944).
 #
-#   tool/upload_play.sh <aab> [track]      # track 기본값 internal
+#   tool/upload_play.sh <aab> [track] [status]   # track 기본값 internal, status 기본값 completed
+#
+# status는 completed(바로 출시) 또는 draft(초안 출시)입니다. Play에서 아직 "초안 앱"이면 internal 말고
+# 다른 트랙(예 비공개 테스트 alpha)에는 draft만 만들 수 있고(그 밖은 commit이 HTTP 400), 첫 출시는
+# Play Console에서 사용자가 시작합니다(2026-11-17 빌드 10에서 확인).
 #
 # Android Publisher API v3 순서: edits.insert → (빌드 번호 중복 검사) → edits.bundles.upload
 # → edits.tracks.update → edits.commit. 중간에 실패하면 edit를 지워 아무것도 남기지 않습니다.
@@ -12,12 +16,17 @@
 # 출시 노트는 넣지 않습니다(문구가 정해지면 releaseNotes를 더함).
 set -euo pipefail
 
-if [[ $# -lt 1 || $# -gt 2 ]]; then
-  echo "사용: tool/upload_play.sh <aab> [track]" >&2
+if [[ $# -lt 1 || $# -gt 3 ]]; then
+  echo "사용: tool/upload_play.sh <aab> [track] [completed|draft]" >&2
   exit 2
 fi
 aab="$1"
 track="${2:-internal}"
+release_status="${3:-completed}"
+if [[ "$release_status" != completed && "$release_status" != draft ]]; then
+  echo "status는 completed 또는 draft입니다: $release_status" >&2
+  exit 2
+fi
 package="app.myungli.diary"
 service_account="play-publisher@myungli-diary.iam.gserviceaccount.com"
 api="https://androidpublisher.googleapis.com/androidpublisher/v3/applications/$package"
@@ -83,11 +92,11 @@ echo "AAB 올리는 중(versionCode $version_code)..."
 call POST "$upload_api/edits/$edit_id/bundles?uploadType=media" \
   -H "Content-Type: application/octet-stream" --data-binary "@$aab" >/dev/null
 
-release="$(jq -n --arg code "$version_code" \
-  '{releases: [{versionCodes: [$code], status: "completed"}]}')"
+release="$(jq -n --arg code "$version_code" --arg status "$release_status" \
+  '{releases: [{versionCodes: [$code], status: $status}]}')"
 call PUT "$api/edits/$edit_id/tracks/$track" \
   -H "Content-Type: application/json" -d "$release" >/dev/null
 
 call POST "$api/edits/$edit_id:commit" >/dev/null
 edit_id=""
-echo "Play ${track} 트랙에 versionCode ${version_code}를 올렸습니다."
+echo "Play ${track} 트랙에 versionCode ${version_code}를 올렸습니다(${release_status})."
