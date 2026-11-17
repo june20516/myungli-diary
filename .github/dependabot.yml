@@ -1,5 +1,5 @@
 # 외부 GitHub Action은 commit SHA로 고정하고(D136 ③, Q1), 새 판은 Dependabot PR로 받습니다.
-# 각 workflow 파일은 소유 단위가 따로 있으므로(docs/workflow.md §2) Dependabot PR은 사용자가 검사 통과를 보고 병합합니다.
+# 각 workflow와 의존성 파일은 소유 단위가 따로 있으므로(docs/workflow.md §2) Dependabot PR은 사용자가 검사 통과를 보고 병합합니다.
 version: 2
 updates:
   - package-ecosystem: github-actions
@@ -11,3 +11,26 @@ updates:
         patterns: ["*"]
     commit-message:
       prefix: "chore(ci)"
+
+  # 아래는 보안 업데이트 전용입니다(open-pull-requests-limit: 0이면 버전 갱신 PR은 열지 않고 보안 업데이트만 엶).
+  # 보안 업데이트 PR은 이 항목이 있어야 Dependabot이 rebase와 갱신을 이어 갑니다.
+  - package-ecosystem: gomod
+    directory: /server
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0
+  - package-ecosystem: uv
+    directory: /core
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0
+  - package-ecosystem: uv
+    directory: /docs/identity/writing/tools
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0
+  - package-ecosystem: pub
+    directory: /app
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0
