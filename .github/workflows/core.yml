@@ -29,7 +29,7 @@ jobs:
       slow_markers: ${{ steps.detect.outputs.slow_markers }}
       full_properties: ${{ steps.detect.outputs.full_properties }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
       - name: 돌릴 slow 테스트 묶음 판별
@@ -67,9 +67,9 @@ jobs:
       run:
         working-directory: core
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       # setup-uv는 v8부터 메이저 태그(v10)를 두지 않아 정확한 버전으로 고정한다.
-      - uses: astral-sh/setup-uv@v10.3.3
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
         with:
           version: "0.11.3"
           python-version: "3.13"
@@ -96,9 +96,9 @@ jobs:
       run:
         working-directory: core
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       # setup-uv는 v8부터 메이저 태그(v10)를 두지 않아 정확한 버전으로 고정한다.
-      - uses: astral-sh/setup-uv@v10.3.3
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
         with:
           version: "0.11.3"
           python-version: "3.13"
@@ -120,7 +120,7 @@ jobs:
     if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
       # breaking 비교 기준은 merge ref의 first parent(검사 시점의 main)다(D81 ②).
@@ -143,7 +143,7 @@ jobs:
             echo "exists=false" >> "$GITHUB_OUTPUT"
             echo "::notice::기준 커밋에 $PROTO_FILE 이 없어 buf breaking 비교를 건너뜁니다."
           fi
-      - uses: bufbuild/buf-action@v1.7.0
+      - uses: bufbuild/buf-action@37ac33d8960807670a6e9719080e885197b09cc6 # v1.7.0
         with:
           version: "1.73.0"
           input: proto
@@ -165,9 +165,9 @@ jobs:
       run:
         working-directory: core
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       # setup-uv는 v8부터 메이저 태그(v10)를 두지 않아 정확한 버전으로 고정한다.
-      - uses: astral-sh/setup-uv@v10.3.3
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
         with:
           version: "0.11.3"
           python-version: "3.13"
