@@ -31,8 +31,8 @@ jobs:
   checks:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: hashicorp/setup-terraform@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4
         with:
           terraform_version: ${{ env.TERRAFORM_VERSION }}
       - name: terraform fmt
@@ -66,12 +66,12 @@ jobs:
           - environment: prod
             project_id: myungli-diary
     steps:
-      - uses: actions/checkout@v7
-      - uses: google-github-actions/auth@v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
         with:
           workload_identity_provider: ${{ matrix.environment == 'prod' && vars.GCP_WIF_PROVIDER_PROD || vars.GCP_WIF_PROVIDER_STAGING }}
           service_account: ${{ matrix.environment == 'prod' && vars.GCP_PLANNER_PROD || vars.GCP_PLANNER_STAGING }}
-      - uses: google-github-actions/setup-gcloud@v3
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3
       # 첫 env apply 전에는 state 객체가 없고, init이 빈 state를 쓰려다 읽기 전용 planner라 막힙니다.
       # 객체가 없을 때만 건너뛰고, 권한, 일시 오류는 실패로 드러냅니다(#668). bucket이 없을 때도 같은 404지만,
       # 그때는 bootstrap 전이라 WIF가 없어 앞의 auth가 먼저 실패합니다.
@@ -88,7 +88,7 @@ jobs:
             echo "$output" >&2
             exit 1
           fi
-      - uses: hashicorp/setup-terraform@v4
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4
         if: steps.state.outputs.exists == 'true'
         with:
           terraform_version: ${{ env.TERRAFORM_VERSION }}
@@ -164,12 +164,12 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v7
-      - uses: google-github-actions/auth@v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
         with:
           workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER_LOAD }}
           service_account: ${{ vars.GCP_DEPLOYER_LOAD }}
-      - uses: hashicorp/setup-terraform@v4
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4
         with:
           terraform_version: ${{ env.TERRAFORM_VERSION }}
           terraform_wrapper: false

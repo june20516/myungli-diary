@@ -32,12 +32,12 @@ jobs:
       group: deploy-engine-${{ inputs.environment }}
       cancel-in-progress: false
     steps:
-      - uses: actions/checkout@v7
-      - uses: google-github-actions/auth@v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
         with:
           workload_identity_provider: ${{ inputs.wif_provider }}
           service_account: ${{ inputs.service_account }}
-      - uses: google-github-actions/setup-gcloud@v3
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3
 
       # 배포 관문(D110, workflow §6.3): 같은 환경의 server가 다루는 엔진 규칙 버전(GET /version)보다 새 엔진이 높으면
       # 이미지를 push하기 전에 멈춥니다. server가 그 버전을 따라잡아 이 환경에 배포된 뒤 다시 돌리면 나갑니다.

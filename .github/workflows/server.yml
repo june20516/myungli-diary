@@ -32,10 +32,10 @@ jobs:
       run:
         working-directory: server
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       # setup-go 캐시는 키가 go.sum뿐이라 끄고 아래에서 직접 둡니다(D81 ⑥ 캐시 원칙).
       - id: go
-        uses: actions/setup-go@v7
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
         with:
           go-version-file: server/go.mod
           cache: false
@@ -44,7 +44,7 @@ jobs:
       # 수동 실행은 캐시 없이 새로 돌고, 저장은 main push의 own 실행에서만 합니다. 복원이 안 돼도 결과는 같고 느려질 뿐입니다.
       - name: Go 캐시 복원
         if: github.event_name != 'workflow_dispatch' && github.event_name != 'schedule'
-        uses: actions/cache/restore@v6
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: |
             ~/.cache/go-build
@@ -59,7 +59,7 @@ jobs:
       - if: env.OWN == 'true'
         run: go vet -tags staging ./...
       # 시드의 원본인 writing 원고를 검사합니다(spec §6.1). 원고가 W1로 다 오기 전까지 --partial입니다(P4-8).
-      - uses: astral-sh/setup-uv@v10.3.3
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
         with:
           version: "0.11.3"
           python-version: "3.13"
@@ -71,14 +71,14 @@ jobs:
       # action 자체 캐시는 키에 lint 버전·설정이 없어 끄고, 위 Go 캐시가 ~/.cache/golangci-lint를 맡습니다.
       - name: golangci-lint
         if: env.OWN == 'true'
-        uses: golangci/golangci-lint-action@v9
+        uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9
         with:
           version: ${{ env.GOLANGCI_LINT_VERSION }}
           working-directory: server
           skip-cache: true
       - name: golangci-lint (staging tag)
         if: env.OWN == 'true'
-        uses: golangci/golangci-lint-action@v9
+        uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9
         with:
           version: ${{ env.GOLANGCI_LINT_VERSION }}
           working-directory: server
@@ -155,7 +155,7 @@ jobs:
       - name: Go 캐시 저장
         # gate로 돈 main 실행은 계약 패키지만 빌드하므로, 그 캐시가 키를 먼저 차지하지 않게 own에서만 저장합니다.
         if: env.OWN == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/cache/save@v6
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: |
             ~/.cache/go-build
