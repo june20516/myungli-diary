@@ -129,9 +129,9 @@ type RewardVerifier interface {
 
 var _ RewardVerifier = (*billing.RewardVerifier)(nil)
 
-// RewardGranter는 검증된 보상 콜백을 기록하고 권한을 부여합니다. *billing.Rewards가 만족합니다.
+// RewardGranter는 검증된 보상 콜백을 기록하고 권한을 부여합니다. 원본 쿼리는 넘기지 않습니다(S164). *billing.Rewards가 만족합니다.
 type RewardGranter interface {
-	Grant(ctx context.Context, cb billing.RewardCallback, rawQuery string) error
+	Grant(ctx context.Context, cb billing.RewardCallback) error
 }
 
 var _ RewardGranter = (*billing.Rewards)(nil)

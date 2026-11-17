@@ -300,8 +300,9 @@ type RewardEvent struct {
 	AccountID     uuid.NullUUID
 	AdUnit        pgtype.Text
 	RewardItem    pgtype.Text
-	RawQuery      string
 	ReceivedAt    time.Time
+	CallbackAt    time.Time
+	Source        string
 }
 
 type RotationState struct {

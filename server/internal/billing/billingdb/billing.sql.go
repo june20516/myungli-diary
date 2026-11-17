@@ -161,8 +161,8 @@ func (q *Queries) InsertPurchase(ctx context.Context, arg InsertPurchaseParams) 
 }
 
 const insertRewardEvent = `-- name: InsertRewardEvent :execrows
-INSERT INTO reward_events (transaction_id, account_id, ad_unit, reward_item, raw_query, received_at)
-VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO reward_events (transaction_id, account_id, ad_unit, reward_item, callback_at, source, received_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 ON CONFLICT (transaction_id) DO NOTHING
 `
 
@@ -171,7 +171,8 @@ type InsertRewardEventParams struct {
 	AccountID     uuid.NullUUID
 	AdUnit        pgtype.Text
 	RewardItem    pgtype.Text
-	RawQuery      string
+	CallbackAt    time.Time
+	Source        string
 	ReceivedAt    time.Time
 }
 
@@ -182,7 +183,8 @@ func (q *Queries) InsertRewardEvent(ctx context.Context, arg InsertRewardEventPa
 		arg.AccountID,
 		arg.AdUnit,
 		arg.RewardItem,
-		arg.RawQuery,
+		arg.CallbackAt,
+		arg.Source,
 		arg.ReceivedAt,
 	)
 	if err != nil {
