@@ -1,0 +1,13 @@
+# 외부 GitHub Action은 commit SHA로 고정하고(D136 ③, Q1), 새 판은 Dependabot PR로 받습니다.
+# 각 workflow 파일은 소유 단위가 따로 있으므로(docs/workflow.md §2) Dependabot PR은 사용자가 검사 통과를 보고 병합합니다.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: "chore(ci)"
