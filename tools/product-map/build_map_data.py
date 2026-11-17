@@ -82,9 +82,10 @@ def _state(status: str) -> str:
     return "todo"
 
 
-def parse_roadmap(text: str) -> list[dict[str, str]]:
+def parse_roadmap(text: str, heading: str = "마일스톤") -> list[dict[str, str]]:
+    """[heading]으로 시작하는 절의 마일스톤 표를 읽습니다. 끝난 단계는 roadmap-history.md로 옮겨 둡니다(D131)."""
     milestones = []
-    for row in _table_rows(_section(text, "마일스톤"))[1:]:
+    for row in _table_rows(_section(text, heading))[1:]:
         if len(row) < 6:
             continue
         status = _plain(row[5])
@@ -344,6 +345,7 @@ def _read(root: Path, relative: str) -> str:
 
 def build(root: Path, internal: Path | None = None) -> dict[str, object]:
     roadmap = _read(root, "docs/roadmap.md")
+    roadmap_history = _read(root, "docs/roadmap-history.md")
     issues = collect_issues(root)
     # 공개 저장소에는 아이디어 함이 없습니다. 내부 저장소를 받으면 거기서 읽습니다(D74).
     ideas, idea_reviews = collect_ideas(internal, INTERNAL_IDEAS_PATH) if internal else collect_ideas(root)
@@ -354,7 +356,7 @@ def build(root: Path, internal: Path | None = None) -> dict[str, object]:
     ]
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "milestones": parse_roadmap(roadmap),
+        "milestones": parse_roadmap(roadmap_history, "끝난 마일스톤 행") + parse_roadmap(roadmap),
         "current_order": parse_current_order(roadmap),
         "identity": parse_identity(_read(root, "docs/identity/README.md")),
         "screens": collect_screens(root),

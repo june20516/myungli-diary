@@ -55,6 +55,17 @@ class ParseTests(unittest.TestCase):
         self.assertEqual(milestones[2]["state"], "todo")
         self.assertEqual(milestones[0]["state"], "done")
 
+    def test_parse_roadmap_done_rows_from_history(self) -> None:
+        history = (
+            "# 로드맵 경과\n\n## 끝난 마일스톤 행(2026-11-17 옮김)\n\n"
+            "| ID | 마일스톤 | 담당 | 선행 조건 | 끝나면 열리는 것 | 상태 |\n| --- | --- | --- | --- | --- | --- |\n"
+            "| R0 | 제품 결정 | 지휘 | - | C1 | **완료** |\n\n"
+            "## 끝난 마일스톤 상태 원문\n\n| ID | 상태 원문 |\n| --- | --- |\n| R0 | **완료** (D1~D34) |\n"
+        )
+        milestones = build_map_data.parse_roadmap(history, "끝난 마일스톤 행")
+        self.assertEqual([m["id"] for m in milestones], ["R0"])
+        self.assertEqual(milestones[0]["state"], "done")
+
     def test_parse_current_order(self) -> None:
         order = build_map_data.parse_current_order(ROADMAP)
         self.assertEqual(len(order), 2)
