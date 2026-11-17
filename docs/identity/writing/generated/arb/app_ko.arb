@@ -97,7 +97,7 @@
   "@adFreeOfferHead": {
     "description": "ad-free.offer.head: 광고 제거권이 주는 것 한 줄(배너 제거, 근거·해석 열림, D60)"
   },
-  "adFreeOfferPeriod": "1개월, 자동 결제 없음",
+  "adFreeOfferPeriod": "구매한 날부터 1개월",
   "@adFreeOfferPeriod": {
     "description": "ad-free.offer.period: 기간(1개월)과 자동 갱신 아님 고지. 가격 아래 작은 글씨이고 구매 버튼보다 위(D53, design offer-card)"
   },
@@ -110,7 +110,7 @@
       }
     }
   },
-  "adFreeStatusRemaining": "{date}까지 광고 없이 볼 수 있어요",
+  "adFreeStatusRemaining": "{date}까지",
   "@adFreeStatusRemaining": {
     "description": "ad-free.status.remaining: 광고 제거 남은 기간 또는 만료일",
     "placeholders": {
@@ -1606,6 +1606,14 @@
   "@textFieldClear": {
     "description": "여러 화면이 함께 쓰는 동작 버튼·링크 이름(다시 시도, 닫기, 확인, 다음, 저장, 공유, 약관 보기, 입력 지우기)"
   },
+  "adFreeStatusBenefit": "모든 풀이를 자유롭게 이용하세요.",
+  "@adFreeStatusBenefit": {
+    "description": "광고 제거 화면(ad-free) offer-card 이용 중 표시: 끝나는 날 아래 혜택 한 줄. 작은 글씨(type.caption.lg) 두 줄까지, 비우면 그리지 않음. 구매 직후 열림 반짝임이 걸리는 줄. IA 밖 writing 슬롯(design V135)"
+  },
+  "adFreeOfferRenewal": "기간이 끝나도 자동으로 결제되지 않습니다",
+  "@adFreeOfferRenewal": {
+    "description": "광고 제거 화면(ad-free) offer-card: 가격 아래 확인 두 줄의 둘째 줄, 자동 결제 없음. 앞에 체크 아이콘, 본문 크기 두 줄까지. IA 밖 writing 슬롯(design V135)"
+  },
   "bootstrapFailed": "앱을 열지 못했어요. 앱을 완전히 닫았다가 다시 열어 주세요.",
   "@bootstrapFailed": {
     "description": "오류 상태: 앱 시작 준비가 실패했을 때의 안내"
@@ -2368,19 +2376,19 @@
   },
   "purchaseStatusActive": "사용 중",
   "@purchaseStatusActive": {
-    "description": "구매 내역 화면(purchase-history) purchase-row: 상태 낱말(기간권)"
+    "description": "구매 내역 화면(purchase-history) purchase-row: 상태 낱말(기간권). `Active`는 광고 제거 화면 offer-card 이용 중 표시에도 씀"
   },
   "purchaseStatusPending": "사용 전",
   "@purchaseStatusPending": {
-    "description": "구매 내역 화면(purchase-history) purchase-row: 상태 낱말(기간권)"
+    "description": "구매 내역 화면(purchase-history) purchase-row: 상태 낱말(기간권). `Active`는 광고 제거 화면 offer-card 이용 중 표시에도 씀"
   },
   "purchaseStatusExpired": "만료",
   "@purchaseStatusExpired": {
-    "description": "구매 내역 화면(purchase-history) purchase-row: 상태 낱말(기간권)"
+    "description": "구매 내역 화면(purchase-history) purchase-row: 상태 낱말(기간권). `Active`는 광고 제거 화면 offer-card 이용 중 표시에도 씀"
   },
   "purchaseStatusRefunded": "환불",
   "@purchaseStatusRefunded": {
-    "description": "구매 내역 화면(purchase-history) purchase-row: 상태 낱말(기간권)"
+    "description": "구매 내역 화면(purchase-history) purchase-row: 상태 낱말(기간권). `Active`는 광고 제거 화면 offer-card 이용 중 표시에도 씀"
   },
   "sajuChartTabNatal": "원국",
   "@sajuChartTabNatal": {
