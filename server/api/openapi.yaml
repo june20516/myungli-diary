@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 명리일기 API
-  version: 1.13.2
+  version: 1.13.3
   description: |
     명리일기 server가 app에 제공하는 REST API v1 계약입니다. 1.0.0에서 freeze했습니다(마일스톤 S3).
 
@@ -4243,7 +4243,10 @@ components:
       properties:
         productId:
           type: string
-          description: 상품 id. 이름은 app이 자기 문구나 스토어 이름에서 찾습니다.
+          description: |
+            스토어 상품 식별자(App Store, Google Play 상품 id, 예 `ad_free_1m`)입니다. RevenueCat 내부 상품 id(`prod…`)가 아닙니다.
+            광고 제거권은 두 스토어와 RevenueCat Test Store가 같은 식별자 하나를 씁니다. 이름은 app이 자기 문구나 스토어 이름에서 찾습니다.
+            server 상품 목록에 없는 상품(설정 실수)은 바꿀 값이 없어 RevenueCat 상품 id가 그대로 올 수 있습니다(1.13.3에서 분명히 함, server S166).
         purchasedAt:
           type: string
           format: date-time

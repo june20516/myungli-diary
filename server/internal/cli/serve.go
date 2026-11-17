@@ -152,7 +152,7 @@ func runServe(ctx context.Context, args []string, getenv func(string) string, _,
 	contents := content.NewStore(pool, clock.System{}, logger)
 	// 같은 권한 저장소 하나가 근거 열람 판정(fortune)과 getMe·getEntitlements·listPurchases 응답에 쓰입니다.
 	// 구매 목록이 기간 상품을 알아보도록 결제 동기화(newBillingParts)와 같은 상품 목록을 넘깁니다.
-	entitlements := billing.NewStore(pool, clock.System{}, billing.AdFreeCatalog(billingCfg.AdFreeProductIDs))
+	entitlements := billing.NewStore(pool, clock.System{}, billing.AdFreeCatalog(billingCfg.AdFreeProducts))
 	readings := newReadings(contents, fortuneService, entitlements, logger, clock.System{})
 
 	// 외부 제공자 호출(로그인 제공자·App Check)이 이 client 하나를 나눠 씁니다.
@@ -479,7 +479,7 @@ func newBillingParts(cfg config.BillingConfig, pool *pgxpool.Pool, httpClient *h
 		BaseURL:    urls.RevenueCat,
 	})
 	syncer := billing.NewSyncer(pool, source, billing.SyncConfig{
-		Catalog:        billing.AdFreeCatalog(cfg.AdFreeProductIDs),
+		Catalog:        billing.AdFreeCatalog(cfg.AdFreeProducts),
 		ProductionOnly: cfg.ProductionOnly,
 		Logger:         logger,
 	}, clk)

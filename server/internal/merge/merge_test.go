@@ -118,7 +118,7 @@ func newFixture(t *testing.T) *fixture {
 	profiles := profile.NewService(pool, nil, clk)
 	revoker := &fakeRevoker{}
 	purchases := &fakePurchaseSource{purchases: map[string][]billing.Purchase{}}
-	syncer := billing.NewSyncer(pool, purchases, billing.SyncConfig{Catalog: billing.AdFreeCatalog([]string{"test.ad_free.month"})}, clk)
+	syncer := billing.NewSyncer(pool, purchases, billing.SyncConfig{Catalog: billing.AdFreeCatalog(map[string]string{"test.ad_free.month": "test.ad_free.month"})}, clk)
 	return &fixture{
 		ctx:       context.Background(),
 		pool:      pool,
@@ -628,7 +628,7 @@ func TestExecute_PurchasesAppendRemaining(t *testing.T) {
 	require.NoError(t, f.service.Execute(f.ctx, me, f.issueToken(t, me, "U-b"), merge.ProfileCurrent))
 
 	// A의 구매 목록: 옮긴 구매는 A 구간으로 대기, 합치기 전에 끝난 B 구매는 구간 없이 expired입니다(owned가 아님).
-	listed, err := billing.NewStore(f.pool, f.clk, billing.AdFreeCatalog([]string{"test.ad_free.month"})).Purchases(f.ctx, me)
+	listed, err := billing.NewStore(f.pool, f.clk, billing.AdFreeCatalog(map[string]string{"test.ad_free.month": "test.ad_free.month"})).Purchases(f.ctx, me)
 	require.NoError(t, err)
 	statusOf := map[time.Time]string{}
 	for _, item := range listed {

@@ -282,7 +282,7 @@ func TestNewBillingParts_WithoutConfigLeavesRevenueCatPartsNil(t *testing.T) {
 func TestNewBillingParts_WithConfigAssemblesAll(t *testing.T) {
 	cfg := config.BillingConfig{
 		RevenueCatProjectID: "proj", RevenueCatAPIKey: "key", RevenueCatWebhookAuth: "Bearer x",
-		AdFreeProductIDs: []string{"test.ad_free.month"},
+		AdFreeProducts: map[string]string{"test.ad_free.month": "ad_free_1m"},
 	}
 
 	parts := newBillingParts(cfg, nil, nil, billingURLs{}, clock.System{}, slog.New(slog.DiscardHandler))

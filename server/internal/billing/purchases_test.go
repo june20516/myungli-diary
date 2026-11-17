@@ -156,6 +156,16 @@ func TestPurchases_InsightOnlyProductHasPeriod(t *testing.T) {
 	assert.True(t, got[0].Period.EndsAt.Equal(utc(2026, 11, 10, 0)))
 }
 
+// 구매 목록의 productId는 스토어 상품 식별자이고, 목록 밖 상품은 장부의 RevenueCat id 그대로입니다(S166).
+func TestPurchaseItemOf_ProductID(t *testing.T) {
+	catalog := AdFreeCatalog(map[string]string{"prod083797223e": "ad_free_1m"})
+	now := utc(2026, 10, 20, 0)
+	known := purchaseItemOf(billingdb.ListAccountPurchasesRow{ProductID: "prod083797223e", PurchasedAt: now}, catalog, now)
+	assert.Equal(t, "ad_free_1m", known.ProductID)
+	unknown := purchaseItemOf(billingdb.ListAccountPurchasesRow{ProductID: "prod_other", PurchasedAt: now}, catalog, now)
+	assert.Equal(t, "prod_other", unknown.ProductID)
+}
+
 func TestPurchaseItemOf(t *testing.T) {
 	starts, expires := utc(2026, 10, 10, 0), utc(2026, 11, 10, 0)
 	middle := utc(2026, 10, 20, 0)

@@ -67,7 +67,7 @@ func wireBillingReadings(t *testing.T, deps *serverDeps, service *fortune.Servic
 	t.Helper()
 	contents := content.NewStore(deps.Pool, deps.Clock, deps.Logger)
 	deps.Contents = contents
-	store := billing.NewStore(deps.Pool, deps.Clock, billing.AdFreeCatalog([]string{flowProductID}))
+	store := billing.NewStore(deps.Pool, deps.Clock, billing.AdFreeCatalog(map[string]string{flowProductID: flowStoreProductID}))
 	deps.Entitlements = store
 	deps.Ledger = store
 	deps.Readings = newReadings(contents, service, store, deps.Logger, deps.Clock)
@@ -149,6 +149,8 @@ func TestBillingFlow_WithoutEntitlementsIsUnavailable(t *testing.T) {
 
 const (
 	flowProductID       = "test.ad_free.month"
+	// flowStoreProductID는 flowProductID(RevenueCat 상품 id)의 스토어 상품 식별자입니다(S166).
+	flowStoreProductID = "ad_free_1m"
 	flowWebhookAuth     = "Bearer flow-webhook-secret"
 	flowRewardKeyID     = 3335741209
 	flowRewardTxPrefix  = "tx-flow-"
@@ -237,7 +239,7 @@ func TestBillingFlow_RestoreWebhookAndRewardedAd(t *testing.T) {
 		RevenueCatProjectID:   "proj-flow",
 		RevenueCatAPIKey:      flowRevenueCatToken,
 		RevenueCatWebhookAuth: flowWebhookAuth,
-		AdFreeProductIDs:      []string{flowProductID},
+		AdFreeProducts:        map[string]string{flowProductID: flowStoreProductID},
 		ProductionOnly:        true,
 	}
 	var pool *pgxpool.Pool
@@ -294,7 +296,7 @@ func TestBillingFlow_RestoreWebhookAndRewardedAd(t *testing.T) {
 		require.Len(t, items, 2)
 		newer, _ := items[0].(map[string]any)
 		older, _ := items[1].(map[string]any)
-		assert.Equal(t, flowProductID, newer["productId"])
+		assert.Equal(t, flowStoreProductID, newer["productId"], "구매 목록은 RevenueCat id가 아니라 스토어 상품 식별자입니다(S166)")
 		assert.Equal(t, "active", older["status"], "먼저 산 구매가 사용 중입니다")
 		assert.Equal(t, "pending", newer["status"], "나중 구매는 앞 구간 뒤에 대기합니다")
 		olderPeriod, _ := older["period"].(map[string]any)

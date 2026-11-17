@@ -115,7 +115,7 @@ func TestTestGrant_RevokeRejectsMissingAccount(t *testing.T) {
 // 유료 구간 쿼리가 출처를 ad_free_pass로 거르는 불변식을 고정합니다.
 func TestTestGrant_DoesNotChainWithPaidPass(t *testing.T) {
 	f := newSyncFixture(t)
-	store := billing.NewStore(f.pool, clocktest.New(now), billing.AdFreeCatalog([]string{testAdFreeProduct}))
+	store := billing.NewStore(f.pool, clocktest.New(now), billing.AdFreeCatalog(map[string]string{testAdFreeProduct: testAdFreeProduct}))
 	accountID := newAccount(t, f.pool)
 	_, err := store.GrantTest(context.Background(), accountID, billing.MaxTestGrantDays)
 	require.NoError(t, err)

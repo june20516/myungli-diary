@@ -458,7 +458,7 @@ func TestLoadBilling(t *testing.T) {
 		"REVENUECAT_PROJECT_ID":   "proj_test",
 		"REVENUECAT_API_KEY":      "sk_test_secret",
 		"REVENUECAT_WEBHOOK_AUTH": "Bearer webhook_secret",
-		"AD_FREE_PRODUCT_IDS":     " test.ad_free.month , test.ad_free.android ,",
+		"AD_FREE_PRODUCT_IDS":     " test.ad_free.month=ad_free_1m , test.ad_free.android = ad_free_1m ,",
 	}
 	with := func(overrides map[string]string) map[string]string {
 		vars := map[string]string{}
@@ -507,8 +507,8 @@ func TestLoadBilling(t *testing.T) {
 	})
 	t.Run("쉼표 목록은 공백과 빈 항목을 지움", func(t *testing.T) {
 		cfg, err := LoadBilling(fakeEnv(full))
-		want := []string{"test.ad_free.month", "test.ad_free.android"}
-		if err != nil || !reflect.DeepEqual(cfg.AdFreeProductIDs, want) {
+		want := map[string]string{"test.ad_free.month": "ad_free_1m", "test.ad_free.android": "ad_free_1m"}
+		if err != nil || !reflect.DeepEqual(cfg.AdFreeProducts, want) {
 			t.Errorf("LoadBilling() = %+v, %v, want 상품 %v", cfg, err, want)
 		}
 		if !cfg.Configured() || cfg.RevenueCatAPIKey != "sk_test_secret" || cfg.RevenueCatWebhookAuth != "Bearer webhook_secret" || cfg.RevenueCatProjectID != "proj_test" {
@@ -519,6 +519,22 @@ func TestLoadBilling(t *testing.T) {
 		_, err := LoadBilling(fakeEnv(with(map[string]string{"AD_FREE_PRODUCT_IDS": " , ,"})))
 		if err == nil || !strings.Contains(err.Error(), "AD_FREE_PRODUCT_IDS") {
 			t.Errorf("error = %v, want AD_FREE_PRODUCT_IDS 오류", err)
+		}
+	})
+	t.Run("상품 항목은 RevenueCat id=스토어 상품 식별자 쌍이고 틀리면 값 없이 오류(S166)", func(t *testing.T) {
+		for _, raw := range []string{"test.ad_free.month", "test.ad_free.month=", "=ad_free_1m", "a=b=c", "a b=ad_free_1m", "a=x,a=y"} {
+			_, err := LoadBilling(fakeEnv(with(map[string]string{"AD_FREE_PRODUCT_IDS": raw})))
+			if err == nil || !strings.Contains(err.Error(), "AD_FREE_PRODUCT_IDS") {
+				t.Errorf("LoadBilling(%q) error = %v, want AD_FREE_PRODUCT_IDS 형식 오류", raw, err)
+				continue
+			}
+			if strings.Contains(err.Error(), "ad_free_1m") || strings.Contains(err.Error(), "test.ad_free.month") {
+				t.Errorf("오류 문구에 값이 들어 있습니다: %v", err)
+			}
+		}
+		cfg, err := LoadBilling(fakeEnv(with(map[string]string{"AD_FREE_PRODUCT_IDS": "prod2559315a97=ad_free_1m,prod083797223e=sub.monthly:base-plan"})))
+		if err != nil || cfg.AdFreeProducts["prod083797223e"] != "sub.monthly:base-plan" {
+			t.Errorf("LoadBilling(Play 구독 식별자) = %+v, %v, want 쌍점 허용", cfg, err)
 		}
 	})
 	t.Run("ProductionOnly는 prod에서만 true", func(t *testing.T) {

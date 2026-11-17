@@ -10,7 +10,7 @@
 | 메시지 키 목록 | `core/message_keys.json` | core | server (콘텐츠 시드 검사), writing (W1 콘텐츠 작성) | - | **구현 완료** | 엔진 spec §10 |
 | 근거 참조 형식 (`source_ref`) | 엔진 spec §11 | core | server, app (`evidence` 단계) | - | **구현 완료** | 엔진 spec §11 |
 | 엔진 버전 표기 (`engine_version`, `ruleset_version`) | 엔진 spec §12 | core | server (일기 태그 기록, 캐시 키) | ruleset `2026.11.9`, engine `0.1.0` | **구현 완료** | 엔진 spec §12, D31 |
-| REST API (앱 ↔ 서버) | `server/api/openapi.yaml` (OpenAPI 3.1, 규칙은 `info.description`) | server | app | 1.13.2 | **freeze** | server spec `server/docs/specs/2026-10-11-server-mvp-design.md`, D26·D59·D60, Issue #63 |
+| REST API (앱 ↔ 서버) | `server/api/openapi.yaml` (OpenAPI 3.1, 규칙은 `info.description`) | server | app | 1.13.3 | **freeze** | server spec `server/docs/specs/2026-10-11-server-mvp-design.md`, D26·D59·D60, Issue #63 |
 | 디자인 토큰 (색·오행 팔레트·타이포·간격·반경·그라데이션·모션·그림자) | `docs/identity/design/tokens/` (읽는 문서 `tokens/README.md`) | design | app | 1.10.0 | **freeze** | 브랜드 기반 spec §9, design 결정 V1~V13·V42·V57·V58·V67·V74·V84·V86·V93·V98·V102·V111·V115·V121, V1 spec, 같은 날 여러 편 spec, DS1 규칙 spec, DS1 화면 spec |
 | 컴포넌트 명세 | `docs/identity/design/components/` (읽는 문서 `components/README.md`, 파일마다 JSON 사실 + MD 설명) | design | app | 8.2.0 | **확정** | V2 spec, 근거 잠금 spec, design 결정 V13~V134, 구현 대응 spec, 로그인 수단·계정 합치기 spec, 같은 날 여러 편 spec, 계정 합치기·구매 내역 spec, 십성 라벨·피드백 spec, W51 상한·시간 칩 spec, 문의 화면 spec, DS1 규칙 spec, DS1 화면 spec |
 | 브랜드 기반 | `docs/identity/README.md` | 지휘 | writing, design | - | 확정 (B0) | 브랜드 기반 spec, D38 |

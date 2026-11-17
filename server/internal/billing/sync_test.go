@@ -191,7 +191,7 @@ func newSyncFixture(t *testing.T) syncFixture {
 	pool := dbtest.New(t)
 	source := newFakePurchases()
 	clk := clocktest.New(now)
-	syncer := billing.NewSyncer(pool, source, billing.SyncConfig{Catalog: billing.AdFreeCatalog([]string{testAdFreeProduct})}, clk)
+	syncer := billing.NewSyncer(pool, source, billing.SyncConfig{Catalog: billing.AdFreeCatalog(map[string]string{testAdFreeProduct: testAdFreeProduct})}, clk)
 	return syncFixture{pool: pool, source: source, clk: clk, syncer: syncer}
 }
 
@@ -522,7 +522,7 @@ func TestSync_SameStoreTransactionOtherIDNotRecorded(t *testing.T) {
 	source := newFakePurchases()
 	logs := &bytes.Buffer{}
 	syncer := billing.NewSyncer(pool, source, billing.SyncConfig{
-		Catalog: billing.AdFreeCatalog([]string{testAdFreeProduct}),
+		Catalog: billing.AdFreeCatalog(map[string]string{testAdFreeProduct: testAdFreeProduct}),
 		Logger:  logging.New(logs, slog.LevelDebug, ""),
 	}, clocktest.New(now))
 	accountA, accountB := newAccount(t, pool), newAccount(t, pool)
@@ -580,7 +580,7 @@ func TestSync_ProductionOnly_SandboxNotRecorded(t *testing.T) {
 	pool := dbtest.New(t)
 	source := newFakePurchases()
 	syncer := billing.NewSyncer(pool, source, billing.SyncConfig{
-		Catalog:        billing.AdFreeCatalog([]string{testAdFreeProduct}),
+		Catalog:        billing.AdFreeCatalog(map[string]string{testAdFreeProduct: testAdFreeProduct}),
 		ProductionOnly: true,
 	}, clocktest.New(now))
 	accountID := newAccount(t, pool)
@@ -616,7 +616,7 @@ func TestSync_UnknownProduct_WarnsWithProductID(t *testing.T) {
 	source := newFakePurchases()
 	logs := &bytes.Buffer{}
 	syncer := billing.NewSyncer(pool, source, billing.SyncConfig{
-		Catalog: billing.AdFreeCatalog([]string{testAdFreeProduct}),
+		Catalog: billing.AdFreeCatalog(map[string]string{testAdFreeProduct: testAdFreeProduct}),
 		Logger:  logging.New(logs, slog.LevelDebug, ""),
 	}, clocktest.New(now))
 	accountID := newAccount(t, pool)
