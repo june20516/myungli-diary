@@ -33,6 +33,9 @@ jobs:
         working-directory: server
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          # 계약 관문이 첫 부모(PR은 merge ref의 main 쪽, main push는 직전 main)와 비교하므로 부모까지 받습니다.
+          fetch-depth: 2
       # setup-go 캐시는 키가 go.sum뿐이라 끄고 아래에서 직접 둡니다(D81 ⑥ 캐시 원칙).
       - id: go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
@@ -53,6 +56,11 @@ jobs:
           key: server-go-${{ runner.os }}-go${{ steps.go.outputs.go-version }}-lint${{ env.GOLANGCI_LINT_VERSION }}-${{ hashFiles('server/go.sum', 'server/.golangci.yml') }}-${{ hashFiles('server/**/*.go') }}
           restore-keys: |
             server-go-${{ runner.os }}-go${{ steps.go.outputs.go-version }}-lint${{ env.GOLANGCI_LINT_VERSION }}-${{ hashFiles('server/go.sum', 'server/.golangci.yml') }}-
+      # 이미 나간 앱 빌드를 깨는 REST 계약 변경을 막습니다(D138, S165). 모든 mode에서 돕니다. 비교 기준은 첫 부모이고
+      # (ci-gate와 같은 기준), 수동 실행은 기준이 없어 건너뜁니다. 꼭 깨야 할 때의 길은 실패 출력과 S165에 있습니다.
+      - name: 계약 하위 호환 관문 (D138)
+        if: github.event_name == 'pull_request' || github.event_name == 'push'
+        run: go run ./cmd/contractgate -base HEAD^1
       - if: env.OWN == 'true'
         run: go vet ./...
       # staging 테스트 로그인(S24)은 build tag staging 파일에만 있어 그 tag로 한 번 더 검사합니다.
