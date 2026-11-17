@@ -253,15 +253,23 @@ TARGETS = (
            "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 16 - 56, 1, False, None),
     Target(("purchase-history.missing.notice",), "purchase-history 문의 안내 (본문 폭, 좌우 4)",
            "ui-400", 13, -0.26, CONTENT_WIDTH - 2 * 4, 2, True, None),
-    # 상태 꼬리표 최대 폭 80(purchase-row status.maxWidth)에서 좌우 8
-    Target(("ui.purchase.status",), "purchase-row 상태 낱말 (꼬리표 최대 80, 좌우 8)", "ui-500", 12, -0.24, 80 - 2 * 8, 1, False, None),
+    # 상태 자리 최대 폭 100(purchase-row status.maxWidth, V135에서 80 → 100). 대기, 만료, 환불은 바탕 없는 type.label.md라 100 전체.
+    # 사용 중 채운 알약(좌우 8, seal-check 16 + 간격 4, 600)은 키별 상한 purchaseStatusActive
+    Target(("ui.purchase.status",), "purchase-row 상태 낱말 (바탕 없는 글자, 최대 100)", "ui-500", 13, -0.26, 100, 1, False, None),
     # meta는 구매일 줄과 사용 기간 줄 두 줄이고(W44, 결정 V47), 줄마다 상품 이름 아래 카드 안 폭 전체를 씀(안쪽 16 양쪽)
     Target(("ui.purchase.meta",), "purchase-row 구매일 줄, 사용 기간 줄 (키마다 한 줄, 카드 안쪽 16)",
            "ui-400", 13, -0.26, CONTENT_WIDTH - 2 * 16, 1, False, None),
     # offer-card 안 버튼: 카드 안쪽 20 안에서 primary-button 좌우 20 (#548, 구매 내역 버튼은 화면 폭 행에서 옮김)
     Target(("ad-free.buy.cta", "ad-free.history.cta"), "offer-card 안 primary-button (카드 안쪽 20, 버튼 좌우 20)",
            "ui-600", 14, -0.28, CONTENT_WIDTH - 2 * 20 - 2 * 20, 1, False, None),
-    Target(("ad-free.offer.period",), "offer-card 기간 고지 (카드 안쪽 20)", "ui-400", 13, -0.26, CONTENT_WIDTH - 2 * 20, 1, False, None),
+    # 확인 두 줄 terms (#1266, 결정 V135): 카드 안쪽 20, check 16 + 간격 8, type.body.ui. 기간은 한 줄, 자동 결제 없음은 두 줄
+    Target(("ad-free.offer.period",), "offer-card 확인 첫 줄 기간 (카드 안쪽 20, check 16 + 간격 8, type.body.ui)",
+           "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 20 - 16 - 8, 1, False, None),
+    Target(("ui.ad-free.renewal",), "offer-card 확인 둘째 줄 자동 결제 없음 (카드 안쪽 20, check 16 + 간격 8, type.body.ui, 두 줄)",
+           "ui-400", 14, -0.28, CONTENT_WIDTH - 2 * 20 - 16 - 8, 2, True, None),
+    # 이용 중 표시 owned 혜택 한 줄 (#1266, 결정 V135): 세로선은 카드 안쪽 여백 안이라 글자는 카드 안쪽 20 안 전체
+    Target(("ui.ad-free.benefit",), "offer-card owned 혜택 한 줄 (카드 안쪽 20, type.caption.lg, 두 줄)",
+           "ui-400", 13, -0.26, CONTENT_WIDTH - 2 * 20, 2, True, None),
     # 묶음 카드 위 안내 문장 (#354 ③, 결정 V50)
     Target(("profile-edit.recalc.notice",), "settings-row groupNote (묶음 카드 위, 좌우 16)",
            "ui-500", 12, -0.24, CONTENT_WIDTH - 2 * 16, 2, True, None),
@@ -332,6 +340,10 @@ TARGETS = (
 
 # 한 슬롯 안에서 다른 칸에 놓이는 키: (슬롯, 키) → 그 키만 재는 칸. "키별 상한" 표에 언어마다 한 행 (#475)
 KEY_TARGETS = {
+    # 구매 내역 사용 중 채운 알약 (#1266, 결정 V135): 상태 자리 100에서 좌우 8, seal-check 16 + 간격 4, type.label.md 600
+    ("ui.purchase.status", "purchaseStatusActive"): Target(
+        ("ui.purchase.status",), "purchase-row 사용 중 채운 알약 (최대 100, 좌우 8, 아이콘 16 + 간격 4, 600)",
+        "ui-600", 13, -0.26, 100 - 2 * 8 - ICON_BESIDE_SMALL_TEXT - 4, 1, False, None),
     ("ui.login.provider", "loginLineLabel"): Target(
         ("ui.login.provider",), "LINE 버튼 글자 (공식 자산 구분선 비율 198px, 결정 V46)", "ui-600", 14, -0.28, 198, 1, False, None),
     # '나' 꼬리표 tag.me: 10px 굵게, 원국표 기둥 폭((320 − 6 × 3) / 4)에서 좌우 6까지 한 줄 (#710, V53)

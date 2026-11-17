@@ -1,5 +1,5 @@
 {
-  "version": "8.2.0",
+  "version": "9.0.0",
   "patterns": {
     "press.ink": {
       "summary": "먹 번짐: 모든 눌림 (결정 V14, V61)",
@@ -196,6 +196,7 @@
       "properties": ["text-fill"],
       "reduceMotion": "replace",
       "reduceMotionAlternative": { "element": "unlock.mark", "note": "동작 줄이기면 띠를 전혀 그리지 않고 구역 제목 그라데이션 글자와 왼쪽 가는 선으로 대신함(D118 ②)" },
+      "once": { "where": "offer-card active justPurchased (광고 제거권 구매 직후 head 문장)", "rule": "구매가 끝난 직후 한 번만 지나가고 interval 반복과 pauseWhen, stopWhen은 쓰지 않음. 동작 줄이기면 반짝임 없음(owned가 이미 unlock.mark 모양이라 대신할 것을 따로 그리지 않음)", "note": "#1266, 관문 답 2026-11-17 질문 2 B, 결정 V135" },
       "a11y": "읽지 않음. 장식",
       "lowEnd": "same"
     },

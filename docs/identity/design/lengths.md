@@ -63,10 +63,12 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `account-merge.auth.body` | account-merge 인증 단계 안내 (본문 폭) | 320px | 3 | - | 90 | **90** | **63** | **150** |
 | `ui.account-merge.summary` | account-merge 가져올 기록·구매 상자 줄 이름 (상자 안쪽 16, 값 자리 56) | 232px | 1 | - | 19 | **19** | **15** | **35** |
 | `purchase-history.missing.notice` | purchase-history 문의 안내 (본문 폭, 좌우 4) | 312px | 2 | - | 62 | **62** | **46** | **106** |
-| `ui.purchase.status` | purchase-row 상태 낱말 (꼬리표 최대 80, 좌우 8) | 64px | 1 | - | 6 | **6** | **4** | **9** |
+| `ui.purchase.status` | purchase-row 상태 낱말 (바탕 없는 글자, 최대 100) | 100px | 1 | - | 9 | **9** | **6** | **14** |
 | `ui.purchase.meta` | purchase-row 구매일 줄, 사용 기간 줄 (키마다 한 줄, 카드 안쪽 16) | 288px | 1 | - | 26 | **26** | **21** | **48** |
 | `ad-free.buy.cta`<br>`ad-free.history.cta` | offer-card 안 primary-button (카드 안쪽 20, 버튼 좌우 20) | 240px | 1 | - | 20 | **20** | **16** | **35** |
-| `ad-free.offer.period` | offer-card 기간 고지 (카드 안쪽 20) | 280px | 1 | - | 25 | **25** | **20** | **47** |
+| `ad-free.offer.period` | offer-card 확인 첫 줄 기간 (카드 안쪽 20, check 16 + 간격 8, type.body.ui) | 256px | 1 | - | 21 | **21** | **17** | **39** |
+| `ui.ad-free.renewal` | offer-card 확인 둘째 줄 자동 결제 없음 (카드 안쪽 20, check 16 + 간격 8, type.body.ui, 두 줄) | 256px | 2 | - | 48 | **48** | **34** | **78** |
+| `ui.ad-free.benefit` | offer-card owned 혜택 한 줄 (카드 안쪽 20, type.caption.lg, 두 줄) | 280px | 2 | - | 56 | **56** | **40** | **94** |
 | `profile-edit.recalc.notice` | settings-row groupNote (묶음 카드 위, 좌우 16) | 288px | 2 | - | 62 | **62** | **46** | **104** |
 | `ui.settings.row`<br>`ui.profile-edit.birthplace` | settings-row 이름과 값 (좌우 16, 앞 아이콘 20 + 간격 12, 화살표 16, 사이 space.8, 둘이 나눔) | 116px | 1 | - | 9 | **9** | **7** | **16** |
 | `ui.legal.row` | settings-row 이름 (좌우 16, 화살표 16) | 272px | 1 | - | 23 | **23** | **18** | **42** |
@@ -102,6 +104,9 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | ja | `ui.login.provider` | `loginKakaoLabel` | **34** | en 상한을 씀: ja 원고가 영문(카카오 가이드에 일본어 문구 없음, #143). 실측 106px로 칸 232px에 들어감 |
 | en | `ui.saju.header` | `manseRowHiddenStems` | **12** | 실측: 낱말마다 행 머리 44px 한 줄(Hidden 37.8px, stems 32.1px)이라 두 줄 안, 결정 V53 |
 | ja | `contact.email.field` | `contactEmailFieldHint` | **16** | 실측: ja 원고도 라틴 주소 예시 name@example.com. 실측 158.6px로 칸 260px 한 줄 안, 결정 V55 |
+| ko | `ui.purchase.status` | `purchaseStatusActive` | **5** | 따로 잼: purchase-row 사용 중 채운 알약 (최대 100, 좌우 8, 아이콘 16 + 간격 4, 600) |
+| ja | `ui.purchase.status` | `purchaseStatusActive` | **3** | 따로 잼: purchase-row 사용 중 채운 알약 (최대 100, 좌우 8, 아이콘 16 + 간격 4, 600) |
+| en | `ui.purchase.status` | `purchaseStatusActive` | **8** | 따로 잼: purchase-row 사용 중 채운 알약 (최대 100, 좌우 8, 아이콘 16 + 간격 4, 600) |
 | ko | `ui.login.provider` | `loginLineLabel` | **16** | 따로 잼: LINE 버튼 글자 (공식 자산 구분선 비율 198px, 결정 V46) |
 | ja | `ui.login.provider` | `loginLineLabel` | **13** | 따로 잼: LINE 버튼 글자 (공식 자산 구분선 비율 198px, 결정 V46) |
 | en | `ui.login.provider` | `loginLineLabel` | **28** | 따로 잼: LINE 버튼 글자 (공식 자산 구분선 비율 198px, 결정 V46) |
@@ -199,6 +204,7 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
   * D124 ⑦ 흉한 신살 마무리 한 줄(2026-11-12, #1026, 결정 V120): IA 밖 `ui.shinsal.weighing`(키 `shinsalWeighingNote`)은 풀이 시트 뜻 아래 뉴트럴 상자 안 글자입니다. 시트 안 312px에서 상자 안쪽 12씩, 체크 아이콘 16과 간격 8을 뺀 264px, `type.caption.lg` 두 줄로 잽니다. writing 가안(#1030) 셋은 모두 들어갑니다(사용자가 고른 방향 ② 40자는 두 줄).
     * 본문 `today.lucky-color.second.body`, `today.lucky-time.day.body`, `night.body`는 writing content 키 `daily.color`, `daily.focus_time`과 같은 칸(시트 본문 두 줄)이라 그 행 값을 씁니다. 시트 끝 근거 진입점은 아이콘(`block`, 본문 아래 따로)이라 본문 폭을 줄이지 않습니다.
   * 빈 상태 둘(2026-11-12, #1058, 결정 V123): `ad-free.unavailable.body`(광고 제거 상품 없음 안내, #922)는 `offer-card` 안쪽 20을 뺀 280px, `type.body.ui` 두 줄입니다(ko 50, ja 38, en 86). IA 밖 `ui.explain.term-empty`(뜻도 근거 출처도 없는 용어의 풀이 시트 빈 안내, #957)는 근거 시트 빈 안내 `ui.evidence.personal-empty`와 같은 시트 안 312px 두 줄입니다(ko 58, ja 42, en 98). 둘 다 원고가 아직 없어 계산값이 확정값입니다.
+  * 광고 제거권 사용 중 강조와 자동 결제 없음 강조(2026-11-17, #1266, 결정 V135): `ad-free.offer.period`는 가격 아래 확인 첫 줄이 되어 카드 안 280에서 `check` 16과 간격 8을 뺀 256px, `type.body.ui` 한 줄입니다(25 → 21, 원고는 기간만 남기면 들어감, writing #1267). IA 밖 `ui.ad-free.renewal`(자동 결제 없음 둘째 줄)은 같은 256px 두 줄(ko 48, ja 34, en 78), `ui.ad-free.benefit`(이용 중 혜택 한 줄)은 세로선이 카드 안쪽 여백 안이라 280px `type.caption.lg` 두 줄(ko 56, ja 40, en 94)입니다. `ui.purchase.status`는 사용 중만 아이콘이 든 채운 알약이 되어 상태 자리를 80에서 100으로 넓혔습니다. 대기, 만료, 환불(바탕 없는 글자)은 100px 전체로 잽니다(6 → 9). 사용 중 `purchaseStatusActive`는 좌우 8, 아이콘 16과 간격 4를 뺀 64px `type.label.md` 600으로 키별 상한을 따로 둡니다(ko 5, ja 3, en 8, 지금 원고 "사용 중", "利用中", "Active"는 그대로 들어감).
   * D130 오행 관계 문장(2026-11-13, #1154, writing W78, 라운드 R48): `daily.color_relation`, `daily.direction_relation`, `daily.number_relation`은 바탕 오행과 다른 오행을 고른 날 `daily.color` 등과 같은 본문 자리(`today.lucky-color.body` 등)를 바꿔 쓰는 문장이라 칸은 같고 줄 수만 네 줄로 잽니다. 子, 妻, 鬼 색 문장이 두 문장이기 때문입니다. 문장 칸은 자르지 않고 시트가 늘어나므로 컴포넌트 명세는 그대로입니다.
     * 지금 원고를 writing 검사기와 같은 가장 긴 값(숫자는 두 자리)으로 채워 칸에 줄바꿈하면 가장 긴 문장이 ko 3줄(62자), ja 3줄(51자), en 4줄(156자)입니다. 방위와 숫자 관계 문장은 ko, ja 2줄, en 숫자 3줄입니다.
     * ko 92, ja 76은 네 줄 계산값입니다. en은 추정식(줄당 32자, 네 줄 128자)이 실제 줄바꿈(줄당 45자 안팎)보다 훨씬 좁아 지금 원고를 넘기므로, 네 줄 안에 든 가장 긴 en 문장 글자 수 156을 실측 상한으로 씁니다(`lengths.py` `Target.measured`).

@@ -100,36 +100,39 @@ app-bar 아래로 차례대로 놓습니다(결정 V39·V44).
 ## offer-card
 
 * 쓰는 화면: ad-free (D53·D54: 1개월 광고 제거권, 자동 갱신 아님)
-* 카드(`bg.sheet`, `radius.lg`, 안쪽 20): Light 아이콘 28 → 주는 것 한 줄(`type.subtitle`) → 가격(`type.title`, 고정폭 숫자, `ad-free.offer.price`) → 기간과 자동 결제 없음 고지(`type.caption.lg`, `ad-free.offer.period`) → 구매 주 버튼(`ad-free.buy.cta`) → 구매 내역 조용한 버튼(`ad-free.history.cta`) → 약관·정책 안내(`type.caption.md`).
+* 카드(`bg.sheet`, `radius.lg`, 안쪽 20): Light 아이콘 28 → 주는 것 한 줄(`type.subtitle`) → 가격(`type.title`, 고정폭 숫자, `ad-free.offer.price`) → 확인 두 줄 `terms` → 구매 주 버튼(`ad-free.buy.cta`) → 구매 내역 조용한 버튼(`ad-free.history.cta`) → 약관·정책 안내(`type.caption.md`).
 * 가격·기간·자동 갱신 아님 고지는 구매 버튼보다 위, 같은 카드 안에 둡니다.
+* **확인 두 줄 `terms`(결정 V135, #1266):** 가격 아래 `space.8`, 줄 사이 `space.4`. 줄마다 `check` Regular 16 `action.primary`(글자 첫 줄에 맞춤) + `space.8` + `type.body.ui` `text.primary`. 첫 줄은 기간(`ad-free.offer.period`, 한 줄), 둘째 줄은 자동 결제 없음(`ui.ad-free.renewal`, 두 줄까지). Apple 결제 창이 기간 이용권을 "구독"으로 보여도 결제 전에 자동 결제가 없다는 점이 본문 크기로 먼저 보이게 합니다. 결제 창의 구독 표시를 설명하는 줄은 두지 않습니다(관문 답 2026-11-17 질문 4 B).
+* **이용 중 표시 `owned`(결정 V135, #1266):** 구매 버튼 자리(위 `space.24`)에 요소 `unlock.mark`(열린 근거 표시, V111) 모양으로 둡니다. "사용 중"(`ui.purchase.status` `purchaseStatusActive`, `type.label.lg`, 글자를 `gradient.unlocked`로 칠함) → 위 `space.4`에 끝나는 날(`ad-free.status.remaining`, `type.title`, `text.primary`, 고정폭 숫자) → 위 `space.4`에 혜택 한 줄(`ui.ad-free.benefit`, `type.caption.lg` `text.secondary`, 두 줄까지, 비면 그리지 않음). 세로선은 `unlock.mark` `rule` 그대로 owned 왼쪽 밖 12에 2px이고(카드 안쪽 여백 안) 글자는 head와 같은 시작선입니다. 광고 제거권이 근거와 해석도 연다는 뜻을 열린 근거와 같은 표시로 잇습니다(관문 답 2026-11-17 질문 1 B). 이용 중에는 가격과 확인 두 줄을 그리지 않습니다(이용 중 연장 구매 없음, D53 ⑥).
+* **구매 직후 한 번(`justPurchased`):** 이 화면에서 구매가 끝나 `active`가 되면 owned가 `appear.seep`으로 다 나타난 직후 head 문장에 `unlock.glint`가 한 번 지나갑니다(2600ms). 10초 반복은 없고, 화면에 다시 들어오거나 이미 이용 중으로 열면 없습니다. 동작 줄이기면 반짝임 없이 owned만 보입니다(관문 답 2026-11-17 질문 2 B).
 
 | 상태 | 모습 |
 | --- | --- |
-| `available` | 구매 버튼 보임 |
-| `active` | 구매 버튼 대신 `tag.status` "이용 중" + 남은 기간·만료일(`appear.seep`) |
+| `available` | 확인 두 줄과 구매 버튼 보임 |
+| `active` | 가격, 확인 두 줄, 구매 버튼 대신 `owned`(사용 중, 끝나는 날, 혜택 한 줄, `appear.seep`). 이 화면에서 산 직후만 head에 `unlock.glint` 한 번 |
 | `purchasing` | 구매 버튼 점 숨쉬기 |
 | `offline` | 구매 버튼 비활성, 화면 위 notice-banner `offline`. 구매 내역 버튼은 누를 수 있음(구매 내역 화면이 자기 `offline` 상태를 가짐) |
-| `unavailable` | 상품 목록이 빔(스토어 상품 전, 지역 미지원 등, app A126). 오류가 아닌 정상 상태입니다. 카드, 아이콘, 주는 것 한 줄은 그대로 두고 가격, 기간 고지, 구매 버튼 자리에 안내 한 줄(`ad-free.unavailable.body`, `type.body.ui` `text.secondary`, 위 `space.16`, 2줄까지). 구매 내역과 약관 안내 그대로. 경고 아이콘, 다시 시도, 배너 없음. 이용 중이면 `active`가 먼저이고 안내는 없습니다(IA `ad-free` `empty`, 관문 답 2026-11-12 A, 결정 V123) |
+| `unavailable` | 상품 목록이 빔(스토어 상품 전, 지역 미지원 등, app A126). 오류가 아닌 정상 상태입니다. 카드, 아이콘, 주는 것 한 줄은 그대로 두고 가격, 확인 두 줄, 구매 버튼 자리에 안내 한 줄(`ad-free.unavailable.body`, `type.body.ui` `text.secondary`, 위 `space.16`, 2줄까지). 구매 내역과 약관 안내 그대로. 경고 아이콘, 다시 시도, 배너 없음. 이용 중이면 `active`가 먼저이고 안내는 없습니다(IA `ad-free` `empty`, 관문 답 2026-11-12 A, 결정 V123) |
 
 * 구매 내역 버튼은 상태와 관계없이 늘 보입니다. 따로 누르는 구매 복원 버튼은 없습니다(D88 ②). 구매가 끝나면 햅틱 light.
-* 빨간색·카운트다운·과장 표시를 쓰지 않습니다. 문구는 writing(슬롯 `ad-free.*`).
+* 빨간색·카운트다운·과장 표시를 쓰지 않습니다. 구매 직후 반짝임은 한 번뿐이고 축하 효과, 색종이, 소리는 없습니다. 문구는 writing(슬롯 `ad-free.*`, `ui.ad-free.*`, #1267).
 
 ## purchase-row
 
 * 쓰는 화면: purchase-history
 * 산 상품의 구매 한 건입니다(D88 ②, #502, 결정 V45). 누르지 않는 줄입니다.
-* 줄들은 카드 한 장(`bg.sheet`, `radius.lg`, 좌우 안쪽 `space.16`)에 담습니다. 줄은 위아래 `space.16`이고, 줄과 줄 사이에만 `list.divider`를 긋습니다(V58).
+* 줄들은 카드 한 장(`bg.sheet`, `radius.lg`, 좌우 안쪽 `space.16`)에 담습니다. 줄은 위아래 `space.16`이고, 줄과 줄 사이에만 `list.divider`를 긋습니다(V58). 카드 좌우 안쪽 16 안에서 선을 더 들이지 않아 선은 글자 폭과 같습니다(`insetX` 0, 결정 V135).
 
 | 부품 | 모습 |
 | --- | --- |
 | `product` | 산 상품 이름. `type.subtitle`, `text.primary`. 문구는 writing이 상품 id마다 둔 키(`ui.purchase.product` `purchaseProduct*`, 줄바꿈하므로 글자 수 상한 없음), 없으면 스토어의 현지화된 이름. 넘치면 말줄임 없이 다음 줄로 감음 |
-| `status` | 오른쪽, `product` 첫 줄과 세로 가운데, 최대 폭 80(사이 `space.12`). 낱말은 `ui.purchase.status` `purchaseStatus*`. 사용 중이면 `tag.status`, 대기·만료·환불은 바탕 없는 `type.label.md` `text.secondary`. 낱말은 상품 종류에 따라 다를 수 있음 |
+| `status` | 오른쪽, `product` 첫 줄과 세로 가운데, 최대 폭 100(사이 `space.12`, 아이콘이 들어가 V135에서 80 → 100, 글자 자리는 그대로 64). 낱말은 `ui.purchase.status` `purchaseStatus*`. 사용 중이면 채운 알약(`action.primary` 바탕, `action.on-primary` 글자 `type.label.md` 600, 좌우 8 위아래 2, 앞에 `seal-check` Fill 옆 글자 크기 + `space.4`, 결정 V135), 대기·만료·환불은 바탕 없는 `type.label.md` `text.secondary`. 낱말은 상품 종류에 따라 다를 수 있음 |
 | `meta` | `product` 아래 `space.4`. `type.caption.lg`, `text.secondary`, 고정폭 숫자. 두 줄입니다: 구매일 줄(`purchaseMetaPurchased`, 기기 locale의 짧은 날짜) 아래 `space.2`에 사용 기간 줄(`purchaseMetaPeriod`). 한 줄에 구분 글자로 잇지 않습니다(W44, 결정 V47). 문구는 `ui.purchase.meta`. 사용 기간이 없는 상품은 구매일 줄만 |
 
 * 순서는 server가 준 순서 그대로입니다(최근 구매가 위).
 * 사용 기간은 server가 준 구간 그대로입니다. 합치기로 옮겨 온 구매는 이 계정에서 쓰는 구간만 오므로 구매일이 사용 기간 시작보다 이를 수 있습니다. 대기 구매와 같습니다.
 * 합치기 출처나 산 계정은 표시하지 않습니다(D88 ②).
-* 강조는 "사용 중" 꼬리표 하나입니다. 빨간색·카운트다운을 쓰지 않습니다.
+* 강조는 "사용 중" 채운 알약 하나입니다(목록에서 채운 것은 이것뿐). 빨간색·카운트다운을 쓰지 않습니다.
 * `loading`: `skeleton` bone 세 줄(상품 이름 줄 + 구매일 줄 + 사용 기간 줄).
 * 스크린리더는 한 줄을 한 덩어리로 "상품 이름, 상태, 구매일, 사용 기간" 순서로 읽습니다.
 

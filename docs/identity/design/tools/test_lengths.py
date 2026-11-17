@@ -93,6 +93,8 @@ ISSUE_1026 = {"ui.shinsal.weighing"}
 ISSUE_1058 = {"ad-free.unavailable.body", "ui.explain.term-empty"}
 # D130 오행 관계 문장 새 슬롯 (#1154, writing W78)
 ISSUE_1154 = {"daily.color_relation", "daily.direction_relation", "daily.number_relation"}
+# 광고 제거권 자동 결제 없음 둘째 줄과 이용 중 혜택 한 줄 (#1266, 결정 V135), IA 밖 writing 슬롯
+ISSUE_1266 = {"ui.ad-free.renewal", "ui.ad-free.benefit"}
 
 # 한글 1em, 띄어쓰기 0.5em, 라틴 0.5em인 가짜 글꼴
 FAKE = {ord(" "): 0.5, ord("가"): 1.0, **{ord(char): 0.5 for char in "abcdefghijklmnopqrstuvwxyz"}}
@@ -217,7 +219,7 @@ def test_every_requested_slot_has_a_value_or_no_limit():
     } | DIALOG_SLOTS_EXPECTED
     requested = (issue_54 | issue_131 | set(D77_SLOTS.values()) | ISSUE_389 | ISSUE_480 | ISSUE_564 | ISSUE_354 | ISSUE_710
                  | ISSUE_763 | DS1_SCREENS | ISSUE_859 | ISSUE_946_950 | ISSUE_1020
-                 | ISSUE_1029 | ISSUE_1026 | ISSUE_1058 | ISSUE_1154)
+                 | ISSUE_1029 | ISSUE_1026 | ISSUE_1058 | ISSUE_1154 | ISSUE_1266)
     slots |= set(lengths.FIXED_LIMITS)
     assert slots == requested - {"ui.depth.evidence_link"}  # DS1(V63): 근거 아이콘의 스크린리더 이름이 되어 상한 없음
     assert set(lengths.NO_LIMIT) == {  # spec-followups spec §5.3 표
@@ -336,7 +338,10 @@ def test_line_label_is_measured_at_198():
 
 def test_purchase_meta_and_status_are_measured_apart():
     places = {slot: target for target in lengths.TARGETS for slot in target.slots}
-    assert places["ui.purchase.status"].width == 80 - 2 * 8
+    # 상태 자리 100(V135). 바탕 없는 글자는 100 전체, 사용 중 채운 알약은 좌우 8, 아이콘 16 + 간격 4를 뺀 64로 키별 상한
+    assert places["ui.purchase.status"].width == 100 and places["ui.purchase.status"].font == "ui-500"
+    active = lengths.KEY_TARGETS[("ui.purchase.status", "purchaseStatusActive")]
+    assert active.width == 100 - 2 * 8 - lengths.ICON_BESIDE_SMALL_TEXT - 4 == 80 - 2 * 8 and active.font == "ui-600"
     assert places["ui.purchase.meta"].width == lengths.CONTENT_WIDTH - 2 * 16
     # 구매일과 사용 기간은 줄을 나눠 키마다 한 줄 (W44, 결정 V47)
     assert places["ui.purchase.meta"].lines == 1 and "키마다 한 줄" in places["ui.purchase.meta"].where
@@ -345,7 +350,11 @@ def test_purchase_meta_and_status_are_measured_apart():
 def test_offer_card_slots_are_measured_inside_card():
     places = {slot: target for target in lengths.TARGETS for slot in target.slots}
     assert places["ad-free.buy.cta"].width == lengths.CONTENT_WIDTH - 2 * 20 - 2 * 20
-    assert places["ad-free.offer.period"].width == lengths.CONTENT_WIDTH - 2 * 20
+    # 확인 두 줄 terms (V135): check 16 + 간격 8, type.body.ui. 혜택 한 줄은 카드 안쪽 20 안 전체
+    assert places["ad-free.offer.period"].width == places["ui.ad-free.renewal"].width == lengths.CONTENT_WIDTH - 2 * 20 - 16 - 8
+    assert places["ad-free.offer.period"].lines == 1 and places["ui.ad-free.renewal"].lines == 2
+    assert places["ad-free.offer.period"].size == places["ui.ad-free.renewal"].size == 14
+    assert places["ui.ad-free.benefit"].width == lengths.CONTENT_WIDTH - 2 * 20 and places["ui.ad-free.benefit"].lines == 2
     assert "ad-free.history.cta" not in next(t for t in lengths.TARGETS if "welcome.cta.start" in t.slots).slots
     assert "가져올 계정" in places["ui.account-merge.choice"].where
 

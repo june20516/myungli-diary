@@ -19,13 +19,13 @@
 | `term` 용어 표시 | `term.*`, `radius.xs`, 굵게 하지 않음 | term-token, 표 십성 칩과 띠 머리 칩 |
 | `keyboard.dismiss` 키보드 내리기 | 키보드 inset 위 `space.12` 오른쪽 44 원형 버튼(`bg.sheet`, `shadow.raised`, `caret-down` Regular 20) | `text-field`, `diary-editor` 초점 상태 |
 | `button.pair` 두 버튼 | 세로로 쌓고 `filled`가 위, `quiet`가 아래, 사이 `space.8`, 높이 둘 다 52 | 두 동작이 나란한 화면 |
-| `list.divider` 목록 구분선 | `line` 0.5px(`border.width.hairline`), 좌우 같은 `space.16` 들임, 앞 아이콘 아래까지, 줄 사이에만 | settings-row, purchase-row, event-row list, city-search 결과 |
+| `list.divider` 목록 구분선 | `line` 0.5px(`border.width.hairline`), 카드 가장자리에서 좌우 같은 `space.16`(줄 글자 폭과 같음), 앞 아이콘 아래까지, 줄 사이에만 | settings-row, purchase-row, event-row list, city-search 결과 |
 | `stem.chip` 간지 칩 | 한자 칸 22, `ohaeng.cell` 바탕색과 글자색(금, 수는 테두리까지), 한자 `font.family.hanja` 13 700 | band-table 지장간 칸 |
 | `skeleton.bone` 자리 | `skeleton.bone` 색, 실제 요소와 같은 크기·반경 | skeleton |
 | `icon` 아이콘 | Phosphor, 크기 16·20·24·28 단계, 글자 옆은 글자 굵기와 짝 | 전체 |
 | `lock.veil` 잠긴 구역 | 자물쇠 + 또렷한 제목, 또렷한 앞 2~3 단어 + 흐린 자리값 본문(6px, 0.5, G1), 여는 입구 `open`(자물쇠 + 열기) | 근거 시트 세 구역, 잠긴 용신 근거 |
 | `open.ring` 시트를 연 칩 표시 | 누른 칩이나 용어 안쪽 둘레 1.5px `action.primary`(크기 그대로), 그 시트가 열린 동안(위에 시트가 쌓여도), 문장 안 용어는 줄 조각마다 닫힌 테두리 | `hanja-tag` 전부, `term-token` `inline`·`label`, `lucky-card` 칩, 달력 규칙 입구 칩 (V129) |
-| `unlock.mark` 열린 구역 표시 | 동작 줄이기에서 `unlock.glint` 대신: 구역 제목 글자를 `gradient.unlocked`로, 구역 왼쪽 밖 12에 2px 세로선(제목 첫 줄 위 ~ 본문 끝) | 근거 시트 열린 세 구역, 열린 용신 근거(선만) |
+| `unlock.mark` 열린 구역 표시 | 동작 줄이기에서 `unlock.glint` 대신: 구역 제목 글자를 `gradient.unlocked`로, 구역 왼쪽 밖 12에 2px 세로선(제목 첫 줄 위 ~ 본문 끝) | 근거 시트 열린 세 구역, 열린 용신 근거(선만), `offer-card` 이용 중 표시 `owned`(늘, V135) |
 
 ## 낙관 도장 `seal`
 
@@ -104,7 +104,7 @@ D60으로 잠기는 근거·해석 구역 하나의 모습입니다.
 
 ## 목록 구분선 `list.divider`
 
-같은 묶음 안 줄과 줄 사이에만 긋습니다(결정 V58). 굵기 0.5px(`border.width.hairline`), 색 `line`이고, 묶음 카드 좌우에서 같은 거리(`space.16`, 줄 안쪽 여백)만큼 들입니다. 앞 아이콘이 있어도 아이콘 아래까지 긋습니다. 묶음 카드 없이 시트 본문에 바로 놓인 목록과 구역(행운 색 둘 시트의 두 색 사이, 사주 기운 시트 문장 목록)은 줄 안쪽 여백이 없으므로 들임 0이고 선은 시트 본문 폭(시트 안쪽 24 안) 그대로입니다(`inSheet`, 결정 V124). 첫 줄 위와 끝 줄 아래에는 없고, 묶음과 묶음은 선 없이 간격으로 나눕니다. 같은 날 일기 사이 점선(`diary-row` `entry.divider`, V42)과 표와 줄의 세로선(`band-table` 열 구분선 `columns.divider`, `birth-info-row` 칸 사이 `divider`)은 이 요소가 아닙니다.
+같은 묶음 안 줄과 줄 사이에만 긋습니다(결정 V58). 굵기 0.5px(`border.width.hairline`), 색 `line`이고, 묶음 카드 가장자리에서 좌우 같은 거리 `space.16`이고, 선은 줄 글자 폭과 같습니다. 여백을 줄이 가지면(`settings-row` 줄 안쪽 16) 카드 기준 16, 여백을 묶음 카드가 가지면(`purchase-row` 카드 좌우 안쪽 16) 그 안에서 더 들이지 않습니다(`insetX` 0, 결정 V135, #1266. 전에는 "줄 안쪽 여백만큼"이 카드 안쪽에서 다시 16으로 읽혀 선이 글자보다 짧았습니다). 앞 아이콘이 있어도 아이콘 아래까지 긋습니다. 묶음 카드 없이 시트 본문에 바로 놓인 목록과 구역(행운 색 둘 시트의 두 색 사이, 사주 기운 시트 문장 목록)은 줄 안쪽 여백이 없으므로 들임 0이고 선은 시트 본문 폭(시트 안쪽 24 안) 그대로입니다(`inSheet`, 결정 V124). 첫 줄 위와 끝 줄 아래에는 없고, 묶음과 묶음은 선 없이 간격으로 나눕니다. 같은 날 일기 사이 점선(`diary-row` `entry.divider`, V42)과 표와 줄의 세로선(`band-table` 열 구분선 `columns.divider`, `birth-info-row` 칸 사이 `divider`)은 이 요소가 아닙니다.
 
 ## 간지 칩 `stem.chip`
 
