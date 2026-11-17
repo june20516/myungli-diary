@@ -407,7 +407,7 @@ func TestWebhook_FirstSeenByWebhookOwnsOnce(t *testing.T) {
 	}))
 	t.Cleanup(server.Close)
 	revenueCat := billing.NewRevenueCat(billing.RevenueCatConfig{ProjectID: "proj_test", APIKey: "sk_test", BaseURL: server.URL})
-	syncer := billing.NewSyncer(pool, revenueCat, billing.SyncConfig{Catalog: billing.AdFreeCatalog([]string{testAdFreeProduct})}, clk)
+	syncer := billing.NewSyncer(pool, revenueCat, billing.SyncConfig{Catalog: billing.AdFreeCatalog(map[string]string{testAdFreeProduct: testAdFreeProduct})}, clk)
 	webhooks := billing.NewWebhooks(pool, syncer, "Bearer test-secret", clk, logging.New(&bytes.Buffer{}, slog.LevelDebug, ""))
 
 	require.ErrorIs(t, syncer.Sync(context.Background(), accountID), billing.ErrProviderUnavailable)

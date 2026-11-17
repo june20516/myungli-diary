@@ -21,7 +21,7 @@ func TestMergeFlow_MergeAccounts(t *testing.T) {
 		RevenueCatProjectID:   "proj-flow",
 		RevenueCatAPIKey:      flowRevenueCatToken,
 		RevenueCatWebhookAuth: flowWebhookAuth,
-		AdFreeProductIDs:      []string{flowProductID},
+		AdFreeProducts:        map[string]string{flowProductID: flowStoreProductID},
 		ProductionOnly:        true,
 	}
 	env := newFlowEnvWith(t, func(deps *serverDeps) {

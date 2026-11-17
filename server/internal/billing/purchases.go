@@ -26,6 +26,8 @@ type Period struct {
 
 // PurchaseItem은 구매 목록의 한 줄입니다(spec §5.5).
 type PurchaseItem struct {
+	// ProductID는 스토어 상품 식별자입니다(S166). 장부는 RevenueCat 상품 id를 적으므로 상품 목록으로 바꾸고,
+	// 목록 밖 상품은 바꿀 값이 없어 RevenueCat 상품 id 그대로입니다.
 	ProductID   string
 	PurchasedAt time.Time
 	Status      string
@@ -56,6 +58,9 @@ func (s *Store) Purchases(ctx context.Context, accountID uuid.UUID) ([]PurchaseI
 // 남지 않은 것이라(합치기 전에 끝난 B 구매 등) expired이고, 목록 밖 상품이면 owned입니다. 환불이면 둘 다 refunded입니다.
 func purchaseItemOf(row billingdb.ListAccountPurchasesRow, catalog Catalog, now time.Time) PurchaseItem {
 	item := PurchaseItem{ProductID: row.ProductID, PurchasedAt: row.PurchasedAt}
+	if storeID := catalog[row.ProductID].StoreProductID; storeID != "" {
+		item.ProductID = storeID
+	}
 	if row.SegmentStartsAt == nil || row.SegmentExpiresAt == nil {
 		switch {
 		case row.RefundedAt != nil:

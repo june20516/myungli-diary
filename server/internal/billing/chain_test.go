@@ -12,7 +12,8 @@ const (
 	testAndroidProduct = "test.ad_free.month.android"
 )
 
-var testProducts = AdFreeCatalog([]string{testIOSProduct, testAndroidProduct})
+// 스토어 상품 식별자를 RevenueCat id와 같게 두어 구매 목록 테스트가 장부의 id로 행을 찾게 합니다. 바꾸는 동작은 TestPurchaseItemOf_ProductID가 봅니다.
+var testProducts = AdFreeCatalog(map[string]string{testIOSProduct: testIOSProduct, testAndroidProduct: testAndroidProduct})
 
 func utc(year int, month time.Month, day, hour int) time.Time {
 	return time.Date(year, month, day, hour, 0, 0, 0, time.UTC)

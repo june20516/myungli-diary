@@ -398,35 +398,40 @@ type BillingConfig struct {
 	RevenueCatAPIKey string
 	// RevenueCatWebhookAuth는 webhook Authorization 헤더와 비교할 값 전체입니다(예: "Bearer <난수>").
 	RevenueCatWebhookAuth string
-	// AdFreeProductIDs는 광고 제거권으로 치는 RevenueCat 상품 id(prod…) 목록입니다(스토어마다 하나, S124). 목록 밖 상품은 무시합니다.
-	AdFreeProductIDs []string
+	// AdFreeProducts는 광고 제거권으로 치는 RevenueCat 상품 id(prod…, 스토어마다 하나, S124)에서 스토어 상품 식별자
+	// (App Store, Play 상품 id, 예 ad_free_1m)로 가는 표입니다(S166). 목록 밖 상품은 무시합니다.
+	AdFreeProducts map[string]string
 	// ProductionOnly가 true면 production 환경 구매만 셉니다(APP_ENV가 prod일 때, P7-2).
 	ProductionOnly bool
 }
 
 // Configured는 결제 동기화에 필요한 네 값이 모두 있는지 알려 줍니다.
 func (c BillingConfig) Configured() bool {
-	return c.RevenueCatProjectID != "" && c.RevenueCatAPIKey != "" && c.RevenueCatWebhookAuth != "" && len(c.AdFreeProductIDs) > 0
+	return c.RevenueCatProjectID != "" && c.RevenueCatAPIKey != "" && c.RevenueCatWebhookAuth != "" && len(c.AdFreeProducts) > 0
 }
 
 // empty는 결제 값 넷이 모두 비어 있는지 알려 줍니다.
 func (c BillingConfig) empty() bool {
-	return c.RevenueCatProjectID == "" && c.RevenueCatAPIKey == "" && c.RevenueCatWebhookAuth == "" && len(c.AdFreeProductIDs) == 0
+	return c.RevenueCatProjectID == "" && c.RevenueCatAPIKey == "" && c.RevenueCatWebhookAuth == "" && len(c.AdFreeProducts) == 0
 }
 
 // LoadBilling은 getenv로 결제 설정을 읽습니다. REVENUECAT_PROJECT_ID·REVENUECAT_API_KEY·REVENUECAT_WEBHOOK_AUTH·
-// AD_FREE_PRODUCT_IDS(쉼표 목록)는 APP_ENV가 local(기본값)이 아니면 모두 필수입니다(P7-16).
+// AD_FREE_PRODUCT_IDS(`<RevenueCat 상품 id>=<스토어 상품 식별자>` 쉼표 목록, S166)는 APP_ENV가 local(기본값)이 아니면 모두 필수입니다(P7-16).
 // staging은 넷 다 비어 있을 때만 결제를 끈 채(Configured false) 통과합니다(#654). 일부만 비면 설정 실수로 보고 오류입니다.
 // 오류에는 변수 이름만 담고 값은 담지 않습니다.
 func LoadBilling(getenv func(string) string) (BillingConfig, error) {
 	getenv = trimmedEnv(getenv)
 	env := orDefault(getenv("APP_ENV"), defaultEnv)
 
+	products, err := parseProducts(getenv("AD_FREE_PRODUCT_IDS"))
+	if err != nil {
+		return BillingConfig{}, fmt.Errorf("AD_FREE_PRODUCT_IDS: %w", err)
+	}
 	cfg := BillingConfig{
 		RevenueCatProjectID:   getenv("REVENUECAT_PROJECT_ID"),
 		RevenueCatAPIKey:      getenv("REVENUECAT_API_KEY"),
 		RevenueCatWebhookAuth: getenv("REVENUECAT_WEBHOOK_AUTH"),
-		AdFreeProductIDs:      splitList(getenv("AD_FREE_PRODUCT_IDS")),
+		AdFreeProducts:        products,
 		ProductionOnly:        env == "prod",
 	}
 
@@ -440,7 +445,7 @@ func LoadBilling(getenv func(string) string) (BillingConfig, error) {
 			{"REVENUECAT_PROJECT_ID", cfg.RevenueCatProjectID != ""},
 			{"REVENUECAT_API_KEY", cfg.RevenueCatAPIKey != ""},
 			{"REVENUECAT_WEBHOOK_AUTH", cfg.RevenueCatWebhookAuth != ""},
-			{"AD_FREE_PRODUCT_IDS", len(cfg.AdFreeProductIDs) > 0},
+			{"AD_FREE_PRODUCT_IDS", len(cfg.AdFreeProducts) > 0},
 		} {
 			if !required.present {
 				missing = append(missing, required.name)
@@ -451,6 +456,28 @@ func LoadBilling(getenv func(string) string) (BillingConfig, error) {
 		}
 	}
 	return cfg, nil
+}
+
+// productIDPattern은 RevenueCat 상품 id와 스토어 상품 식별자에 쓰는 글자입니다.
+// Play 구독 식별자는 `productId:basePlanId`라 쌍점을, App Store 식별자는 점을 씁니다.
+var productIDPattern = regexp.MustCompile(`^[A-Za-z0-9._:-]+$`)
+
+// parseProducts는 `<RevenueCat 상품 id>=<스토어 상품 식별자>` 쉼표 목록을 읽습니다(S166). 빈 항목은 뺍니다.
+// 형식이 틀리거나 같은 RevenueCat id가 두 번 나오면 오류이고, 오류에는 값을 담지 않습니다.
+func parseProducts(raw string) (map[string]string, error) {
+	products := map[string]string{}
+	for i, item := range splitList(raw) {
+		revenueCatID, storeID, ok := strings.Cut(item, "=")
+		revenueCatID, storeID = strings.TrimSpace(revenueCatID), strings.TrimSpace(storeID)
+		if !ok || !productIDPattern.MatchString(revenueCatID) || !productIDPattern.MatchString(storeID) {
+			return nil, fmt.Errorf("%d번째 항목은 <RevenueCat 상품 id>=<스토어 상품 식별자> 형식이어야 합니다", i+1)
+		}
+		if _, dup := products[revenueCatID]; dup {
+			return nil, fmt.Errorf("%d번째 항목의 RevenueCat 상품 id가 앞 항목과 같습니다", i+1)
+		}
+		products[revenueCatID] = storeID
+	}
+	return products, nil
 }
 
 // splitList는 쉼표 목록을 나눠 앞뒤 공백을 지우고 빈 항목을 뺍니다.
