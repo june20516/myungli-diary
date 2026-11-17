@@ -4,7 +4,6 @@ package billing_test
 
 import (
 	"context"
-	"net/url"
 	"testing"
 	"time"
 
@@ -35,16 +34,8 @@ func TestTestReward_GrantsLikeSSV(t *testing.T) {
 	events := rewardEvents(t, f.pool, "test-tx-1")
 	require.Len(t, events, 1)
 	assert.Equal(t, accountID, events[0].AccountID.UUID, "본문의 user_id가 아니라 토큰의 계정")
-	raw, err := url.ParseQuery(events[0].RawQuery)
-	require.NoError(t, err)
-	assert.Equal(t, url.Values{
-		"transaction_id": {"test-tx-1"},
-		"user_id":        {accountID.String()},
-		"ad_unit":        {"123"},
-		"reward_item":    {"insight"},
-		"timestamp":      {"1792497600000"},
-		"test_reward":    {"1"},
-	}, raw, "SSV와 같은 키에 테스트 표시")
+	assert.Equal(t, "test", events[0].Source, "staging 테스트 보상은 출처 test로 SSV 콜백과 구분합니다")
+	assert.True(t, cb.Timestamp.Equal(events[0].CallbackAt))
 }
 
 // 같은 transactionId를 다시 보내면 새로 부여하지 않고 지금 상태를 돌려줍니다.

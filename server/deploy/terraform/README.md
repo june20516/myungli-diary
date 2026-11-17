@@ -4,7 +4,7 @@
 
 | 디렉터리 | 누가 apply | 내용 |
 | --- | --- | --- |
-| `bootstrap/` | 사용자, 프로젝트마다 로컬에서 한 번(staging, prod, 부하 전용 load) | API, state bucket, Artifact Registry, WIF, `deployer`·`planner`, 알림 받는 곳(메일)과 예산(S133), Cloud Run 요청 로그 제외(S136), 부하 프로젝트만 결과 bucket(L1-2b) |
+| `bootstrap/` | 사용자, 프로젝트마다 로컬에서 한 번(staging, prod, 부하 전용 load) | API, state bucket, Artifact Registry, WIF, `deployer`·`planner`, 알림 받는 곳(메일)과 예산(S133), Cloud Run 요청 로그 제외(S136), 로그 보관 90일(S164), 부하 프로젝트만 결과 bucket(L1-2b) |
 | `env/` | GitHub Actions(`deploy-server.yml`) | VPC, Cloud SQL, Secret 틀, Cloud Run 엔진·server, Job, Scheduler, 알림 정책과 uptime check(S133) |
 
 ## 처음 한 번 (프로젝트마다)

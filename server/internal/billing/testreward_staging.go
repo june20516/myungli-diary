@@ -5,8 +5,6 @@ package billing
 import (
 	"context"
 	"fmt"
-	"net/url"
-	"strconv"
 
 	"github.com/google/uuid"
 )
@@ -14,10 +12,7 @@ import (
 // staging에서 서명 없이 보상형 광고 보상을 받는 기능입니다(S131). build tag staging에만 있어 prod 바이너리에는 없습니다.
 // 테스트 광고에는 SSV 콜백이 오지 않아, 앱이 광고를 다 본 뒤 SSV와 같은 값을 직접 보냅니다.
 
-// testRewardMarker는 reward_events.raw_query에서 이 경로로 들어온 보상을 SSV 콜백과 구분하는 키입니다.
-const testRewardMarker = "test_reward"
-
-// TestRewards는 서명 검증만 건너뛰고 SSV와 같은 보상 처리(Rewards.Grant)를 탄 뒤 권한 상태를 돌려줍니다.
+// TestRewards는 서명 검증만 건너뛰고 SSV와 같은 보상 처리(Rewards.grant, 출처 test)를 탄 뒤 권한 상태를 돌려줍니다.
 type TestRewards struct {
 	rewards *Rewards
 	store   *Store
@@ -37,7 +32,7 @@ func (t *TestRewards) GrantTestReward(ctx context.Context, accountID uuid.UUID, 
 		return Status{}, ErrRewardExpired
 	}
 	cb.UserID = accountID.String()
-	if err := t.rewards.Grant(ctx, cb, testRewardRawQuery(cb)); err != nil {
+	if err := t.rewards.grant(ctx, cb, rewardSourceTest); err != nil {
 		return Status{}, err
 	}
 	status, err := t.store.Status(ctx, accountID)
@@ -45,17 +40,4 @@ func (t *TestRewards) GrantTestReward(ctx context.Context, accountID uuid.UUID, 
 		return Status{}, fmt.Errorf("테스트 보상 뒤 권한 상태: %w", err)
 	}
 	return status, nil
-}
-
-// testRewardRawQuery는 SSV 쿼리와 같은 키로 값을 적고 테스트 표시를 더한 문자열입니다(서명 없음).
-func testRewardRawQuery(cb RewardCallback) string {
-	values := url.Values{
-		"transaction_id": {cb.TransactionID},
-		"user_id":        {cb.UserID},
-		"ad_unit":        {cb.AdUnit},
-		"reward_item":    {cb.RewardItem},
-		"timestamp":      {strconv.FormatInt(cb.Timestamp.UnixMilli(), 10)},
-		testRewardMarker: {"1"},
-	}
-	return values.Encode()
 }

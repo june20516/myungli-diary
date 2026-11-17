@@ -133,7 +133,7 @@ func seedAccount(t *testing.T, ctx context.Context, pool *pgxpool.Pool, hashByte
 	// 남김 표입니다.
 	exec(`INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)
 		VALUES ($1, 'ad_free', 'ad_free_pass', $2, $3, $4)`, id, subjectPrefix+"-purchase", testNow, testNow.Add(time.Hour))
-	exec(`INSERT INTO reward_events (transaction_id, account_id, raw_query, received_at) VALUES ($1, $2, 'q', $3)`,
+	exec(`INSERT INTO reward_events (transaction_id, account_id, callback_at, source, received_at) VALUES ($1, $2, $3, 'ssv', $3)`,
 		subjectPrefix+"-tx", id, testNow)
 	exec(`INSERT INTO billing_events (event_id, account_id, payload, received_at) VALUES ($1, $2, '{}', $3)`,
 		subjectPrefix+"-event", id, testNow)

@@ -151,8 +151,8 @@ WHERE event_id = @event_id
 
 -- name: InsertRewardEvent :execrows
 -- 보상형 광고 콜백을 기록합니다. 같은 transaction_id가 이미 있으면 아무것도 하지 않고 0행입니다(P7-14).
-INSERT INTO reward_events (transaction_id, account_id, ad_unit, reward_item, raw_query, received_at)
-VALUES (@transaction_id, @account_id, @ad_unit, @reward_item, @raw_query, @received_at)
+INSERT INTO reward_events (transaction_id, account_id, ad_unit, reward_item, callback_at, source, received_at)
+VALUES (@transaction_id, @account_id, @ad_unit, @reward_item, @callback_at, @source, @received_at)
 ON CONFLICT (transaction_id) DO NOTHING;
 
 -- name: InsertRewardedAdGrant :exec

@@ -31,13 +31,27 @@ func NewRewards(pool *pgxpool.Pool, clk clock.Clock, log *slog.Logger) *Rewards 
 // rewardedAdDuration은 보상형 광고 한 편으로 근거 열람을 여는 기간입니다. 보상을 처리한 시각부터 셉니다(D132).
 const rewardedAdDuration = 2 * time.Hour
 
-// Grant는 콜백을 reward_events에 한 번만 기록하고, 계정이 있으면 insight를 출처 rewarded_ad로
-// 처리한 시각부터 rewardedAdDuration 동안 부여합니다(P7-14, D132). rawQuery는 원본 쿼리 전체입니다.
+// rewardSource는 reward_events.source 값입니다. 서명을 검증한 SSV 콜백과 staging 테스트 보상(S131)을 구분합니다.
+type rewardSource string
+
+const (
+	rewardSourceSSV  rewardSource = "ssv"
+	rewardSourceTest rewardSource = "test"
+)
+
+// Grant는 서명을 검증한 SSV 콜백을 기록하고 부여합니다(grant, 출처 ssv).
+func (r *Rewards) Grant(ctx context.Context, cb RewardCallback) error {
+	return r.grant(ctx, cb, rewardSourceSSV)
+}
+
+// grant는 콜백을 reward_events에 한 번만 기록하고, 계정이 있으면 insight를 출처 rewarded_ad로
+// 처리한 시각부터 rewardedAdDuration 동안 부여합니다(P7-14, D132).
+// 기록은 거래 id, 계정, 광고 단위, 보상 항목, 콜백 시각, 출처뿐이고 원본 쿼리는 남기지 않습니다(D137 ③, S164).
 //
 // 모두 한 트랜잭션입니다. 같은 transaction_id가 이미 있으면(동시에 온 경우 포함) 아무것도 바꾸지 않고 nil입니다.
 // user_id가 없거나 UUID가 아니거나 모르는 계정이면 account_id NULL로 기록만 하고 Warn 로그를 남깁니다(재시도를 막음).
 // 지운 계정(deleted 껍데기)도 그대로 기록하고 부여합니다. 권한 부여 기록은 계정 삭제가 남기는 표입니다(S105).
-func (r *Rewards) Grant(ctx context.Context, cb RewardCallback, rawQuery string) error {
+func (r *Rewards) grant(ctx context.Context, cb RewardCallback, source rewardSource) error {
 	now := r.clk.Now()
 	// InTx가 fn을 다시 실행할 수 있습니다. fn은 매번 처음부터 판단하고 쓰므로 결과가 같습니다.
 	return postgres.InTx(ctx, r.pool, func(tx pgx.Tx) error {
@@ -53,7 +67,8 @@ func (r *Rewards) Grant(ctx context.Context, cb RewardCallback, rawQuery string)
 			AccountID:     uuid.NullUUID{UUID: accountID, Valid: accountID != uuid.Nil},
 			AdUnit:        pgtype.Text{String: cb.AdUnit, Valid: cb.AdUnit != ""},
 			RewardItem:    pgtype.Text{String: cb.RewardItem, Valid: cb.RewardItem != ""},
-			RawQuery:      rawQuery,
+			CallbackAt:    cb.Timestamp,
+			Source:        string(source),
 			ReceivedAt:    now,
 		})
 		if err != nil {

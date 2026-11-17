@@ -34,6 +34,31 @@ var webhookIDListFields = []string{"aliases", "transferred_from", "transferred_t
 // RevenueCat webhook에는 REST v2 구매 id가 없고 스토어 거래 id만 오므로, 장부의 store_purchase_id와 맞춰 봅니다(spec §5.4).
 var webhookStorePurchaseFields = []string{"transaction_id", "original_transaction_id"}
 
+// billingRecordFields는 billing_events.payload에 남기는 event 칸입니다(D137 ③, S164).
+// 회계와 분쟁 대응(전자상거래법 대금결제 기록)에 쓰는 것만 둡니다: 이벤트 식별과 시각, 스토어와 환경, 계정 연결(우리 계정 id),
+// 상품과 기간, 스토어 거래 id, 결제 금액과 통화, 취소와 만료 사유. 고객 속성(subscriber_attributes), 별칭(aliases),
+// 국가, 수수료와 세율, 제안 정보 같은 나머지 칸은 저장하지 않습니다. migration 00028이 기존 행을 같은 목록으로 줄였습니다.
+var billingRecordFields = []string{
+	"id", "type", "event_timestamp_ms", "environment", "store",
+	"app_user_id", "original_app_user_id", "transferred_from", "transferred_to",
+	"product_id", "entitlement_ids", "period_type", "purchased_at_ms", "expiration_at_ms",
+	"transaction_id", "original_transaction_id",
+	"price", "currency", "price_in_purchased_currency",
+	"cancel_reason", "expiration_reason",
+}
+
+// billingRecord는 webhook 본문에서 billingRecordFields만 남긴 {"event": {...}}입니다. 본문에 없는 칸은 넣지 않습니다.
+func billingRecord(body map[string]any) map[string]any {
+	event, _ := body["event"].(map[string]any)
+	kept := make(map[string]any, len(billingRecordFields))
+	for _, field := range billingRecordFields {
+		if value, ok := event[field]; ok {
+			kept[field] = value
+		}
+	}
+	return map[string]any{"event": kept}
+}
+
 // WebhookEvent는 webhook 본문에서 꺼낸 값입니다.
 type WebhookEvent struct {
 	ID   string
@@ -230,9 +255,9 @@ func (w *Webhooks) existingAccounts(ctx context.Context, queries *billingdb.Quer
 }
 
 // record는 이벤트를 billing_events에 기록하고, 이미 처리를 마친 이벤트인지 알려 줍니다.
-// account_id는 찾은 첫 계정(없으면 NULL)입니다. 이미 있던 행은 그대로 둡니다.
+// payload는 본문 전체가 아니라 billingRecord(허용한 칸만)입니다. account_id는 찾은 첫 계정(없으면 NULL)입니다. 이미 있던 행은 그대로 둡니다.
 func (w *Webhooks) record(ctx context.Context, queries *billingdb.Queries, event WebhookEvent, accountIDs []uuid.UUID, body map[string]any) (processed bool, err error) {
-	payload, err := json.Marshal(body)
+	payload, err := json.Marshal(billingRecord(body))
 	if err != nil {
 		return false, fmt.Errorf("webhook 본문 직렬화(event %s): %w", event.ID, err)
 	}
