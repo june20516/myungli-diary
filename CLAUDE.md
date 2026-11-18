@@ -38,6 +38,7 @@
      * 열린 검수 피드백 항목(`docs/review/items.md`의 `보냄`)의 작업 Issue가 모두 닫혔으면 `끝남`으로 바꿉니다(`docs/review/README.md`).
   2. `docs/roadmap.md` "현재 진행 순서"를 갱신합니다.
   3. 제품 지도를 갱신합니다(`tools/product-map/README.md`).
+  4. **Play 비공개 테스트 일일 확인**(세션을 열거나 다시 이을 때마다): 로컬 상태 파일의 `active`가 참이고 오늘 확인이 안 됐으면 돌립니다. 세션 안에서는 매일 예약합니다. 절차와 끝내는 조건은 `tools/play-closed-test/README.md`입니다.
 
 ## 문서 위치
 | 문서 | 위치 |
