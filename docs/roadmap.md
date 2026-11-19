@@ -12,7 +12,7 @@
 | --- | --- | --- | --- | --- | --- |
 | T1 | **비공개 테스트: 테스트용 클라우드에 server와 엔진을 올리고, 테스트 빌드를 배포해 테스터가 실제로 써 봅니다** ① 테스트 인프라: GCP staging 프로젝트, 도메인과 DNS, 비밀 값(외부 준비물 E4, E6~E12) ② server와 엔진 staging 배포(server P9, 엔진 실행 조건 #79). ①②는 I2가 staging에서 app E2E를 돌릴 때 먼저 세우고 T1에서 그대로 씁니다 ③ 테스트 빌드 배포: iOS TestFlight, Android Play 비공개 테스트 트랙(E2, E3) ④ 테스터 초대와 사용: Play 새 개인 계정 조건(테스터 12명 이상이 14일 연속) | 지휘 + server + app + 사용자 | I1, I2, Q1, O1 | I4(Play 비공개 테스트 의무를 이 단계에서 채움), E15(D92: 앱을 받아 본 뒤 사업자등록) | **진행 중** (Play 비공개 테스트 14일 진행, 2026-11-18 시작. 목표는 Play 요건 통과) |
 | L1 | **부하 테스트와 용량 산정:** 비슷한 범주 앱의 대형, 중형, 소형 활성 사용자 규모를 시나리오로(수치는 비공개 `business/`, D74), 요청당 연산과 비용, 한계에서의 server 응답과 app 대응. 부하 전용 환경 우선. 준비 메모 같은 파일 | 지휘 + server + app | O1 | I4 | **진행 중** (3회차까지 잼, 남은 것 server #817, tier는 I4 2주 전 점검 #903, D135) |
-| I3 | 통합 3: 데일리·나의 사주·캘린더·일기 전 과정 E2E(app E2E 재사용, #87) | 지휘 판단 | I1, I2, W1 | I4 | - |
+| I3 | 통합 3(D139): ① 자동 E2E를 main으로 staging에서 다시 돌리고 커버리지 갱신 ② **prod 리허설**: prod 설정 빌드로 prod server에서 전 과정 1회(실기기) ③ 시스템 경계 실기기 목록 | server + app + 사용자 | I1, I2, W1 | I4 | 시작 전 |
 | I4 | 스토어 심사·출시 (iOS / Android) | 지휘 + app | I3, T1 | Phase 2 | - |
 
 **통합 마일스톤(I1~I4)의 시작 조건:** 위 선행 조건에 더해 열린 `drift` Issue가 0이어야 합니다(`docs/workflow.md` §6.1).
@@ -29,16 +29,26 @@
 * **I4 2주 전: Cloud SQL tier와 예산 점검(#903, D135 ④, 원래 2026-12-15).** 활성 추이와 L1 결과로 사용자가 정합니다: prod SQL을 `db-g1-small`에서 `db-custom-1-3840` 이상으로 올릴지와 시각(재시작 몇 분), prod 최소 1대 복귀(#817 ④), CPU 과금 방식. 금액은 비공개 L1 리포트(D74).
 * **T1 보안 일:** staging App Check debug token 교체(app-Q1-7)는 빌드 10 전에 끝남. 스토어 콘솔 신고 수정(D137 ④), 로그 보관 90일, 결제와 보상 기록 축소도 끝남(S164, 2026-11-17).
 * **server → app 관문(D138, D110 ⑦):** server CI가 이미 나간 앱 빌드를 깨는 계약 변경을 막습니다(S165, 2026-11-17). 꼭 깨야 할 때만 열린 enum 전환, 최소 지원 버전 올리기(staging과 prod 설정 둘 다), `/v2` 중 하나로 갑니다. app은 최소 버전 안내를 실기기로 확인합니다(#1258).
-* **I4 전에 남은 일:** main과 staging 브랜치 분리(D136 ①, 설계는 지휘), Q1 뒤처리(server #1253, app #1254, core #1255), writing과 design workflow SHA 고정(#1236, #1237), SSV 주소 prod 전환, 스토어 출시 뒤 AdMob 앱 검토, LINE Published, 법적 문서 시행일.
+* **I4 전에 남은 일:** 아래 "I4 준비물" 표와 I3(D139). Q1 뒤처리(server #1253, app #1254, core #1255), writing과 design workflow SHA 고정(#1236, #1237).
 
 | 순서 | 담당 | 할 일 | 끝나면 풀리는 것 |
 | --- | --- | --- | --- |
 | 1 | app | 빌드 11: Q1 뒤처리 #1254 남은 항목을 묶어 11월 말까지 Play `alpha`와 TestFlight에 업데이트(upload key 유지, Q1-2 판단이 길면 분리). 테스트 중 업데이트 1회는 테스터 업체 권장이고 production 신청서의 "테스트 뒤 바꾼 것" 답이 됨 | T1 통과, I4 |
 | 1 | 사용자 | Play Console 변경 묶음 제출(앱 지원 이메일 `support@myungli-diary.app`, 처리방침 prod 주소, 데이터 보안 앱 활동, 테스트 의견 채널). iPhone TestFlight 빌드 10 확인. 빌드 11이 올라가면 테스터 업체에 알림. 14일 뒤 프로덕션 액세스 신청 | T1 통과 |
-| 2 | 지휘 | I3(전 과정 통합 E2E) 범위와 순서, I4 준비물 표(SSV prod, AdMob 앱 검토, LINE Published, 법적 문서 시행일, #903) | I4 |
+| 2 | server → app → 사용자 | I3 ② prod 리허설: server prod 준비, app prod 설정 빌드(내부 테스트), 사용자 실기기 전 과정(D139). app은 같은 때 ① 자동 E2E 다시 돌리기 | I4 |
+| 2 | writing → 사용자 | 원어민 검수 시트 내보내기(D140), 사용자가 감수자에게 전달 | I4 |
 | 뒤 | 각자 | Q1 뒤처리 server #1253, core #1255, writing과 design SHA 고정 #1236, #1237, core #59, writing #531(MVP 밖), server #794, #817 | I4 |
 | I4 전 | 지휘 | 브랜치 분리 설계(D136 ①) | I4 |
 | I4 2주 전 | 사용자 + 지휘 | Cloud SQL tier와 예산 점검(#903, D135 ④) | I4(1월 최고 부하) |
+
+## I4 준비물
+| 항목 | 시점 |
+| --- | --- |
+| SSV 주소 prod 전환(E13), RevenueCat prod 연결(E12), prod Secret 점검(E16 사업자 정보 포함) | I3 ② 전 |
+| Play와 App Store 지원 연락처 `support@`로 통일(E14) | 지금 |
+| Kakao debug 키 해시 삭제(E9), Google OAuth 브랜드 인증(E11), 보상형 광고 고지와 심사 기준(E19), 원어민 검수(E18, D140), 법적 문서 시행일, 브랜치 분리(D136 ①) | I4 전 |
+| Cloud SQL tier와 예산(#903) | I4 2주 전 |
+| AdMob 앱 검토, LINE Published | 출시 직후 |
 
 ## 외부 준비물
 대장과 절차는 [`docs/external-prep.md`](external-prep.md) 하나입니다(D91 ②). 지휘가 때가 된 항목을 `to:user`·`kind:prep` Issue로 안내합니다. 항목별 지금 상태는 대장이 기준입니다.
