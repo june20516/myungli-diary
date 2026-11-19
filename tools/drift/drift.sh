@@ -3,12 +3,12 @@
 #
 # 사용:
 #   drift.sh report  PR 실행에서. env: PR, PR_TITLE, CONTRACTS, RUN_URL, 단위별 SERVER·APP·WRITING·DESIGN = "<mode>:<result>"
-#   drift.sh close   main push에서. env: SHA, RUN_URL, 단위별 SERVER·APP·WRITING·DESIGN = "<result>"
+#   drift.sh close   staging push에서. env: SHA, RUN_URL, 단위별 SERVER·APP·WRITING·DESIGN = "<result>"
 # gh는 GH_REPO·GH_TOKEN을 읽습니다. 테스트(test_drift.py)는 PATH 앞에 가짜 gh를 둡니다.
 #
 # 단위마다 열린 drift Issue는 하나로 모읍니다. 받는 쪽이 따라잡기 전에 다른 PR이 그 단위의 계약을 또 바꾸면,
 # 새 Issue를 열지 않고 가장 오래된 Issue 본문에 "더해진 원인" 줄을 더합니다. 받는 쪽은 한 PR에서 함께 맞추고,
-# close는 제목과 더해진 원인의 PR이 모두 그 main 커밋에 들어 있을 때만 닫습니다.
+# close는 제목과 더해진 원인의 PR이 모두 그 staging 커밋에 들어 있을 때만 닫습니다.
 set -euo pipefail
 
 ADDED="* 더해진 원인: PR #"
@@ -93,7 +93,7 @@ report() {
       "* 실패한 검사: $RUN_URL" \
       "" \
       "## 관련" \
-      "PR #$PR. 이 Issue는 ci-gate가 자동으로 열었습니다. 맞춘 PR 본문에는 \`Closes\`가 아니라 \`참고 #<이 Issue>\`를 적어 주세요. 이 Issue는 원인 PR이 모두 main에 들어 있고 그 단위 검사가 main에서 통과하면 자동으로 닫힙니다. 따라잡기 전에 다른 PR이 이 단위의 계약을 또 바꾸면 아래에 원인이 더해집니다." > body.md
+      "PR #$PR. 이 Issue는 ci-gate가 자동으로 열었습니다. 맞춘 PR 본문에는 \`Closes\`가 아니라 \`참고 #<이 Issue>\`를 적어 주세요. 이 Issue는 원인 PR이 모두 staging에 들어 있고 그 단위 검사가 staging에서 통과하면 자동으로 닫힙니다. 따라잡기 전에 다른 PR이 이 단위의 계약을 또 바꾸면 아래에 원인이 더해집니다." > body.md
     gh issue create --title "$title" --label "drift,kind:request,to:$unit$from_labels" --body-file body.md
   done
 }
@@ -103,7 +103,7 @@ close() {
   for unit in "${UNITS[@]}"; do
     result=$(unit_state "$unit")
     [ "$result" = "success" ] || continue
-    # main에서 그 단위 검사가 통과하면 그 커밋의 계약을 모두 따라잡은 것입니다. 다만 원인 PR이 모두 이 커밋에 들어 있을 때만 닫습니다.
+    # staging에서 그 단위 검사가 통과하면 그 커밋의 계약을 모두 따라잡은 것입니다. 다만 원인 PR이 모두 이 커밋에 들어 있을 때만 닫습니다.
     # 원인 PR이 열린 채 다른 PR이 먼저 병합되면, 이 통과는 그 원인 계약 변경을 아직 검사하지 않은 것입니다.
     open_drifts "$unit" | jq -c '.[]' | while read -r issue; do
       number=$(jq -r .number <<<"$issue")
@@ -127,7 +127,7 @@ close() {
       if [ -n "$pending" ]; then
         echo "#$number: 원인 PR$pending이 아직 이 커밋에 없어 남깁니다."
       elif [ -n "$merged" ]; then
-        gh issue close "$number" --comment "main \`${SHA:0:7}\`(원인 PR$merged 포함)에서 $unit 검사가 통과해 자동으로 닫습니다($RUN_URL, docs/workflow.md §6.1)."
+        gh issue close "$number" --comment "staging \`${SHA:0:7}\`(원인 PR$merged 포함)에서 $unit 검사가 통과해 자동으로 닫습니다($RUN_URL, docs/workflow.md §6.1)."
       else
         gh issue close "$number" --reason "not planned" --comment "원인 PR이 모두 병합되지 않고 닫혀 따라잡을 계약 변경이 없습니다. 자동으로 닫습니다."
       fi

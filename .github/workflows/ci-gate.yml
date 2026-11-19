@@ -220,7 +220,7 @@ jobs:
 
   # drift로 돈 단위가 실패하면 PR에서 받는 쪽 앞으로 Issue를 엽니다. 그 단위 앞으로 열린 drift가 이미 있으면 새로 열지 않고
   # 가장 오래된 Issue에 원인 PR을 더합니다(같은 원인의 Issue가 PR마다 쌓이지 않게). 같은 PR의 다음 실행에서 drift가 통과하면
-  # (주는 쪽이 PR 안에서 맞춤) 그 PR이 연 Issue를 닫습니다. main push에서는 drift를 돌리지 않기 때문입니다. 로직은 tools/drift/drift.sh입니다.
+  # (주는 쪽이 PR 안에서 맞춤) 그 PR이 연 Issue를 닫습니다. push에서는 drift를 돌리지 않기 때문입니다. 로직은 tools/drift/drift.sh입니다.
   drift-report:
     needs: [changes, core, server, app, writing, design]
     if: always() && github.event_name == 'pull_request'
@@ -246,12 +246,12 @@ jobs:
           DESIGN: ${{ needs.changes.outputs.design_mode }}:${{ needs.design.result }}
         run: tools/drift/drift.sh report
 
-  # main에서 단위 검사가 통과하면 그 단위는 그 커밋의 모든 계약에 맞습니다. 원인 PR(제목과 더해진 원인)이 모두 그 커밋에 들어 있는
+  # staging에서 단위 검사가 통과하면 그 단위는 그 커밋의 모든 계약에 맞습니다(drift는 staging에서 생기고 풀림, D136 ①). 원인 PR(제목과 더해진 원인)이 모두 그 커밋에 들어 있는
   # drift Issue를 닫습니다. 원인 PR이 모두 병합 없이 닫혔으면 따라잡을 것이 없으므로 not planned로 닫습니다.
   # 받는 쪽이 PR 본문에 `Closes`를 빠뜨려도 남지 않게 하려는 것입니다(남은 drift는 gate 판정을 느슨하게 합니다).
   drift-close:
     needs: [changes, server, app, writing, design]
-    if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: always() && github.event_name == 'push' && github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
     permissions:
       contents: read
