@@ -16,9 +16,9 @@
 * **사용자에게 보이는 글에는 긴 대시(U+2014 —), 범위 대시(U+2013 –), 가운뎃점(U+00B7 ·)을 쓰지 않습니다(D93).** 화면 문구, ARB와 콘텐츠 원고, 공유 이미지, 알림, 스토어 문구, 법적 문서 원문, server가 내주는 페이지가 해당합니다. 나열은 쉼표나 "와/과", 범위는 `~`를 씁니다. commit, PR, Issue, spec, plan, 결정 로그처럼 작업에만 남는 글은 괜찮습니다.
 * **로컬 값(D98):** 저장소에 넣지 않는 비밀, 설정 파일, 개발용 키의 원본은 저장소 밖 `${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/<단위>/<환경>/`에 두고, 단위 `.local/`에는 버려도 되는 산출물만 둡니다. 세션은 비밀 파일을 경로로만 다루고 내용을 출력하지 않습니다. 규칙과 대장은 [`docs/local-values.md`](docs/local-values.md)입니다.
 * **공개 저장소(D74):** Issue·PR·커밋·문서·코드(fixture 포함)에 가격·수익 수치 같은 내부 정보를 적지 않습니다. 제품 배경 원문·수익화 기록·아이디어 함은 비공개 저장소에 있고, 링크하지 않고 "비공개 기록 `…`"으로 글로만 적습니다. 근거가 필요하면 지휘에게 Issue로 묻습니다.
-* **세션을 열면:** `git fetch origin && git merge origin/main` 뒤 `gh issue list --label to:<단위>`를 봅니다. 그중 `drift` Issue(계약 변경 따라잡기)가 있으면 다른 일보다 먼저, 다음 PR에서 맞춥니다(`docs/workflow.md` §6.1).
+* **세션을 열면:** `git fetch origin && git merge origin/staging` 뒤 `gh issue list --label to:<단위>`를 봅니다. 그중 `drift` Issue(계약 변경 따라잡기)가 있으면 다른 일보다 먼저, 다음 PR에서 맞춥니다(`docs/workflow.md` §6.1).
 * **계약 버전과 상태의 기준은 `docs/contracts/README.md` 하나입니다.** 단위 `CLAUDE.md`에는 버전을 적지 않습니다. 주는 쪽은 계약을 바꾸는 PR에서 그 표의 자기 행을 직접 고칩니다. 바뀐 내용은 `docs/contracts/CHANGELOG.md` 자기 절 맨 위에 적습니다(D131).
-* **병합:** 단위 PR은 사용자가 병합합니다. 지휘가 올린 `root/` PR은 `ci-gate` 통과 뒤 지휘가 병합합니다. 저장소 auto-merge가 켜져 있어, 사용자는 PR에 auto-merge를 걸어 두고 기다리지 않아도 되고 지휘는 `root/` PR에 `gh pr merge --auto --merge`를 겁니다(D100 ②). 작은 요청과 그 drift는 다음 작업 PR에 묶습니다(D100 ①).
+* **병합:** 단위 PR은 사용자가 병합합니다. 지휘가 올린 `root/` PR은 `ci-gate` 통과 뒤 지휘가 병합합니다. 저장소 auto-merge가 켜져 있어, 사용자는 PR에 auto-merge를 걸어 두고 기다리지 않아도 되고 지휘는 `root/` PR에 `gh pr merge --auto --merge`를 겁니다(D100 ②). PR은 모두 기본 브랜치 `staging`으로 가고, prod(`main`)에는 지휘의 승격 PR만 들어갑니다(D141, `docs/workflow.md` §6). 작은 요청과 그 drift는 다음 작업 PR에 묶습니다(D100 ①).
 * **GitHub API 한도:** 모든 세션이 `gh` 토큰 하나의 시간당 한도를 나눠 씁니다. CI를 기다릴 때 `gh run watch`(몇 초마다 조회)를 쓰지 않고, 상태 확인은 60초 이상 간격으로 합니다.
 
 ## 지휘 세션

@@ -24,7 +24,7 @@ Closes #
 <!-- 실행한 검사와 결과 -->
 
 ## 세션 마무리 체크리스트 (docs/workflow.md §3)
-- [ ] `git merge origin/main`
+- [ ] `git merge origin/staging`
 - [ ] 자기 `CLAUDE.md`의 "현재 상태" 갱신
 - [ ] 산출물을 `artifacts/index.json`에 등록
 - [ ] 관련 Issue 닫기 (닫는 조건: docs/workflow.md §5.2)
