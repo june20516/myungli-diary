@@ -29,6 +29,7 @@
 * **I4 2주 전: Cloud SQL tier와 예산 점검(#903, D135 ④, 원래 2026-12-15).** 활성 추이와 L1 결과로 사용자가 정합니다: prod SQL을 `db-g1-small`에서 `db-custom-1-3840` 이상으로 올릴지와 시각(재시작 몇 분), prod 최소 1대 복귀(#817 ④), CPU 과금 방식. 금액은 비공개 L1 리포트(D74).
 * **T1 보안 일:** staging App Check debug token 교체(app-Q1-7)는 빌드 10 전에 끝남. 스토어 콘솔 신고 수정(D137 ④), 로그 보관 90일, 결제와 보상 기록 축소도 끝남(S164, 2026-11-17).
 * **server → app 관문(D138, D110 ⑦):** server CI가 이미 나간 앱 빌드를 깨는 계약 변경을 막습니다(S165, 2026-11-17). 꼭 깨야 할 때만 열린 enum 전환, 최소 지원 버전 올리기(staging과 prod 설정 둘 다), `/v2` 중 하나로 갑니다. app은 최소 버전 안내를 실기기로 확인합니다(#1258).
+* **브랜치 분리(D141) 시행(2026-11-20):** 기본 브랜치는 `staging`이고, prod(`main`)에는 지휘의 승격 PR만 들어갑니다. 단위 몫은 app #1285, design #1286, core #1287(다음 세션을 열 때 `origin/staging` 기준).
 * **I4 전에 남은 일:** 아래 "I4 준비물" 표와 I3(D139). Q1 뒤처리(server #1253, app #1254, core #1255), writing과 design workflow SHA 고정(#1236, #1237).
 
 | 순서 | 담당 | 할 일 | 끝나면 풀리는 것 |
@@ -38,7 +39,6 @@
 | 2 | server → app → 사용자 | I3 ② prod 리허설: server prod 준비, app prod 설정 빌드(내부 테스트), 사용자 실기기 전 과정(D139). app은 같은 때 ① 자동 E2E 다시 돌리기 | I4 |
 | 2 | writing → 사용자 | 원어민 검수 시트 내보내기(D140), 사용자가 감수자에게 전달 | I4 |
 | 뒤 | 각자 | Q1 뒤처리 server #1253, core #1255, writing과 design SHA 고정 #1236, #1237, core #59, writing #531(MVP 밖), server #794, #817 | I4 |
-| I4 전 | 지휘 | 브랜치 분리 설계(D136 ①) | I4 |
 | I4 2주 전 | 사용자 + 지휘 | Cloud SQL tier와 예산 점검(#903, D135 ④) | I4(1월 최고 부하) |
 
 ## I4 준비물
@@ -46,7 +46,7 @@
 | --- | --- |
 | SSV 주소 prod 전환(E13), RevenueCat prod 연결(E12), prod Secret 점검(E16 사업자 정보 포함) | I3 ② 전 |
 | Play와 App Store 지원 연락처 `support@`로 통일(E14) | 지금 |
-| Kakao debug 키 해시 삭제(E9), Google OAuth 브랜드 인증(E11), 보상형 광고 고지와 심사 기준(E19), 원어민 검수(E18, D140), 법적 문서 시행일, 브랜치 분리(D136 ①) | I4 전 |
+| Kakao debug 키 해시 삭제(E9), Google OAuth 브랜드 인증(E11), 보상형 광고 고지와 심사 기준(E19), 원어민 검수(E18, D140), 법적 문서 시행일 | I4 전 |
 | Cloud SQL tier와 예산(#903) | I4 2주 전 |
 | AdMob 앱 검토, LINE Published | 출시 직후 |
 
