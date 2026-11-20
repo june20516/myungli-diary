@@ -1,11 +1,11 @@
 # server 배포(D65, spec server/docs/specs/2026-10-28-p9-deploy-design.md §7.1, S121).
-# PR: Terraform fmt·validate와 workflow 검사, bootstrap 뒤에는 plan. main: staging 배포 뒤 prod(environment 승인).
+# PR: Terraform fmt·validate와 workflow 검사, bootstrap 뒤에는 plan. staging push: staging 배포. main push(승격): prod 배포(environment 승인, D136).
 # 저장소 변수 DEPLOY_ENABLED가 true가 아니면(bootstrap 전) plan과 배포 job은 건너뜁니다.
 name: deploy-server
 
 on:
   push:
-    branches: [main]
+    branches: [staging, main]
     paths:
       - "server/**"
       - ".github/workflows/deploy-*.yml"
@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
     inputs:
       target:
-        description: "staging-prod: staging 뒤 prod. load: 부하 전용 프로젝트에 배포. load-teardown: 부하 전용 프로젝트의 Cloud SQL만 지움(L1, D104)"
+        description: "staging-prod: 실행한 브랜치의 환경(staging 브랜치는 staging, main은 prod). load: 부하 전용 프로젝트에 배포. load-teardown: 부하 전용 프로젝트의 Cloud SQL만 지움(L1, D104)"
         type: choice
         options: [staging-prod, load, load-teardown]
         default: staging-prod
@@ -107,8 +107,8 @@ jobs:
 
   staging:
     needs: checks
-    # push(main)와 workflow_dispatch(staging-prod)에서 돕니다. push에서는 inputs.target이 비어 있습니다.
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true' && inputs.target != 'load' && inputs.target != 'load-teardown'
+    # staging 브랜치의 push와 workflow_dispatch(staging-prod)에서 돕니다. push에서는 inputs.target이 비어 있습니다.
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/staging' && vars.DEPLOY_ENABLED == 'true' && inputs.target != 'load' && inputs.target != 'load-teardown'
     permissions:
       contents: read
       id-token: write
@@ -120,8 +120,10 @@ jobs:
       wif_provider: ${{ vars.GCP_WIF_PROVIDER_STAGING }}
       service_account: ${{ vars.GCP_DEPLOYER_STAGING }}
 
+  # main은 staging에서 승격으로만 바뀌므로(D136) staging job을 기다리지 않습니다. main에서 dispatch하면 prod만 돕니다.
   prod:
-    needs: staging
+    needs: checks
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true' && inputs.target != 'load' && inputs.target != 'load-teardown'
     permissions:
       contents: read
       id-token: write
@@ -133,10 +135,10 @@ jobs:
       wif_provider: ${{ vars.GCP_WIF_PROVIDER_PROD }}
       service_account: ${{ vars.GCP_DEPLOYER_PROD }}
 
-  # 부하 전용 프로젝트(L1, D104). workflow_dispatch로만 돌고 staging과 prod에는 손대지 않습니다.
+  # 부하 전용 프로젝트(L1, D104). staging 브랜치의 workflow_dispatch로만 돌고 staging과 prod에는 손대지 않습니다.
   load:
     needs: checks
-    if: github.event_name == 'workflow_dispatch' && inputs.target == 'load' && github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true'
+    if: github.event_name == 'workflow_dispatch' && inputs.target == 'load' && github.ref == 'refs/heads/staging' && vars.DEPLOY_ENABLED == 'true'
     permissions:
       contents: read
       id-token: write
@@ -154,7 +156,7 @@ jobs:
   # Secret 틀과 값, 네트워크는 남깁니다.
   load-teardown:
     needs: checks
-    if: github.event_name == 'workflow_dispatch' && inputs.target == 'load-teardown' && github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true'
+    if: github.event_name == 'workflow_dispatch' && inputs.target == 'load-teardown' && github.ref == 'refs/heads/staging' && vars.DEPLOY_ENABLED == 'true'
     runs-on: ubuntu-latest
     environment: load
     concurrency:
