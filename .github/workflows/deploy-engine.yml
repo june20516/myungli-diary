@@ -5,14 +5,14 @@ name: deploy-engine
 
 on:
   push:
-    branches: [main]
+    branches: [staging, main]
     paths:
       - "core/**"
       - ".github/workflows/deploy-engine*.yml"
   workflow_dispatch:
     inputs:
       target:
-        description: "staging-prod: staging 뒤 prod. load: 부하 전용 프로젝트에만(L1, D104)"
+        description: "staging-prod: 실행한 브랜치의 환경(staging 브랜치는 staging, main은 prod). load: 부하 전용 프로젝트에만(L1, D104)"
         type: choice
         options: [staging-prod, load]
         default: staging-prod
@@ -21,8 +21,9 @@ permissions:
   contents: read
 
 jobs:
+  # staging push와 dispatch는 staging, main push(승격)와 dispatch는 prod에 냅니다(D136).
   staging:
-    if: github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true' && inputs.target != 'load'
+    if: github.ref == 'refs/heads/staging' && vars.DEPLOY_ENABLED == 'true' && inputs.target != 'load'
     permissions:
       contents: read
       id-token: write
@@ -34,7 +35,7 @@ jobs:
       service_account: ${{ vars.GCP_DEPLOYER_STAGING }}
 
   prod:
-    needs: staging
+    if: github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true' && inputs.target != 'load'
     permissions:
       contents: read
       id-token: write
@@ -45,9 +46,9 @@ jobs:
       wif_provider: ${{ vars.GCP_WIF_PROVIDER_PROD }}
       service_account: ${{ vars.GCP_DEPLOYER_PROD }}
 
-  # 부하 전용 프로젝트(L1, D104). workflow_dispatch로만 돕니다.
+  # 부하 전용 프로젝트(L1, D104). staging 브랜치의 workflow_dispatch로만 돕니다.
   load:
-    if: github.event_name == 'workflow_dispatch' && inputs.target == 'load' && github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true'
+    if: github.event_name == 'workflow_dispatch' && inputs.target == 'load' && github.ref == 'refs/heads/staging' && vars.DEPLOY_ENABLED == 'true'
     permissions:
       contents: read
       id-token: write

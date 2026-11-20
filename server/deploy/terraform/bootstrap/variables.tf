@@ -4,7 +4,7 @@ variable "project_id" {
 }
 
 variable "environment" {
-  description = "이 프로젝트에 배포하는 GitHub environment. deployer는 이 environment의 main job만 씁니다(#644)"
+  description = "이 프로젝트에 배포하는 GitHub environment. deployer는 이 environment의 배포 브랜치 job만 씁니다(staging과 load는 staging, prod는 main, #644, D136)"
   type        = string
 
   validation {

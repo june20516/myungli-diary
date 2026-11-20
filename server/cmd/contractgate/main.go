@@ -2,7 +2,7 @@
 //
 // server 디렉터리에서 실행합니다. 기준 계약과 tfvars는 git에서 꺼내고, 새 계약과 tfvars는 작업 트리의 파일입니다.
 //
-//	go run ./cmd/contractgate -base origin/main
+//	go run ./cmd/contractgate -base origin/staging
 //
 // 깨는 변경이 있고 staging과 prod의 최소 앱 버전을 모두 올리지 않았으면 종료 코드 1입니다.
 package main
@@ -33,7 +33,7 @@ const (
 var minVersionEnvs = []string{"staging", "prod"}
 
 func main() {
-	base := flag.String("base", "origin/main", "비교 기준 git revision")
+	base := flag.String("base", "origin/staging", "비교 기준 git revision")
 	flag.Parse()
 	code, err := run(context.Background(), *base, os.Stdout)
 	if err != nil {

@@ -55,6 +55,9 @@ locals {
     "roles/run.viewer",
     "roles/secretmanager.viewer",
   ]
+
+  # deployer가 받는 브랜치입니다(D136). staging과 load는 staging 브랜치, prod는 승격된 main만 배포합니다.
+  deploy_branch = var.environment == "prod" ? "main" : "staging"
 }
 
 resource "google_project_service" "enabled" {
@@ -105,7 +108,7 @@ resource "google_iam_workload_identity_pool_provider" "github" {
     "attribute.ref"         = "assertion.ref"
     "attribute.environment" = "assertion.environment"
     "attribute.event_name"  = "assertion.event_name"
-    # environment가 붙은 job의 sub에는 ref가 없으므로 environment와 ref를 묶은 속성으로 deployer를 main에만 허용합니다.
+    # environment가 붙은 job의 sub에는 ref가 없으므로 environment와 ref를 묶은 속성으로 deployer를 배포 브랜치(local.deploy_branch)에만 허용합니다.
     "attribute.env_ref" = "has(assertion.environment) ? assertion.environment + '@' + assertion.ref : 'none'"
   }
 
@@ -160,15 +163,16 @@ resource "google_storage_bucket_iam_member" "planner_state" {
   member = "serviceAccount:${google_service_account.planner.email}"
 }
 
-# deployer는 main에서 이 프로젝트의 environment로 도는 job만 씁니다(attribute.env_ref). 다른 environment의 job은
-# 이 프로젝트에 들어오지 못합니다(#644). GitHub environment의 "Deployment branches = main" 제한은 이중 장치입니다(README).
+# deployer는 배포 브랜치(staging과 load는 staging, prod는 main, D136)에서 이 프로젝트의 environment로 도는 job만 씁니다
+# (attribute.env_ref). 다른 environment의 job은 이 프로젝트에 들어오지 못합니다(#644). GitHub environment의
+# "Deployment branches" 제한은 이중 장치입니다(README).
 # for_each key를 environment 이름으로 두어, 두 environment를 모두 연결하던 state에서 맞는 연결은 그대로 남습니다.
 resource "google_service_account_iam_member" "deployer_wif" {
   for_each = toset([var.environment])
 
   service_account_id = google_service_account.deployer.name
   role               = "roles/iam.workloadIdentityUser"
-  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.env_ref/${each.value}@refs/heads/main"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.env_ref/${each.value}@refs/heads/${local.deploy_branch}"
 }
 
 # planner는 같은 저장소의 pull_request 토큰만 씁니다.

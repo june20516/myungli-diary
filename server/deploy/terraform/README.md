@@ -21,7 +21,7 @@ bootstrap state의 원본은 그 프로젝트의 state bucket `<프로젝트>-tf
    ```
 
    state bucket이 아직 없는 새 프로젝트는 아래 "새 프로젝트"를 먼저 합니다.
-4. 로컬 값 파일을 준비하고(아래 "알림과 예산 값") apply합니다. `staging.tfvars`, `prod.tfvars`에 프로젝트와 environment가 짝으로 있습니다. deployer는 그 environment의 main job만 씁니다.
+4. 로컬 값 파일을 준비하고(아래 "알림과 예산 값") apply합니다. `staging.tfvars`, `prod.tfvars`에 프로젝트와 environment가 짝으로 있습니다. deployer는 그 environment의 배포 브랜치 job만 씁니다(staging과 load는 `staging`, prod는 `main`, 아래 "배포 브랜치").
 
    ```sh
    terraform apply -var-file="$env.tfvars" -var-file="${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/server/$env/observability.tfvars"
@@ -35,7 +35,7 @@ bootstrap state의 원본은 그 프로젝트의 state bucket `<프로젝트>-tf
 | `GCP_PLANNER_STAGING`, `GCP_PLANNER_PROD` | `planner_email` |
 | `DEPLOY_ENABLED` | `true` (두 프로젝트 bootstrap과 아래 준비가 끝난 뒤) |
 
-6. GitHub environment `staging`, `prod`를 만들고, 둘 다 "Deployment branches"를 `main`으로 제한합니다. prod에는 필수 승인자를 둡니다. WIF도 environment와 main ref를 함께 보지만 이 제한은 이중 장치입니다.
+6. GitHub environment `staging`, `prod`를 만들고, "Deployment branches"를 staging은 `staging`, prod는 `main`으로 제한합니다. prod에는 필수 승인자를 둡니다. WIF도 environment와 배포 브랜치 ref를 함께 보지만 이 제한은 이중 장치입니다.
 7. Secret 값을 넣습니다. Secret 틀은 첫 `deploy-server` 실행(env apply)이 만들고, server 배포는 값이 들어올 때까지 건너뜁니다. Secret 값을 바꾼 뒤에는 `deploy-server`를 다시 돌려야 새 revision이 새 값을 읽습니다.
 
 ```sh
@@ -121,8 +121,8 @@ staging은 이 구조로 바꿀 때 데이터베이스 `myungli`와 런타임 DB
 2. Firebase 콘솔에서 "프로젝트 추가 → 기존 Google Cloud 프로젝트"로 `myungli-diary-load`를 고릅니다. Hosting 기본 사이트 `myungli-diary-load.web.app`이 생깁니다. 앱 등록과 Analytics는 필요 없습니다. 프로젝트 설정의 **Project number**는 `env/load.tfvars`의 `project_number`에 있습니다(2026-11-04 채움).
 3. 알림과 예산 값 `$MYUNGLI_LOCAL_DIR/server/load/observability.tfvars`를 위 "알림과 예산 값"과 같은 형식으로 만듭니다(K14). 예산은 부하 회차 비용에 맞춰 정합니다.
 4. bootstrap을 "새 프로젝트" 순서로 apply합니다(`env=load; project=myungli-diary-load`). bootstrap 코드 변경이 아니라 새 프로젝트에 처음 apply하는 것이라 D103 묶음과 상관없습니다.
-5. GitHub 저장소 변수 `GCP_WIF_PROVIDER_LOAD`, `GCP_DEPLOYER_LOAD`에 bootstrap 출력 `workload_identity_provider`, `deployer_email`을 넣습니다. GitHub environment `load`를 만들고 "Deployment branches"를 `main`으로 제한합니다. 필수 승인자는 두지 않아도 됩니다.
-6. `deploy-engine`을 `workflow_dispatch`, target `load`로 돌려 `engine:current`를 push합니다.
+5. GitHub 저장소 변수 `GCP_WIF_PROVIDER_LOAD`, `GCP_DEPLOYER_LOAD`에 bootstrap 출력 `workload_identity_provider`, `deployer_email`을 넣습니다. GitHub environment `load`를 만들고 "Deployment branches"를 `staging`으로 제한합니다. 필수 승인자는 두지 않아도 됩니다.
+6. `deploy-engine`을 `staging` 브랜치에서 `workflow_dispatch`, target `load`로 돌려 `engine:current`를 push합니다.
 7. `deploy-server`를 target `load`로 한 번 돌립니다. env apply가 Secret 틀을 만들고, 값이 없어 server 배포는 건너뜁니다.
 8. Secret 값을 **새로** 만들어 넣습니다. staging 값을 복사하지 않습니다. 같은 JWT 서명 키를 쓰면 부하 환경에서 받은 토큰이 staging에서도 통하기 때문입니다. 테스트 로그인만 쓰므로 Kakao와 Apple 키는 실제로 불리지 않아, 형식만 맞는 새 값을 넣습니다. 값은 화면에 나오지 않고 바로 Secret으로 들어갑니다.
 
@@ -160,6 +160,32 @@ terraform apply -var-file="$env.tfvars" -var-file="${MYUNGLI_LOCAL_DIR:-$HOME/.c
 3. `deploy-server` target `load-teardown`: Cloud SQL 인스턴스와 그에 기대는 자원(DB, DB 사용자, SQL 알림 정책)만 지웁니다. DB와 DB 사용자는 인스턴스와 함께 사라지므로 state에서만 빼고 인스턴스를 지웁니다(따로 지우면 연결이 남은 DB와 표를 가진 migrator 사용자에서 막힘). 지운 인스턴스 이름은 바로 다시 쓸 수 있습니다(Cloud SQL 문서 "Delete instances"). Secret, Cloud Run(요청이 없으면 인스턴스 0), 네트워크는 남기므로 다음 회차는 1부터 다시 하면 됩니다. 계정과 데이터는 회차마다 새로 만듭니다.
 
 L1이 모두 끝나면 프로젝트를 지울지 지휘와 정합니다.
+
+## 배포 브랜치 (D136)
+
+PR은 모두 `staging`으로 들어가고, prod는 `staging → main` 승격 PR로만 나갑니다.
+
+| 브랜치 | `deploy-server`, `deploy-engine` | 수동 실행(`workflow_dispatch`) |
+| --- | --- | --- |
+| `staging` push | staging 배포(승인 없음) | target `staging-prod`는 staging, `load`와 `load-teardown`은 부하 프로젝트 |
+| `main` push(승격) | prod 배포(environment `prod` 승인) | target `staging-prod`는 prod만 |
+
+WIF(bootstrap `deployer_wif`)와 GitHub environment의 "Deployment branches"가 같은 짝을 봅니다. staging과 load는 `staging`, prod는 `main`입니다(`bootstrap/main.tf`의 `local.deploy_branch`).
+
+### 전환 때 한 번 (사용자, D103 ② 지금 apply 필요)
+
+`staging` 브랜치를 만들고 environment 배포 브랜치 제한을 바꾼 직후, bootstrap을 **staging, load, prod 순서**로 apply합니다. apply 전까지 staging과 load 배포는 WIF에서 막히고(prod는 그대로 `main`이라 바뀌지 않음), 실패해도 다른 환경에는 손대지 않습니다. 명령은 위 "처음 한 번" 3, 4와 같습니다. `deployer_wif`는 member가 바뀌면 지우고 다시 만들어집니다.
+
+```sh
+env=staging; project=myungli-diary-staging   # 다음은 env=load; project=myungli-diary-load, 마지막 env=prod; project=myungli-diary
+terraform init -reconfigure -backend-config="bucket=${project}-tfstate" -backend-config="prefix=bootstrap"
+terraform plan  -var-file="$env.tfvars" -var-file="${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/server/$env/observability.tfvars"
+terraform apply -var-file="$env.tfvars" -var-file="${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/server/$env/observability.tfvars"
+```
+
+이 변경으로 plan에 나오는 것은 staging과 load의 `deployer_wif` 교체(`@refs/heads/main` → `@refs/heads/staging`)뿐이고 prod는 바뀌지 않습니다. 아직 apply하지 않은 bootstrap 변경(D103 묶음)이 있으면 함께 보이니, 모르는 변경이면 apply하지 않고 server에 묻습니다.
+
+**되돌리기:** `bootstrap/main.tf`의 `deploy_branch`를 `"main"` 하나로 되돌린 커밋에서 같은 순서로 apply하고, environment 제한도 `main`으로 되돌립니다.
 
 ## 첫 배포 순서
 
