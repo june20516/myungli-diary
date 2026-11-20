@@ -1,0 +1,35 @@
+# promotion-source: main 대상 PR은 이 저장소의 staging에서 온 승격 PR만 받습니다(D141, 지휘 소유).
+#
+# * main ruleset이 이 job 이름(`promotion-source`)을 필수 검사로 둡니다.
+# * ci-gate와 따로 둔 까닭: 대상 브랜치를 바꾸는 것은 `edited` 이벤트라 이 검사는 `edited`에도 다시 돌아야 하는데,
+#   ci-gate에 `edited`를 더하면 본문만 고쳐도 단위 검사가 다시 돌고 진행 중인 판정이 취소됩니다(D81).
+# * 실수를 막는 장치입니다. PR 안에서 이 파일을 고치면 통과할 수 있으므로, 털린 쓰기 권한까지 막는 장벽은
+#   prod environment 승인과 GCP 배포 권한의 main 조건입니다(spec docs/specs/2026-11-19-branch-split-design.md §3).
+
+name: promotion-source
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+concurrency:
+  group: promotion-source-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  promotion-source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          sparse-checkout: tools/promotion
+      - name: 출발 브랜치와 저장소 확인
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          HEAD_REF: ${{ github.head_ref }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          REPO: ${{ github.repository }}
+        run: bash tools/promotion/check.sh "$BASE_REF" "$HEAD_REF" "$HEAD_REPO" "$REPO"

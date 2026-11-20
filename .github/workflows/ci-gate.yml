@@ -1,4 +1,4 @@
-# ci-gate: 모든 PR과 main push에서 항상 도는 단일 판정 workflow (지휘 소유)
+# ci-gate: 모든 PR과 staging, main push에서 항상 도는 단일 판정 workflow (지휘 소유)
 #
 # * 필수 검사 이름은 `ci-gate` 하나입니다. 경로 필터가 걸린 workflow를 필수로 두면
 #   해당 경로를 건드리지 않은 PR이 "대기"에 멈추므로, 판정은 항상 이 job이 냅니다.
@@ -10,10 +10,12 @@
 #   이 순서면 검사가 하나도 돌지 않는 구간이 생기지 않습니다. 전환 전까지 그 단위는 이 판정에 들어가지 않습니다.
 # * PR 본문 검사는 별도 workflow(pr-body.yml)입니다. 본문만 고친 `edited`에서 단위 검사를 다시 돌리거나
 #   진행 중인 판정을 취소하지 않으려는 것입니다(D81).
-# * 비교 기준: PR은 merge ref의 first parent(검사 시점의 main)와 비교합니다. `pull_request.base.sha`는 PR을 열거나
-#   push한 시점의 main이라, 그 뒤 main에 들어온 다른 PR의 파일까지 바뀐 것으로 잡습니다(#345 실행에서 server가 own으로 돈 원인).
-# * 수동 실행(workflow_dispatch)은 모든 단위를 own으로 돌립니다. main 전체를 한 번에 확인할 때 씁니다.
-# * main push가 force-push여서 `before` 커밋이 없으면 `changes`가 실패하고 판정도 실패합니다(사후에 잡는다는 취지대로).
+# * 비교 기준: PR은 merge ref의 first parent(검사 시점의 대상 브랜치)와 비교합니다. `pull_request.base.sha`는 PR을 열거나
+#   push한 시점의 대상 브랜치라, 그 뒤 들어온 다른 PR의 파일까지 바뀐 것으로 잡습니다(#345 실행에서 server가 own으로 돈 원인).
+# * 브랜치(D136 ①, docs/specs/2026-11-19-branch-split-design.md): 모든 PR은 staging으로, main에는 staging에서 온 승격 PR만
+#   들어옵니다. 그 확인은 별도 workflow `promotion-source.yml`이 하고(대상 변경 `edited`에도 돌아야 해서), main ruleset이 필수 검사로 둡니다.
+# * 수동 실행(workflow_dispatch)은 모든 단위를 own으로 돌립니다. 브랜치 전체를 한 번에 확인할 때 씁니다.
+# * push가 force-push여서 `before` 커밋이 없으면 `changes`가 실패하고 판정도 실패합니다(사후에 잡는다는 취지대로).
 # * 단위 간 맞물림(drift, docs/workflow.md §6.1): 단위 검사는 두 방식으로 돕니다.
 #   - own: PR이 그 단위의 코드(소유 경로)나 그 단위 workflow를 바꿨습니다. 실패하면 판정을 막습니다.
 #   - drift: 그 단위가 쓰는 계약 파일만 바뀌었습니다(예: server PR이 openapi.yaml만 바꿈). 받는 쪽이 아직
@@ -21,7 +23,7 @@
 #     받는 쪽은 다음 PR(own)에서 맞춰야 병합할 수 있습니다. 통합 마일스톤(I1~I4)은 남은 drift 0이 조건입니다.
 #   - gate: 그 단위의 소유·계약 경로는 바뀌지 않았고 이 workflow(ci-gate.yml)가 바뀌었습니다. 실패하면 막되, 그 단위 앞으로 열린 `drift` Issue가 있으면
 #     이미 알려진 실패로 보고 경고만 남깁니다. 병렬로 일하는 동안 drift가 0이 되기를 기다리지 않으려는 것입니다.
-#   main push에서는 drift를 돌리지 않습니다. 결과가 판정에도 Issue에도 쓰이지 않기 때문입니다(실패는 PR 단계에서 이미 Issue로 열림).
+#   push에서는 drift를 돌리지 않습니다. 결과가 판정에도 Issue에도 쓰이지 않기 때문입니다(실패는 PR 단계에서 이미 Issue로 열림).
 
 name: ci-gate
 
@@ -29,12 +31,12 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
   push:
-    branches: [main]
+    branches: [staging, main]
   workflow_dispatch:
 
 concurrency:
   # PR은 ref마다 한 그룹이라 새 commit이 오면 앞선 실행을 취소합니다.
-  # main push는 커밋마다 판정을 남겨야 하므로 커밋(sha)마다 그룹을 따로 둡니다. 같은 그룹을 쓰면
+  # push는 커밋마다 판정을 남겨야 하므로 커밋(sha)마다 그룹을 따로 둡니다. 같은 그룹을 쓰면
   # cancel-in-progress가 false여도 GitHub이 대기 중인 실행을 새 실행으로 바꾸며 취소합니다(연달아 병합할 때).
   group: ci-gate-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -76,7 +78,7 @@ jobs:
             done
             exit 0
           elif [ "$EVENT" = "pull_request" ]; then
-            # checkout은 merge ref(refs/pull/N/merge)이고, 그 first parent가 검사 시점의 main입니다.
+            # checkout은 merge ref(refs/pull/N/merge)이고, 그 first parent가 검사 시점의 대상 브랜치입니다.
             base=$(git rev-parse HEAD^1)
           elif [ "$EVENT" = "push" ] && [ -n "$PUSH_BEFORE" ] && ! echo "$PUSH_BEFORE" | grep -qE '^0+$'; then
             base="$PUSH_BEFORE"
@@ -90,7 +92,7 @@ jobs:
           fi
           changed=$(git -c core.quotePath=false diff --name-only "$base"...HEAD)
           echo "$changed"
-          if echo "$changed" | grep -qE '\.md$|(^|/)artifacts/|^docs/ia/|^docs/research/|^tools/docs-check/|^tools/drift/|^\.github/workflows/ci-gate\.yml$'; then
+          if echo "$changed" | grep -qE '\.md$|(^|/)artifacts/|^docs/ia/|^docs/research/|^tools/docs-check/|^tools/drift/|^tools/promotion/|^\.github/workflows/ci-gate\.yml$'; then
             echo "docs=true" >> "$GITHUB_OUTPUT"
           else
             echo "docs=false" >> "$GITHUB_OUTPUT"
@@ -99,7 +101,7 @@ jobs:
           # writing은 생성 문서(.md)도 원본과 대조하므로(gen-docs --check) .md를 빼지 않습니다.
           code_changed=$(echo "$changed" | grep -vE '\.md$' || true)
           # unit <이름> <바뀐 목록> <소유 경로> <쓰는 계약 경로>
-          # 소유 경로(또는 단위 workflow)가 바뀌면 own, 계약 경로만 바뀌면 drift(main push에서는 돌지 않음), 이 workflow만 바뀌면 gate, 모두 아니면 돌지 않습니다.
+          # 소유 경로(또는 단위 workflow)가 바뀌면 own, 계약 경로만 바뀌면 drift(push에서는 돌지 않음), 이 workflow만 바뀌면 gate, 모두 아니면 돌지 않습니다.
           unit() {
             name="$1"; list="$2"; own="$3"; contract="$4"
             if echo "$list" | grep -qE "$own|^\.github/workflows/$name\.yml$"; then
@@ -153,6 +155,8 @@ jobs:
       - name: drift 도구 테스트
         working-directory: tools/drift
         run: python3 -I -m unittest -q
+      - name: 승격 출발 브랜치 검사 테스트
+        run: bash tools/promotion/test_check.sh
       - name: docs 검사 (링크·artifacts·결정 번호·IA·아이디어·ja 근거 용어집)
         run: python3 -I tools/docs-check/docs_check.py .
 
@@ -196,10 +200,12 @@ jobs:
 
   # drift로 돈 단위가 실패하면 PR에서 받는 쪽 앞으로 Issue를 엽니다. 그 단위 앞으로 열린 drift가 이미 있으면 새로 열지 않고
   # 가장 오래된 Issue에 원인 PR을 더합니다(같은 원인의 Issue가 PR마다 쌓이지 않게). 같은 PR의 다음 실행에서 drift가 통과하면
-  # (주는 쪽이 PR 안에서 맞춤) 그 PR이 연 Issue를 닫습니다. main push에서는 drift를 돌리지 않기 때문입니다. 로직은 tools/drift/drift.sh입니다.
+  # (주는 쪽이 PR 안에서 맞춤) 그 PR이 연 Issue를 닫습니다. push에서는 drift를 돌리지 않기 때문입니다. 로직은 tools/drift/drift.sh입니다.
+  # 승격 PR(staging → main)은 drift를 보고하지 않습니다. diff가 지난 승격 뒤 모든 변경이라 이미 staging PR에서 보고된 원인이
+  # 겹치고, 승격 merge commit은 staging에 다시 들어오지 않아 drift-close가 그 원인을 영영 닫지 못하기 때문입니다(D141).
   drift-report:
     needs: [changes, core, server, app, writing, design]
-    if: always() && github.event_name == 'pull_request'
+    if: always() && github.event_name == 'pull_request' && github.base_ref != 'main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -222,12 +228,12 @@ jobs:
           DESIGN: ${{ needs.changes.outputs.design_mode }}:${{ needs.design.result }}
         run: tools/drift/drift.sh report
 
-  # main에서 단위 검사가 통과하면 그 단위는 그 커밋의 모든 계약에 맞습니다. 원인 PR(제목과 더해진 원인)이 모두 그 커밋에 들어 있는
+  # staging에서 단위 검사가 통과하면 그 단위는 그 커밋의 모든 계약에 맞습니다(drift는 staging에서 생기고 풀림, D136 ①). 원인 PR(제목과 더해진 원인)이 모두 그 커밋에 들어 있는
   # drift Issue를 닫습니다. 원인 PR이 모두 병합 없이 닫혔으면 따라잡을 것이 없으므로 not planned로 닫습니다.
   # 받는 쪽이 PR 본문에 `Closes`를 빠뜨려도 남지 않게 하려는 것입니다(남은 drift는 gate 판정을 느슨하게 합니다).
   drift-close:
     needs: [changes, server, app, writing, design]
-    if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: always() && github.event_name == 'push' && github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
     permissions:
       contents: read

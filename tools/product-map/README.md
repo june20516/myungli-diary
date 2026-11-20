@@ -28,7 +28,7 @@
 | `app/docs/artifacts/e2e-coverage.json` (app E2E 커버리지, app 결정 A13, 없으면 표시 안 함) | 화면 탭 머리의 전체 커버리지, 화면 카드·상세의 경로·상태 커버리지와 덮지 못한 항목(#87) |
 
 ## 갱신 (지휘 세션 정기 일과)
-1. 지휘 디렉터리(본 저장소)를 `main` 최신으로 맞춥니다: `git fetch origin && git merge origin/main`
+1. 지휘 디렉터리(본 저장소)를 `main` 최신으로 맞춥니다: `git fetch origin && git merge origin/staging`
 2. 데이터를 만들고 페이지를 함께 둡니다. 출력 디렉터리는 세션 scratchpad를 씁니다.
    ```
    OUT=<scratchpad>/product-map

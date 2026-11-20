@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 요청함(Issue)·PR·main ci-gate 결과(끝난 실행만, 최근 5개)·환경 승인을 기다리는 실행 변화를 1분마다 비교해, 바뀐 것만 한 줄씩 출력합니다.
+# 요청함(Issue)·PR·staging과 main ci-gate 결과(브랜치마다 끝난 실행만, 최근 5개)·환경 승인을 기다리는 실행 변화를 1분마다 비교해, 바뀐 것만 한 줄씩 출력합니다.
 # 출력 한 줄이 지휘 세션의 알림 하나가 됩니다. 상태는 STATE_DIR에 두어 다시 띄워도 이어집니다.
 set -u
 REPO=june20516/myungli-diary
@@ -19,18 +19,22 @@ snapshot() {
       --json number,state,title --jq '.[] | "PR #\(.number) \(.state) \(.title)"' &&
     gh_t issue list -R "$REPO" --state all --limit 40 \
       --json number,state,title --jq '.[] | "Issue #\(.number) \(.state) \(.title)"' &&
-    main_ci &&
+    branch_ci staging &&
+    branch_ci main &&
     approval_waits
   } 2>/dev/null) || return 1
-  # 같은 커밋의 main 실행이 둘이면 같은 줄이 두 번 나옵니다. 중복을 남기면 comm이 하나를 새 줄로 셉니다.
+  # 같은 커밋의 실행이 둘이면 같은 줄이 두 번 나옵니다. 중복을 남기면 comm이 하나를 새 줄로 셉니다.
   printf '%s\n' "$out" | sort -u
 }
 
-main_ci() {
+branch_ci() {
+  # 인자: 브랜치(staging 또는 main, D136 ①).
+  local branch=$1
   # 실행 전체 결론이 아니라 ci-gate job 판정을 씁니다. drift 단위의 실패는 실행을 failure로 만들지만 판정에서는 빠지기 때문입니다(docs/workflow.md §6.1).
   # 끝난 실행의 판정은 바뀌지 않으므로 실행 번호·시도 횟수별로 STATE_DIR에 캐시해 매분 job을 다시 조회하지 않습니다.
   local runs id attempt sha cache verdict
-  runs=$(gh_t run list -R "$REPO" --branch main --workflow ci-gate.yml --limit 5 \
+  # push 실행만 봅니다. 승격 PR(head staging)의 pull_request 실행도 --branch staging에 걸려 같은 sha에 다른 판정이 섞이기 때문입니다.
+  runs=$(gh_t run list -R "$REPO" --branch "$branch" --event push --workflow ci-gate.yml --limit 5 \
     --json databaseId,attempt,headSha,status \
     --jq '.[] | select(.status == "completed") | "\(.databaseId) \(.attempt) \(.headSha[0:7])"') || return 1
   while read -r id attempt sha; do
@@ -47,7 +51,7 @@ main_ci() {
       echo "$verdict" > "$cache"
     fi
     verdict=$(cat "$cache")
-    echo "main-ci $sha $verdict"
+    echo "$branch-ci $sha $verdict"
   done <<< "$runs"
 }
 
