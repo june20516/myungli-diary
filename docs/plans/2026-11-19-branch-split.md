@@ -104,10 +104,10 @@
 
 ### Task 6: 전환 (지휘 + 사용자)
 
-**선행:** Task 1~3 지휘 PR과 Task 4 server PR이 main에 병합됨.
+**선행:** Task 1~3 지휘 PR과 Task 4 server PR이 둘 다 검사를 통과한 상태. 지휘 PR은 auto-merge를 걸지 않고 두었다가(먼저 병합하면 문서가 아직 없는 `origin/staging`을 가리켜 작업 중인 server 세션이 막힘), server PR 병합 직후 이어서 병합하고 곧바로 Step 2로 갑니다.
 
 - [ ] **Step 1: 되돌리기 값 기록** 지휘가 지금 값을 비공개 기록 `security/branch-split-before.md`에 남깁니다: 기본 브랜치, ruleset 25140518 JSON(`gh api repos/june20516/myungli-diary/rulesets/25140518`), environment 세 개의 배포 브랜치 정책, bootstrap의 member 값.
-- [ ] **Step 2: `staging` 브랜치 만들기** `gh api repos/june20516/myungli-diary/git/refs -f ref=refs/heads/staging -f sha=$(git rev-parse origin/main)`
+- [ ] **Step 2: `staging` 브랜치 만들기(지휘 PR 병합 직후 바로)** `gh api repos/june20516/myungli-diary/git/refs -f ref=refs/heads/staging -f sha=$(git rev-parse origin/main)`
 - [ ] **Step 3: environment 배포 브랜치 정책(사용자 승인 뒤)** staging과 load: 정책 `main` 삭제, `staging` 추가. prod: `main` 그대로. 명령은 `gh api -X POST repos/.../environments/<env>/deployment-branch-policies -f name=staging -f type=branch`와 해당 정책 id `DELETE`.
 - [ ] **Step 4: bootstrap apply(사용자)** server README 순서대로 staging, load, prod.
 - [ ] **Step 5: ruleset(사용자 승인 뒤)**
@@ -118,7 +118,7 @@
 ### Task 7: 확인과 기록 (지휘)
 
 - [ ] **Step 1: staging 경로** 작은 지휘 PR(로드맵 한 줄)을 staging에 병합 → `ci-gate`, `deploy-server` staging job이 돌고 prod job은 건너뜀. Expected: staging 배포 성공, prod 승인 요청 없음.
-- [ ] **Step 2: 막힘 확인** 임시 브랜치에서 main 대상 PR을 열어 `promotion-source` 실패 확인 뒤 PR 닫고 브랜치 삭제.
+- [ ] **Step 2: 막힘 확인** 임시 브랜치에서 (a) main 대상 PR, (b) staging 대상으로 연 뒤 대상을 main으로 바꾼 PR을 만들어 둘 다 `promotion-source` 실패를 확인하고 PR 닫고 브랜치 삭제. 이때 `promotion-source` 결과가 PR의 필수 검사로 붙는지도 봅니다.
 - [ ] **Step 3: 승격** `gh pr create --base main --head staging` 승격 PR → `ci-gate`, `promotion-source` 통과, 병합 뒤 `deploy-server` prod job이 승인 대기. Expected: 사용자 승인 뒤 prod 배포 성공(바뀐 것이 없으면 지휘가 run을 취소해도 됨).
 - [ ] **Step 4: 결정과 로드맵** `docs/decisions.md`에 D141(브랜치 분리 시행, spec 링크, 사용자 결정 2026-11-19), 로드맵 I4 준비물 "브랜치 분리" 지움, 단위 Issue(Task 5) 링크. 대상 staging, 병합 뒤 승격.
 - [ ] **Step 5: 메모리** 지휘 메모리의 "origin/main" 관련 항목(브랜치 규칙, prod 승인 취소)을 새 흐름에 맞게 고침.

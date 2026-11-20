@@ -33,7 +33,8 @@ branch_ci() {
   # 실행 전체 결론이 아니라 ci-gate job 판정을 씁니다. drift 단위의 실패는 실행을 failure로 만들지만 판정에서는 빠지기 때문입니다(docs/workflow.md §6.1).
   # 끝난 실행의 판정은 바뀌지 않으므로 실행 번호·시도 횟수별로 STATE_DIR에 캐시해 매분 job을 다시 조회하지 않습니다.
   local runs id attempt sha cache verdict
-  runs=$(gh_t run list -R "$REPO" --branch "$branch" --workflow ci-gate.yml --limit 5 \
+  # push 실행만 봅니다. 승격 PR(head staging)의 pull_request 실행도 --branch staging에 걸려 같은 sha에 다른 판정이 섞이기 때문입니다.
+  runs=$(gh_t run list -R "$REPO" --branch "$branch" --event push --workflow ci-gate.yml --limit 5 \
     --json databaseId,attempt,headSha,status \
     --jq '.[] | select(.status == "completed") | "\(.databaseId) \(.attempt) \(.headSha[0:7])"') || return 1
   while read -r id attempt sha; do

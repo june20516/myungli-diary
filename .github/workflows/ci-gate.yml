@@ -13,7 +13,7 @@
 # * 비교 기준: PR은 merge ref의 first parent(검사 시점의 대상 브랜치)와 비교합니다. `pull_request.base.sha`는 PR을 열거나
 #   push한 시점의 대상 브랜치라, 그 뒤 들어온 다른 PR의 파일까지 바뀐 것으로 잡습니다(#345 실행에서 server가 own으로 돈 원인).
 # * 브랜치(D136 ①, docs/specs/2026-11-19-branch-split-design.md): 모든 PR은 staging으로, main에는 staging에서 온 승격 PR만
-#   들어옵니다. `promotion-source` job이 그것을 확인하고, main ruleset이 이 job을 필수 검사로 둡니다.
+#   들어옵니다. 그 확인은 별도 workflow `promotion-source.yml`이 하고(대상 변경 `edited`에도 돌아야 해서), main ruleset이 필수 검사로 둡니다.
 # * 수동 실행(workflow_dispatch)은 모든 단위를 own으로 돌립니다. 브랜치 전체를 한 번에 확인할 때 씁니다.
 # * push가 force-push여서 `before` 커밋이 없으면 `changes`가 실패하고 판정도 실패합니다(사후에 잡는다는 취지대로).
 # * 단위 간 맞물림(drift, docs/workflow.md §6.1): 단위 검사는 두 방식으로 돕니다.
@@ -101,7 +101,7 @@ jobs:
           # writing은 생성 문서(.md)도 원본과 대조하므로(gen-docs --check) .md를 빼지 않습니다.
           code_changed=$(echo "$changed" | grep -vE '\.md$' || true)
           # unit <이름> <바뀐 목록> <소유 경로> <쓰는 계약 경로>
-          # 소유 경로(또는 단위 workflow)가 바뀌면 own, 계약 경로만 바뀌면 drift(main push에서는 돌지 않음), 이 workflow만 바뀌면 gate, 모두 아니면 돌지 않습니다.
+          # 소유 경로(또는 단위 workflow)가 바뀌면 own, 계약 경로만 바뀌면 drift(push에서는 돌지 않음), 이 workflow만 바뀌면 gate, 모두 아니면 돌지 않습니다.
           unit() {
             name="$1"; list="$2"; own="$3"; contract="$4"
             if echo "$list" | grep -qE "$own|^\.github/workflows/$name\.yml$"; then
@@ -139,26 +139,6 @@ jobs:
           # drift Issue 본문에 적을 계약 파일 목록입니다.
           contracts=$(echo "$changed" | grep -E '^server/api/openapi\.yaml$|^docs/ia/screens\.json$|^docs/identity/design/(tokens|components|store)/|^docs/identity/writing/(content|slots|rules|tools|generated/store)/|^docs/identity/writing/artifacts/[^/]*-round-R[0-9]+\.md$|^core/(message_(keys|params)|evidence_(rules|sources))\.json$|^proto/|^docs/identity/design/lengths\.md$|^docs/legal/[^/]+/' | head -20 | tr '\n' ' ')
           echo "contracts=$contracts" >> "$GITHUB_OUTPUT"
-
-  # main 대상 PR은 staging에서 온 승격 PR만 받습니다(D136 ①). main ruleset이 이 job 이름을 필수 검사로 둡니다.
-  # 대상이 main이 아닌 PR, push, 수동 실행에서는 확인할 것이 없어 바로 통과합니다.
-  promotion-source:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          sparse-checkout: tools/promotion
-      - name: 출발 브랜치 확인
-        env:
-          BASE_REF: ${{ github.base_ref }}
-          HEAD_REF: ${{ github.head_ref }}
-          EVENT: ${{ github.event_name }}
-        run: |
-          if [ "$EVENT" != "pull_request" ]; then
-            echo "PR이 아니라 확인할 것이 없습니다."
-            exit 0
-          fi
-          bash tools/promotion/check.sh "$BASE_REF" "$HEAD_REF"
 
   docs:
     needs: changes
@@ -221,9 +201,11 @@ jobs:
   # drift로 돈 단위가 실패하면 PR에서 받는 쪽 앞으로 Issue를 엽니다. 그 단위 앞으로 열린 drift가 이미 있으면 새로 열지 않고
   # 가장 오래된 Issue에 원인 PR을 더합니다(같은 원인의 Issue가 PR마다 쌓이지 않게). 같은 PR의 다음 실행에서 drift가 통과하면
   # (주는 쪽이 PR 안에서 맞춤) 그 PR이 연 Issue를 닫습니다. push에서는 drift를 돌리지 않기 때문입니다. 로직은 tools/drift/drift.sh입니다.
+  # 승격 PR(staging → main)은 drift를 보고하지 않습니다. diff가 지난 승격 뒤 모든 변경이라 이미 staging PR에서 보고된 원인이
+  # 겹치고, 승격 merge commit은 staging에 다시 들어오지 않아 drift-close가 그 원인을 영영 닫지 못하기 때문입니다(D141).
   drift-report:
     needs: [changes, core, server, app, writing, design]
-    if: always() && github.event_name == 'pull_request'
+    if: always() && github.event_name == 'pull_request' && github.base_ref != 'main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
