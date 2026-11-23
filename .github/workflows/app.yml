@@ -346,8 +346,11 @@ jobs:
             app/build/e2e-screenshots/**
             app/build/e2e-native-screenshots/**
             app/build/patrol.log
+            app/build/e2e-metrics.tsv
+            app/build/e2e-threads.log
           if-no-files-found: warn
-      # 실패 원인 추적용: Gradle(androidTest) 보고서와 결과 XML, 기기 전체 logcat, 메모리 기록, 에뮬레이터 crash 기록.
+      # 실패 원인 추적용: Gradle(androidTest) 보고서와 결과 XML, 기기 logcat, 시간순 지표, 기기 응답 기록,
+      # 에뮬레이터 스레드 CPU와 스택, 에뮬레이터 crash 기록(tool/e2e_ci_monitor.sh).
       - name: Gradle 보고서 올리기
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
@@ -358,7 +361,9 @@ jobs:
             app/build/app/outputs/androidTest-results/**
             app/build/logcat-full.txt
             app/build/logcat-stream.txt
-            app/build/e2e-mem.log
+            app/build/e2e-metrics.tsv
+            app/build/e2e-threads.log
+            app/build/e2e-freeze.log
             app/build/e2e-diag/**
           if-no-files-found: warn
 

@@ -18,7 +18,8 @@
 // * sheet-backdrop: 흐림 바탕이 있는 화면에서 시트를 열고 그 안에 control.
 // * sheet-backdrop-noglint: 위와 같고 시트 안은 반짝임 없는 글자.
 // * real: me_test 앞부분(앱 실행 → 나의 사주 → 사주 표 → 용어 → 열린 풀이 시트)을 그대로 밟음
-//   (양성 대조군. CI에서 교착이 재현되던 흐름). 앱의 동작 설정은 기기를 따르므로, CI 기본(기기
+//   (양성 대조군. CI에서 교착이 재현되던 흐름). real-mysaju, real-chart, real-today는 그 흐름을
+//   중간에서 멈추거나 다른 화면에서 같은 시트를 엽니다([_openReal]). 앱의 동작 설정은 기기를 따르므로, CI 기본(기기
 //   애니메이션 끔)에서는 반짝임 대신 unlock.mark가 그려집니다. 그래서 real은 띠 확인을 하지
 //   않습니다.
 //
@@ -68,8 +69,8 @@ void main() {
     'glint 진단 변형 "$_variant": 반짝임을 ${_hold.inSeconds}초 띄워도 에뮬레이터가 살아 있음',
     skip: _variant.isEmpty,
     ($) async {
-      if (_variant == 'real') {
-        await _openRealExplainSheet($);
+      if (_variant.startsWith('real')) {
+        await _openReal($, _variant);
       } else {
         await $.pumpWidget(
           MaterialApp(
@@ -106,17 +107,28 @@ void main() {
   );
 }
 
-/// me_test 앞부분: 나의 사주 → 사주 표(원국) → 표 안 용어 → 열린 풀이 시트.
-Future<void> _openRealExplainSheet(PatrolIntegrationTester $) async {
+/// 실제 앱 흐름 변형. 모두 fake 시나리오 evidence-unlocked로 띄웁니다.
+///
+/// * real: me_test 앞부분, 나의 사주 → 사주 표(원국) → 표 안 용어 → 열린 풀이 시트.
+/// * real-mysaju: 나의 사주 화면까지.
+/// * real-chart: 사주 표 화면까지(시트 없음).
+/// * real-today: 오늘 화면의 첫 용어 → 열린 풀이 시트(사주 표 없음).
+Future<void> _openReal(PatrolIntegrationTester $, String variant) async {
   await launchApp(
     $,
-    flow: 'me',
+    flow: 'diag',
     scenario: 'evidence-unlocked',
     deviceLocale: const Locale('ko', 'KR'),
   );
   await waitForScreen($, ScreenIds.today);
+  if (variant == 'real-today') {
+    await $(TermToken).tap();
+    await expectScreen($, ScreenIds.explainSheet);
+    return;
+  }
   await $(find.byKey(const ValueKey('tab-bar.tab.3'))).tap();
   await expectScreen($, ScreenIds.mySaju);
+  if (variant == 'real-mysaju') return;
   final mySaju = find.byKey(const ValueKey(ScreenIds.mySaju));
   final l10n = AppLocalizations.of($.tester.element(mySaju.first));
   final chartLink = find.descendant(
@@ -138,6 +150,8 @@ Future<void> _openRealExplainSheet(PatrolIntegrationTester $) async {
         .first,
   );
   await term.waitUntilVisible();
+  if (variant == 'real-chart') return;
+  if (variant != 'real') throw ArgumentError('알 수 없는 GLINT_DIAG 변형: $variant');
   await term.tap();
   await expectScreen($, ScreenIds.explainSheet);
 }

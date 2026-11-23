@@ -10,9 +10,10 @@
 # 프로세스가 아무 출력 없이 사라졌고, patrol과 `adb logcat`이 기기를 끝없이 기다렸습니다. 그래서:
 # * patrol을 30분 timeout으로 감싸 넘으면(124) 실패로 끝내고, 에뮬레이터 프로세스가 사라지면 바로 끝냅니다.
 # * adb 호출도 timeout으로 감싸 기기가 없을 때 멈추지 않게 합니다.
-# * 에뮬레이터가 사라진 이유를 가리도록 30초마다 메모리와 에뮬레이터 생존을 build/e2e-mem.log에 적고,
-#   실패하면 호스트 kernel 로그(OOM, segfault)와 에뮬레이터 crash 기록(/tmp/android-runner)을 남깁니다.
-# 산출물: build/patrol.log, build/logcat-full.txt, build/logcat-stream.txt, build/e2e-mem.log, build/e2e-diag/.
+# * tool/e2e_ci_monitor.sh로 호스트와 기기 지표를 시간순으로 적고, 기기가 얼면 에뮬레이터 스택을 받습니다.
+#   실패하면 호스트 kernel 로그(OOM, segfault)와 에뮬레이터 crash 기록(/tmp/android-runner)도 남깁니다.
+# 산출물: build/patrol.log, build/logcat-full.txt, build/logcat-stream.txt, build/e2e-metrics.tsv,
+# build/e2e-threads.log, build/e2e-freeze.log, build/e2e-diag/.
 # Patrol 포트는 기본값(8081, 8082) 대신 47281, 47282로 고정합니다(app/CLAUDE.md와 같은 값).
 set -uo pipefail
 
@@ -23,25 +24,13 @@ target="${1:-patrol_test}"
 shift || true
 extra_args=("$@")
 
-# 30초마다: 시각, 사용 중/전체 메모리(MB), 남은 메모리, 에뮬레이터(qemu) 프로세스 수, 바쁜 스레드.
-(
-  while :; do
-    mem="$(free -m | awk '/^Mem:/ {print $3 "/" $2 " avail " $7}')"
-    echo "$(date -u +%H:%M:%S) mem ${mem} qemu=$(pgrep -c qemu-system || true)"
-    # 에뮬레이터 스레드별 CPU 상위 5개. 얼었을 때 렌더 스레드가 바쁜지(느린 처리) 쉬는지(교착)를 봅니다.
-    qemu_pid="$(pgrep -o qemu-system || true)"
-    if [[ -n "$qemu_pid" ]]; then
-      top -b -n 1 -H -p "$qemu_pid" | sed -n '8,12p' | awk '{print "  " $9 "% " $12}'
-    fi
-    sleep 30
-  done
-) > build/e2e-mem.log 2>&1 &
-sampler=$!
+tool/e2e_ci_monitor.sh build &
+monitor=$!
 # 테스트 내내 기기 logcat을 파일로 받습니다. 에뮬레이터가 사라져도 그 직전까지 남고, 앱이 쓰는
 # 렌더링 백엔드 줄(Impeller Vulkan 또는 OpenGLES)도 여기에 남습니다.
 adb logcat -v threadtime > build/logcat-stream.txt 2>&1 &
 logcat_pid=$!
-trap 'kill "$sampler" "$logcat_pid" 2>/dev/null' EXIT
+trap 'kill "$monitor" "$logcat_pid" 2>/dev/null' EXIT
 
 # 기기가 없어도 멈추지 않는 adb.
 adb_quick() {
@@ -64,7 +53,7 @@ while kill -0 "$patrol_pid" 2>/dev/null; do
     missing=$((missing + 1))
     if [[ "$missing" -ge 2 ]]; then
       emulator_gone=true
-      echo "$(date -u +%H:%M:%S) 에뮬레이터 프로세스가 사라져 patrol을 끝냅니다." | tee -a build/e2e-mem.log
+      echo "$(date -u +%H:%M:%S) 에뮬레이터 프로세스가 사라져 patrol을 끝냅니다." | tee -a build/e2e-freeze.log
       pkill -TERM -P "$patrol_pid" 2>/dev/null
       kill -TERM "$patrol_pid" 2>/dev/null
       break
@@ -99,8 +88,13 @@ if [[ "$rc" != 0 ]]; then
   # 에뮬레이터가 signal로 죽으면(segfault, trap 등) 호스트 kernel 로그에 qemu 줄이 남습니다.
   echo "--- 호스트 kernel 로그 끝부분 ---"
   sudo dmesg -T | tail -n 40
-  echo "--- 메모리 기록 끝부분 ---"
-  tail -n 10 build/e2e-mem.log
+  echo "--- 시간순 지표 끝부분(build/e2e-metrics.tsv) ---"
+  head -n 1 build/e2e-metrics.tsv
+  tail -n 12 build/e2e-metrics.tsv
+  echo "--- 기기 응답 기록(build/e2e-freeze.log) ---"
+  cat build/e2e-freeze.log 2>/dev/null || echo "기록 없음"
+  echo "--- 에뮬레이터 스레드 CPU 끝부분 ---"
+  tail -n 18 build/e2e-threads.log
   cp -R /tmp/android-runner/. build/e2e-diag/ 2>/dev/null || true
 
   adb_quick logcat -d > build/logcat-full.txt || echo "기기가 없어 logcat을 받지 못했습니다."
