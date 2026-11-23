@@ -7,7 +7,7 @@
 #
 # 2026-11-11부터 e2e가 job 상한 60분에서 cancelled로 끝났습니다. 2026-11-23 실행에서 테스트 중 에뮬레이터
 # 프로세스가 아무 출력 없이 사라졌고, patrol과 `adb logcat`이 기기를 끝없이 기다렸습니다. 그래서:
-# * patrol을 30분 timeout으로 감싸 넘으면(124) 실패로 끝냅니다.
+# * patrol을 30분 timeout으로 감싸 넘으면(124) 실패로 끝내고, 에뮬레이터 프로세스가 사라지면 바로 끝냅니다.
 # * adb 호출도 timeout으로 감싸 기기가 없을 때 멈추지 않게 합니다.
 # * 에뮬레이터가 사라진 이유를 가리도록 30초마다 메모리와 에뮬레이터 생존을 build/e2e-mem.log에 적고,
 #   실패하면 커널 OOM 기록과 에뮬레이터 crash 기록(/tmp/android-runner)을 남깁니다.
@@ -37,12 +37,38 @@ adb_quick() {
 timeout -k 60 1800 patrol test -t patrol_test \
   --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake \
   --test-server-port 47281 --app-server-port 47282 \
-  --screenshots-output-dir build/e2e-native-screenshots > build/patrol.log 2>&1
+  --screenshots-output-dir build/e2e-native-screenshots > build/patrol.log 2>&1 &
+patrol_pid=$!
+
+# 에뮬레이터가 사라지면 patrol은 기기를 끝없이 기다리므로, 두 번 연속(20초) 없으면 바로 끝냅니다.
+emulator_gone=false
+missing=0
+while kill -0 "$patrol_pid" 2>/dev/null; do
+  if pgrep qemu-system >/dev/null; then
+    missing=0
+  else
+    missing=$((missing + 1))
+    if [[ "$missing" -ge 2 ]]; then
+      emulator_gone=true
+      echo "$(date -u +%H:%M:%S) 에뮬레이터 프로세스가 사라져 patrol을 끝냅니다." | tee -a build/e2e-mem.log
+      pkill -TERM -P "$patrol_pid" 2>/dev/null
+      kill -TERM "$patrol_pid" 2>/dev/null
+      break
+    fi
+  fi
+  sleep 10
+done
+wait "$patrol_pid"
 rc=$?
+if [[ "$emulator_gone" == true && "$rc" == 0 ]]; then
+  rc=1
+fi
 
 if [[ "$rc" != 0 ]]; then
   cat build/patrol.log
-  if [[ "$rc" == 124 ]]; then
+  if [[ "$emulator_gone" == true ]]; then
+    echo "::error title=e2e 에뮬레이터 사라짐::테스트 중 에뮬레이터 프로세스가 사라졌습니다. 위 로그의 마지막 테스트와 job 로그의 kernel 로그(-show-kernel)를 봅니다"
+  elif [[ "$rc" == 124 ]]; then
     echo "::error title=e2e 멈춤::patrol이 30분 안에 끝나지 않아 멈췄습니다. 위 로그의 마지막 테스트와 e2e-gradle-reports의 진단 기록을 봅니다"
   fi
   echo "--- instrumentation 결과, Patrol 요약에서 빠지는 프로세스 크래시 포함 ---"

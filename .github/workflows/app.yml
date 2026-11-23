@@ -293,6 +293,9 @@ jobs:
           target: google_apis
           profile: pixel_6
           disable-animations: true
+          # 액션 기본 옵션에 -show-kernel(기기 kernel 로그를 job 로그로)만 더한다. 2026-11-23 실행에서
+          # 에뮬레이터가 crash 기록 없이 사라져, kernel panic이나 전원 꺼짐인지 가리려는 진단이다.
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -show-kernel
           working-directory: app
           # 실행, 30분 timeout, 실패 때 진단(메모리, OOM, 에뮬레이터 생존, logcat)은 스크립트 머리말에 있다.
           script: tool/e2e_ci.sh
