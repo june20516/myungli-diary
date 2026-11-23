@@ -13,6 +13,8 @@
 # * e2e-freeze.log: 기기 응답 확인(5초마다)에서 응답 없음이 시작되고 풀린 시각.
 # * e2e-diag/qemu-stacks.txt, qemu-kstacks.txt: 처음 얼었을 때 에뮬레이터 사용자 공간 스택(gdb)과
 #   kernel 스택.
+# * e2e-diag/qemu-crash-bt.txt: E2E_GDB_WATCH=1이면 처음부터 gdb를 붙여 두고, 에뮬레이터가 신호(segfault 등)로
+#   멈추는 순간의 스레드 스택. 2026-11-23 조사에서 얼음은 렌더 스레드 SIGSEGV 뒤 crash 처리 시간이었습니다.
 set -uo pipefail
 
 out="${1:?출력 디렉터리가 필요합니다}"
@@ -114,8 +116,28 @@ freeze_loop() {
   done
 }
 
+# 에뮬레이터에 gdb를 붙여 두고 신호를 받는 순간의 스택을 적습니다(E2E_GDB_WATCH=1일 때만).
+gdb_watch() {
+  local qpid
+  until command -v gdb >/dev/null; do sleep 2; done
+  until qpid="$(qemu_pid)" && [[ -n "$qpid" ]]; do sleep 2; done
+  echo "$(date -u +%H:%M:%S) gdb를 qemu pid $qpid에 붙입니다." >> "$out/e2e-freeze.log"
+  # 출력 파일은 runner 사용자 디렉터리라 sudo 밖에서 씁니다.
+  # shellcheck disable=SC2024
+  sudo gdb -p "$qpid" -batch \
+    -ex "set pagination off" \
+    -ex "handle SIGUSR1 SIGUSR2 SIGPIPE SIGALRM SIGCHLD SIGWINCH nostop noprint pass" \
+    -ex "continue" \
+    -ex "echo === 신호를 받은 스레드\\n" -ex "bt 60" \
+    -ex "echo === 모든 스레드\\n" -ex "thread apply all bt 12" \
+    > "$out/e2e-diag/qemu-crash-bt.txt" 2>&1
+}
+
 metrics_loop &
 threads_loop &
 freeze_loop &
+if [[ "${E2E_GDB_WATCH:-}" == 1 ]]; then
+  gdb_watch &
+fi
 trap 'kill $(jobs -p) 2>/dev/null' EXIT TERM
 wait

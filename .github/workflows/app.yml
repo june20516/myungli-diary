@@ -36,7 +36,8 @@ on:
         default: false
       # 에뮬레이터 진단(2026-11-23 glint 교착). 주면 e2e-android만 이 matrix로 돌고 다른 job은 건너뛴다.
       # 항목마다 variant(patrol_test/diag/glint_diag_test.dart의 GLINT_DIAG), api(시스템 이미지 API 수준),
-      # 같은 항목을 여러 번 돌릴 때 구분하는 rep(선택), 기기 애니메이션을 켜는 animations(선택, true).
+      # 같은 항목을 여러 번 돌릴 때 구분하는 rep(선택), 기기 애니메이션을 켜는 animations(선택, true),
+      # 에뮬레이터에 gdb를 붙이는 gdb(선택, true).
       e2e_diag_matrix:
         description: 'e2e 진단 matrix JSON. 예: [{"variant":"control","api":34}]. 비우면 일반 실행'
         type: string
@@ -314,6 +315,8 @@ jobs:
           script: tool/e2e_ci.sh ${{ matrix.variant && format('patrol_test/diag/glint_diag_test.dart --dart-define=GLINT_DIAG={0}', matrix.variant) || '' }}
         env:
           PATROL_ANALYTICS_ENABLED: "false"
+          # 진단 항목에 "gdb": true를 주면 에뮬레이터에 gdb를 붙여 신호 순간 스택을 받는다(tool/e2e_ci_monitor.sh).
+          E2E_GDB_WATCH: ${{ matrix.gdb && '1' || '' }}
       # 빌드가 캐시 키 밖의 NDK·CMake를 설치했으면 키가 낡은 것이다(README "NDK·CMake 캐시").
       - name: NDK·CMake 캐시 대상 확인
         if: always() && steps.android-native.outputs.key != ''
