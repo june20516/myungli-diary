@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+# CI(app.yml e2e-android)에서 에뮬레이터가 뜬 뒤 Patrol E2E를 fake 모드로 돌립니다. app/에서 실행합니다.
+#
+#   tool/e2e_ci.sh
+#
+# 로컬 실행은 tool/patrol_local.sh를 씁니다. 이 스크립트는 GitHub runner 전용입니다(sudo dmesg, ::error 표기).
+#
+# 2026-11-11부터 e2e가 job 상한 60분에서 cancelled로 끝났습니다. 2026-11-23 실행에서 테스트 중 에뮬레이터
+# 프로세스가 아무 출력 없이 사라졌고, patrol과 `adb logcat`이 기기를 끝없이 기다렸습니다. 그래서:
+# * patrol을 30분 timeout으로 감싸 넘으면(124) 실패로 끝냅니다.
+# * adb 호출도 timeout으로 감싸 기기가 없을 때 멈추지 않게 합니다.
+# * 에뮬레이터가 사라진 이유를 가리도록 30초마다 메모리와 에뮬레이터 생존을 build/e2e-mem.log에 적고,
+#   실패하면 커널 OOM 기록과 에뮬레이터 crash 기록(/tmp/android-runner)을 남깁니다.
+# 산출물: build/patrol.log, build/logcat-full.txt, build/e2e-mem.log, build/e2e-diag/.
+# Patrol 포트는 기본값(8081, 8082) 대신 47281, 47282로 고정합니다(app/CLAUDE.md와 같은 값).
+set -uo pipefail
+
+cd "$(dirname "$0")/.." || exit 3
+mkdir -p build/e2e-diag
+
+# 30초마다: 시각, 사용 중/전체 메모리(MB), 남은 메모리, 에뮬레이터(qemu) 프로세스 수.
+(
+  while :; do
+    mem="$(free -m | awk '/^Mem:/ {print $3 "/" $2 " avail " $7}')"
+    echo "$(date -u +%H:%M:%S) mem ${mem} qemu=$(pgrep -c qemu-system || true)"
+    sleep 30
+  done
+) > build/e2e-mem.log 2>&1 &
+sampler=$!
+trap 'kill "$sampler" 2>/dev/null' EXIT
+
+# 기기가 없어도 멈추지 않는 adb.
+adb_quick() {
+  timeout 60 adb "$@"
+}
+
+timeout -k 60 1800 patrol test -t patrol_test \
+  --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake \
+  --test-server-port 47281 --app-server-port 47282 \
+  --screenshots-output-dir build/e2e-native-screenshots > build/patrol.log 2>&1
+rc=$?
+
+if [[ "$rc" != 0 ]]; then
+  cat build/patrol.log
+  if [[ "$rc" == 124 ]]; then
+    echo "::error title=e2e 멈춤::patrol이 30분 안에 끝나지 않아 멈췄습니다. 위 로그의 마지막 테스트와 e2e-gradle-reports의 진단 기록을 봅니다"
+  fi
+  echo "--- instrumentation 결과, Patrol 요약에서 빠지는 프로세스 크래시 포함 ---"
+  tail -n 8 build/app/outputs/androidTest-results/connected/debug/*/testlog/test-results.log || true
+
+  echo "--- 에뮬레이터 상태 ---"
+  pgrep -a qemu-system || echo "에뮬레이터 프로세스가 없습니다."
+  adb_quick devices || true
+  echo "--- 커널 OOM 기록 ---"
+  sudo dmesg -T | grep -iE "out of memory|oom-kill|killed process" | tail -n 20 || echo "OOM 기록 없음"
+  echo "--- 메모리 기록 끝부분 ---"
+  tail -n 10 build/e2e-mem.log
+  cp -R /tmp/android-runner/. build/e2e-diag/ 2>/dev/null || true
+
+  adb_quick logcat -d > build/logcat-full.txt || echo "기기가 없어 logcat을 받지 못했습니다."
+  exit 1
+fi
+
+n=$(adb_quick logcat -d | grep -c "Destroy timeout of remove-task" || true)
+echo "remove-task destroy timeout=$n"
+if [[ "$n" != 0 ]]; then
+  echo "::warning title=e2e A100::테스트 뒤 Activity가 닫히지 않은 채 끝난 task가 $n개 있습니다. app/README.md 기기 E2E 실패 읽기"
+fi
