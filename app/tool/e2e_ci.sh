@@ -10,7 +10,7 @@
 # * patrol을 30분 timeout으로 감싸 넘으면(124) 실패로 끝내고, 에뮬레이터 프로세스가 사라지면 바로 끝냅니다.
 # * adb 호출도 timeout으로 감싸 기기가 없을 때 멈추지 않게 합니다.
 # * 에뮬레이터가 사라진 이유를 가리도록 30초마다 메모리와 에뮬레이터 생존을 build/e2e-mem.log에 적고,
-#   실패하면 커널 OOM 기록과 에뮬레이터 crash 기록(/tmp/android-runner)을 남깁니다.
+#   실패하면 호스트 kernel 로그(OOM, segfault)와 에뮬레이터 crash 기록(/tmp/android-runner)을 남깁니다.
 # 산출물: build/patrol.log, build/logcat-full.txt, build/e2e-mem.log, build/e2e-diag/.
 # Patrol 포트는 기본값(8081, 8082) 대신 47281, 47282로 고정합니다(app/CLAUDE.md와 같은 값).
 set -uo pipefail
@@ -79,6 +79,9 @@ if [[ "$rc" != 0 ]]; then
   adb_quick devices || true
   echo "--- 커널 OOM 기록 ---"
   sudo dmesg -T | grep -iE "out of memory|oom-kill|killed process" | tail -n 20 || echo "OOM 기록 없음"
+  # 에뮬레이터가 signal로 죽으면(segfault, trap 등) 호스트 kernel 로그에 qemu 줄이 남습니다.
+  echo "--- 호스트 kernel 로그 끝부분 ---"
+  sudo dmesg -T | tail -n 40
   echo "--- 메모리 기록 끝부분 ---"
   tail -n 10 build/e2e-mem.log
   cp -R /tmp/android-runner/. build/e2e-diag/ 2>/dev/null || true
