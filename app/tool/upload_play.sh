@@ -12,9 +12,13 @@
 # 인증은 서비스 계정 play-publisher(키 파일 없음)를 사용자 gcloud 계정이 impersonation으로
 # 씁니다. 토큰은 변수로만 다루고 출력하거나 파일에 쓰지 않습니다(D98).
 # 필요: gcloud(로그인한 사용자에게 play-publisher의 Service Account Token Creator 권한),
-#       bundletool(AAB의 versionCode 읽기), jq, curl.
+#       bundletool(AAB의 versionCode 읽기), jq, curl, unzip, git.
 # 출시 노트는 넣지 않습니다(문구가 정해지면 releaseNotes를 더함).
+# prod 설정으로 만든 AAB는 현재 브랜치가 main일 때만 올립니다(D141, tool/common/release_branch_guard.sh).
 set -euo pipefail
+
+# shellcheck source=common/release_branch_guard.sh
+source "$(dirname "$0")/common/release_branch_guard.sh"
 
 if [[ $# -lt 1 || $# -gt 3 ]]; then
   echo "사용: tool/upload_play.sh <aab> [track] [completed|draft]" >&2
@@ -33,9 +37,20 @@ api="https://androidpublisher.googleapis.com/androidpublisher/v3/applications/$p
 upload_api="https://androidpublisher.googleapis.com/upload/androidpublisher/v3/applications/$package"
 
 [[ -f "$aab" ]] || { echo "AAB가 없습니다: $aab" >&2; exit 2; }
-for tool in gcloud bundletool jq curl; do
+for tool in gcloud bundletool jq curl unzip git; do
   command -v "$tool" >/dev/null || { echo "${tool}이 없습니다." >&2; exit 3; }
 done
+
+# AAB의 Dart 바이너리로 빌드 설정을 가리고, prod면 main 브랜치인지 봅니다.
+dart_binary="$(mktemp)"
+unzip -p "$aab" base/lib/arm64-v8a/libapp.so >"$dart_binary" && [[ -s "$dart_binary" ]] || {
+  rm -f "$dart_binary"
+  echo "AAB에서 base/lib/arm64-v8a/libapp.so를 꺼내지 못했습니다: $aab" >&2
+  exit 1
+}
+build_env="$(require_main_for_prod_build "$dart_binary")" || { rm -f "$dart_binary"; exit 1; }
+rm -f "$dart_binary"
+echo "빌드 설정: $build_env"
 
 version_code="$(bundletool dump manifest --bundle "$aab" \
   --xpath /manifest/@android:versionCode)"

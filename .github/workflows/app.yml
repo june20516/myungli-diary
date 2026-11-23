@@ -2,15 +2,15 @@ name: app
 
 on:
   push:
-    branches: [main]
-    # main push는 app 소유 경로만 본다. 계약 경로(openapi·screens·tokens·components·slots·tools)는
+    branches: [staging]
+    # staging push는 app 소유 경로만 본다. 계약 경로(openapi·screens·tokens·components·slots·tools)는
     # ci-gate의 drift 판정이 맡으므로 여기에 두지 않는다(D73, workflow §6.1).
     paths:
       - "app/**"
       - ".github/workflows/app.yml"
-  # PR 검사는 ci-gate가 부른다(#85). push는 main 병합 뒤 기기 E2E만 돌리려고 남긴다.
-  # checks·goldens는 main push에서도 ci-gate가 한 번 돌리므로 이 push에서는 돌지 않는다(D81).
-  # 기기 E2E(e2e-android)는 PR에서 돌지 않고 main push, 매일 03:00 KST, 수동 실행에서만 돈다.
+  # PR 검사는 ci-gate가 부른다(#85). push는 staging 병합 뒤 기기 E2E만 돌리려고 남긴다.
+  # checks·goldens는 staging push에서도 ci-gate가 한 번 돌리므로 이 push에서는 돌지 않는다(D81).
+  # 기기 E2E(e2e-android)는 PR에서 돌지 않고 staging push, 매일 03:00 KST, 수동 실행에서만 돈다.
   schedule:
     - cron: "0 18 * * *"
   # ci-gate가 부르면 e2e-android는 돌지 않는다(판정에 넣지 않음). run_e2e로만 켤 수 있다.
@@ -42,7 +42,7 @@ permissions:
 
 jobs:
   checks:
-    # 직접 실행에서는 수동 실행만 돈다. main push는 ci-gate가 이미 돌리고, 밤 schedule은 e2e-android만 돈다(D81).
+    # 직접 실행에서는 수동 실행만 돈다. staging push는 ci-gate가 이미 돌리고, 밤 schedule은 e2e-android만 돈다(D81).
     # 재사용 호출이면 github.workflow가 호출 측 이름이다(e2e-android 주석).
     if: github.workflow != 'app' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
@@ -51,7 +51,7 @@ jobs:
     env:
       # own은 빠른 검사 전체, drift·gate는 계약을 읽는 검사만 돈다(D81). 직접 실행에는 mode 입력이 없어 own이다.
       # 계약 검사: 생성 코드 차이, ARB 문구, fixture 스키마, E2E 커버리지(IA), contract 태그 테스트.
-      # drift·gate에서 생성 코드가 commit된 것과 같으면 app 코드도 main과 같으므로 analyze는 own에만 둔다.
+      # drift·gate에서 생성 코드가 commit된 것과 같으면 app 코드도 PR 대상 브랜치(staging)와 같으므로 analyze는 own에만 둔다.
       OWN: ${{ (inputs.mode || 'own') == 'own' }}
       # 계약 PR의 깨짐은 위 검사가 잡고, Gradle 문제는 app/ 변경에서만 생기므로 own에서만 빌드한다.
       BUILD_APK: ${{ (inputs.mode || 'own') == 'own' && (github.workflow == 'app' || inputs.build_apk == true) }}
@@ -204,7 +204,7 @@ jobs:
           fi
 
   # 기기 E2E: Android 에뮬레이터에서 Patrol을 돈다. PR에서는 돌지 않는다(비용·시간).
-  # 재사용 호출(workflow_call)에서는 github.event_name이 호출 측 이벤트(ci-gate의 main push 등)라
+  # 재사용 호출(workflow_call)에서는 github.event_name이 호출 측 이벤트(ci-gate의 staging push 등)라
   # 이벤트만으로는 거를 수 없다. 호출되면 github.workflow가 호출 측 이름이 되므로, 직접 실행
   # (github.workflow == 'app')일 때만 이벤트로 켜고, 호출되면 run_e2e 입력으로만 켠다.
   e2e-android:
