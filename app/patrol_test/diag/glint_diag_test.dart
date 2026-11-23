@@ -17,6 +17,8 @@
 // * sheet: 흐림 바탕 없는 화면에서 실제 시트(showMyungliSheet)를 열고 그 안에 control.
 // * sheet-backdrop: 흐림 바탕이 있는 화면에서 시트를 열고 그 안에 control.
 // * sheet-backdrop-noglint: 위와 같고 시트 안은 반짝임 없는 글자.
+// * real-noclip, real-noopacity, real-nophysical, real-noshadow:
+//   real에서 층 범주 하나를 끔([_setLayerSwitches]).
 // * real: me_test 앞부분(앱 실행 → 나의 사주 → 사주 표 → 용어 → 열린 풀이 시트)을 그대로 밟음
 //   (양성 대조군. CI에서 교착이 재현되던 흐름). real-mysaju, real-chart, real-today는 그 흐름을
 //   중간에서 멈추거나 다른 화면에서 같은 시트를 엽니다([_openReal]). 앱의 동작 설정은 기기를 따르므로, CI 기본(기기
@@ -27,6 +29,7 @@
 // Flutter가 AnimationController 시간을 줄여 띠가 아주 짧게 지나가므로, 띠 확인이 필요한 합성
 // 변형은 matrix에서 animations: true로 돌립니다.
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart' show expect, find, isTrue;
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
@@ -69,6 +72,7 @@ void main() {
     'glint 진단 변형 "$_variant": 반짝임을 ${_hold.inSeconds}초 띄워도 에뮬레이터가 살아 있음',
     skip: _variant.isEmpty,
     ($) async {
+      _setLayerSwitches(on: true);
       if (_variant.startsWith('real')) {
         await _openReal($, _variant);
       } else {
@@ -102,9 +106,25 @@ void main() {
             .whereType<RenderUnlockGlint>()
             .any((render) => render.glinting);
       }
+      // Flutter는 테스트 끝에 그리기 debug 스위치가 꺼져 있는지 봅니다.
+      _setLayerSwitches(on: false);
       if (_glintVariants.contains(_variant)) expect(sawGlint, isTrue);
     },
   );
+}
+
+/// real-no* 변형이면 real 흐름에서 Flutter 그리기 debug 스위치로 층 범주 하나를 끕니다.
+/// 끈 뒤 교착이 사라지는 범주가 원인 범주입니다(앱 코드는 그대로).
+///
+/// * real-noclip: 클립 층(`debugDisableClipLayers`).
+/// * real-noopacity: 투명도 층(`debugDisableOpacityLayers`).
+/// * real-nophysical: 물리 모양 층(`debugDisablePhysicalShapeLayers`).
+/// * real-noshadow: 상자 그림자(`debugDisableShadows`).
+void _setLayerSwitches({required bool on}) {
+  debugDisableClipLayers = on && _variant == 'real-noclip';
+  debugDisableOpacityLayers = on && _variant == 'real-noopacity';
+  debugDisablePhysicalShapeLayers = on && _variant == 'real-nophysical';
+  debugDisableShadows = on && _variant == 'real-noshadow';
 }
 
 /// 실제 앱 흐름 변형. 모두 fake 시나리오 evidence-unlocked로 띄웁니다.
@@ -113,7 +133,8 @@ void main() {
 /// * real-mysaju: 나의 사주 화면까지.
 /// * real-chart: 사주 표 화면까지(시트 없음).
 /// * real-today: 오늘 화면의 첫 용어 → 열린 풀이 시트(사주 표 없음).
-Future<void> _openReal(PatrolIntegrationTester $, String variant) async {
+Future<void> _openReal(PatrolIntegrationTester $, String name) async {
+  final variant = name.startsWith('real-no') ? 'real' : name;
   await launchApp(
     $,
     flow: 'diag',
