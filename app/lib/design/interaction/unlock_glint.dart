@@ -410,12 +410,46 @@ class RenderUnlockGlint extends RenderProxyBox {
     final progress = InteractionPattern.unlockGlint.curve.transform(
       _sweep.value,
     );
+    // 바탕([UnlockGlintBackdrop])은 띠 층 아래에 띠 없이 먼저 그리고, 띠 층 안에서는 건너뜁니다.
+    // 띠(srcATop)는 층 안 불투명 픽셀을 모두 칠하므로, 바탕이 층 안에 있으면 바탕과 그 위 글자가
+    // 같은 띠 색이 되어 글자가 읽히지 않습니다(app A154). 이렇게 하면 띠는 글자 모양 안에만 듭니다.
+    final backdrops = _backdrops();
+    for (final backdrop in backdrops) {
+      final canvas = context.canvas
+        ..save()
+        ..translate(offset.dx, offset.dy)
+        ..transform(backdrop.getTransformTo(this).storage);
+      backdrop.paintBackdrop(canvas, Offset.zero);
+      canvas.restore();
+    }
     final mask = ((layer as ShaderMaskLayer?) ?? ShaderMaskLayer())
       ..shader = unlockGlintShader(size, progress, _colors, _stops)
       ..maskRect = offset & size
       ..blendMode = BlendMode.srcATop;
     layer = mask;
-    context.pushLayer(mask, super.paint, offset);
+    for (final backdrop in backdrops) {
+      backdrop._skipBackdrop = true;
+    }
+    try {
+      context.pushLayer(mask, super.paint, offset);
+    } finally {
+      for (final backdrop in backdrops) {
+        backdrop._skipBackdrop = false;
+      }
+    }
+  }
+
+  /// [child] 아래의 바탕 표시([UnlockGlintBackdrop]). 다른 띠 아래로는 내려가지 않습니다.
+  List<RenderUnlockGlintBackdrop> _backdrops() {
+    final found = <RenderUnlockGlintBackdrop>[];
+    void visit(RenderObject node) {
+      if (node is RenderUnlockGlint) return;
+      if (node is RenderUnlockGlintBackdrop && node.hasSize) found.add(node);
+      node.visitChildren(visit);
+    }
+
+    visitChildren(visit);
+    return found;
   }
 }
 
@@ -491,3 +525,76 @@ ui.Shader unlockGlintShader(
 
 /// 띠 양 끝에서 투명에서 띠 색으로 이어지는 몫.
 const double _edge = 0.2;
+
+/// 위 [UnlockGlint] 띠가 칠하지 않는 바탕. 문장 안 용어 칩(`term-token`)처럼 글자 뒤에 바탕을
+/// 깐 요소에 씁니다([DecoratedBox] 대신). 띠가 지나는 동안 [decoration]은 띠 층 아래에 원래 색으로
+/// 그리고, [child](칩 글자)는 다른 글자처럼 띠가 칠합니다(`unlock.glint` base, app A154).
+/// 띠 밖에서는 [DecoratedBox]와 같습니다.
+class UnlockGlintBackdrop extends SingleChildRenderObjectWidget {
+  /// [decoration]을 [child] 뒤에 깝니다.
+  const new({required this.decoration, super.child, super.key});
+
+  /// 바탕(색, 모서리, 테두리).
+  final Decoration decoration;
+
+  @override
+  RenderUnlockGlintBackdrop createRenderObject(BuildContext context) =>
+      RenderUnlockGlintBackdrop(
+        decoration: decoration,
+        configuration: createLocalImageConfiguration(context),
+      );
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    RenderUnlockGlintBackdrop renderObject,
+  ) {
+    renderObject
+      ..decoration = decoration
+      ..configuration = createLocalImageConfiguration(context);
+  }
+}
+
+/// [UnlockGlintBackdrop]의 render object. 위 [RenderUnlockGlint]가 띠를 그리는 동안 바탕을
+/// 띠 층 밖에서 그리게 합니다.
+class RenderUnlockGlintBackdrop extends RenderDecoratedBox {
+  /// [decoration]을 바탕으로 그립니다.
+  new({required super.decoration, super.configuration});
+
+  /// 띠 층 안에서 그리는 중이면 바탕을 건너뜁니다(위 [RenderUnlockGlint]가 켜고 끔).
+  bool _skipBackdrop = false;
+
+  BoxPainter? _backdropPainter;
+
+  /// 바탕만 [offset]에 그립니다.
+  void paintBackdrop(Canvas canvas, Offset offset) {
+    (_backdropPainter ??= decoration.createBoxPainter(
+      markNeedsPaint,
+    )).paint(canvas, offset, configuration.copyWith(size: size));
+  }
+
+  @override
+  set decoration(Decoration value) {
+    if (value != decoration) {
+      _backdropPainter?.dispose();
+      _backdropPainter = null;
+    }
+    super.decoration = value;
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    if (!_skipBackdrop) {
+      super.paint(context, offset);
+      return;
+    }
+    final child = this.child;
+    if (child != null) context.paintChild(child, offset);
+  }
+
+  @override
+  void dispose() {
+    _backdropPainter?.dispose();
+    super.dispose();
+  }
+}

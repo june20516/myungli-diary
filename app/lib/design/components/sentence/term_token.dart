@@ -4,6 +4,7 @@ import 'package:myungli_diary/design/components/component_spec.dart';
 import 'package:myungli_diary/design/components/sentence/press_ink_target.dart';
 import 'package:myungli_diary/design/components/sentence/vertical_hit_slop.dart';
 import 'package:myungli_diary/design/elements/open_ring.dart';
+import 'package:myungli_diary/design/interaction/unlock_glint.dart';
 import 'package:myungli_diary/design/text/keep_all.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:myungli_diary/design/tokens/gen/tokens.g.dart';
@@ -97,7 +98,9 @@ class TermToken extends StatelessWidget {
       onTap: state.onTap,
       borderRadius: radius,
       inkColor: colors.termFg,
-      child: DecoratedBox(
+      // 열린 문장의 반짝임 띠가 칩 바탕을 칠하지 않고 글자에만 들게 바탕을 띠에 알립니다
+      // (`unlock.glint` base, app A154). 띠 밖에서는 DecoratedBox와 같습니다.
+      child: UnlockGlintBackdrop(
         decoration: BoxDecoration(
           color: colors.termBg,
           borderRadius: radius,
