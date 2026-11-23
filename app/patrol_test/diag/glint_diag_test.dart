@@ -13,14 +13,28 @@
 // * mask-static: ShaderMask srcATop, 띠를 움직이지 않음(한 번만 그림).
 // * foreground: 층 없이 글자 칠(TextStyle.foreground)에 띠 shader, 매 프레임 띠 이동.
 // * plain: shader 없이 글자색만 매 프레임 바꿈(애니메이션 자체의 기준).
+// * backdrop: control 위 아래쪽에 탭 바와 같은 흐림 바탕(FrameSurface, BackdropFilter)을 겹침.
+// * sheet: 흐림 바탕 없는 화면에서 실제 시트(showMyungliSheet)를 열고 그 안에 control.
+// * sheet-backdrop: 흐림 바탕이 있는 화면에서 시트를 열고 그 안에 control.
+// * sheet-backdrop-noglint: 위와 같고 시트 안은 반짝임 없는 글자.
+// * real: me_test 앞부분(앱 실행 → 나의 사주 → 사주 표 → 용어 → 열린 풀이 시트)을 그대로 밟음
+//   (양성 대조군. CI에서 교착이 재현되던 흐름).
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart' show expect, isTrue;
+import 'package:flutter_test/flutter_test.dart' show expect, find, isTrue;
+import 'package:myungli_diary/core/ia/gen/ia.g.dart';
+import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/frame/frame_surface.dart';
+import 'package:myungli_diary/design/components/frame/section_header.dart';
+import 'package:myungli_diary/design/components/frame/sheet.dart';
+import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/interaction/unlock_glint.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 import 'package:patrol/patrol.dart';
+
+import '../support/e2e_app.dart';
 
 const _variant = String.fromEnvironment('GLINT_DIAG');
 
@@ -40,26 +54,44 @@ const _normalMotion = MotionPrefs(
   lowEnd: false,
 );
 
+/// 반짝임이 들어간 변형. 띠가 실제로 지나갔는지 봅니다(박자가 멈춰 있으면 진단이 헛돕니다).
+const _glintVariants = {
+  'control',
+  'backdrop',
+  'sheet',
+  'sheet-backdrop',
+  'real',
+};
+
 void main() {
   patrolTest(
     'glint 진단 변형 "$_variant": 반짝임을 ${_hold.inSeconds}초 띄워도 에뮬레이터가 살아 있음',
     skip: _variant.isEmpty,
     ($) async {
-      await $.pumpWidget(
-        MaterialApp(
-          theme: buildTheme(
-            brightness: Brightness.light,
+      if (_variant == 'real') {
+        await _openRealExplainSheet($);
+      } else {
+        await $.pumpWidget(
+          MaterialApp(
             locale: const Locale('ko'),
-          ),
-          home: const Scaffold(
-            body: MotionPrefsScope(
-              prefs: _normalMotion,
-              child: SafeArea(child: _DiagBody(variant: _variant)),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            theme: buildTheme(
+              brightness: Brightness.light,
+              locale: const Locale('ko'),
+            ),
+            home: const Scaffold(
+              body: MotionPrefsScope(
+                prefs: _normalMotion,
+                child: SafeArea(child: _DiagBody(variant: _variant)),
+              ),
             ),
           ),
-        ),
-      );
-      // 대조군은 띠가 실제로 지나갔는지 봅니다(박자가 멈춰 있으면 진단이 헛돕니다).
+        );
+        if (_variant.startsWith('sheet')) {
+          await $(find.byKey(const ValueKey('diag-open-sheet'))).tap();
+        }
+      }
       var sawGlint = false;
       final end = DateTime.now().add(_hold);
       while (DateTime.now().isBefore(end)) {
@@ -69,9 +101,45 @@ void main() {
             .whereType<RenderUnlockGlint>()
             .any((render) => render.glinting);
       }
-      if (_variant == 'control') expect(sawGlint, isTrue);
+      if (_glintVariants.contains(_variant)) expect(sawGlint, isTrue);
     },
   );
+}
+
+/// me_test 앞부분: 나의 사주 → 사주 표(원국) → 표 안 용어 → 열린 풀이 시트.
+Future<void> _openRealExplainSheet(PatrolIntegrationTester $) async {
+  await launchApp(
+    $,
+    flow: 'me',
+    scenario: 'evidence-unlocked',
+    deviceLocale: const Locale('ko', 'KR'),
+  );
+  await waitForScreen($, ScreenIds.today);
+  await $(find.byKey(const ValueKey('tab-bar.tab.3'))).tap();
+  await expectScreen($, ScreenIds.mySaju);
+  final mySaju = find.byKey(const ValueKey(ScreenIds.mySaju));
+  final l10n = AppLocalizations.of($.tester.element(mySaju.first));
+  final chartLink = find.descendant(
+    of: mySaju,
+    matching: find.descendant(
+      of: find.byType(SectionHeader),
+      matching: find.text(l10n.mySajuChartLink),
+    ),
+  );
+  await $(chartLink).scrollTo();
+  await $(chartLink).tap();
+  await expectScreen($, ScreenIds.sajuChart);
+  final term = $(
+    find
+        .descendant(
+          of: find.byKey(const ValueKey(ScreenIds.sajuChart)),
+          matching: find.byType(TermToken),
+        )
+        .first,
+  );
+  await term.waitUntilVisible();
+  await term.tap();
+  await expectScreen($, ScreenIds.explainSheet);
 }
 
 /// [variant]대로 대상 [_paragraphs]개와 칩 바탕 하나를 그립니다.
@@ -95,7 +163,12 @@ class _DiagBodyState extends State<_DiagBody>
   @override
   void initState() {
     super.initState();
-    if (widget.variant != 'control' && widget.variant != 'mask-static') {
+    if (const {
+      'mask-srcatop',
+      'mask-srcin',
+      'foreground',
+      'plain',
+    }.contains(widget.variant)) {
       _sweep.repeat();
     }
   }
@@ -132,9 +205,58 @@ class _DiagBodyState extends State<_DiagBody>
       ),
     ];
     final list = SingleChildScrollView(child: Column(children: targets));
-    if (widget.variant == 'control') return UnlockGlintScope(child: list);
+    switch (widget.variant) {
+      case 'control':
+        return UnlockGlintScope(child: list);
+      case 'backdrop':
+        return _withBackdrop(UnlockGlintScope(child: list));
+      case 'sheet' || 'sheet-backdrop' || 'sheet-backdrop-noglint':
+        final page = Center(
+          child: Builder(
+            builder: (context) => TextButton(
+              key: const ValueKey('diag-open-sheet'),
+              onPressed: () => showMyungliSheet<void>(
+                context,
+                size: SheetSize.half,
+                builder: (_) => widget.variant == 'sheet-backdrop-noglint'
+                    ? SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            for (var i = 0; i < _paragraphs; i++)
+                              const Padding(
+                                padding: EdgeInsets.all(8),
+                                child: Text(_text),
+                              ),
+                          ],
+                        ),
+                      )
+                    : UnlockGlintScope(child: list),
+              ),
+              child: const Text('시트 열기'),
+            ),
+          ),
+        );
+        return widget.variant == 'sheet' ? page : _withBackdrop(page);
+    }
     return list;
   }
+
+  /// [child] 아래쪽에 탭 바처럼 흐림 바탕을 겹칩니다(뒤 내용이 바뀌면 흐림도 다시 그림).
+  Widget _withBackdrop(Widget child) => Stack(
+    children: [
+      Positioned.fill(child: child),
+      const Positioned(
+        left: 0,
+        right: 0,
+        bottom: 0,
+        height: 160,
+        child: FrameSurface(
+          surfaceKey: ValueKey('diag-frame-surface'),
+          child: SizedBox.expand(),
+        ),
+      ),
+    ],
+  );
 
   /// 대상 하나를 변형의 연산으로 감쌉니다.
   Widget _target(BuildContext context, Widget child) {
@@ -146,8 +268,10 @@ class _DiagBodyState extends State<_DiagBody>
       gradient.stops,
     );
     switch (widget.variant) {
-      case 'control':
+      case 'control' || 'backdrop' || 'sheet' || 'sheet-backdrop':
         return UnlockGlint(child: child);
+      case 'sheet-backdrop-noglint':
+        return child;
       case 'mask-srcatop':
       case 'mask-srcin':
       case 'mask-static':
