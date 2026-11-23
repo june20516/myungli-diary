@@ -201,9 +201,11 @@ Future<void> _openReal(PatrolIntegrationTester $, String name) async {
 
 /// [scope] 안 첫 용어를 눌러 열린 풀이 시트를 엽니다.
 Future<void> _tapFirstTerm(PatrolIntegrationTester $, Finder scope) async {
-  final term = $(
-    find.descendant(of: scope, matching: find.byType(TermToken)).first,
-  );
+  final terms = find.descendant(of: scope, matching: find.byType(TermToken));
+  // `.first`를 붙인 finder는 대상이 없으면 다시 시도하지 않고 바로 실패하므로, 화면이 그려지고
+  // 용어가 생길 때까지 먼저 기다립니다.
+  await waitUntil($, () => terms.evaluate().isNotEmpty);
+  final term = $(terms.first);
   // 아래에 깔린 화면의 스크롤 영역이 아니라 [scope] 안 스크롤 영역을 굴립니다.
   await term.scrollTo(
     view: find.descendant(of: scope, matching: find.byType(Scrollable)).first,
