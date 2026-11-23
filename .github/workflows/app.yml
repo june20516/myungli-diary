@@ -293,11 +293,12 @@ jobs:
           target: google_apis
           profile: pixel_6
           disable-animations: true
-          # GPU는 swangle_indirect(ANGLE 위 SwiftShader)를 쓴다. 액션 기본값 swiftshader_indirect에서는
-          # 열린 근거 시트의 unlock.glint가 도는 동안 에뮬레이터 호스트 렌더러가 확률적으로 기록 없이 죽었다
-          # (2026-11-11~23, 기기 kernel panic, OOM, 호스트 segfault 기록 없음). -show-kernel은 기기 kernel
-          # 로그를 job 로그에 남기는 진단이다.
-          emulator-options: -no-window -gpu swangle_indirect -no-snapshot -noaudio -no-boot-anim -show-kernel
+          # 기기 Vulkan을 끈다(-feature -Vulkan). CI 에뮬레이터는 SwiftShader Vulkan을 기기에 노출해 Flutter
+          # Impeller가 Vulkan으로 그리는데, 이 경로에서 열린 근거 시트의 unlock.glint가 도는 동안 에뮬레이터가
+          # 확률적으로 기록 없이 죽었다(2026-11-11~23, 기기 kernel panic, OOM, 호스트 segfault 기록 없음,
+          # swangle_indirect에서는 첫 화면에서 죽음). 로컬 Mac 에뮬레이터처럼 OpenGLES로 그리게 한다.
+          # 렌더링 백엔드는 E2E 검사 대상이 아니다. -show-kernel은 기기 kernel 로그를 job 로그에 남기는 진단이다.
+          emulator-options: -no-window -gpu swiftshader_indirect -feature -Vulkan -no-snapshot -noaudio -no-boot-anim -show-kernel
           working-directory: app
           # 실행, 30분 timeout, 실패 때 진단(메모리, OOM, 에뮬레이터 생존, logcat)은 스크립트 머리말에 있다.
           script: tool/e2e_ci.sh
@@ -346,6 +347,7 @@ jobs:
             app/build/app/reports/androidTests/**
             app/build/app/outputs/androidTest-results/**
             app/build/logcat-full.txt
+            app/build/logcat-stream.txt
             app/build/e2e-mem.log
             app/build/e2e-diag/**
           if-no-files-found: warn

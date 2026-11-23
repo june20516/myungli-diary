@@ -11,7 +11,7 @@
 # * adb 호출도 timeout으로 감싸 기기가 없을 때 멈추지 않게 합니다.
 # * 에뮬레이터가 사라진 이유를 가리도록 30초마다 메모리와 에뮬레이터 생존을 build/e2e-mem.log에 적고,
 #   실패하면 호스트 kernel 로그(OOM, segfault)와 에뮬레이터 crash 기록(/tmp/android-runner)을 남깁니다.
-# 산출물: build/patrol.log, build/logcat-full.txt, build/e2e-mem.log, build/e2e-diag/.
+# 산출물: build/patrol.log, build/logcat-full.txt, build/logcat-stream.txt, build/e2e-mem.log, build/e2e-diag/.
 # Patrol 포트는 기본값(8081, 8082) 대신 47281, 47282로 고정합니다(app/CLAUDE.md와 같은 값).
 set -uo pipefail
 
@@ -27,7 +27,11 @@ mkdir -p build/e2e-diag
   done
 ) > build/e2e-mem.log 2>&1 &
 sampler=$!
-trap 'kill "$sampler" 2>/dev/null' EXIT
+# 테스트 내내 기기 logcat을 파일로 받습니다. 에뮬레이터가 사라져도 그 직전까지 남고, 앱이 쓰는
+# 렌더링 백엔드 줄(Impeller Vulkan 또는 OpenGLES)도 여기에 남습니다.
+adb logcat -v threadtime > build/logcat-stream.txt 2>&1 &
+logcat_pid=$!
+trap 'kill "$sampler" "$logcat_pid" 2>/dev/null' EXIT
 
 # 기기가 없어도 멈추지 않는 adb.
 adb_quick() {
@@ -63,6 +67,9 @@ rc=$?
 if [[ "$emulator_gone" == true && "$rc" == 0 ]]; then
   rc=1
 fi
+
+echo "--- 앱 렌더링 백엔드 ---"
+grep -m 3 "rendering backend" build/logcat-stream.txt || echo "기록 없음"
 
 if [[ "$rc" != 0 ]]; then
   cat build/patrol.log
