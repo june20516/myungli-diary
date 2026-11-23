@@ -30,7 +30,7 @@
 | 변형 | 엔진 `DayKind` | 배지 |
 | --- | --- | --- |
 | `good` | `YONGSIN_DAY` | `badge.good.*` 채움 |
-| `gwiin` | `GWIIN_DAY` | `badge.gwiin.*` 옅은 coral |
+| `gwiin` | `GWIIN_DAY` | `badge.gwiin.*` 옅은 gold |
 | `gisin` | `GISIN_DAY` | `badge.gisin.*` neutral 채움 |
 | `ordinary` | `ORDINARY_DAY` | 바탕 없음, 1px `badge.ordinary.border` |
 

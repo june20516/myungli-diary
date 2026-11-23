@@ -1,6 +1,6 @@
 # 명리일기 디자인 토큰
 
-계약 버전: 1.10.0
+계약 버전: 1.11.0
 
 * 제공: design / 사용: app (계약 목록 `docs/contracts/README.md`)
 * 근거: [V1 spec](../specs/2026-10-11-design-tokens-design.md), [V2 spec](../specs/2026-10-11-components-design.md) §5, 결정 V8~V13·V42·V57·V58·V67·V74·V84·V86·V93·V102([`../decisions.md`](../decisions.md)), [같은 날 여러 편 spec](../specs/2026-10-22-diary-row-multi-design.md) §5(1.2.0), [DS1 규칙 spec](../specs/2026-11-05-ds1-rules-design.md) §8(1.3.0), [DS1 화면 spec](../specs/2026-11-05-ds1-screens-design.md) §3(1.4.0), 결정 V98(1.5.0, 오행 금과 수), 사람이 읽는 기준은 [`../visual-identity.md`](../visual-identity.md)
@@ -12,7 +12,7 @@
 
 | 파일 | 담는 것 |
 | --- | --- |
-| `primitive.tokens.json` | 모드와 무관한 값. 원시 팔레트 `color.sage.*`·`color.coral.*`·`color.neutral.*`, `color.white`, 오행 견본 `color.ohaeng.<오행>.swatch`, 간격 `space.*`, 반경 `radius.*`, 움직임 시간 `motion.duration.*`·곡선 `motion.easing.*`, 그림자 `shadow.*` |
+| `primitive.tokens.json` | 모드와 무관한 값. 원시 팔레트 `color.sage.*`·`color.coral.*`·`color.gold.*`(1.11.0)·`color.neutral.*`, `color.white`, 오행 견본 `color.ohaeng.<오행>.swatch`, 간격 `space.*`, 반경 `radius.*`, 움직임 시간 `motion.duration.*`·곡선 `motion.easing.*`, 그림자 `shadow.*` |
 | `color.light.tokens.json` | 의미 역할 `color.*`(라이트: 바탕·글자·버튼·배지·달력·토스트·비활성·도장·태그·상태 꼬리표·덮개·탭 바·skeleton 등), 오행 바탕·글자 `color.ohaeng.<오행>.bg/.fg`, 간지 태그 한자색 `color.ohaeng.<오행>.glyph`, 금과 수 칸 테두리 `color.ohaeng.metal.border`·`water.border`, 그라데이션 `gradient.today` |
 | `color.dark.tokens.json` | 위와 같은 이름, 다크 값 |
 | `typography.tokens.json` | 글꼴 묶음 `font.family.*`, 글자 스타일 `type.*` (한국어·영어) |
@@ -92,6 +92,7 @@
 | 1.9.0 | 2026-11-12 | 값 변경(글자 두 파일만): Pretendard JP가 든 글꼴 묶음(ko `font.family.hanja`, ja `sentence`, `ui`, `hanja`)마다 Pretendard JP 바로 뒤에 `Myungli Hanja Supplement`를 더함. Pretendard JP에 없는 한자(지금 괴강 魁罡의 罡 하나)만 Noto Sans JP에서 떼어 낸 부분 글꼴이고, 파일은 `fonts/hanja-supplement/`(굵기 넷, OFL), 만드는 도구와 덮임 검사는 `tools/hanja_supplement.py`입니다(#1029, 결정 V121). 기존 토큰은 그대로 |
 | 1.8.0 | 2026-11-11 | 추가(색 두 파일만): `color.time.day`(라이트 #b8811a, 다크 #dea645 토 견본 노랑), `color.time.night`(라이트 #355a8f, 다크 #8fa9d1). 집중 시간 낮, 밤 칩 앞 채운 해와 달 아이콘(#1003, D122, 결정 V115). 토 견본 노랑은 흰 칩 위 2.2:1, 수 견본 먹남은 다크 칩 위 1.2:1이라 모드별 값을 둡니다. 칩 바탕(`bg.sheet`) 위 비텍스트 대비 3:1 이상(라이트 3.39, 6.98, 다크 6.51, 5.91), `palette.py --check`의 아이콘 기준. 기존 토큰은 그대로 |
 | 1.10.0 | 2026-11-13 | 추가(primitive만): `motion.duration.glint` 2600ms. 열린 근거 반짝임 `unlock.glint`의 지나감 시간을 `breathe`(1800, 뼈 숨쉬기)에서 떼어 전용으로 둠(#1141, 결정 V131). 추가만이라 부 버전 |
+| 1.11.0 | 2026-11-23 | 길(좋은 기운)에서 붉은 계열을 빼고 금빛으로, 유료 열림은 자색으로(#1294, D142, 결정 V136). **추가**(primitive): 원시 팔레트 `color.gold.50`~`900`(hue 75, 최대 채도 0.11). **값 바뀜**(색 두 파일): `color.badge.good.bg`, `color.badge.gwiin.bg`·`fg`, `color.tag.good.bg`·`fg`, `color.calendar.good.bg`가 같은 단계의 `color.coral.*`에서 `color.gold.*`로, `color.calendar.level.great`·`good`이 금빛(라이트 #ffe6c5, #fff0dc, 다크 #4d3201, #413626, 맑은 두 단계 규칙 그대로), 그 끝 색을 쓰는 `color.verdict.track`, `gradient.unlocked` 가운데 색이 금빛에서 자색(라이트 #7a5b9c, 다크 #cdadf4, 명도와 채도 그대로)과 설명. sage와 짝인 `gradient.today`, 열림 그라데이션 양 끝, `color.coral.*`는 그대로. 이름은 그대로이고 추가가 있어 부 버전 |
 
 주 버전 변경은 `docs/workflow.md` §5.1을 따릅니다. 순서는 `kind:notice` Issue로 공지 → 버전 올림 → app 대응 보고 뒤 이전 이름 제거입니다.
 

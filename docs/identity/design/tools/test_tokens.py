@@ -1,4 +1,6 @@
 """토큰 생성기와 토큰 파일 테스트 (V1 spec §4~§7)."""
+import json
+import math
 import pathlib
 import sys
 
@@ -8,7 +10,7 @@ sys.path.insert(0, str(TOOLS_DIR))
 from dtcg import find_problems, flatten, resolve  # noqa: E402
 from palette import (  # noqa: E402
     CLEAR_LEVEL_MODES, MAX_CAUTION_CHROMA, MAX_GREAT_GOOD_LIGHTNESS_GAP, MIN_GREAT_GOOD_CHROMA_GAP, MIN_LEVEL_DISTANCE, MIN_TEXT_CONTRAST, build_palette,
-    contrast_ratio, oklab_distance, oklch_lightness_chroma)
+    contrast_ratio, hex_to_oklab, oklab_distance, oklch_lightness_chroma)
 from tokens import TOKENS_DIR, build_token_files, color_value, reference_or_value, serialize  # noqa: E402
 
 FILES = ["primitive.tokens.json", "color.light.tokens.json", "color.dark.tokens.json",
@@ -130,7 +132,7 @@ def test_typography_values():
 
 def test_readme_states_version_and_lists_files():
     readme = (TOKENS_DIR / "README.md").read_text(encoding="utf-8")
-    assert "계약 버전: 1.10.0" in readme
+    assert "계약 버전: 1.11.0" in readme
     for name in FILES:
         assert name in readme
 
@@ -203,10 +205,19 @@ TOKENS_1_3_0_ADDED = {
 }
 
 
+def _tokens_1_10_0():
+    """1.11.0(결정 V136) 바로 전 판. 옛 판의 "추가만" 검사는 이 판과 대조하고, 1.10.0 → 지금은
+    test_tokens_1_11_0_fortune_gold_paid_violet이 검사합니다. 글자 두 파일은 1.11.0에서 바뀌지 않아 지금 생성값을 씁니다."""
+    files = build_token_files()
+    for name in ("primitive", "color.light", "color.dark"):
+        files[f"{name}.tokens.json"] = json.loads((TOOLS_DIR / "fixtures" / f"{name}-1.10.0.tokens.json").read_text(encoding="utf-8"))
+    return files
+
+
 def test_tokens_1_3_0_additions_only():
     import json
     before = flatten(json.loads((TOOLS_DIR / "fixtures" / "primitive-1.2.0.tokens.json").read_text(encoding="utf-8")))
-    after = flatten(build_token_files()["primitive.tokens.json"])
+    after = flatten(_tokens_1_10_0()["primitive.tokens.json"])
 
     for name, token in before.items():
         if name in TOKENS_1_5_0_CHANGED:  # 1.5.0에서 값만 바뀜(아래 test_tokens_1_5_0이 검사)
@@ -226,7 +237,7 @@ TOKENS_1_5_0_ADDED_COLOR = (
 
 
 def test_tokens_1_5_0_changes_only_metal_and_water():
-    files = build_token_files()
+    files = _tokens_1_10_0()
     palette_ohaeng = build_palette()["ohaeng"]
     pairs = [("primitive.tokens.json", "primitive-1.4.0.tokens.json")]
     pairs += [(f"color.{mode}.tokens.json", f"color.{mode}-1.4.0.tokens.json") for mode in ("light", "dark")]
@@ -267,7 +278,7 @@ TOKENS_1_10_0_ADDED = {"motion.duration.glint"}  # primitive 추가(#1141, V131)
 
 def test_tokens_1_8_0_adds_only_time_icons():
     from palette import build_palette, contrast_ratio
-    files = build_token_files()
+    files = _tokens_1_10_0()
     roles = build_palette()["roles"]
     for current, frozen in [("primitive.tokens.json", "primitive-1.7.0.tokens.json")] + [
             (f"color.{mode}.tokens.json", f"color.{mode}-1.7.0.tokens.json") for mode in ("light", "dark")]:
@@ -288,11 +299,12 @@ def test_tokens_1_8_0_adds_only_time_icons():
 
 # 1.7.0 (#950, D118, 결정 V111): 열린 근거 표시 그라데이션 gradient.unlocked 추가만
 TOKENS_1_7_0_ADDED = {"gradient.unlocked"}
+UNLOCKED_1_7_0 = {"light": ["#47634c", "#8b640f", "#a75c53"], "dark": ["#96b49b", "#e1b66c", "#d79990"]}
 
 
 def test_tokens_1_7_0_adds_only_unlocked_gradient():
     from palette import build_palette
-    files = build_token_files()
+    files = _tokens_1_10_0()
     palette = build_palette()
     for current, frozen in [("primitive.tokens.json", "primitive-1.6.0.tokens.json")] + [
             (f"color.{mode}.tokens.json", f"color.{mode}-1.6.0.tokens.json") for mode in ("light", "dark")]:
@@ -304,11 +316,11 @@ def test_tokens_1_7_0_adds_only_unlocked_gradient():
     for mode in ("light", "dark"):
         token = flatten(files[f"color.{mode}.tokens.json"])["gradient.unlocked"]
         assert token["$type"] == "gradient"
-        assert [stop["color"]["hex"] for stop in token["$value"]] == palette["unlocked"][mode]
+        assert [stop["color"]["hex"] for stop in token["$value"]] == UNLOCKED_1_7_0[mode]
         assert [stop["position"] for stop in token["$value"]] == [0.0, 0.5, 1.0]
         assert token["$extensions"] == {"io.github.june20516.myungli-diary": {"angle": 90}}
     brand = palette["brand"]
-    # 세이지와 산호 끝은 브랜드 단계, 가운데만 금빛
+    # 세이지와 산호 끝은 브랜드 단계, 가운데만 OKLCH 값(1.7.0 금빛, 1.11.0부터 자색)
     assert palette["unlocked"]["light"][0] == brand["sage"][700] and palette["unlocked"]["light"][2] == brand["coral"][600]
     assert palette["unlocked"]["dark"][0] == brand["sage"][400] and palette["unlocked"]["dark"][2] == brand["coral"][400]
 
@@ -318,7 +330,7 @@ TOKENS_1_6_0_ADDED_COLOR = {"color.invite.fg"}
 
 
 def test_tokens_1_6_0_adds_only_invite_fg():
-    files = build_token_files()
+    files = _tokens_1_10_0()
     for current, frozen in [("primitive.tokens.json", "primitive-1.5.0.tokens.json")] + [
             (f"color.{mode}.tokens.json", f"color.{mode}-1.5.0.tokens.json") for mode in ("light", "dark")]:
         before, after = _frozen(frozen), flatten(files[current])
@@ -345,7 +357,7 @@ def _frozen(name):
 
 
 def test_tokens_1_4_0_additions_only():
-    files = build_token_files()
+    files = _tokens_1_10_0()
     after_primitive = flatten(files["primitive.tokens.json"])
     before_primitive = _frozen("primitive-1.3.0.tokens.json")
     for name, token in before_primitive.items():
@@ -428,10 +440,11 @@ def test_fill_soft_visible_on_sheet():
 
 
 def test_calendar_level_values_chosen_by_user():
-    # 관문 답 2026-11-07 Q1 ⑤(라이트만, 다크는 그대로)
+    # 관문 답 2026-11-07 Q1 ⑤ 규칙(맑은 두 단계)에 2026-11-23 #1294 Q1 섞음안(결정 V136, 길 금빛) 값.
+    # 1.10.0까지는 coral(라이트 #ffd2ca, #ffe4df, 다크 #582720, #46322f). 조심할 날은 그대로
     light, dark = _level_hexes("light"), _level_hexes("dark")
-    assert (light["great"], light["good"], light["caution"]) == ("#ffd2ca", "#ffe4df", "#d4d4d3")
-    assert (dark["great"], dark["good"], dark["caution"]) == ("#582720", "#46322f", "#2a2a29")
+    assert (light["great"], light["good"], light["caution"]) == ("#ffe6c5", "#fff0dc", "#d4d4d3")
+    assert (dark["great"], dark["good"], dark["caution"]) == ("#4d3201", "#413626", "#2a2a29")
 
 
 # 관문 답 2026-11-07 Q4 ③(V93): 강조 바탕은 새 primitive 없이 neutral.50(다크 neutral.950). sage 칩, 꼬리표와 갈림
@@ -466,10 +479,55 @@ def test_tokens_1_9_0_adds_hanja_supplement_after_pretendard_jp_only():
 
 # 1.10.0 (#1141, 결정 V131): 반짝임 지나감 전용 motion.duration.glint 추가만(breathe는 그대로)
 def test_tokens_1_10_0_adds_only_glint_duration():
-    files = build_token_files()
+    files = _tokens_1_10_0()
     before, after = _frozen("primitive-1.9.0.tokens.json"), flatten(files["primitive.tokens.json"])
     for name, token in before.items():
         assert after.get(name) == token, name
     assert after.keys() - before.keys() == {"motion.duration.glint"}
     assert after["motion.duration.glint"]["$value"] == {"value": 2600, "unit": "ms"}
     assert after["motion.duration.breathe"]["$value"] == {"value": 1800, "unit": "ms"}
+
+
+# 1.11.0 (#1294, D142, 결정 V136): 길은 금빛, 유료 열림 가운데는 자색, sage와 짝인 곳은 coral 그대로.
+# 원시 팔레트 color.gold.* 추가, 아래 역할 값과 열림 그라데이션(값과 설명)만 바뀜
+TOKENS_1_11_0_ADDED = {f"color.gold.{step}" for step in (50, 100, 200, 300, 400, 500, 600, 700, 800, 900)}
+TOKENS_1_11_0_FORTUNE = {
+    "color.badge.good.bg", "color.badge.gwiin.bg", "color.badge.gwiin.fg", "color.calendar.good.bg",
+    "color.tag.good.bg", "color.tag.good.fg", "color.calendar.level.great", "color.calendar.level.good"}
+# 길흉판정 막대(조심할 날 → 아주 잘 풀리는 날)는 오른쪽 끝이 calendar.level.great라 함께 바뀜
+TOKENS_1_11_0_CHANGED = TOKENS_1_11_0_FORTUNE | {"gradient.unlocked", "color.verdict.track"}
+
+
+def _hue(hex_color):
+    _, a, b = hex_to_oklab(hex_color)
+    return math.degrees(math.atan2(b, a)) % 360
+
+
+def test_tokens_1_11_0_fortune_gold_paid_violet():
+    files, before_files = build_token_files(), _tokens_1_10_0()
+    before, after = flatten(before_files["primitive.tokens.json"]), flatten(files["primitive.tokens.json"])
+    assert {name: token for name, token in after.items() if name not in TOKENS_1_11_0_ADDED} == before
+    assert after.keys() - before.keys() == TOKENS_1_11_0_ADDED
+    for mode in ("light", "dark"):
+        before = flatten(before_files[f"color.{mode}.tokens.json"])
+        after = flatten(files[f"color.{mode}.tokens.json"])
+        assert set(after) == set(before), mode
+        changed = {name for name in after if after[name] != before[name]}
+        assert changed == TOKENS_1_11_0_CHANGED, (mode, changed ^ TOKENS_1_11_0_CHANGED)
+        for name in TOKENS_1_11_0_FORTUNE:
+            value = after[name]["$value"]
+            if isinstance(value, str):  # 별칭은 금빛 원시 팔레트만 가리킴
+                assert value.startswith("{color.gold."), (mode, name, value)
+            else:
+                # D142: 길 표시에 붉은 계열(hue 345~360, 0~50) 없음. 금빛 hue 75 근처
+                assert 60 <= _hue(value["hex"]) <= 90, (mode, name, value["hex"])
+        # 열림 그라데이션: 끝은 그대로 sage와 coral, 가운데는 자색(hue 305 근처)
+        stops = [stop["color"]["hex"] for stop in after["gradient.unlocked"]["$value"]]
+        old = [stop["color"]["hex"] for stop in before["gradient.unlocked"]["$value"]]
+        assert stops[0] == old[0] and stops[2] == old[2], mode
+        assert 290 <= _hue(stops[1]) <= 320, (mode, stops[1])
+        assert abs(oklch_lightness_chroma(stops[1])[0] - oklch_lightness_chroma(old[1])[0]) < 0.01, mode
+    # sage와 짝인 오늘 바탕 그라데이션은 그대로
+    for mode in ("light", "dark"):
+        assert flatten(files[f"color.{mode}.tokens.json"])["gradient.today"] == \
+            flatten(before_files[f"color.{mode}.tokens.json"])["gradient.today"], mode

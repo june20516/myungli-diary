@@ -104,7 +104,7 @@
 * 사주 표 두 탭 공통 머리("<호칭>님의 사주", `saju-chart.head.title`) 아래 출생 정보 한 줄입니다. 칸 셋을 쉼표 없이 세로선(1px, 높이 16, `line`, 좌우 `space.12`)으로 나눕니다. spec §4의 "칸 넷"은 origin과 IA 역할 문장에 맞춰 셋으로 정정했습니다.
   1. 날짜: 달력 종류 꼬리표(`type.caption.sm` `text.secondary`, 0.5px `line` 테두리, `radius.xs`, 좌우 `space.4`, 윤달이면 V48 낱말을 뒤에) + `space.4` + 날짜(`type.label.md` 고정폭 숫자).
   2. 시진: `hanja-tag` `ganji`(지지 한자, 이름 "미시" 같은 시진 이름, writing 새 슬롯) + `space.8` + 시간. 시진 태그는 시진 뜻 원고가 없어 누를 수 없는 표시입니다(관문 질문 Q3).
-  3. 성별: 중립 알약(높이 24, 투명 바탕 + 1px `tag.neutral.border`, `tag.neutral.fg`, `type.label.md`, 좌우 `space.8`). 색으로 성별을 나누지 않습니다. origin의 coral은 길흉 톤이라 그 자리(`fortune-verdict`, `score-row`) 밖에 쓰지 않습니다(Q4).
+  3. 성별: 중립 알약(높이 24, 투명 바탕 + 1px `tag.neutral.border`, `tag.neutral.fg`, `type.label.md`, 좌우 `space.8`). 색으로 성별을 나누지 않습니다. origin의 coral(지금 gold)은 길흉 톤이라 그 자리(`fortune-verdict`, `score-row`) 밖에 쓰지 않습니다(Q4).
 * 넘치면 칸 단위로 다음 줄(줄 사이 `space.8`)이고, 줄이 바뀐 칸 앞에는 선을 긋지 않습니다.
 * **시간 모름:** 시진 태그와 시간 대신 같은 중립 알약 "시간 모름"(writing 새 슬롯, 출생 시간 입력의 모름과 같은 낱말) 하나입니다.
 * 불러오는 중: 뼈 한 줄(70%). 접근성: 그룹, 달력 종류와 날짜, 시진과 시간, 성별 순서로 이어 읽고 세로선은 읽지 않음. 글자 배율 상한 1.3배.
