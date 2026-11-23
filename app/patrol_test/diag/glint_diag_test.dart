@@ -19,6 +19,7 @@
 // * sheet-backdrop-noglint: 위와 같고 시트 안은 반짝임 없는 글자.
 // * real-noclip, real-noopacity, real-nophysical, real-noshadow:
 //   real에서 층 범주 하나를 끔([_setLayerSwitches]).
+// * real-mysaju-sheet, part-*: 원인 위젯을 좁히는 변형([_openReal], [_openPart]).
 // * real: me_test 앞부분(앱 실행 → 나의 사주 → 사주 표 → 용어 → 열린 풀이 시트)을 그대로 밟음
 //   (양성 대조군. CI에서 교착이 재현되던 흐름). real-mysaju, real-chart, real-today는 그 흐름을
 //   중간에서 멈추거나 다른 화면에서 같은 시트를 엽니다([_openReal]). 앱의 동작 설정은 기기를 따르므로, CI 기본(기기
@@ -30,10 +31,13 @@
 // 변형은 matrix에서 animations: true로 돌립니다.
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_test/flutter_test.dart' show expect, find, isTrue;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart'
+    show Finder, expect, find, isTrue;
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
 import 'package:myungli_diary/design/components/frame/frame_surface.dart';
+import 'package:myungli_diary/design/components/frame/section_card.dart';
 import 'package:myungli_diary/design/components/frame/section_header.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
@@ -42,6 +46,12 @@ import 'package:myungli_diary/design/interaction/patterns.dart';
 import 'package:myungli_diary/design/interaction/unlock_glint.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
+import 'package:myungli_diary/features/depth/application/depth_sheets.dart';
+import 'package:myungli_diary/features/glossary/application/glossary_providers.dart';
+import 'package:myungli_diary/features/me/application/chart_providers.dart';
+import 'package:myungli_diary/features/me/presentation/chart_text.dart';
+import 'package:myungli_diary/features/me/presentation/natal_card.dart';
+import 'package:myungli_diary/features/me/presentation/saju_chart_tabs.dart';
 import 'package:patrol/patrol.dart';
 
 import '../support/e2e_app.dart';
@@ -75,6 +85,8 @@ void main() {
       _setLayerSwitches(on: true);
       if (_variant.startsWith('real')) {
         await _openReal($, _variant);
+      } else if (_variant.startsWith('part-')) {
+        await _openPart($, _variant);
       } else {
         await $.pumpWidget(
           MaterialApp(
@@ -133,6 +145,7 @@ void _setLayerSwitches({required bool on}) {
 /// * real-mysaju: 나의 사주 화면까지.
 /// * real-chart: 사주 표 화면까지(시트 없음).
 /// * real-today: 오늘 화면의 첫 용어 → 열린 풀이 시트(사주 표 없음).
+/// * real-mysaju-sheet: 나의 사주 화면(원국표와 오행 막대 카드)의 첫 용어 → 열린 풀이 시트.
 Future<void> _openReal(PatrolIntegrationTester $, String name) async {
   final variant = name.startsWith('real-no') ? 'real' : name;
   await launchApp(
@@ -150,6 +163,10 @@ Future<void> _openReal(PatrolIntegrationTester $, String name) async {
   await $(find.byKey(const ValueKey('tab-bar.tab.3'))).tap();
   await expectScreen($, ScreenIds.mySaju);
   if (variant == 'real-mysaju') return;
+  if (variant == 'real-mysaju-sheet') {
+    await _tapFirstTerm($, find.byKey(const ValueKey(ScreenIds.mySaju)));
+    return;
+  }
   final mySaju = find.byKey(const ValueKey(ScreenIds.mySaju));
   final l10n = AppLocalizations.of($.tester.element(mySaju.first));
   final chartLink = find.descendant(
@@ -175,6 +192,82 @@ Future<void> _openReal(PatrolIntegrationTester $, String name) async {
   if (variant != 'real') throw ArgumentError('알 수 없는 GLINT_DIAG 변형: $variant');
   await term.tap();
   await expectScreen($, ScreenIds.explainSheet);
+}
+
+/// [scope] 안 첫 용어를 눌러 열린 풀이 시트를 엽니다.
+Future<void> _tapFirstTerm(PatrolIntegrationTester $, Finder scope) async {
+  final term = $(
+    find.descendant(of: scope, matching: find.byType(TermToken)).first,
+  );
+  await term.scrollTo();
+  await term.tap();
+  await expectScreen($, ScreenIds.explainSheet);
+}
+
+/// 사주 표 원국 탭 구성 요소를 나눠 둔 진단 화면 변형. 실제 앱을 띄워 나의 사주까지 간 뒤
+/// (차트와 provider는 앱 그대로) 그 위에 진단 화면을 push하고, 화면 안 원국표의 첫 용어로
+/// 같은 풀이 시트를 엽니다.
+///
+/// * part-natal: 원국 탭 내용 전체([SajuChartNatalTab]: 섹션 머리, 원국표, 오행 막대, 용신 근거).
+/// * part-pillars: 원국표 카드만.
+/// * part-pillars-ohaeng: 원국표 카드와 오행 막대 카드.
+Future<void> _openPart(PatrolIntegrationTester $, String variant) async {
+  await launchApp(
+    $,
+    flow: 'diag',
+    scenario: 'evidence-unlocked',
+    deviceLocale: const Locale('ko', 'KR'),
+  );
+  await waitForScreen($, ScreenIds.today);
+  await $(find.byKey(const ValueKey('tab-bar.tab.3'))).tap();
+  await expectScreen($, ScreenIds.mySaju);
+  Navigator.of(
+    $.tester.element(find.byKey(const ValueKey(ScreenIds.mySaju))),
+  ).push(MaterialPageRoute<void>(builder: (_) => _ChartPart(variant: variant)));
+  await _tapFirstTerm($, find.byKey(const ValueKey('diag-part')));
+}
+
+/// [_openPart]의 진단 화면.
+class _ChartPart extends ConsumerWidget {
+  const new({required this.variant});
+
+  final String variant;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final chart = ref.watch(chartControllerProvider).value;
+    if (chart == null) return const Scaffold(body: SizedBox.expand());
+    final text = ChartText(
+      context,
+      ref.watch(glossaryProvider).value,
+      ref.read(depthSheetsProvider),
+    );
+    final pillars = SectionCard(
+      child: NatalCard.pillars(chart: chart, onTermTap: text.openTerm),
+    );
+    final content = switch (variant) {
+      'part-natal' => SajuChartNatalTab(chart: chart),
+      'part-pillars' => pillars,
+      'part-pillars-ohaeng' => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          pillars,
+          const SizedBox(height: 16),
+          SectionCard(child: NatalCard.ohaeng(chart: chart)),
+        ],
+      ),
+      _ => throw ArgumentError('알 수 없는 GLINT_DIAG 변형: $variant'),
+    };
+    return Scaffold(
+      key: const ValueKey('diag-part'),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: content,
+        ),
+      ),
+    );
+  }
 }
 
 /// [variant]대로 대상 [_paragraphs]개와 칩 바탕 하나를 그립니다.
