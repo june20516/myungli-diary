@@ -54,9 +54,9 @@
 | MVP 화면 목록 (IA) `docs/ia/screens.json` (화면·상태·경로·슬롯·컴포넌트) | **사용** | 지휘 |
 | ui 원고 ARB `docs/identity/writing/generated/arb/app_{ko,en,ja}.arb` (`tool/import_writing_arb.dart`로 가져옴) | **사용** | writing |
 
-## 현재 상태 (2026-11-16, app 세션 갱신)
+## 현재 상태 (2026-11-23, app 세션 갱신)
 진행 중인 일만 적고, 병합하면 지웁니다(`docs/workflow.md` §3 마무리 2번). 병합된 일의 경과는 PR 본문, 결정 로그(`docs/decisions.md`), git에 있습니다.
-* **iOS iPhone 전용과 스토어 이미지(#1203, D133, A150, A151)**, 브랜치 `app/1203-store-images`. 콘텐츠 문장 한자 글꼴(컴포넌트 명세 8.2.0, design V134)을 반영했습니다. 생성 결과 경로를 #1203에 남기면 지휘가 두 스토어에 올립니다.
+* **길일 금빛(#1299 drift, D142, V136)과 밤 E2E 멈춤**, 브랜치 `app/1299-gold-days`. 그 뒤 빌드 11(#1254).
 
 ## 다음 할 일
 0. **실기기와 도구:**

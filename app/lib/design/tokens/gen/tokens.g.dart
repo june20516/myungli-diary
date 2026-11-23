@@ -9,6 +9,16 @@ import 'package:myungli_diary/design/tokens/css_gradient.dart';
 /// 의미 역할 색. 라이트·다크가 같은 이름을 씁니다.
 final class ColorTokens {
   const ColorTokens({
+    required this.gold50,
+    required this.gold100,
+    required this.gold200,
+    required this.gold300,
+    required this.gold400,
+    required this.gold500,
+    required this.gold600,
+    required this.gold700,
+    required this.gold800,
+    required this.gold900,
     required this.ohaengWoodSwatch,
     required this.ohaengFireSwatch,
     required this.ohaengEarthSwatch,
@@ -84,6 +94,16 @@ final class ColorTokens {
     required this.ohaengWaterBorder,
     required this.ohaengWaterGlyph,
   });
+  final Color gold50;
+  final Color gold100;
+  final Color gold200;
+  final Color gold300;
+  final Color gold400;
+  final Color gold500;
+  final Color gold600;
+  final Color gold700;
+  final Color gold800;
+  final Color gold900;
 
   /// 오행 견본: 색 자체를 보여주는 자리. 모드와 관계없이 같은 값이고 항상 swatch.border를 둡니다
   final Color ohaengWoodSwatch;
@@ -309,6 +329,16 @@ final class ColorTokens {
 }
 
 const lightColors = ColorTokens(
+  gold50: Color(0xFFFEF5EA),
+  gold100: Color(0xFFF8EDDD),
+  gold200: Color(0xFFEDDBC4),
+  gold300: Color(0xFFDCC3A1),
+  gold400: Color(0xFFC7A475),
+  gold500: Color(0xFFB28646),
+  gold600: Color(0xFF976B26),
+  gold700: Color(0xFF745423),
+  gold800: Color(0xFF543E1E),
+  gold900: Color(0xFF352917),
   ohaengWoodSwatch: Color(0xFF418E47),
   ohaengFireSwatch: Color(0xFFD24D45),
   ohaengEarthSwatch: Color(0xFFDEA645),
@@ -324,18 +354,18 @@ const lightColors = ColorTokens(
   termBg: Color(0xFFE8F2E9),
   termFg: Color(0xFF47634C),
   inviteFg: Color(0xFF597F61),
-  badgeGoodBg: Color(0xFFA75C53),
+  badgeGoodBg: Color(0xFF976B26),
   badgeGoodFg: Color(0xFFFFFFFF),
-  badgeGwiinBg: Color(0xFFFFE9E5),
-  badgeGwiinFg: Color(0xFF814942),
+  badgeGwiinBg: Color(0xFFF8EDDD),
+  badgeGwiinFg: Color(0xFF745423),
   badgeGisinBg: Color(0xFFEEEEED),
   badgeGisinFg: Color(0xFF5B5B57),
   badgeOrdinaryBorder: Color(0xFFC7C7C5),
   badgeOrdinaryFg: Color(0xFF5B5B57),
-  calendarGoodBg: Color(0xFFFFE9E5),
+  calendarGoodBg: Color(0xFFF8EDDD),
   calendarCautionBg: Color(0xFFEEEEED),
-  calendarLevelGreat: Color(0xFFFFD2CA),
-  calendarLevelGood: Color(0xFFFFE4DF),
+  calendarLevelGreat: Color(0xFFFFE6C5),
+  calendarLevelGood: Color(0xFFFFF0DC),
   calendarLevelCaution: Color(0xFFD4D4D3),
   ohaengFireFg: Color(0xFF733A35),
   calendarWeekdaySun: Color(0xFF733A35),
@@ -356,8 +386,8 @@ const lightColors = ColorTokens(
     green: 0x63 / 255,
     blue: 0x4c / 255,
   ),
-  tagGoodBg: Color(0xFFFFE9E5),
-  tagGoodFg: Color(0xFF814942),
+  tagGoodBg: Color(0xFFF8EDDD),
+  tagGoodFg: Color(0xFF745423),
   tagBadBg: Color(0xFFEEEEED),
   tagBadFg: Color(0xFF5B5B57),
   tagNeutralBorder: Color(0xFFC7C7C5),
@@ -416,6 +446,16 @@ const lightColors = ColorTokens(
 );
 
 const darkColors = ColorTokens(
+  gold50: Color(0xFFFEF5EA),
+  gold100: Color(0xFFF8EDDD),
+  gold200: Color(0xFFEDDBC4),
+  gold300: Color(0xFFDCC3A1),
+  gold400: Color(0xFFC7A475),
+  gold500: Color(0xFFB28646),
+  gold600: Color(0xFF976B26),
+  gold700: Color(0xFF745423),
+  gold800: Color(0xFF543E1E),
+  gold900: Color(0xFF352917),
   ohaengWoodSwatch: Color(0xFF418E47),
   ohaengFireSwatch: Color(0xFFD24D45),
   ohaengEarthSwatch: Color(0xFFDEA645),
@@ -431,18 +471,18 @@ const darkColors = ColorTokens(
   termBg: Color(0xFF354838),
   termFg: Color(0xFFD4E3D6),
   inviteFg: Color(0xFF96B49B),
-  badgeGoodBg: Color(0xFFE8BBB4),
+  badgeGoodBg: Color(0xFFDCC3A1),
   badgeGoodFg: Color(0xFF2B2B2A),
-  badgeGwiinBg: Color(0xFF5D3631),
-  badgeGwiinFg: Color(0xFFF6D5D1),
+  badgeGwiinBg: Color(0xFF543E1E),
+  badgeGwiinFg: Color(0xFFEDDBC4),
   badgeGisinBg: Color(0xFF424340),
   badgeGisinFg: Color(0xFFDEDEDC),
   badgeOrdinaryBorder: Color(0xFF5B5B57),
   badgeOrdinaryFg: Color(0xFFABABA7),
-  calendarGoodBg: Color(0xFF3B2522),
+  calendarGoodBg: Color(0xFF352917),
   calendarCautionBg: Color(0xFF2B2B2A),
-  calendarLevelGreat: Color(0xFF582720),
-  calendarLevelGood: Color(0xFF46322F),
+  calendarLevelGreat: Color(0xFF4D3201),
+  calendarLevelGood: Color(0xFF413626),
   calendarLevelCaution: Color(0xFF2A2A29),
   ohaengFireFg: Color(0xFFF7CCC6),
   calendarWeekdaySun: Color(0xFFF7CCC6),
@@ -463,8 +503,8 @@ const darkColors = ColorTokens(
     green: 0xe3 / 255,
     blue: 0xd6 / 255,
   ),
-  tagGoodBg: Color(0xFF5D3631),
-  tagGoodFg: Color(0xFFF6D5D1),
+  tagGoodBg: Color(0xFF543E1E),
+  tagGoodFg: Color(0xFFEDDBC4),
   tagBadBg: Color(0xFF424340),
   tagBadFg: Color(0xFFDEDEDC),
   tagNeutralBorder: Color(0xFF5B5B57),
@@ -840,7 +880,7 @@ final class GradientTokens {
   /// 데일리 카드·온보딩·공유 이미지에만 씁니다. 단색으로 바뀌어도 깨지지 않게 씁니다
   final LinearGradient today;
 
-  /// 열린 근거 표시(D118, V111): 반짝임 띠, 모션 줄이기 때 구역 제목 글자와 왼쪽 선, 열린 날 근거 아이콘, 열림 꼬리표 테두리. 멈춤 색마다 bg.base, bg.sheet 위 글자 대비 4.5:1 이상(1.7.0)
+  /// 열린 근거 표시(D118, V111): 반짝임 띠, 모션 줄이기 때 구역 제목 글자와 왼쪽 선, 열린 날 근거 아이콘, 열림 꼬리표 테두리, 광고 제거권 사용 중. 세이지 → 자색 → 산호이고 가운데 자색이 유료 열림의 색(1.11.0, V136, 1.7.0의 금빛을 바꿈). 멈춤 색마다 bg.base, bg.sheet 위 글자 대비 4.5:1 이상(1.7.0)
   final LinearGradient unlocked;
 }
 
@@ -848,7 +888,7 @@ const lightGradients = GradientTokens(
   verdictTrack: LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
-    colors: [Color(0xFFD4D4D3), Color(0xFFFFD2CA)],
+    colors: [Color(0xFFD4D4D3), Color(0xFFFFE6C5)],
     stops: [0, 1],
     transform: CssAngleGradientTransform(90),
   ),
@@ -862,7 +902,7 @@ const lightGradients = GradientTokens(
   unlocked: LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
-    colors: [Color(0xFF47634C), Color(0xFF8B640F), Color(0xFFA75C53)],
+    colors: [Color(0xFF47634C), Color(0xFF7A5B9C), Color(0xFFA75C53)],
     stops: [0, 0.5, 1],
     transform: CssAngleGradientTransform(90),
   ),
@@ -872,7 +912,7 @@ const darkGradients = GradientTokens(
   verdictTrack: LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
-    colors: [Color(0xFF2A2A29), Color(0xFF582720)],
+    colors: [Color(0xFF2A2A29), Color(0xFF4D3201)],
     stops: [0, 1],
     transform: CssAngleGradientTransform(90),
   ),
@@ -886,7 +926,7 @@ const darkGradients = GradientTokens(
   unlocked: LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
-    colors: [Color(0xFF96B49B), Color(0xFFE1B66C), Color(0xFFD79990)],
+    colors: [Color(0xFF96B49B), Color(0xFFCDADF4), Color(0xFFD79990)],
     stops: [0, 0.5, 1],
     transform: CssAngleGradientTransform(90),
   ),
