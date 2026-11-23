@@ -18,11 +18,16 @@ set -uo pipefail
 cd "$(dirname "$0")/.." || exit 3
 mkdir -p build/e2e-diag
 
-# 30초마다: 시각, 사용 중/전체 메모리(MB), 남은 메모리, 에뮬레이터(qemu) 프로세스 수.
+# 30초마다: 시각, 사용 중/전체 메모리(MB), 남은 메모리, 에뮬레이터(qemu) 프로세스 수, 바쁜 스레드.
 (
   while :; do
     mem="$(free -m | awk '/^Mem:/ {print $3 "/" $2 " avail " $7}')"
     echo "$(date -u +%H:%M:%S) mem ${mem} qemu=$(pgrep -c qemu-system || true)"
+    # 에뮬레이터 스레드별 CPU 상위 5개. 얼었을 때 렌더 스레드가 바쁜지(느린 처리) 쉬는지(교착)를 봅니다.
+    qemu_pid="$(pgrep -o qemu-system || true)"
+    if [[ -n "$qemu_pid" ]]; then
+      top -b -n 1 -H -p "$qemu_pid" | sed -n '8,12p' | awk '{print "  " $9 "% " $12}'
+    fi
     sleep 30
   done
 ) > build/e2e-mem.log 2>&1 &
