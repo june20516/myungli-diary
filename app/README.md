@@ -290,7 +290,7 @@ tool/patrol_local.sh                              # patrol_test 전체
 tool/patrol_local.sh patrol_test/diary_test.dart  # 흐름 하나
 ```
 
-* 에뮬레이터가 필요합니다. 연결된 에뮬레이터가 하나면 그것을 쓰고, 여럿이면 `PATROL_DEVICE`, 하나도 없으면 `PATROL_AVD`(띄울 AVD 이름)를 줍니다. CI(`e2e-android`)는 API 34 에뮬레이터(`-gpu software`, A155)에서 `tool/e2e_ci.sh`로 돌립니다. 30분이 넘으면 실패로 끝내고, 실행 내내 `tool/e2e_ci_monitor.sh`가 호스트와 기기 지표를 15초마다 기록하고, 기기가 얼면 에뮬레이터 스레드 스택을 받습니다. 실패하면 이 기록과 커널 로그, 에뮬레이터 crash 기록, logcat을 artifact `e2e-gradle-reports`에 남깁니다. 수동 실행 입력 `e2e_diag_matrix`를 주면 `patrol_test/diag/` 진단 변형만 matrix로 돕니다.
+* 에뮬레이터가 필요합니다. 연결된 에뮬레이터가 하나면 그것을 쓰고, 여럿이면 `PATROL_DEVICE`, 하나도 없으면 `PATROL_AVD`(띄울 AVD 이름)를 줍니다. CI(`e2e-android`)는 API 34 에뮬레이터(36.1.9 고정, `-gpu swangle_indirect`, A155)에서 `tool/e2e_ci.sh`로 돌립니다. 30분이 넘으면 실패로 끝내고, 실행 내내 `tool/e2e_ci_monitor.sh`가 호스트와 기기 지표를 15초마다 기록하고, 기기가 얼면 에뮬레이터 스레드 스택을 받습니다. 실패하면 이 기록과 커널 로그, 에뮬레이터 crash 기록, logcat을 artifact `e2e-gradle-reports`에 남깁니다. 수동 실행 입력 `e2e_diag_matrix`를 주면 `patrol_test/diag/` 진단 변형만 matrix로 돕니다.
 * `tool/patrol_local.sh`는 `patrol test -d <기기> --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake --test-server-port 47281 --app-server-port 47282`를 감싸 멈춤을 막습니다.
   * 기기를 늘 지정하고 입력을 닫습니다. 기기가 여러 대일 때 patrol이 고르라고 묻는 입력에서 멈추지 않게 하기 위해서입니다.
   * 실행 중 기기 상태를 10초마다 봅니다. 기기가 `PATROL_OFFLINE_GRACE`(기본 60초)보다 오래 빠지거나 `PATROL_RUN_TIMEOUT`(기본 1800초)을 넘기면 끝냅니다.
