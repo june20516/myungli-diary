@@ -1,9 +1,10 @@
-// CI 에뮬레이터 교착 진단(2026-11-23). 일반 E2E가 아니라 app.yml의 e2e-diag job만 돌립니다.
+// CI 에뮬레이터 진단(2026-11-23~24, A155). 일반 E2E가 아니라 app.yml 수동 실행 입력
+// e2e_diag_matrix로만 돕니다. 변형이 없으면(일반 E2E, 로컬 patrol) skip합니다.
 //
-// CI(Linux x86 에뮬레이터, gfxstream)에서 열린 화면의 `unlock.glint`가 처음 그려질 때 에뮬레이터
-// 호스트가 교착되어 끝났습니다. 이 테스트는 반짝임 하나만 띄우고, `--dart-define=GLINT_DIAG=<변형>`
-// 으로 그리는 연산만 바꿔 어느 연산에서 교착이 나는지 가립니다. 대상 수, 띠 색, 띠 shader는
-// 모든 변형이 같습니다. 변형이 없으면(일반 E2E, 로컬 patrol) skip합니다.
+// 처음에는 `unlock.glint`가 원인이라 보고 그리는 연산만 바꾸는 변형으로 시작했지만, 원인은
+// 에뮬레이터 호스트 SwiftShader(deprecated `swiftshader_indirect`)의 SIGSEGV였고 반짝임과
+// SeepOnChange는 원인이 아니었습니다. 경과와 판단 계획은
+// app/docs/plans/2026-11-24-e2e-emulator-gpu.md에 있습니다. 변형은 다시 진단할 때 쓰려고 둡니다.
 //
 // 변형:
 // * control: 앱의 UnlockGlintScope와 UnlockGlint 그대로(대조군).

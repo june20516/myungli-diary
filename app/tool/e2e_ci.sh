@@ -73,7 +73,7 @@ grep -m 3 "rendering backend" build/logcat-stream.txt || echo "기록 없음"
 if [[ "$rc" != 0 ]]; then
   cat build/patrol.log
   if [[ "$emulator_gone" == true ]]; then
-    echo "::error title=e2e 에뮬레이터 사라짐::테스트 중 에뮬레이터 프로세스가 사라졌습니다. 위 로그의 마지막 테스트와 job 로그의 kernel 로그(-show-kernel)를 봅니다"
+    echo "::error title=e2e 에뮬레이터 사라짐::테스트 중 에뮬레이터 프로세스가 사라졌습니다. e2e-gradle-reports의 e2e-freeze.log와 e2e-diag/qemu-kstacks.txt를 보고 app/docs/plans/2026-11-24-e2e-emulator-gpu.md 판단 계획대로 기록합니다"
   elif [[ "$rc" == 124 ]]; then
     echo "::error title=e2e 멈춤::patrol이 30분 안에 끝나지 않아 멈췄습니다. 위 로그의 마지막 테스트와 e2e-gradle-reports의 진단 기록을 봅니다"
   fi

@@ -54,9 +54,10 @@
 | MVP 화면 목록 (IA) `docs/ia/screens.json` (화면·상태·경로·슬롯·컴포넌트) | **사용** | 지휘 |
 | ui 원고 ARB `docs/identity/writing/generated/arb/app_{ko,en,ja}.arb` (`tool/import_writing_arb.dart`로 가져옴) | **사용** | writing |
 
-## 현재 상태 (2026-11-23, app 세션 갱신)
+## 현재 상태 (2026-11-24, app 세션 갱신)
 진행 중인 일만 적고, 병합하면 지웁니다(`docs/workflow.md` §3 마무리 2번). 병합된 일의 경과는 PR 본문, 결정 로그(`docs/decisions.md`), git에 있습니다.
-* **길일 금빛(#1299 drift, D142, V136)과 밤 E2E 멈춤**, 브랜치 `app/1299-gold-days`. 그 뒤 빌드 11(#1254).
+* **길일 금빛(#1299 drift, D142, V136), 반짝임 칩 바탕(A154), 밤 E2E 에뮬레이터 GPU(A155)**, 브랜치 `app/1299-gold-days`, staging 대상 PR. 그 뒤 빌드 11(#1254).
+* **밤 E2E 판단(A155):** PR 병합 뒤 `e2e-android`가 연속 3번 성공하면 고쳐진 것, "e2e 에뮬레이터 사라짐"이 한 번이라도 나면 안 고쳐진 것입니다. 세션을 열 때마다 [판단 계획](docs/plans/2026-11-24-e2e-emulator-gpu.md)의 명령으로 확인하고 표에 적습니다. 실험을 늘리지 않습니다(사용자 결정 2026-11-24).
 
 ## 다음 할 일
 0. **실기기와 도구:**
