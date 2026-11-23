@@ -33,9 +33,13 @@ STEPS_WITHOUT_950 = tuple(step for step in LIGHTNESS_BY_STEP if step != 950)
 ALL_STEPS = tuple(LIGHTNESS_BY_STEP)
 
 # 팔레트 이름: (hue, 최대 채도, 단계)
+# 색의 의미(결정 V8, V136 개정): sage = 나와 내 기록, 조작. coral = sage와 짝을 이루는 브랜드 색(오늘 바탕 그라데이션,
+# 로고 낙관, 열림 그라데이션 끝). gold = 길(좋은 기운: 달력 길일 칸, 좋은 날과 귀인의 날 배지, 좋은 태그).
+# 길에 붉은 계열을 쓰지 않습니다(D142, #1294). 유료 열림의 자색은 아래 UNLOCKED_GRADIENT 가운데 색입니다.
 BRAND_SCALES = {
     "sage": (150, 0.07, STEPS_WITHOUT_950),
     "coral": (28, 0.11, STEPS_WITHOUT_950),
+    "gold": (75, 0.11, STEPS_WITHOUT_950),
     "neutral": (110, 0.008, ALL_STEPS),
 }
 
@@ -76,22 +80,25 @@ MIN_OHAENG_EDGE_CONTRAST = 1.4
 
 GRADIENT_LIGHT = ["#eef4ef", "#fbefee"]
 GRADIENT_DARK_OKLCH = [(0.23, 0.022, 150), (0.23, 0.024, 20)]
-# 열린 근거 표시 그라데이션(D118, 결정 V111, 토큰 1.7.0): 세이지 → 금빛 → 산호. 구역 제목 글자와 반짝임 띠로도
-# 쓰여 멈춤 색마다 bg.base, bg.sheet 위 글자 대비 4.5:1을 넘깁니다. 세이지와 산호는 브랜드 단계, 금빛만 OKLCH 값.
-# 시안 가안(라이트 #b08a3e, #c4776c)은 흰 바탕에서 3.0~3.4:1이라 같은 색상에서 명도를 낮춤.
+# 열린 근거 표시 그라데이션(D118, 결정 V111, 토큰 1.7.0): 세이지 → 자색 → 산호. 구역 제목 글자와 반짝임 띠로도
+# 쓰여 멈춤 색마다 bg.base, bg.sheet 위 글자 대비 4.5:1을 넘깁니다. 세이지와 산호는 브랜드 단계, 가운데만 OKLCH 값.
+# 가운데는 유료 열림의 색입니다. 1.11.0(결정 V136)에서 금빛(hue 80)을 자색(hue 305)으로 바꿨습니다. 길이 금빛이 되어
+# 무료 좋은 기운과 유료 열림이 색으로 갈려야 하기 때문입니다. 명도와 채도는 옛 금빛 그대로입니다.
 UNLOCKED_GRADIENT = {
-    "light": [("sage", 700), (0.53, 0.105, 80), ("coral", 600)],
-    "dark": [("sage", 400), (0.80, 0.105, 80), ("coral", 400)],
+    "light": [("sage", 700), (0.53, 0.105, 305), ("coral", 600)],
+    "dark": [("sage", 400), (0.80, 0.105, 305), ("coral", 400)],
 }
 
 # 달력 4단계 (DS1 spec 2026-11-05-ds1-screens-design.md §3, 토큰 1.4.0): 모드 → 단계 → (명도, 채도, hue).
 # 라이트(CLEAR_LEVEL_MODES)는 잘 풀리는 날 둘을 모두 맑게 둡니다: 채도를 sRGB 끝까지 올려(oklch_to_hex가 경계로 자름)
-# 흰색만 섞은 coral이 되고, 아주 잘 풀리는 날이 명도는 낮고 채도는 높습니다(사용자 결정 2026-11-07, #801 관문 Q1 ⑤:
+# 흰색만 섞은 금빛이 되고, 아주 잘 풀리는 날이 명도는 낮고 채도는 높습니다(사용자 결정 2026-11-07, #801 관문 Q1 ⑤:
 # 잘 풀리는 날이 탁해 보이면 부정적으로 읽힘). 다크는 명도를 같게 두고 채도로만 가릅니다.
+# 1.11.0(결정 V136, D142): coral(hue 30)에서 금빛(hue 75)으로. 노랑은 순색 자체가 밝아 명도 0.90 경계는 형광이 되므로,
+# 라이트 명도는 경계 위에서 옛 coral 칸과 채도가 같은 자리(0.9364, 0.9615)로 올렸습니다.
 # 조심할 날은 회색으로 명도를 낮춰 구분합니다. 값이 아니라 규칙(아래 상수)을 test_tokens.py가 다시 재서 검사합니다.
 CALENDAR_LEVELS = {
-    "light": {"great": (0.90, 0.075, 30), "good": (0.94, 0.075, 30), "caution": (0.87, 0.0015, 110)},
-    "dark": {"great": (0.34, 0.075, 30), "good": (0.34, 0.030, 30), "caution": (0.285, 0.002, 110)},
+    "light": {"great": (0.9364, 0.40, 75), "good": (0.9615, 0.40, 75), "caution": (0.87, 0.0015, 110)},
+    "dark": {"great": (0.34, 0.075, 75), "good": (0.34, 0.030, 75), "caution": (0.285, 0.002, 110)},
 }
 MIN_LEVEL_DISTANCE = 0.03  # 이웃한 단계, 바탕, 흰 표면 위 채움의 OKLab 거리 하한
 CLEAR_LEVEL_MODES = ("light",)  # 잘 풀리는 두 단계가 흰색만 섞은 순색(가장 큰 RGB 채널 255)인 모드
@@ -249,7 +256,7 @@ def ohaeng_glyph_part(colors: dict[str, str], mode: str, sheet: str) -> str:
 
 
 def _roles(brand: dict[str, dict[int, str]]) -> dict[str, dict[str, str]]:
-    sage, coral, neutral = brand["sage"], brand["coral"], brand["neutral"]
+    sage, gold, neutral = brand["sage"], brand["gold"], brand["neutral"]
     roles = {
         "light": {
             "bg.base": neutral[50],
@@ -262,15 +269,15 @@ def _roles(brand: dict[str, dict[int, str]]) -> dict[str, dict[str, str]]:
             "term.bg": sage[100],
             "term.fg": sage[700],
             "invite.fg": sage[600],
-            "badge.good.bg": coral[600],
+            "badge.good.bg": gold[600],
             "badge.good.fg": WHITE,
-            "badge.gwiin.bg": coral[100],
-            "badge.gwiin.fg": coral[700],
+            "badge.gwiin.bg": gold[100],
+            "badge.gwiin.fg": gold[700],
             "badge.gisin.bg": neutral[100],
             "badge.gisin.fg": neutral[700],
             "badge.ordinary.border": neutral[300],
             "badge.ordinary.fg": neutral[700],
-            "calendar.good.bg": coral[100],
+            "calendar.good.bg": gold[100],
             "calendar.caution.bg": neutral[100],
             "fill.soft": neutral[FILL_SOFT_STEP["light"]],
             "highlight.bg": neutral[HIGHLIGHT_STEP["light"]],
@@ -280,8 +287,8 @@ def _roles(brand: dict[str, dict[int, str]]) -> dict[str, dict[str, str]]:
             "disabled.fg": neutral[600],
             "seal.knock": sage[50],
             "seal.on-soft": sage[800],
-            "tag.good.bg": coral[100],
-            "tag.good.fg": coral[700],
+            "tag.good.bg": gold[100],
+            "tag.good.fg": gold[700],
             "tag.bad.bg": neutral[100],
             "tag.bad.fg": neutral[700],
             "tag.neutral.border": neutral[300],
@@ -303,15 +310,15 @@ def _roles(brand: dict[str, dict[int, str]]) -> dict[str, dict[str, str]]:
             "term.bg": sage[800],
             "term.fg": sage[200],
             "invite.fg": sage[400],
-            "badge.good.bg": coral[300],
+            "badge.good.bg": gold[300],
             "badge.good.fg": neutral[900],
-            "badge.gwiin.bg": coral[800],
-            "badge.gwiin.fg": coral[200],
+            "badge.gwiin.bg": gold[800],
+            "badge.gwiin.fg": gold[200],
             "badge.gisin.bg": neutral[800],
             "badge.gisin.fg": neutral[200],
             "badge.ordinary.border": neutral[700],
             "badge.ordinary.fg": neutral[400],
-            "calendar.good.bg": coral[900],
+            "calendar.good.bg": gold[900],
             "calendar.caution.bg": neutral[900],
             "fill.soft": neutral[FILL_SOFT_STEP["dark"]],
             "highlight.bg": neutral[HIGHLIGHT_STEP["dark"]],
@@ -321,8 +328,8 @@ def _roles(brand: dict[str, dict[int, str]]) -> dict[str, dict[str, str]]:
             "disabled.fg": neutral[500],
             "seal.knock": neutral[900],
             "seal.on-soft": sage[200],
-            "tag.good.bg": coral[800],
-            "tag.good.fg": coral[200],
+            "tag.good.bg": gold[800],
+            "tag.good.fg": gold[200],
             "tag.bad.bg": neutral[800],
             "tag.bad.fg": neutral[200],
             "tag.neutral.border": neutral[700],

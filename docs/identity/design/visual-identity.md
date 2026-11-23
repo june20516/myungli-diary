@@ -13,32 +13,34 @@
 * **브랜드 색은 UI에, 오행 색은 데이터에만** 씁니다. 서로의 자리에 쓰지 않습니다.
 * 화면과 컴포넌트는 원시 팔레트가 아니라 **의미 역할**을 씁니다. 다크 모드는 역할 값만 바뀝니다.
 * 다크 모드는 MVP에 포함됩니다.
-* **색의 의미 (결정 V8):** 새 역할을 만들 때 이 표로 색 계열을 정합니다. 좋은 쪽 신호에 sage를, 조작에 coral을 쓰지 않습니다. 좋지 않은 날은 경고색 없이 neutral로 담담하게 보여줍니다.
+* **색의 의미 (결정 V8, V136 개정):** 새 역할을 만들 때 이 표로 색 계열을 정합니다. 좋은 쪽 신호에 sage를, 조작에 gold나 coral을 쓰지 않습니다. 길(좋은 기운)에는 붉은 계열을 쓰지 않습니다(D142). 좋지 않은 날은 경고색 없이 neutral로 담담하게 보여줍니다.
 
   | 색 | 뜻 | 쓰는 곳 |
   | --- | --- | --- |
   | sage | 나와 내 기록, 조작 | 주 버튼, 선택, 용어 토큰, 일기 쓴 날 표시, 로고의 공책 |
-  | coral | 오늘의 좋은 기운 | 좋은 날·귀인의 날 배지, 캘린더 좋음 칸, 로고의 낙관(日) |
+  | gold | 오늘의 좋은 기운(길) | 좋은 날·귀인의 날 배지, 좋은 태그, 캘린더 길일 칸, 길흉판정 막대 좋은 쪽 |
+  | coral | sage와 짝을 이루는 브랜드 색 | 오늘 바탕 그라데이션(`gradient.today`) 끝, 열린 근거 그라데이션 끝, 로고의 낙관(日) |
+  | 자색 | 유료로 열림 | 열린 근거 그라데이션(`gradient.unlocked`) 가운데 색. 원시 팔레트 없이 이 그라데이션에만 있음 |
   | neutral | 그 밖의 날과 정보 | 기신의 날·평범한 날 배지, 캘린더 주의 칸, 바탕·글자·선 |
 
 ## 색
 
 ### 원시 팔레트
-OKLCH 고정 명도 단계로 만듭니다(sage hue 150, coral hue 28, neutral hue 110).
+OKLCH 고정 명도 단계로 만듭니다(sage hue 150, coral hue 28, gold hue 75, neutral hue 110).
 
-| 단계 | sage | coral | neutral |
-| --- | --- | --- | --- |
-| 50 | `#f2f9f3` | `#fef4f2` | `#f7f7f6` |
-| 100 | `#e8f2e9` | `#ffe9e5` | `#eeeeed` |
-| 200 | `#d4e3d6` | `#f6d5d1` | `#dededc` |
-| 300 | `#b8cebc` | `#e8bbb4` | `#c7c7c5` |
-| 400 | `#96b49b` | `#d79990` | `#ababa7` |
-| 500 | `#749a7b` | `#c4776d` | `#8f908b` |
-| 600 | `#597f61` | `#a75c53` | `#747570` |
-| 700 | `#47634c` | `#814942` | `#5b5b57` |
-| 800 | `#354838` | `#5d3631` | `#424340` |
-| 900 | `#242f26` | `#3b2522` | `#2b2b2a` |
-| 950 | - | - | `#1b1b1a` |
+| 단계 | sage | coral | gold | neutral |
+| --- | --- | --- | --- | --- |
+| 50 | `#f2f9f3` | `#fef4f2` | `#fef5ea` | `#f7f7f6` |
+| 100 | `#e8f2e9` | `#ffe9e5` | `#f8eddd` | `#eeeeed` |
+| 200 | `#d4e3d6` | `#f6d5d1` | `#eddbc4` | `#dededc` |
+| 300 | `#b8cebc` | `#e8bbb4` | `#dcc3a1` | `#c7c7c5` |
+| 400 | `#96b49b` | `#d79990` | `#c7a475` | `#ababa7` |
+| 500 | `#749a7b` | `#c4776d` | `#b28646` | `#8f908b` |
+| 600 | `#597f61` | `#a75c53` | `#976b26` | `#747570` |
+| 700 | `#47634c` | `#814942` | `#745423` | `#5b5b57` |
+| 800 | `#354838` | `#5d3631` | `#543e1e` | `#424340` |
+| 900 | `#242f26` | `#3b2522` | `#352917` | `#2b2b2a` |
+| 950 | - | - | - | `#1b1b1a` |
 
 ### 의미 역할
 
@@ -51,11 +53,11 @@ OKLCH 고정 명도 단계로 만듭니다(sage hue 150, coral hue 28, neutral h
 | `line` 선 | neutral-200 | neutral-800 |
 | `action.primary` / `action.on-primary` 주 버튼 바탕 / 글자 | sage-700 / `#ffffff` | sage-300 / neutral-950 |
 | `term.bg` / `term.fg` 용어 토큰 | sage-100 / sage-700 | sage-800 / sage-200 |
-| `badge.good.bg` / `badge.good.fg` 좋은 날 배지 | coral-600 / `#ffffff` | coral-300 / neutral-900 |
-| `badge.gwiin.bg` / `badge.gwiin.fg` 귀인의 날 배지 | coral-100 / coral-700 | coral-800 / coral-200 |
+| `badge.good.bg` / `badge.good.fg` 좋은 날 배지 | gold-600 / `#ffffff` | gold-300 / neutral-900 |
+| `badge.gwiin.bg` / `badge.gwiin.fg` 귀인의 날 배지 | gold-100 / gold-700 | gold-800 / gold-200 |
 | `badge.gisin.bg` / `badge.gisin.fg` 기신의 날 배지 | neutral-100 / neutral-700 | neutral-800 / neutral-200 |
 | `badge.ordinary.border` / `badge.ordinary.fg` 평범한 날 배지 (바탕 없음) | neutral-300 / neutral-700 | neutral-700 / neutral-400 |
-| `calendar.good.bg` 캘린더 좋음 칸 | coral-100 | coral-900 |
+| `calendar.good.bg` 캘린더 좋음 칸 | gold-100 | gold-900 |
 | `calendar.caution.bg` 캘린더 주의 칸 | neutral-100 | neutral-900 |
 | `chip.bg` 칩 바탕 | `#ffffff` 알파 0.70 | `#ffffff` 알파 0.08 |
 | `swatch.border` 오행 견본 테두리 | neutral-900 알파 0.18 | neutral-100 알파 0.28 |
@@ -73,7 +75,7 @@ OKLCH 고정 명도 단계로 만듭니다(sage hue 150, coral hue 28, neutral h
 | `seal.knock` 도장에 새긴 날짜 | sage-50 | neutral-900 |
 | `seal.on-soft` 옅은 도장 위 sage 글자 | sage-800 | sage-200 |
 | `status.bg` / `status.fg` 상태 꼬리표 | → `term.bg` / `term.fg` | → `term.bg` / `term.fg` |
-| `tag.good.bg` / `.fg` 좋은 태그 | coral-100 / coral-700 | coral-800 / coral-200 |
+| `tag.good.bg` / `.fg` 좋은 태그 | gold-100 / gold-700 | gold-800 / gold-200 |
 | `tag.bad.bg` / `.fg` 나쁜 태그 | neutral-100 / neutral-700 | neutral-800 / neutral-200 |
 | `tag.neutral.border` / `.fg` 중립 태그 (바탕 없음) | neutral-300 / neutral-700 | neutral-700 / neutral-400 |
 | `calendar.weekday.sun` / `.sat` 달력 요일 머리 일·토 | → `ohaeng.fire.fg` / `ohaeng.earth.fg` | 같음(모드별 값) |
@@ -85,7 +87,7 @@ OKLCH 고정 명도 단계로 만듭니다(sage hue 150, coral hue 28, neutral h
 * 요일 머리의 일·토만 오행 글자색(화·토)을 씁니다. 오행 색을 데이터 밖에 쓰는 유일한 예외로, 날짜 숫자에는 넣지 않습니다(결정 V19).
 
 * 용어 토큰은 굵게 하지 않고 색과 바탕으로만 표시합니다.
-* 날의 성격 배지(엔진 `DayKind`)의 강도는 좋은 날 `YONGSIN_DAY`(채움) > 귀인의 날 `GWIIN_DAY`(옅은 coral) > 기신의 날 `GISIN_DAY`(옅은 회색) > 평범한 날 `ORDINARY_DAY`(테두리만) 순입니다.
+* 날의 성격 배지(엔진 `DayKind`)의 강도는 좋은 날 `YONGSIN_DAY`(채움) > 귀인의 날 `GWIIN_DAY`(옅은 gold) > 기신의 날 `GISIN_DAY`(옅은 회색) > 평범한 날 `ORDINARY_DAY`(테두리만) 순입니다.
 
 ### 캘린더 길흉
 * 엔진 `LuckLevel`을 **날짜 칸을 옅게 채워** 보여줍니다. `GOOD`은 `calendar.good.bg`, `CAUTION`은 `calendar.caution.bg`이고, `NEUTRAL`은 채우지 않습니다.
@@ -125,9 +127,10 @@ OKLCH 고정 명도 단계로 만듭니다(sage hue 150, coral hue 28, neutral h
 
 | 모드 | 시작 | 가운데 | 끝 | 각도 |
 | --- | --- | --- | --- | --- |
-| 라이트 | `sage.700` `#47634c` | 금빛 `#8b640f` | `coral.600` `#a75c53` | 90° |
-| 다크 | `sage.400` `#96b49b` | 금빛 `#e1b66c` | `coral.400` `#d79990` | 90° |
+| 라이트 | `sage.700` `#47634c` | 자색 `#7a5b9c` | `coral.600` `#a75c53` | 90° |
+| 다크 | `sage.400` `#96b49b` | 자색 `#cdadf4` | `coral.400` `#d79990` | 90° |
 
+* 가운데 자색이 유료로 열림의 색입니다(결정 V136, 1.11.0). 1.10.0까지는 금빛(라이트 `#8b640f`, 다크 `#e1b66c`)이었고, 길이 금빛이 되면서 무료 좋은 기운과 갈리도록 바꿨습니다.
 * 근거와 해석이 열려 있다는 표시에만 씁니다: 반짝임 띠(`unlock.glint`), 동작 줄이기 때 구역 제목 글자와 왼쪽 선(`unlock.mark`), 열린 날 근거 아이콘, 열림 꼬리표 테두리.
 * 글자로도 쓰여 멈춤 색마다 `bg.base`, `bg.sheet` 위 대비 4.5:1을 넘깁니다(`palette.py --check`).
 * 화면 바탕으로는 쓰지 않습니다. 바탕 그라데이션은 `gradient.today` 하나입니다.

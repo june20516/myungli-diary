@@ -8,7 +8,7 @@
 | `seal` 낙관 도장 | 낙관 경로 `seal.path`(20 단위), -8° 기울임. 변형 `fill`·`soft`·`outline`. 안의 내용은 도장 영역 가운데 정렬 | 아래 표 |
 | `ohaeng.cell` 오행 칸 | 오행 바탕 + 오행 글자, `radius.sm`. 금과 수는 1px 안쪽 테두리 `ohaeng.metal.border`·`water.border`(V98). 안쪽에 그려 칸과 글자 크기는 그대로. 크기 `pillar`(66px 높이), `small`(40×40, 한자 18 700, `luck-pillar`) | 원국표, 대운, 세운 칸(만세력 띠 표 지장간은 `stem.chip`) |
 | `ohaeng.swatch` 오행 견본 | 견본색 + 1px `swatch.border` | 행운 색 칩, 오행 분포 |
-| `tone` 길흉 톤 | 좋음·귀인 coral, 나쁨 neutral 채움, 중립 테두리만 | 배지, hanja-tag 날의 성격, day-cell |
+| `tone` 길흉 톤 | 좋음·귀인 gold(금빛), 나쁨 neutral 채움, 중립 테두리만 | 배지, hanja-tag 날의 성격, day-cell |
 | `tag.status` 상태 꼬리표 | 옅은 sage 알약 `status.*`, `type.label.md` | 일정 요약(진행 중·다음), 대운 지금·세운 올해 |
 | `tag.me` '나' 꼬리표 | sage 채움 작은 알약(10px 700), 칸 오른쪽 위 모서리에 겹침 | 원국표 일간 |
 | `highlight.current` 현재 강조 | 바탕 `highlight.bg`(옅은 회색, 카드 `bg.sheet` 위에서만) + 글자 `action.primary` 굵게 (V93) | 대운 지금, 세운 올해, 띠 표 일주 열 |
@@ -45,7 +45,7 @@
 
 * 위치 규칙: 날짜 숫자에 찍는 곳(달력·일기 목록)은 숫자 뒤, 일기 종이는 오른쪽 아래, 질문 카드는 버튼 글자 뒤.
 * 안의 숫자·아이콘은 도장 영역의 가운데에 둡니다. 기울임은 도장 모양에만 걸고 안의 내용은 바로 세웁니다.
-* 반투명 도장이 길흉 바탕(coral·neutral) 위에 겹쳐 탁해지는 것은 의도입니다. 겹침으로 읽힙니다. 숫자 대비는 겹친 색으로 검사합니다(`palette.py --check`의 `seal.soft over` 조합).
+* 반투명 도장이 길흉 바탕(gold·neutral) 위에 겹쳐 탁해지는 것은 의도입니다. 겹침으로 읽힙니다. 숫자 대비는 겹친 색으로 검사합니다(`palette.py --check`의 `seal.soft over` 조합).
 * 옅은 도장 위에 sage 글자를 올릴 때(선택된 날 숫자, 질문 카드 버튼 글자)는 `action.primary` 대신 한 단계 진한 `seal.on-soft`를 씁니다(결정 V24).
 * 움직임: 찍힘 `seal.stamp`, 지워짐 `seal.erase`.
 
