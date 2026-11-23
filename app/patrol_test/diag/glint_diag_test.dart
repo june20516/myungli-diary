@@ -18,7 +18,13 @@
 // * sheet-backdrop: 흐림 바탕이 있는 화면에서 시트를 열고 그 안에 control.
 // * sheet-backdrop-noglint: 위와 같고 시트 안은 반짝임 없는 글자.
 // * real: me_test 앞부분(앱 실행 → 나의 사주 → 사주 표 → 용어 → 열린 풀이 시트)을 그대로 밟음
-//   (양성 대조군. CI에서 교착이 재현되던 흐름).
+//   (양성 대조군. CI에서 교착이 재현되던 흐름). 앱의 동작 설정은 기기를 따르므로, CI 기본(기기
+//   애니메이션 끔)에서는 반짝임 대신 unlock.mark가 그려집니다. 그래서 real은 띠 확인을 하지
+//   않습니다.
+//
+// 합성 변형은 동작 설정을 직접 줍니다(동작 줄이기 꺼짐). 다만 기기 애니메이션이 꺼져 있으면
+// Flutter가 AnimationController 시간을 줄여 띠가 아주 짧게 지나가므로, 띠 확인이 필요한 합성
+// 변형은 matrix에서 animations: true로 돌립니다.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart' show expect, find, isTrue;
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
@@ -55,13 +61,7 @@ const _normalMotion = MotionPrefs(
 );
 
 /// 반짝임이 들어간 변형. 띠가 실제로 지나갔는지 봅니다(박자가 멈춰 있으면 진단이 헛돕니다).
-const _glintVariants = {
-  'control',
-  'backdrop',
-  'sheet',
-  'sheet-backdrop',
-  'real',
-};
+const _glintVariants = {'control', 'backdrop', 'sheet', 'sheet-backdrop'};
 
 void main() {
   patrolTest(
@@ -80,11 +80,11 @@ void main() {
               brightness: Brightness.light,
               locale: const Locale('ko'),
             ),
+            // 동작 설정은 navigator 위에 두어 시트 route까지 닿게 합니다.
+            builder: (context, child) =>
+                MotionPrefsScope(prefs: _normalMotion, child: child!),
             home: const Scaffold(
-              body: MotionPrefsScope(
-                prefs: _normalMotion,
-                child: SafeArea(child: _DiagBody(variant: _variant)),
-              ),
+              body: SafeArea(child: _DiagBody(variant: _variant)),
             ),
           ),
         );
