@@ -47,24 +47,25 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
   ```
   광고 제거권 스토어 상품 id `AD_FREE_PRODUCT_IDS`는 환경 파일에 있습니다(E12에서 `ad_free_1m`을 두 스토어에 만듦, 2026-11-16부터). 환경 파일 없이 만든 빌드는 상품 목록이 비어, 광고 제거 화면이 `offer-card` `unavailable`(가격, 기간 고지, 구매 버튼 대신 안내 한 줄 `ad-free.unavailable.body`, 구매 내역과 약관 안내는 그대로)을 보입니다(V123, A139 ①). 오류가 아니라 정상 상태라 Crashlytics에도 남지 않으니, 상품이 생긴 뒤 빌드에서는 구매 버튼이 보이는지 기기에서 직접 확인합니다(A126, #922). release + staging은 Test Store 상품을 받지 못하므로 광고 제거권은 결제 없이 시험합니다(D99 ④).
   `keytool -printcert -jarfile build/app/outputs/bundle/release/app-release.aab`의 SHA256이 업로드 키 저장소(`keytool -list -v`)의 지문과 같은지 확인합니다. 빌드 번호는 아래 "스토어 빌드 번호"를 따릅니다. 앱 서명 키는 Play가 보관합니다(E8).
-* **Play 트랙에 올리기(#944):** `tool/upload_play.sh build/app/outputs/bundle/release/app-release.aab [track] [completed|draft]`(기본 `internal`, `completed`). Play에서 아직 초안 앱이면 `internal` 말고 다른 트랙(비공개 테스트 `alpha`)에는 `draft`만 만들 수 있어, 첫 비공개 테스트 출시는 초안으로 올린 뒤 Play Console에서 사용자가 시작합니다(빌드 10에서 확인). 서비스 계정 `play-publisher@myungli-diary.iam.gserviceaccount.com`(키 파일 없음)을 사용자 gcloud 계정이 impersonation으로 쓰고, 토큰은 출력하지 않습니다(D98). Android Publisher API v3로 edit를 열어, AAB의 versionCode가 Play에 이미 있으면(어느 트랙이든) 올리기 전에 멈추고, 업로드, 트랙 지정(`completed`), commit 순서로 진행합니다. 중간에 실패하면 edit를 지워 아무것도 남기지 않습니다. 출시 노트는 아직 넣지 않습니다. 필요: `gcloud`(로그인), `bundletool`, `jq`, `curl`.
+* **Play 트랙에 올리기(#944):** `tool/upload_play.sh build/app/outputs/bundle/release/app-release.aab [track] [completed|draft]`(기본 `internal`, `completed`). Play에서 아직 초안 앱이면 `internal` 말고 다른 트랙(비공개 테스트 `alpha`)에는 `draft`만 만들 수 있어, 첫 비공개 테스트 출시는 초안으로 올린 뒤 Play Console에서 사용자가 시작합니다(빌드 10에서 확인). 서비스 계정 `play-publisher@myungli-diary.iam.gserviceaccount.com`(키 파일 없음)을 사용자 gcloud 계정이 impersonation으로 쓰고, 토큰은 출력하지 않습니다(D98). Android Publisher API v3로 edit를 열어, AAB의 versionCode가 Play에 이미 있으면(어느 트랙이든) 올리기 전에 멈추고, 업로드, 트랙 지정(`completed`), commit 순서로 진행합니다. 중간에 실패하면 edit를 지워 아무것도 남기지 않습니다. 출시 노트는 아직 넣지 않습니다. prod 설정 AAB는 `main` 브랜치에서만 올립니다(위 "빌드 브랜치"). 필요: `gcloud`(로그인), `bundletool`, `jq`, `curl`, `unzip`, `git`.
 * **스토어 이미지(#1203, D133, A151):** App Store, Play 스크린샷(ko, en, ja 각 여섯 장)과 Play 그래픽 이미지를 `tool/store_images_linux.sh` 한 명령으로 만듭니다. golden과 같은 Docker 렌더이고, 결과는 `app/.local/store-images/`(저장소 밖 산출물, `STORE_OUT`으로 바꿈)의 `<언어>/appStore/`(1320×2868), `<언어>/play/`(1080×1920), `play-feature-graphic.png`(1024×500)입니다. 장면, 틀, 크기는 design 명세 `docs/identity/design/store/store.json`, 화면 위 글은 writing `docs/identity/writing/generated/store/listing.json`을 읽습니다. 글이 글 자리를 넘거나 세 줄이면 실패하므로 writing에 줄여 달라고 합니다(계약 검사 `test/store/store_spec_test.dart`가 PR에서 먼저 잽니다). 콘솔 업로드는 지휘가 합니다.
   * **데모 데이터:** 화면 안 글도 각 언어라, 장면은 언어별 시나리오 `store-<언어>`(근거 열림은 `store-<언어>-unlocked`)로 찍습니다. server 문장(오늘, 달력, 나의 사주, 용어 사전)은 member와 같은 출생 정보의 데모 프로필로 로컬 server가 렌더한 응답이고, 일기와 일정 글은 언어별로 옮긴 데모 글(`tool/store_user_data.json`)입니다. server 문장이나 엔진 규칙이 바뀌면 `tool/store_fixtures.sh`로 다시 받습니다: 로컬 DB와 엔진을 따로 이름 붙인 compose 프로젝트로 띄우고, server를 staging 빌드 태그(테스트 로그인, 테스트 광고 제거 기간)로 만들어 K6 로컬 값으로 띄운 뒤, 끝나면 볼륨째 지웁니다. 필요: Docker, Go, python3.
 * **스토어 빌드 번호(A104, #735):** `pubspec.yaml`의 `+N` 하나를 두 플랫폼이 함께 쓰고, N은 커밋 하나를 가리킵니다. 스토어에 낼 빌드를 만들 때 `+N`을 올려 commit하고 그 커밋에서 빌드합니다. 바뀐 것이 한 플랫폼에만 해당하면 그 플랫폼만 빌드해 올리고, 다른 플랫폼은 그 번호를 건너뜁니다. 올린 플랫폼과 N은 바로 아래 "스토어 빌드 대장" 표에 적습니다. release에서만 나는 문제(R8 축소 등, #728)는 debug와 Patrol로 잡히지 않으니, 올리기 전에 release 빌드를 기기에서 한 번 실행합니다(Android는 `bundletool build-apks --mode=universal`로 AAB에서 APK를 뽑아 설치).
-  * **스토어 빌드 대장:** 새 빌드는 맨 아래 줄에 더합니다. 커밋은 그 빌드를 만든 커밋입니다.
+  * **빌드 브랜치(D141, spec `docs/specs/2026-11-19-branch-split-design.md` §6):** 테스트 빌드(T1 등 내부 확인)는 `staging` 브랜치에서 `config/env/staging.json`으로, 출시 빌드(I3 prod 리허설, I4와 그 뒤 업데이트)는 `main`의 승격 커밋에서 `config/env/prod.json`으로 만듭니다. 출시 빌드는 staging에서 `+N`을 올린 커밋을 지휘가 main으로 승격한 뒤 만들고, 승격 커밋은 staging 끝과 내용이 같아 N이 가리키는 소스는 하나입니다. 업로드 스크립트(`tool/upload_play.sh`, `tool/upload_testflight.sh`)는 산출물의 Dart 바이너리에 든 `API_BASE_URL`로 설정을 가려, prod 설정인데 현재 브랜치가 `main`이 아니면 올리기 전에 멈춥니다(`tool/common/release_branch_guard.sh`).
+  * **스토어 빌드 대장:** 새 빌드는 맨 아래 줄에 더합니다. 커밋은 그 빌드를 만든 커밋, 브랜치는 그 커밋에서 빌드할 때의 브랜치, 설정은 붙인 환경 파일(`staging`, `prod`)입니다.
 
-    | N | Android | iOS | 커밋 | 날짜 | 비고 |
-    | --- | --- | --- | --- | --- | --- |
-    | 1 | 올림(첫 staging AAB, Play 내부 테스트) | 없음 | 기록 없음 | 2026-10-30 | 업로드 키(K1)로 서명(#677) |
-    | 2 | AAB 만듦(Play 업로드는 사용자) | TestFlight | `9a0a3d6a` | 2026-11-03 | 업로드 키 지문, 아이콘, 세 언어 앱 이름 확인. iOS 서명과 권한 확인(A103) |
-    | 3 | 올림, 시작 직후 종료 | TestFlight | `a16a05f3` | 2026-11-03 | Android는 R8 full mode에서 Room 기본 생성자가 지워져 WorkManager 초기화 실패(#728). iOS는 실기기 실행과 로그인 확인 |
-    | 4 | 올림 | 건너뜀 | `998c4a4f` | 2026-11-03 | Android만 고친 빌드(#728, PR #730, `proguard-rules.pro`의 `RoomDatabase` 하위 클래스 `<init>()` keep). 실기기 실행과 네 제공자 로그인 확인. (4)까지는 Crashlytics build ID가 없어 Crashlytics가 시작하지 않음 |
-    | 5 | 올림 | 건너뜀 | `0067754d`(main) | 2026-11-04 | Crashlytics build ID와 심볼 업로드(A105), staging 광고(A106) |
-    | 6 | Play 내부 테스트용 AAB | TestFlight | `93f2eb92`(main) | 2026-11-09 | DS1 화면과 컴포넌트 6.0.0. 업로드 키 지문, universal APK로 release 실행 확인, 심볼 staging 업로드, dSYM 업로드 |
-    | 7 | Play 내부 테스트(`tool/upload_play.sh`, #944) | TestFlight | `9a1af453` | 2026-11-13 | 오늘 화면 묶음, V99 앱 아이콘, 띠 1.3배 상한과 일간 표기 틀, 동의 화면 만 14세 확인. universal APK로 release 실행 확인, 심볼과 dSYM 업로드 |
-    | 8 | Play 내부 테스트(versionCode 8) | TestFlight | `a5b14018` | 2026-11-13 | 빌드 7 검수 묶음(A147). 심볼과 dSYM 업로드. release 빌드 기기 실행 확인은 하지 않음 |
-    | 9 | Play 내부 테스트(`tool/upload_play.sh`) | TestFlight | `efec3e12` | 2026-11-17 | iOS iPhone 전용(A150, IPA `UIDeviceFamily` [1] 확인), 콘텐츠 문장 한자 글꼴(V134), 보상 열림 2시간(D132). 업로드 키 지문, 권한(production 푸시, Apple 로그인) 확인. 심볼과 dSYM 업로드. release 빌드 기기 실행 확인은 하지 않음 |
-    | 10 | Play 비공개 테스트 `alpha`(초안 출시, `tool/upload_play.sh … alpha draft`) | TestFlight | `45d6448c` | 2026-11-17 | T1 빌드. TestFlight 설치본의 업데이트 안내(#1258), 광고 제거권 사용 중 강조(V135), 구매 내역 상품 이름(server #1264), staging App Check debug token 교체 뒤 빌드. 업로드 키 지문, universal APK로 release 실행 확인(에뮬레이터, welcome 도착), IPA 권한(production 푸시, Apple 로그인), `CFBundleVersion` 10, `UIDeviceFamily` [1] 확인. 심볼과 dSYM 업로드. Play는 초안 앱이라 비공개 테스트 출시 시작은 콘솔에서 |
+    | N | Android | iOS | 브랜치 | 설정 | 커밋 | 날짜 | 비고 |
+    | --- | --- | --- | --- | --- | --- | --- | --- |
+    | 1 | 올림(첫 staging AAB, Play 내부 테스트) | 없음 | 분리 전 | staging | 기록 없음 | 2026-10-30 | 업로드 키(K1)로 서명(#677) |
+    | 2 | AAB 만듦(Play 업로드는 사용자) | TestFlight | 분리 전 | staging | `9a0a3d6a` | 2026-11-03 | 업로드 키 지문, 아이콘, 세 언어 앱 이름 확인. iOS 서명과 권한 확인(A103) |
+    | 3 | 올림, 시작 직후 종료 | TestFlight | 분리 전 | staging | `a16a05f3` | 2026-11-03 | Android는 R8 full mode에서 Room 기본 생성자가 지워져 WorkManager 초기화 실패(#728). iOS는 실기기 실행과 로그인 확인 |
+    | 4 | 올림 | 건너뜀 | 분리 전 | staging | `998c4a4f` | 2026-11-03 | Android만 고친 빌드(#728, PR #730, `proguard-rules.pro`의 `RoomDatabase` 하위 클래스 `<init>()` keep). 실기기 실행과 네 제공자 로그인 확인. (4)까지는 Crashlytics build ID가 없어 Crashlytics가 시작하지 않음 |
+    | 5 | 올림 | 건너뜀 | `main`(분리 전) | staging | `0067754d` | 2026-11-04 | Crashlytics build ID와 심볼 업로드(A105), staging 광고(A106) |
+    | 6 | Play 내부 테스트용 AAB | TestFlight | `main`(분리 전) | staging | `93f2eb92` | 2026-11-09 | DS1 화면과 컴포넌트 6.0.0. 업로드 키 지문, universal APK로 release 실행 확인, 심볼 staging 업로드, dSYM 업로드 |
+    | 7 | Play 내부 테스트(`tool/upload_play.sh`, #944) | TestFlight | 분리 전 | staging | `9a1af453` | 2026-11-13 | 오늘 화면 묶음, V99 앱 아이콘, 띠 1.3배 상한과 일간 표기 틀, 동의 화면 만 14세 확인. universal APK로 release 실행 확인, 심볼과 dSYM 업로드 |
+    | 8 | Play 내부 테스트(versionCode 8) | TestFlight | 분리 전 | staging | `a5b14018` | 2026-11-13 | 빌드 7 검수 묶음(A147). 심볼과 dSYM 업로드. release 빌드 기기 실행 확인은 하지 않음 |
+    | 9 | Play 내부 테스트(`tool/upload_play.sh`) | TestFlight | 분리 전 | staging | `efec3e12` | 2026-11-17 | iOS iPhone 전용(A150, IPA `UIDeviceFamily` [1] 확인), 콘텐츠 문장 한자 글꼴(V134), 보상 열림 2시간(D132). 업로드 키 지문, 권한(production 푸시, Apple 로그인) 확인. 심볼과 dSYM 업로드. release 빌드 기기 실행 확인은 하지 않음 |
+    | 10 | Play 비공개 테스트 `alpha`(초안 출시, `tool/upload_play.sh … alpha draft`) | TestFlight | 분리 전 | staging | `45d6448c` | 2026-11-17 | T1 빌드. TestFlight 설치본의 업데이트 안내(#1258), 광고 제거권 사용 중 강조(V135), 구매 내역 상품 이름(server #1264), staging App Check debug token 교체 뒤 빌드. 업로드 키 지문, universal APK로 release 실행 확인(에뮬레이터, welcome 도착), IPA 권한(production 푸시, Apple 로그인), `CFBundleVersion` 10, `UIDeviceFamily` [1] 확인. 심볼과 dSYM 업로드. Play는 초안 앱이라 비공개 테스트 출시 시작은 콘솔에서 |
 * **iOS TestFlight(A103):** 자동 서명, 팀 `7JGP3D7B3Z`, App Store Connect 앱 `6829967838`. 배포 인증서와 profile은 export 때 Xcode가 만듭니다(`-allowProvisioningUpdates`). export와 업로드는 App Store Connect API Admin 팀 키(로컬 값 K18)로 인증해, Xcode > Settings > Accounts 로그인에 기대지 않습니다(그 로그인은 까닭 없이 풀린 적이 두 번 있음, 2026-11-03과 11-17). 클라우드 배포 인증서는 Admin 키여야 받을 수 있습니다.
   ```
   flutter build ipa --release --dart-define-from-file=config/auth.json \
@@ -76,12 +77,9 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
     -exportOptionsPlist ios/ExportOptions.plist -exportPath build/ios/ipa -allowProvisioningUpdates "${ASC_AUTH[@]}"
   # 올리기 전 확인: build/ios/ipa/*.ipa를 풀어 codesign -d --entitlements :- Payload/*.app
   #   (aps-environment production, applesignin), Info.plist의 CFBundleVersion, UIDeviceFamily [1]
-  cp ios/ExportOptions.plist /tmp/ExportOptionsUpload.plist
-  plutil -replace destination -string upload /tmp/ExportOptionsUpload.plist
-  xcodebuild -exportArchive -archivePath build/ios/archive/Runner.xcarchive \
-    -exportOptionsPlist /tmp/ExportOptionsUpload.plist -exportPath /tmp/upload -allowProvisioningUpdates "${ASC_AUTH[@]}"
+  tool/upload_testflight.sh   # 같은 archive를 destination=upload로 다시 export해 올림
   ```
-  * `ios/ExportOptions.plist`는 IPA만 만들고(`destination=export`), 확인한 같은 archive를 `upload`로 다시 export해 올립니다. 빌드 번호는 Android와 같은 `pubspec.yaml`의 `+N`이고, 올릴 때마다 올립니다.
+  * `ios/ExportOptions.plist`는 IPA만 만들고(`destination=export`), `tool/upload_testflight.sh [archive]`가 확인한 같은 archive를 `upload`로 다시 export해 올립니다(임시 폴더에서, K18 키는 경로로만). prod 설정 archive는 `main` 브랜치에서만 올립니다(위 "빌드 브랜치"). 빌드 번호는 Android와 같은 `pubspec.yaml`의 `+N`이고, 올릴 때마다 올립니다.
   * entitlements 파일의 `aps-environment`는 `development` 그대로 둡니다. 자동 서명이 배포 profile의 값(production)으로 바꿔 넣습니다(1.0.0 (2)에서 확인).
 * **Crashlytics 심볼(A105, #739):** 스토어에 올린 빌드마다, 다시 빌드하기 전에 그 빌드의 심볼을 올려야 스택이 읽힙니다. Firebase CLI 로그인(`firebase login`)이 필요하고, 빌드에 준 환경과 같은 환경을 줍니다.
   ```
@@ -328,16 +326,16 @@ tool/patrol_staging.sh patrol_test/diary_test.dart   # 흐름 하나
 ## CI (`.github/workflows/app.yml`)
 | job | 언제 | 하는 일 |
 | --- | --- | --- |
-| `checks` | `ci-gate` 호출(PR, `main` push), 수동 | `own`: format, 생성 코드 차이, ARB 검사(`mlw check-arb`), fixture 검증, analyze, 커버리지 ratchet, Widgetbook analyze·테스트, 테스트(golden 제외), Android debug 빌드(NDK·CMake 캐시). `drift`·`gate`: 생성 코드 차이, ARB 검사, fixture 검증, 커버리지 ratchet, `contract` 태그 테스트만 |
+| `checks` | `ci-gate` 호출(PR, `staging`과 `main` push), 수동 | `own`: format, 생성 코드 차이, ARB 검사(`mlw check-arb`), fixture 검증, analyze, 커버리지 ratchet, Widgetbook analyze·테스트, 테스트(golden 제외), Android debug 빌드(NDK·CMake 캐시). `drift`·`gate`: 생성 코드 차이, ARB 검사, fixture 검증, 커버리지 ratchet, `contract` 태그 테스트만 |
 | `goldens` | `ci-gate` 호출 중 `own`, 수동 | `golden_flutter_version`의 Flutter로 golden 비교 |
 | `update-goldens` | 수동(`update_goldens`) | golden을 Linux에서 다시 만들어 artifact로 올림 |
-| `e2e-android` | `main` push, 매일 03:00 KST, 수동 | Android 에뮬레이터에서 Patrol 실행, 스크린샷 artifact. PR에서는 돌지 않고 `ci-gate` 판정에도 넣지 않습니다 |
+| `e2e-android` | `staging` push, 매일 03:00 KST, 수동 | Android 에뮬레이터에서 Patrol 실행, 스크린샷 artifact. PR에서는 돌지 않고 `ci-gate` 판정에도 넣지 않습니다 |
 
-`workflow_call`을 지원합니다. 입력 `mode`(`own`·`drift`·`gate`, 기본 `own`)는 `ci-gate`가 넘기고 검사 범위를 정합니다(D81, `docs/workflow.md` §6.2). `main` push에서는 `ci-gate`가 `checks`·`goldens`를 한 번 돌리므로, 이 workflow의 `push` 트리거는 `e2e-android`만 돕니다. 호출되면 `e2e-android`는 돌지 않아 호출 측 판정에 들어가지 않습니다(입력 `run_e2e: true`로만 켬). 재사용 workflow 안의 `github.event_name`은 호출 측 이벤트라, 직접 실행 여부는 `github.workflow == 'app'`으로 가립니다.
+`workflow_call`을 지원합니다. 입력 `mode`(`own`·`drift`·`gate`, 기본 `own`)는 `ci-gate`가 넘기고 검사 범위를 정합니다(D81, `docs/workflow.md` §6.2). `staging` push에서는 `ci-gate`가 `checks`·`goldens`를 한 번 돌리므로, 이 workflow의 `push` 트리거는 `e2e-android`만 돕니다. 호출되면 `e2e-android`는 돌지 않아 호출 측 판정에 들어가지 않습니다(입력 `run_e2e: true`로만 켬). 재사용 workflow 안의 `github.event_name`은 호출 측 이벤트라, 직접 실행 여부는 `github.workflow == 'app'`으로 가립니다.
 
 ### NDK·CMake 캐시
 Gradle이 Android 디버그 빌드에서 NDK·CMake를 설치하는 시간을 줄이려고 `checks`·`e2e-android`가 두 디렉터리를 `actions/cache`로 남깁니다(#358). 빌드 도구만 담고 테스트 입력·결과에는 영향이 없습니다.
 * **키:** `android-native-ndk-<flutter.ndkVersion>-cmake-<ANDROID_CMAKE_VERSION>`. NDK는 Flutter SDK에서 읽으므로 Flutter를 올리면 새 키로 바뀝니다. CMake는 `app.yml`의 고정 값(jni plugin이 쓰는 AGP 기본 3.22.1)입니다.
-* **범위:** 만든 ref에서만 읽힙니다. PR에서 만든 캐시는 그 PR만 쓰고, `main` push의 `ci-gate`(own)가 만든 캐시를 모든 브랜치가 씁니다. 7일 동안 쓰이지 않거나 저장소 캐시 한도(10GB)를 넘으면 GitHub이 오래된 것부터 지웁니다.
+* **범위:** 만든 ref에서만 읽힙니다. PR에서 만든 캐시는 그 PR만 쓰고, 기본 브랜치 `staging` push의 `ci-gate`(own)가 만든 캐시를 모든 브랜치가 씁니다. 7일 동안 쓰이지 않거나 저장소 캐시 한도(10GB)를 넘으면 GitHub이 오래된 것부터 지웁니다.
 * **키를 맞출 때:** 빌드 뒤 `NDK·CMake 캐시 대상 확인` 단계가 키 밖의 NDK·CMake 설치를 warning으로 남깁니다. 보이면 `ANDROID_CMAKE_VERSION`(두 job 모두)을 그 버전으로 바꿉니다. NDK 쪽이 보이면 `build.gradle.kts`의 `ndkVersion`이 `flutter.ndkVersion`과 달라진 것이므로 키를 읽는 방법을 맞춥니다.
 * **비울 때:** 캐시가 있는데도 빌드가 NDK·CMake 문제(빠진 파일, `source.properties` 오류, 툴체인 실행 실패)로 실패하면 캐시가 깨진 것으로 보고 `gh cache delete <키>`로 지운 뒤 다시 돌립니다(그 키의 모든 ref 캐시가 지워집니다). 캐시 없이 한 번 확인하려면 지운 뒤 실행하면 됩니다. 테스트 실패는 이 캐시와 관계없으므로 비우지 않습니다.
