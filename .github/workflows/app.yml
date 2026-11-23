@@ -34,6 +34,12 @@ on:
         description: "golden 기준 이미지를 Linux에서 다시 만들어 artifact로 올린다"
         type: boolean
         default: false
+      # 에뮬레이터 진단(2026-11-23 glint 교착). 주면 e2e-android만 이 matrix로 돌고 다른 job은 건너뛴다.
+      # 항목마다 variant(patrol_test/diag/glint_diag_test.dart의 GLINT_DIAG)와 api(시스템 이미지 API 수준).
+      e2e_diag_matrix:
+        description: 'e2e 진단 matrix JSON. 예: [{"variant":"control","api":34}]. 비우면 일반 실행'
+        type: string
+        default: ""
 
 # workflow 단위 concurrency는 두지 않는다. workflow_call로 불리면 호출 측 event·ref로 group이 겹쳐 서로 취소되며, concurrency는 ci-gate가 가진다.
 
@@ -44,7 +50,7 @@ jobs:
   checks:
     # 직접 실행에서는 수동 실행만 돈다. staging push는 ci-gate가 이미 돌리고, 밤 schedule은 e2e-android만 돈다(D81).
     # 재사용 호출이면 github.workflow가 호출 측 이름이다(e2e-android 주석).
-    if: github.workflow != 'app' || github.event_name == 'workflow_dispatch'
+    if: github.workflow != 'app' || (github.event_name == 'workflow_dispatch' && !inputs.e2e_diag_matrix)
     runs-on: ubuntu-latest
     # Gradle이 걸려 runner를 오래 점유하지 않게 상한을 둔다.
     timeout-minutes: 30
@@ -212,6 +218,12 @@ jobs:
       (github.workflow == 'app' &&
         (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'))
       || (github.workflow != 'app' && inputs.run_e2e == true)
+    # 진단 입력이 없으면 항목 하나(API 34, 전체 E2E)라 지금까지와 같다. 있으면 항목마다 job 하나다.
+    name: ${{ matrix.variant && format('e2e-diag ({0}, API {1})', matrix.variant, matrix.api) || 'e2e-android' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(inputs.e2e_diag_matrix || '[{"api":34}]') }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     defaults:
@@ -288,21 +300,16 @@ jobs:
       - name: Patrol E2E (fake 모드)
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
         with:
-          api-level: 34
+          api-level: ${{ matrix.api }}
           arch: x86_64
           target: google_apis
           profile: pixel_6
           disable-animations: true
-          # 에뮬레이터 코어를 4개로 둔다(runner는 4 vCPU, 액션 기본 2). 2코어에서는 열린 화면의 unlock.glint가
-          # 처음 그려질 때 에뮬레이터가 얼고 약 1분 뒤 기록 없이 끝났다(2026-11-11~23, 기기 kernel panic,
-          # OOM, 호스트 segfault 기록 없음, Vulkan을 꺼 OpenGLES로 그려도 같음). SwiftShader(CPU 그래픽)가
-          # 새 파이프라인을 처리하는 시간이 원인이라는 가설의 실험이다.
-          # -show-kernel은 기기 kernel 로그를 job 로그에 남기는 진단이다.
-          cores: 4
+          # 액션 기본 옵션에 -show-kernel(기기 kernel 로그를 job 로그로)만 더한 진단이다.
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -show-kernel
           working-directory: app
           # 실행, 30분 timeout, 실패 때 진단(메모리, OOM, 에뮬레이터 생존, logcat)은 스크립트 머리말에 있다.
-          script: tool/e2e_ci.sh
+          script: tool/e2e_ci.sh ${{ matrix.variant && format('patrol_test/diag/glint_diag_test.dart --dart-define=GLINT_DIAG={0}', matrix.variant) || '' }}
         env:
           PATROL_ANALYTICS_ENABLED: "false"
       # 빌드가 캐시 키 밖의 NDK·CMake를 설치했으면 키가 낡은 것이다(README "NDK·CMake 캐시").
@@ -332,7 +339,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: e2e-screenshots
+          name: e2e-screenshots${{ matrix.variant && format('-{0}-{1}', matrix.variant, matrix.api) || '' }}
           path: |
             app/build/e2e-screenshots/**
             app/build/e2e-native-screenshots/**
@@ -343,7 +350,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: e2e-gradle-reports
+          name: e2e-gradle-reports${{ matrix.variant && format('-{0}-{1}', matrix.variant, matrix.api) || '' }}
           path: |
             app/build/app/reports/androidTests/**
             app/build/app/outputs/androidTest-results/**
@@ -358,7 +365,7 @@ jobs:
   # 토큰 계약이 바뀌면 drift의 생성 코드 차이 확인이 먼저 잡는다.
   goldens:
     if: >-
-      (github.workflow == 'app' && github.event_name == 'workflow_dispatch')
+      (github.workflow == 'app' && github.event_name == 'workflow_dispatch' && !inputs.e2e_diag_matrix)
       || (github.workflow != 'app' && (inputs.mode || 'own') == 'own')
     runs-on: ubuntu-latest
     timeout-minutes: 30

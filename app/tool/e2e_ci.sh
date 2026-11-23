@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # CI(app.yml e2e-android)에서 에뮬레이터가 뜬 뒤 Patrol E2E를 fake 모드로 돌립니다. app/에서 실행합니다.
 #
-#   tool/e2e_ci.sh
+#   tool/e2e_ci.sh [대상(기본 patrol_test)] [patrol test에 넘길 인자...]
+#   예) tool/e2e_ci.sh patrol_test/diag/glint_diag_test.dart --dart-define=GLINT_DIAG=control
 #
 # 로컬 실행은 tool/patrol_local.sh를 씁니다. 이 스크립트는 GitHub runner 전용입니다(sudo dmesg, ::error 표기).
 #
@@ -17,6 +18,10 @@ set -uo pipefail
 
 cd "$(dirname "$0")/.." || exit 3
 mkdir -p build/e2e-diag
+
+target="${1:-patrol_test}"
+shift || true
+extra_args=("$@")
 
 # 30초마다: 시각, 사용 중/전체 메모리(MB), 남은 메모리, 에뮬레이터(qemu) 프로세스 수, 바쁜 스레드.
 (
@@ -43,7 +48,7 @@ adb_quick() {
   timeout 60 adb "$@"
 }
 
-timeout -k 60 1800 patrol test -t patrol_test \
+timeout -k 60 1800 patrol test -t "$target" "${extra_args[@]+"${extra_args[@]}"}" \
   --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake \
   --test-server-port 47281 --app-server-port 47282 \
   --screenshots-output-dir build/e2e-native-screenshots > build/patrol.log 2>&1 &
