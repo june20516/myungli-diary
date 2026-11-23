@@ -220,7 +220,7 @@ jobs:
         (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'))
       || (github.workflow != 'app' && inputs.run_e2e == true)
     # 진단 입력이 없으면 항목 하나(API 34, 전체 E2E)라 지금까지와 같다. 있으면 항목마다 job 하나다.
-    name: ${{ matrix.variant && format('e2e-diag ({0}, API {1}{2})', matrix.variant, matrix.api, matrix.rep && format(' #{0}', matrix.rep) || '') || 'e2e-android' }}
+    name: ${{ matrix.variant && format('e2e-diag ({0}, API {1}{2})', matrix.variant, matrix.api, matrix.rep && format(' rep {0}', matrix.rep) || '') || 'e2e-android' }}
     strategy:
       fail-fast: false
       matrix:
