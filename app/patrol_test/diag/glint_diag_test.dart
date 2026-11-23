@@ -34,12 +34,17 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart'
     show Finder, expect, find, isTrue;
+import 'package:myungli_diary/core/api/gen/model/chart.dart';
 import 'package:myungli_diary/core/ia/gen/ia.g.dart';
 import 'package:myungli_diary/core/l10n/gen/app_localizations.dart';
+import 'package:myungli_diary/design/components/feedback/screen_state_view.dart';
+import 'package:myungli_diary/design/components/feedback/seep_on_change.dart';
+import 'package:myungli_diary/design/components/frame/app_bar.dart';
 import 'package:myungli_diary/design/components/frame/frame_surface.dart';
 import 'package:myungli_diary/design/components/frame/section_card.dart';
 import 'package:myungli_diary/design/components/frame/section_header.dart';
 import 'package:myungli_diary/design/components/frame/sheet.dart';
+import 'package:myungli_diary/design/components/input/segmented.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/interaction/motion_prefs.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
@@ -199,7 +204,10 @@ Future<void> _tapFirstTerm(PatrolIntegrationTester $, Finder scope) async {
   final term = $(
     find.descendant(of: scope, matching: find.byType(TermToken)).first,
   );
-  await term.scrollTo();
+  // 아래에 깔린 화면의 스크롤 영역이 아니라 [scope] 안 스크롤 영역을 굴립니다.
+  await term.scrollTo(
+    view: find.descendant(of: scope, matching: find.byType(Scrollable)).first,
+  );
   await term.tap();
   await expectScreen($, ScreenIds.explainSheet);
 }
@@ -211,6 +219,13 @@ Future<void> _tapFirstTerm(PatrolIntegrationTester $, Finder scope) async {
 /// * part-natal: 원국 탭 내용 전체([SajuChartNatalTab]: 섹션 머리, 원국표, 오행 막대, 용신 근거).
 /// * part-pillars: 원국표 카드만.
 /// * part-pillars-ohaeng: 원국표 카드와 오행 막대 카드.
+///
+/// 원국 탭 내용만으로는 재현되지 않아(2026-11-23), 사주 표 화면 틀 요소를 하나씩 붙인 변형:
+/// * part-list: 원국 탭 내용을 ListView에(사주 표 화면과 같은 스크롤).
+/// * part-appbar: 위에 앱 바([MyungliAppBar.inner]).
+/// * part-segmented: 탭 고르기([Segmented]).
+/// * part-seep: 탭 전환 흐림([SeepOnChange]).
+/// * part-statev: 상태 전환 뷰([ScreenStateView]).
 Future<void> _openPart(PatrolIntegrationTester $, String variant) async {
   await launchApp(
     $,
@@ -245,8 +260,54 @@ class _ChartPart extends ConsumerWidget {
     final pillars = SectionCard(
       child: NatalCard.pillars(chart: chart, onTermTap: text.openTerm),
     );
+    final natal = SajuChartNatalTab(chart: chart);
+    final list = switch (variant) {
+      'part-list' => [natal],
+      'part-appbar' => [natal],
+      'part-segmented' => [
+        Segmented<int>(
+          items: const [SegmentedItem(0, '원국'), SegmentedItem(1, '만세력과 대운')],
+          selected: 0,
+          onChanged: (_) {},
+          label: '사주 표',
+        ),
+        const SizedBox(height: 16),
+        natal,
+      ],
+      'part-seep' => [SeepOnChange(changeKey: 'natal', child: natal)],
+      'part-statev' => [
+        ScreenStateView<Chart>(
+          value: ref.watch(chartControllerProvider),
+          onRetry: () {},
+          skeleton: const SizedBox(height: 400),
+          data: (value) => SajuChartNatalTab(chart: value),
+        ),
+      ],
+      _ => null,
+    };
+    if (list != null) {
+      return Scaffold(
+        key: const ValueKey('diag-part'),
+        body: SafeArea(
+          bottom: false,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (variant == 'part-appbar')
+                const MyungliAppBar.inner(title: '사주 표'),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  children: list,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     final content = switch (variant) {
-      'part-natal' => SajuChartNatalTab(chart: chart),
+      'part-natal' => natal,
       'part-pillars' => pillars,
       'part-pillars-ohaeng' => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
