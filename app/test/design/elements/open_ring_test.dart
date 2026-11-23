@@ -5,17 +5,25 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/design/components/sentence/hanja_tag.dart';
 import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/elements/open_ring.dart';
+import 'package:myungli_diary/design/interaction/unlock_glint.dart';
 import 'package:myungli_diary/design/theme/myungli_tokens.dart';
 
 import '../input/input_harness.dart';
 
-/// [chip] 아래 첫 [DecoratedBox]의 테두리. 없으면 null입니다.
+/// [chip] 아래 첫 바탕([DecoratedBox] 또는 용어 칩의 [UnlockGlintBackdrop])의 테두리. 없으면
+/// null입니다.
 Border? _borderOf(WidgetTester tester, Finder chip) {
-  final boxes = tester.widgetList<DecoratedBox>(
-    find.descendant(of: chip, matching: find.byType(DecoratedBox)),
-  );
-  for (final box in boxes) {
-    final decoration = box.decoration;
+  final decorations = [
+    for (final box in tester.widgetList<DecoratedBox>(
+      find.descendant(of: chip, matching: find.byType(DecoratedBox)),
+    ))
+      box.decoration,
+    for (final box in tester.widgetList<UnlockGlintBackdrop>(
+      find.descendant(of: chip, matching: find.byType(UnlockGlintBackdrop)),
+    ))
+      box.decoration,
+  ];
+  for (final decoration in decorations) {
     if (decoration is BoxDecoration && decoration.color != null) {
       return decoration.border as Border?;
     }

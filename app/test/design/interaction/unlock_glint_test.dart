@@ -234,6 +234,156 @@ void main() {
     });
   });
 
+  group('UnlockGlintBackdrop', () {
+    const blue = Color(0xFF0000FF);
+    const red = Color(0xFFFF0000);
+    const boxSize = Size(300, 24);
+
+    Widget box(Color color) => SizedBox.fromSize(
+      size: boxSize,
+      child: ColoredBox(color: color),
+    );
+
+    /// 띠 가운데가 지나는 상자 안 한 점(상자 세로 가운데).
+    Offset bandMiddle(RenderUnlockGlint render) {
+      final progress = InteractionPattern.unlockGlint.curve.transform(
+        render.sweep.value,
+      );
+      final band = unlockGlintBand(boxSize, progress);
+      final along = (band.bandStart + band.bandEnd) / 2;
+      final y = boxSize.height / 2;
+      return Offset((along - y * band.direction.dy) / band.direction.dx, y);
+    }
+
+    Future<Color> pixel(WidgetTester tester, Key key, Offset at) async {
+      final boundary = tester.renderObject<RenderRepaintBoundary>(
+        find.byKey(key),
+      );
+      final bytes = await tester.runAsync(() async {
+        final image = await boundary.toImage();
+        final data = await image.toByteData();
+        image.dispose();
+        return data!;
+      });
+      final index = (at.dy.round() * boxSize.width.round() + at.dx.round()) * 4;
+      return Color.fromARGB(
+        bytes!.getUint8(index + 3),
+        bytes.getUint8(index),
+        bytes.getUint8(index + 1),
+        bytes.getUint8(index + 2),
+      );
+    }
+
+    testWidgets('띠가 지나는 동안 바탕(용어 칩 바탕)은 칠하지 않고 그 위 글자는 칠합니다', (tester) async {
+      // 위 줄: 바탕 표시 없는 빨간 상자(글자처럼 칠해짐). 아래 줄: 빨간 바탕 표시 위 왼쪽 절반에
+      // 파란 "글자" 상자.
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildTheme(
+            brightness: Brightness.light,
+            locale: const Locale('ko'),
+          ),
+          home: Scaffold(
+            body: MotionPrefsScope(
+              prefs: _normal,
+              child: UnlockGlintScope(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    RepaintBoundary(
+                      key: const ValueKey('plain'),
+                      child: UnlockGlint(child: box(red)),
+                    ),
+                    RepaintBoundary(
+                      key: const ValueKey('backdrop'),
+                      child: UnlockGlint(
+                        child: UnlockGlintBackdrop(
+                          decoration: const BoxDecoration(color: red),
+                          child: SizedBox.fromSize(
+                            size: boxSize,
+                            child: const Align(
+                              alignment: Alignment.centerLeft,
+                              child: SizedBox(
+                                width: 150,
+                                height: 24,
+                                child: ColoredBox(color: blue),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 1));
+      await tester.pump(const Duration(milliseconds: 1300));
+      final renders = _glints(tester);
+      expect(renders.every((render) => render.glinting), isTrue);
+      final at = bandMiddle(renders.first);
+      // 띠 가운데가 바탕만 있는 오른쪽 절반에 오는 프레임입니다.
+      expect(at.dx, inInclusiveRange(150, boxSize.width - 1));
+
+      expect(
+        await pixel(tester, const ValueKey('plain'), at),
+        isNot(red),
+        reason: '표시 없는 자리는 띠 색',
+      );
+      expect(
+        await pixel(tester, const ValueKey('backdrop'), at),
+        red,
+        reason: '바탕은 띠 없이 원래 색',
+      );
+    });
+
+    testWidgets('바탕 위 글자는 띠 색으로 칠합니다', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildTheme(
+            brightness: Brightness.light,
+            locale: const Locale('ko'),
+          ),
+          home: Scaffold(
+            body: MotionPrefsScope(
+              prefs: _normal,
+              child: UnlockGlintScope(
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: RepaintBoundary(
+                    key: const ValueKey('backdrop'),
+                    child: UnlockGlint(
+                      child: UnlockGlintBackdrop(
+                        decoration: const BoxDecoration(color: red),
+                        child: box(blue),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 1));
+      await tester.pump(const Duration(milliseconds: 1300));
+      final render = _glints(tester).single;
+      expect(render.glinting, isTrue);
+      final color = await pixel(
+        tester,
+        const ValueKey('backdrop'),
+        bandMiddle(render),
+      );
+      expect(color, isNot(blue), reason: '글자는 띠 색');
+      expect(color, isNot(red), reason: '바탕이 글자를 덮지 않음');
+    });
+  });
+
   group('unlockGlintBand', () {
     test('띠는 진행 0에서 상자 앞 밖, 1에서 상자 뒤 밖이고 너비는 상자 너비의 30%입니다', () {
       for (final size in const [Size(300, 24), Size(300, 160)]) {
