@@ -36,7 +36,7 @@
 | 순서 | 담당 | 할 일 | 끝나면 풀리는 것 |
 | --- | --- | --- | --- |
 | 1 | app | 빌드 11(D142, V136): drift #1299(토큰 1.11.0 금빛 팔레트)를 맞추고 11월 말까지 Play `alpha`와 TestFlight에 업데이트(upload key 유지). 스토어 이미지 안 화면이 바뀌므로 Play와 App Store 스크린샷도 다시 올림. #1254 Q1 뒤처리는 끝난 것만 싣고 나머지는 다음 빌드. 테스트 중 업데이트 1회는 테스터 업체 권장이고 production 신청서의 "테스트 뒤 바꾼 것" 답이 됨 | T1 통과, I4 |
-| 1 | 사용자 | Play Console 변경 묶음 제출(앱 지원 이메일 `support@myungli-diary.app`, 처리방침 prod 주소, 데이터 보안 앱 활동, 테스트 의견 채널). iPhone TestFlight 빌드 10 확인. 빌드 11이 올라가면 테스터 업체에 알림. 14일 뒤 프로덕션 액세스 신청 | T1 통과 |
+| 1 | 사용자 | (Play Console 변경 묶음과 TestFlight 빌드 10 확인은 끝남, 2026-11-24) 빌드 11이 올라가면 테스터 업체에 알림. 14일 뒤 프로덕션 액세스 신청 | T1 통과 |
 | 2 | server → app → 사용자 | I3 ② prod 리허설: server prod 준비, app prod 설정 빌드(내부 테스트), 사용자 실기기 전 과정(D139). app은 같은 때 ① 자동 E2E 다시 돌리기 | I4 |
 | 2 | writing → 사용자 | 원어민 검수 시트 내보내기(D140), 사용자가 감수자에게 전달 | I4 |
 | 뒤 | 각자 | Q1 뒤처리 server #1253, core #1255, writing SHA 고정 #1236, core #59, writing #531(MVP 밖), server #794, #817 | I4 |
@@ -46,7 +46,7 @@
 | 항목 | 시점 |
 | --- | --- |
 | SSV 주소 prod 전환(E13), RevenueCat prod 연결(E12), prod Secret 점검(E16 사업자 정보 포함) | I3 ② 전 |
-| Play와 App Store 지원 연락처 `support@`로 통일(E14) | 지금 |
+| App Store 지원 연락처 `support@`로 통일(E14, Play는 끝남 2026-11-24) | 지금 |
 | Kakao debug 키 해시 삭제(E9), Google OAuth 브랜드 인증(E11), 보상형 광고 고지와 심사 기준(E19), 원어민 검수(E18, D140), 법적 문서 시행일 | I4 전 |
 | Cloud SQL tier와 예산(#903) | I4 2주 전 |
 | AdMob 앱 검토, LINE Published | 출시 직후 |
