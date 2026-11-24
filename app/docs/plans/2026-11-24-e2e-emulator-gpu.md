@@ -60,6 +60,26 @@ gh api repos/june20516/myungli-diary/actions/jobs/$jid/logs | grep -cE "에뮬�
 | 11-24 01:19 | 45215247009 | push | failure | 있음 | 1차 `software`(37.3.10, gles swangle). 안 고쳐짐 → 2차 조치 |
 | 11-24 08:35 | 45289914099 | dispatch(브랜치) | success | 없음 | 2차 병합 전 시험. 36.1.9, ANGLE 2.1.17841. 11 통과, 1 건너뜀(진단). 판정 수에 안 넣음 |
 | 11-24 08:35 | 45289918530 | dispatch(진단 real 3번) | success | 없음 | 2차 병합 전 시험. 전에 14번 중 14번 재현된 흐름이 3번 모두 통과. 판정 수에 안 넣음 |
+| 11-24 09:19 | 45296283240 | push | success | 없음 | 2차(36.1.9) 병합 뒤 1번째 |
+
+## 최신 에뮬레이터 감시 (고정을 풀 때 찾기)
+
+36.1.9 고정은 증상을 피한 것이지 고친 것이 아닙니다. 오래된 에뮬레이터는 언젠가 새 시스템 이미지와 맞지 않게 되므로,
+고정을 풀 수 있는 때를 매주 확인합니다(사용자 결정 2026-11-24, 업스트림 신고는 하지 않음).
+
+* **실행:** `app.yml` schedule `0 19 * * 0`(월요일 04:00 KST). 고정 없이 최신 에뮬레이터, `-gpu software`로 real 진단 3번.
+  job 이름에 `emu latest`가 붙고, 실패해도 실행 전체는 실패로 표시하지 않습니다(`continue-on-error`).
+* **확인 명령:**
+  ```sh
+  gh run list -R june20516/myungli-diary -w app.yml --event schedule --limit 8 --json databaseId,createdAt -q '.[]|"\(.databaseId) \(.createdAt)"'
+  gh run view <run> -R june20516/myungli-diary --json jobs -q '.jobs[]|select(.name|test("emu latest"))|"\(.name) \(.conclusion)"'
+  ```
+* **판정:** 3번 모두 success면 그 job 로그의 `emu-crash-<버전>`으로 버전을 적고, 고정을 그 버전(또는 고정 없음)과
+  `-gpu software`로 옮기는 PR을 만듭니다. 그 PR 뒤에도 위 판단 계획(연속 3번)을 다시 씁니다. 하나라도 실패면 고정을 유지합니다.
+
+| 날짜(KST) | 실행 | 에뮬레이터 | 3번 중 통과 | 비고 |
+| --- | --- | --- | --- | --- |
+| 11-24 10:00 | 45299937045 | 37.3.10 | 1번 중 0 | 수동 설정 확인(1번만). 최신판 받음, 사라짐으로 job 실패, 실행 전체는 success. 고정 유지 |
 
 ## 판정 뒤
 
