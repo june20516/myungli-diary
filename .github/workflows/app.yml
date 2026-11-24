@@ -308,10 +308,13 @@ jobs:
           profile: pixel_6
           # 기기 애니메이션 끄기. 진단 matrix 항목에 "animations": true를 주면 켠다(로컬 에뮬레이터와 같은 조건).
           disable-animations: ${{ matrix.animations != true }}
-          # GPU는 공식 소프트웨어 모드 software를 쓴다(A155). 액션 기본값 swiftshader_indirect는 에뮬레이터
-          # 36.4.9부터 deprecated이고, 2026-11-11~24 실제 앱 화면에서 호스트 SwiftShader가 SIGSEGV로 죽어
-          # e2e가 멈췄다. 진단 matrix 항목에 "gpu"를 주면 그 모드로 띄운다.
-          emulator-options: -no-window -gpu ${{ matrix.gpu || 'software' }} -no-snapshot -noaudio -no-boot-anim
+          # 에뮬레이터를 36.1.9(빌드 13823996)로 고정하고 GPU는 swangle_indirect(ANGLE)를 쓴다(A155).
+          # 2026-11-11부터 37.2.13~37.3.10에서 호스트 SwiftShader가 실제 앱 화면을 그리다 SIGSEGV로 죽어 e2e가
+          # 멈췄다. 37.3.10의 software 모드도 GLES는 ANGLE 위 SwiftShader라 같이 죽었다(2026-11-24, 실행 45215247009).
+          # 같은 ANGLE 빌드의 호스트 crash를 36.1.9 고정으로 넘긴 사례: bdero/flutter_scene#314.
+          # 36.1.9에는 software, lavapipe 모드가 없다. 진단 matrix 항목에 "emulator_build", "gpu"를 주면 바꿔 띄운다.
+          emulator-build: ${{ matrix.emulator_build || '13823996' }}
+          emulator-options: -no-window -gpu ${{ matrix.gpu || 'swangle_indirect' }} -no-snapshot -noaudio -no-boot-anim
           working-directory: app
           # 실행, 30분 timeout, 실패 때 진단(메모리, OOM, 에뮬레이터 생존, logcat)은 스크립트 머리말에 있다.
           script: tool/e2e_ci.sh ${{ matrix.variant && format('patrol_test/diag/glint_diag_test.dart --dart-define=GLINT_DIAG={0}', matrix.variant) || '' }}
