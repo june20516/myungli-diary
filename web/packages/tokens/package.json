@@ -1,0 +1,14 @@
+{
+  "name": "@myungli/tokens",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./tokens.css": "./tokens.css",
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "generate": "node scripts/generate.ts",
+    "check": "node scripts/generate.ts --check",
+    "typecheck": "tsc -p tsconfig.json"
+  }
+}
