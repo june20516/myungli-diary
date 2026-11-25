@@ -57,6 +57,7 @@ server는 `APP_ENV`가 `staging`·`prod`이면 E7~E12의 값이 하나라도 비
 | E22 | 새 앱 아이콘(V7 갱신 #908, app #909)을 콘솔에 올리기: Play 스토어 등록정보 아이콘 512, Kakao Developers 앱 아이콘(250KB 미만, 128 이하 권장), LINE 로그인 채널 아이콘, RevenueCat(선택). App Store는 빌드의 아이콘, AdMob은 스토어 아이콘을 씀. Google OAuth 동의 화면 로고는 E11 브랜드 인증 때 | T1, I4 | #908 | - | 파일: 사용자 애셋 폴더 `upload/` | 사용자 | 완료(2026-11-10. Play 등록정보 아이콘은 서비스 계정 `play-publisher@myungli-diary.iam.gserviceaccount.com`으로 API 업로드, 카카오, LINE, RevenueCat은 사용자가 콘솔에 등록. 이 계정은 prod GCP 프로젝트에 Terraform 밖에서 만들었고, 키 없이 사용자 계정의 impersonation(Token Creator)으로만 쓰며, Play Console에서 명리일기 앱 하나에 출시와 스토어 등록정보 권한을 받음. 빌드 업로드 명령은 app #944) | #910 |
 | E23 | App Store Featuring Nomination(앱 출시 피처링 추천 신청, 광고 아님, 무료). App Store Connect > 앱 > Featuring > Nominations, 유형 App launch | I4 노출 | E2 | 출시 최소 2주 전(권장 최대 3개월 전) | - | - | 준비 전(사용자, 지금) | #1318 |
 | E24 | 광고 크레딧 계정(D143): Apple Ads는 앱 공개 뒤 계정을 처음 만들어 신규 계정 크레딧을 받고 App Store Connect 최상위 계정과 연결, Google Ads는 Android 출시 무렵 계정을 만들어 14일 안에 신규 광고주 오퍼 확인. 금액과 결과는 비공개 기록에만(D74) | I4 뒤 유입 측정 | I4 | - | - | - | 준비 전(I4 때 지휘가 알림) | #1319 |
+| E25 | 랜딩 호스팅(WB1): 두 Firebase 프로젝트(staging, prod)에 Hosting 사이트 추가, Cloudflare DNS에 본 도메인과 `www`, `staging` 기록(프록시 끔), 배포 서비스 계정과 Workload Identity, GitHub environment. 랜딩이 prod에 뜬 뒤 AdMob `app-ads.txt` 확인과 두 스토어 등록정보 웹사이트를 `https://myungli-diary.app`으로. 사이트 이름과 배포 계정 절차는 web이 정해 넘김 | WB1, I4 | E6 | 인증서 발급 | 공개: 사이트 이름 | web | 준비 전 | - |
 
 ### 끝난 것
 
