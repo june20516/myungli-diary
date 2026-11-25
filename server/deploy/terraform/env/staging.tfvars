@@ -11,7 +11,7 @@ sql_max_connections = 25
 uptime_check_enabled = true
 test_login_enabled   = true
 
-# staging 결제는 RevenueCat Test Store(sandbox) 구매로 켭니다(D99, #683). APP_ENV가 prod가 아니라 sandbox 구매도 장부에 적습니다.
+# staging 결제는 RevenueCat Test Store(sandbox) 구매로 켭니다(D99, #683). sandbox 구매도 장부에 적습니다(모든 환경, S168).
 # AD_FREE_PRODUCT_IDS는 광고 제거권 상품의 <RevenueCat 상품 id>=<스토어 상품 식별자>로 Test Store, Play, App Store 순입니다(S124, S166).
 # 세 상품 모두 스토어 식별자 ad_free_1m을 씁니다(D99 ⑤, S118). 구매 내역은 이 식별자로 나갑니다.
 # 스토어 빌드가 staging 설정으로 나가 실제 스토어 sandbox 구매도 오므로 두 스토어 id를 함께 둡니다(#1221 지휘 요청, app #1197).

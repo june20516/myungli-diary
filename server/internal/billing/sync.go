@@ -54,33 +54,29 @@ var _ PurchaseSource = (*RevenueCat)(nil)
 type SyncConfig struct {
 	// Catalog는 사용 구간을 만드는 상품 목록입니다. 목록 밖 상품은 장부에만 적습니다.
 	Catalog Catalog
-	// ProductionOnly가 true면 production 구매만 장부에 적습니다(APP_ENV가 prod일 때).
-	ProductionOnly bool
 	// Logger는 장부 기록의 경고를 남깁니다. nil이면 버립니다.
 	Logger *slog.Logger
 }
 
 // Syncer는 계정의 RevenueCat 구매 목록으로 구매 장부와 사용 구간을 맞춥니다(spec §5.4).
 type Syncer struct {
-	pool           *pgxpool.Pool
-	source         PurchaseSource
-	catalog        Catalog
-	productionOnly bool
-	clk            clock.Clock
-	store          *Store
-	log            *slog.Logger
+	pool    *pgxpool.Pool
+	source  PurchaseSource
+	catalog Catalog
+	clk     clock.Clock
+	store   *Store
+	log     *slog.Logger
 }
 
 // NewSyncer는 Syncer를 만듭니다.
 func NewSyncer(pool *pgxpool.Pool, src PurchaseSource, cfg SyncConfig, clk clock.Clock) *Syncer {
 	return &Syncer{
-		pool:           pool,
-		source:         src,
-		catalog:        cfg.Catalog,
-		productionOnly: cfg.ProductionOnly,
-		clk:            clk,
-		store:          NewStore(pool, clk, cfg.Catalog),
-		log:            cmp.Or(cfg.Logger, slog.New(slog.DiscardHandler)),
+		pool:    pool,
+		source:  src,
+		catalog: cfg.Catalog,
+		clk:     clk,
+		store:   NewStore(pool, clk, cfg.Catalog),
+		log:     cmp.Or(cfg.Logger, slog.New(slog.DiscardHandler)),
 	}
 }
 
@@ -179,15 +175,10 @@ func (s *Syncer) syncLocked(ctx context.Context, q *billingdb.Queries, accountID
 }
 
 // ledgerOrder는 장부에 적을 구매를 (구매 시각, id) 순으로 돌려줍니다. 새 구간이 구매 순서대로 이어 붙도록 정렬합니다(S108).
-// productionOnly면 sandbox 구매를 뺍니다(P7). 입력 slice는 바꾸지 않습니다.
+// 모든 환경에서 sandbox 구매도 적습니다. App Store 심사는 출시용 빌드에서 sandbox로 결제하므로 prod도 받아야 하고,
+// 구분은 장부의 production 칸에 남습니다(S168). 입력 slice는 바꾸지 않습니다.
 func (s *Syncer) ledgerOrder(purchases []Purchase) []Purchase {
-	ordered := make([]Purchase, 0, len(purchases))
-	for _, p := range purchases {
-		if s.productionOnly && !p.Production {
-			continue
-		}
-		ordered = append(ordered, p)
-	}
+	ordered := slices.Clone(purchases)
 	slices.SortFunc(ordered, func(a, b Purchase) int {
 		if c := a.PurchasedAt.Compare(b.PurchasedAt); c != 0 {
 			return c
