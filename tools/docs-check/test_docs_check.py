@@ -341,6 +341,22 @@ class IaTests(RepoTestCase):
         self.write_ia("{")
         self.assertEqual(docs_check.main(["docs_check", str(self.root)]), 1)
 
+    def test_other_surface_file_is_checked(self) -> None:
+        # 표면별 IA 파일(D146)도 같은 형식으로 검사합니다.
+        self.write_ia(ia_doc())
+        write(self.root, "docs/ia/site.json", json.dumps({"version": 1}))
+        problems = docs_check.check_ia(self.root)
+        self.assertTrue(any(p.startswith("docs/ia/site.json: 최상위는 객체") for p in problems), problems)
+
+    def test_screen_id_shared_across_files_reported(self) -> None:
+        # 화면 id와 그로 시작하는 슬롯 id는 파일 사이에서도 유일해야 합니다(D146).
+        self.write_ia(ia_doc())
+        site = ia_doc(tabs=[], components=[], screens=[ia_screen(tab=None, components=[])])
+        write(self.root, "docs/ia/site.json", json.dumps(site, ensure_ascii=False))
+        joined = "\n".join(docs_check.check_ia(self.root))
+        self.assertIn("docs/ia/site.json [today]: 화면 id가 docs/ia/screens.json과 겹침", joined)
+        self.assertIn("docs/ia/site.json [today]: 슬롯 id가 docs/ia/screens.json과 겹침: today.fortune.head", joined)
+
 
 IDEAS_HEADER = "| id | 날짜 | 아이디어 | 출처 | 범위 | 수익 | 상태 | 메모 |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n"
 IDEAS_NO_TABLE = (
