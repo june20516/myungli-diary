@@ -671,3 +671,15 @@ def test_review_export_rejects_uncovered_file(tmp_path: Path, capsys: pytest.Cap
     assert main(["review-export", str(content), "--lang", "en", "--tier", "1", "--out", str(out)]) == 1
     assert "extra" in capsys.readouterr().out
     assert not out.exists()
+
+
+def test_collect_findings_matches_check(tmp_path: Path) -> None:
+    from mlw.cli import collect_findings, default_check_inputs
+
+    findings = collect_findings(default_check_inputs(), CONTENT_DIR)
+    assert all(finding.rule_id in ("complete.pending", "slot.empty_keys") for finding in findings)
+    content = tmp_path / "content"
+    shutil.copytree(CONTENT_DIR, content)
+    (content / "ko" / "color.yaml").write_text(BAD_CONTENT, encoding="utf-8")
+    errors = [f for f in collect_findings(default_check_inputs(), content) if f.severity == "error"]
+    assert errors and all(f.file.is_relative_to(content) for f in errors)

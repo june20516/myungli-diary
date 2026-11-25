@@ -353,29 +353,70 @@ def _read_fixture(path: Path) -> dict[str, object]:
     return cast(dict[str, object], data)
 
 
-def _check(args: argparse.Namespace) -> int:
-    rules = load_rules(args.rules_dir)
-    all_slots = load_slots(args.slots_dir, rules)
+@dataclasses.dataclass(frozen=True)
+class CheckInputs:
+    """원고 밖에서 `mlw check`가 읽는 입력(규칙, 슬롯, 계약 파일) 경로입니다."""
+
+    rules_dir: Path
+    slots_dir: Path
+    message_keys: Path
+    message_params: Path
+    evidence_rules: Path
+    evidence_sources: Path
+    fixture: Path
+    ia: Sequence[Path]
+
+    @classmethod
+    def from_args(cls, args: argparse.Namespace) -> "CheckInputs":
+        return cls(
+            rules_dir=args.rules_dir,
+            slots_dir=args.slots_dir,
+            message_keys=args.message_keys,
+            message_params=args.message_params,
+            evidence_rules=args.evidence_rules,
+            evidence_sources=args.evidence_sources,
+            fixture=args.fixture,
+            ia=tuple(args.ia),
+        )
+
+
+def default_check_inputs() -> CheckInputs:
+    return CheckInputs(
+        rules_dir=paths.RULES_DIR,
+        slots_dir=paths.SLOTS_DIR,
+        message_keys=paths.MESSAGE_KEYS_FILE,
+        message_params=paths.MESSAGE_PARAMS_FILE,
+        evidence_rules=paths.EVIDENCE_RULES_FILE,
+        evidence_sources=paths.EVIDENCE_SOURCES_FILE,
+        fixture=paths.FIXTURE_FILE,
+        ia=paths.IA_FILES,
+    )
+
+
+def collect_findings(inputs: CheckInputs, content_dir: Path, *, partial: bool = False) -> list[Finding]:
+    """`mlw check`의 모든 검사 결과입니다(정렬 전)."""
+    rules = load_rules(inputs.rules_dir)
+    all_slots = load_slots(inputs.slots_dir, rules)
     # 하루·한 주 묶음 검사는 콘텐츠 슬롯만 봅니다. ui, store, web 원고는 완결성·문장·표기 검사만 받습니다.
     content_slots = {
         slot_id: slot
         for slot_id, slot in all_slots.items()
         if not is_ui_slot(slot) and not is_store_slot(slot) and not is_web_slot(slot)
     }
-    entries = load_content(args.content)
-    message_keys = _read_message_keys(args.message_keys)
-    message_params = _read_message_params(args.message_params)
-    evidence_rules = _read_message_params(args.evidence_rules)
-    evidence_sources = _read_evidence_sources(args.evidence_sources)
-    fixture = _read_fixture(args.fixture)
-    ia = load_ia(args.ia)
+    entries = load_content(content_dir)
+    message_keys = _read_message_keys(inputs.message_keys)
+    message_params = _read_message_params(inputs.message_params)
+    evidence_rules = _read_message_params(inputs.evidence_rules)
+    evidence_sources = _read_evidence_sources(inputs.evidence_sources)
+    fixture = _read_fixture(inputs.fixture)
+    ia = load_ia(list(inputs.ia))
     tag_keys = [key for key in message_keys if key.startswith(TAG_KEY_PREFIX)]
-    hanja = load_hanja(args.content / HANJA_FILE_NAME)
+    hanja = load_hanja(content_dir / HANJA_FILE_NAME)
 
     completeness = check_completeness(all_slots, entries, message_keys, LANGS, message_params)
-    if args.partial:
+    if partial:
         completeness = [finding for finding in completeness if finding.rule_id != RULE_MISSING]
-    findings = [
+    return [
         *check_ia(all_slots, ia),
         *completeness,
         *check_evidence(all_slots, evidence_rules, evidence_sources),
@@ -386,10 +427,13 @@ def _check(args: argparse.Namespace) -> int:
         *check_hanja(hanja, term_ids(tag_keys)),
         *check_days(content_slots, entries, rules.limits.values(), LANGS, rules),
         *check_weeks(
-            content_slots, entries, rules.limits.values(), LANGS, rules, fixture, message_keys, fixture_path=args.fixture
+            content_slots, entries, rules.limits.values(), LANGS, rules, fixture, message_keys, fixture_path=inputs.fixture
         ),
     ]
-    return _print_findings(findings)
+
+
+def _check(args: argparse.Namespace) -> int:
+    return _print_findings(collect_findings(CheckInputs.from_args(args), args.content, partial=args.partial))
 
 
 def _check_arb(args: argparse.Namespace) -> int:
