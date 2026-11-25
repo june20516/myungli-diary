@@ -54,10 +54,10 @@
 | MVP 화면 목록 (IA) `docs/ia/screens.json` (화면·상태·경로·슬롯·컴포넌트) | **사용** | 지휘 |
 | ui 원고 ARB `docs/identity/writing/generated/arb/app_{ko,en,ja}.arb` (`tool/import_writing_arb.dart`로 가져옴) | **사용** | writing |
 
-## 현재 상태 (2026-11-24, app 세션 갱신)
+## 현재 상태 (2026-11-25, app 세션 갱신)
 진행 중인 일만 적고, 병합하면 지웁니다(`docs/workflow.md` §3 마무리 2번). 병합된 일의 경과는 PR 본문, 결정 로그(`docs/decisions.md`), git에 있습니다.
-* **빌드 11(#1254, D142 길일 금빛):** Play `alpha`와 TestFlight에 올림(2026-11-24), 브랜치 `app/build-11` PR로 대장 기록. #1254의 Q1 남은 항목(Q1-2~5, 8~11, APP-3, APP-4)은 I4 전 다음 빌드입니다.
-* **밤 E2E 판단(A155):** `software` 조치는 안 통했고(실행 45215247009), 에뮬레이터 36.1.9 고정 PR(`app/e2e-emulator-pin`) 병합 뒤 `e2e-android`가 연속 3번 성공하면 고쳐진 것, "테스트 중 에뮬레이터 프로세스가 사라졌습니다"가 한 번이라도 나면 안 고쳐진 것입니다. 세션을 열 때마다 [판단 계획](docs/plans/2026-11-24-e2e-emulator-gpu.md)의 명령으로 확인하고 표에 적습니다. 실험을 늘리지 않습니다(사용자 결정 2026-11-24). 월요일 최신 에뮬레이터 감시(`emu latest` job)가 3번 모두 통과하면 고정을 옮깁니다(같은 문서 "최신 에뮬레이터 감시").
+* **I3 prod 리허설(#1282, D139):** 브랜치 `app/i3-prod-rehearsal`. ① staging(http) Patrol 전체와 커버리지 보고서 갱신, ③ 실기기 목록, `+12` 올림 뒤 지휘 승격을 받아 ② main에서 prod 설정 빌드를 Play 내부 테스트와 TestFlight 내부 테스터에 올립니다. #1254의 Q1 남은 항목(Q1-2~5, 8~11, APP-3, APP-4)은 I4 전 빌드입니다.
+* **최신 에뮬레이터 감시(A155, 고쳐짐 판정 2026-11-24):** 월요일 `emu latest` job이 3번 모두 통과하면 36.1.9 고정을 옮깁니다([판단 계획](docs/plans/2026-11-24-e2e-emulator-gpu.md) "최신 에뮬레이터 감시").
 
 ## 다음 할 일
 0. **실기기와 도구:**
