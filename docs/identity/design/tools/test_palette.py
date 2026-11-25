@@ -116,7 +116,7 @@ def test_all_text_pairs_pass():
     results = check_contrast(build_palette())
     assert [r.name for r in results if not r.passed] == []
     ratios = {r.name: round(r.ratio, 2) for r in results}
-    assert ratios["light badge.good"] == 4.89
+    assert ratios["light badge.good"] == 4.72  # 1.11.0 gold-600(V136). 1.10.0까지 coral-600 4.89
     assert ratios["light term"] == 5.80
 
 
@@ -155,15 +155,16 @@ def test_cli_check_reports_failure(monkeypatch, capsys):
     assert "FAIL  1.73  light badge.good" in output
 
 
+# 길 역할(귀인 배지, 캘린더 좋음 칸)은 1.11.0(결정 V136, D142)부터 coral 대신 같은 단계의 gold
 V1_ROLES = {
-    "light": {"badge.gwiin.bg": ("coral", 100), "badge.gwiin.fg": ("coral", 700),
+    "light": {"badge.gwiin.bg": ("gold", 100), "badge.gwiin.fg": ("gold", 700),
               "badge.gisin.bg": ("neutral", 100), "badge.gisin.fg": ("neutral", 700),
               "badge.ordinary.border": ("neutral", 300), "badge.ordinary.fg": ("neutral", 700),
-              "calendar.good.bg": ("coral", 100), "calendar.caution.bg": ("neutral", 100)},
-    "dark": {"badge.gwiin.bg": ("coral", 800), "badge.gwiin.fg": ("coral", 200),
+              "calendar.good.bg": ("gold", 100), "calendar.caution.bg": ("neutral", 100)},
+    "dark": {"badge.gwiin.bg": ("gold", 800), "badge.gwiin.fg": ("gold", 200),
              "badge.gisin.bg": ("neutral", 800), "badge.gisin.fg": ("neutral", 200),
              "badge.ordinary.border": ("neutral", 700), "badge.ordinary.fg": ("neutral", 400),
-             "calendar.good.bg": ("coral", 900), "calendar.caution.bg": ("neutral", 900)},
+             "calendar.good.bg": ("gold", 900), "calendar.caution.bg": ("neutral", 900)},
 }
 
 

@@ -1293,5 +1293,25 @@
     ],
     "status": "chosen",
     "note": "토큰 CSS(ds1/tokens.css)와 Phosphor 2.1.1 SVG(인라인). 라이트와 다크, 구매 직후 움직임은 CSS 재생. 문구는 design 가안(확정 writing #1267), 가격은 자리표시. 사용자 답(2026-11-17): 질문 1 B(열림 그라데이션), 질문 2 B(혜택 문장 반짝임 한 번), 질문 3 A(채운 알약과 아이콘, 구분선을 글자 폭으로), 질문 4 B(확인 두 줄)"
+  },
+  {
+    "id": "design-palette-fortune-paid",
+    "title": "길일 붉은 계열 빼기 팔레트 비교(#1294, D142)",
+    "kind": "concept",
+    "file": "2026-11-23-palette-fortune-paid.webp",
+    "source": "2026-11-23-palette-fortune-paid.webp",
+    "date": "2026-11-23",
+    "milestone": "T1",
+    "screens": [
+      "calendar",
+      "today",
+      "evidence-sheet",
+      "ad-free"
+    ],
+    "decisions": [
+      "V136"
+    ],
+    "status": "chosen",
+    "note": "후보 토큰으로 app 화면을 golden과 같은 Linux 렌더로 그림(app 코드는 고치지 않음). 렌더 도구는 저장소 밖 작업물이라 이 요약 그림이 원본. 비공개 페이지 \"길일 팔레트 비교\"에 다섯 안(기준, 맞바꿈, 금빛, 하늘, 자색)과 섞음안을 화면 19곳 라이트와 다크로 둠. 이 파일은 줄마다 기준, 금빛, 자색, 섞음이고 칸은 라이트 달력, 열린 오늘, 열린 근거 시트, 사용 중 광고 제거권, 이어서 다크. 사용자 답(2026-11-23): 로고 색 그대로, 맞바꿈과 하늘 탈락, 섞음안(길 금빛, 유료 자색, sage 짝 coral) 채택"
   }
 ]

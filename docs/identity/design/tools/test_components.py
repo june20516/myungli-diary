@@ -446,7 +446,8 @@ def test_actions_are_rounded_rectangles():
     assert "`radius.md`" in readme and "`radius.full`" in readme and "`space.20`" in readme
 
 
-def test_contract_version_is_9_0_0():
+def test_contract_version_is_9_0_1():
+    # 9.0.1은 #1294(D142, V136): 길 톤 coral을 gold로, 반짝임 띠 금빛을 열림 그라데이션으로 고친 문구만이라 수 버전.
     # 9.0.0은 #1266(V135): offer-card 부품 period, status, remaining을 지우고 terms, owned로 바꿔 주 버전.
     # 8.2.0은 #1211(V134): sentence-block 글자, 근거 시트 대상 문장, lock.veil 앞부분에 한자 대체 글꼴을 더해 부 버전.
     # 8.1.0은 #1180(D132, V132): 열림 꼬리표 params에 time 추가와 광고 권한 끝 "자정"을 "광고 2시간"으로 고친 문구라 부 버전.
@@ -460,7 +461,7 @@ def test_contract_version_is_9_0_0():
     # 7.2.0은 #1029 ①, #1034 drift(D124 ⑤, V119): 날짜 머리 덕일 virtue와 hanja-tag compact 추가라 부 버전.
     # 7.1.0은 #1020 drift(D123, V118): 행운 색, 시간 시트 근거 진입점과 시간 시트 제목 슬롯 추가라 부 버전.
     # 7.0.0은 #982, #1003(V114~V117), 6.3.0은 V110~V113, 6.2.0은 검수 회차2 묶음(V100~V109), 6.1.1은 #908(V99), 6.1.0은 #892(V98), 6.0.0은 #859 drift(V96)
-    assert VERSION == "9.0.0"
+    assert VERSION == "9.0.1"
     contracts = (DESIGN_DIR.parents[2] / "docs" / "contracts" / "README.md").read_text(encoding="utf-8")
     row = next(line for line in contracts.splitlines() if line.startswith("| 컴포넌트 명세 |"))
     assert f"| {VERSION} |" in row
@@ -2614,7 +2615,7 @@ def test_birth_info_row():
     assert "skeleton" in row["states"]["loading"]
     text = json.dumps(row, ensure_ascii=False)
     assert not {"join", "separator"} & set(parts) and "쉼표" in " ".join(row["rules"])  # 칸 사이는 글자 없이 세로선
-    assert "coral" in " ".join(row["rules"])  # 성별을 톤 색으로 나누지 않음(Q4)
+    assert "gold" in " ".join(row["rules"])  # 성별을 톤 색으로 나누지 않음(Q4). 길 톤은 1.11.0부터 gold(V136)
     assert "·" not in text
     assert row["a11y"]["dividersDecorative"] is True and row["a11y"]["textScaleMax"] == 1.3
 

@@ -33,7 +33,7 @@
 ## 현재 상태
 진행 중인 일만 적고, 병합하면 지웁니다(`docs/workflow.md` §3 마무리 2번). 병합된 일의 경과는 PR 본문, 결정 행([`decisions.md`](decisions.md)), git에 있습니다.
 
-* **광고 제거권 사용 중 강조와 자동 결제 없음 강조 #1266** (브랜치 `design/owned-state-1266`, 결정 V135, 컴포넌트 명세 9.0.0): `offer-card` `terms`(확인 두 줄)와 `owned`(열린 근거 표시 모양), 구매 직후 반짝임 한 번, `purchase-row` 채운 사용 중 알약과 구분선 글자 폭. 문구는 writing #1267, 구현은 app 요청 Issue.
+* **길일 붉은 계열 빼기, 길 금빛과 유료 자색 #1294** (브랜치 `design/palette-1294`, D142, 결정 V136, 토큰 1.11.0, 컴포넌트 명세 9.0.1): 원시 팔레트 `color.gold`, 좋은 날과 귀인의 날 배지, 좋은 태그, 달력 길일 칸 금빛, `gradient.unlocked` 가운데 자색. coral은 sage 짝 자리(오늘 바탕, 열림 끝, 로고 낙관)에 남김. 빌드 11에 실림. 같은 PR에 #1286(캐시 저장 조건 staging), #1237(Action SHA 고정).
 
 ## 기준 문서와 도구
 * 시각 정체성: [`visual-identity.md`](visual-identity.md)(시각에 관해서는 비공개 기록 06을 대체). 색 값의 출처는 [`tools/palette.py`](tools/palette.py)(`--check`로 대비 검사).
@@ -55,8 +55,8 @@
 * 워드마크를 바꾸면 `uv run --with fonttools==4.54.1 python docs/identity/design/tools/wordmark.py --font .suberpowers/fonts/GowunDodum-Regular.ttf --out-dir docs/identity/design/logo` 뒤 위 `app_icon.py`로 가로 조합 PNG를 다시 만듭니다.
 
 ## 다음 할 일
-1. **#1266 마무리:** PR 병합 뒤 "현재 상태"에서 지웁니다. writing #1267 문구가 오면 새 상한(`ad-free.offer.period` 21, `ui.ad-free.renewal`, `ui.ad-free.benefit`, `purchaseStatusActive`) 안인지 봅니다.
-   * app이 스토어 이미지를 다시 만들면(#1203, PR #1212) 명세(`store/`)대로인지 봅니다: 장면 순서, 틀 수치, 글 넘침, 근거 장면 한자.
+1. **#1294 마무리:** PR 병합 뒤 "현재 상태"에서 지우고 #1294에 완료 보고를 남깁니다. app 토큰 drift(1.11.0)가 빌드 11에 실리는지 봅니다.
+   * app이 새 색으로 스토어 이미지를 다시 만들면 명세(`store/`)대로인지 봅니다: 장면 순서, 틀 수치, 글 넘침, 근거 장면 한자. 바탕 `gradient.today`는 그대로입니다.
 
 그 밖에는 대기합니다. 아래 일이 생기면 엽니다.
 2. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다.

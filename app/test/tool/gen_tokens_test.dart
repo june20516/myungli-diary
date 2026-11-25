@@ -258,10 +258,10 @@ void main() {
     });
 
     test('새 색의 라이트·다크 값이 원본 토큰과 같다', () {
-      expect(lightColors.calendarLevelGreat.toARGB32(), 0xFFFFD2CA);
-      expect(darkColors.calendarLevelGreat.toARGB32(), 0xFF582720);
-      expect(lightColors.calendarLevelGood.toARGB32(), 0xFFFFE4DF);
-      expect(darkColors.calendarLevelGood.toARGB32(), 0xFF46322F);
+      expect(lightColors.calendarLevelGreat.toARGB32(), 0xFFFFE6C5);
+      expect(darkColors.calendarLevelGreat.toARGB32(), 0xFF4D3201);
+      expect(lightColors.calendarLevelGood.toARGB32(), 0xFFFFF0DC);
+      expect(darkColors.calendarLevelGood.toARGB32(), 0xFF413626);
       expect(lightColors.calendarLevelCaution.toARGB32(), 0xFFD4D4D3);
       expect(darkColors.calendarLevelCaution.toARGB32(), 0xFF2A2A29);
 
@@ -292,14 +292,14 @@ void main() {
       expect(source, contains('final LinearGradient verdictTrack'));
     });
 
-    test('verdictTrack 두 점: 라이트 d4d4d3 ffd2ca, 다크 2a2a29 582720', () {
+    test('verdictTrack 두 점: 라이트 d4d4d3 ffe6c5, 다크 2a2a29 4d3201', () {
       expect(lightGradients.verdictTrack.colors, const [
         Color(0xFFD4D4D3),
-        Color(0xFFFFD2CA),
+        Color(0xFFFFE6C5),
       ]);
       expect(darkGradients.verdictTrack.colors, const [
         Color(0xFF2A2A29),
-        Color(0xFF582720),
+        Color(0xFF4D3201),
       ]);
     });
 

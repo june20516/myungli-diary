@@ -38,7 +38,7 @@
 
 ## 검사
 작업 단계와 속도에 맞춰 자원을 고릅니다. 반복 중에는 로컬에서, PR 직전 확인이나 CI 환경에서만 나는 문제는 GitHub Actions에서 돌립니다.
-* **로컬 빠른 경로(반복 중, D81):** 바꾼 범위의 테스트만 돌립니다. `flutter test <바꾼 테스트 파일·디렉터리>`(예 `flutter test test/features/me test/flows/my_saju_flow_test.dart`), 계약 파일(openapi·IA·토큰·컴포넌트·원고)을 따라잡았으면 `flutter test --tags contract`, golden은 바꾼 컴포넌트의 파일만 `tool/goldens_linux.sh test/design/<파일>`. 기기 E2E는 바꾼 흐름 파일만 `tool/patrol_local.sh patrol_test/<흐름>_test.dart`로 돌리고, 전체 Patrol은 `main` push·밤 실행(`e2e-android`)에 맡깁니다. 아래 전체 검사는 PR 직전에 한 번 돌립니다.
+* **로컬 빠른 경로(반복 중, D81):** 바꾼 범위의 테스트만 돌립니다. `flutter test <바꾼 테스트 파일·디렉터리>`(예 `flutter test test/features/me test/flows/my_saju_flow_test.dart`), 계약 파일(openapi·IA·토큰·컴포넌트·원고)을 따라잡았으면 `flutter test --tags contract`, golden은 바꾼 컴포넌트의 파일만 `tool/goldens_linux.sh test/design/<파일>`. 기기 E2E는 바꾼 흐름 파일만 `tool/patrol_local.sh patrol_test/<흐름>_test.dart`로 돌리고, 전체 Patrol은 `staging` push·밤 실행(`e2e-android`)에 맡깁니다. 아래 전체 검사는 PR 직전에 한 번 돌립니다.
 * **CI 범위(D81):** `ci-gate`가 `mode`를 넘깁니다. `own`(app 코드나 `app.yml`이 바뀜)은 전체 `checks`·`goldens`·디버그 APK, `drift`·`gate`는 계약 검사만(생성 코드 차이, ARB 문구, fixture 스키마, E2E 커버리지, `contract` 태그 테스트)입니다. 계약 파일을 읽는 테스트는 `@Tags(['contract'])`를 붙이고, 빠뜨리거나 잘못 붙이면 `test/contract/contract_tags_test.dart`가 실패합니다. `app.yml`의 `push` 트리거는 `e2e-android`만 돕니다.
 * **로컬(PR 직전 전체):** `flutter analyze`(app·widgetbook)와 `dart analyze`(app, riverpod_lint plugin 지적까지 나옴 — `flutter analyze`는 같은 코드에서 plugin 지적이 나왔다 안 나왔다 한 적이 있어(원인 미확인) 함께 돌립니다), `flutter test --exclude-tags golden`, `dart format --set-exit-if-changed .`, `dart run tool/ia_coverage.dart --check`, golden은 Docker `tool/goldens_linux.sh`(CI와 같은 Linux 렌더링).
 * **로컬 E2E(Patrol):** 에뮬레이터 한 대를 띄우고 `tool/patrol_local.sh [대상]`(예 `tool/patrol_local.sh patrol_test/diary_test.dart`)으로 돌립니다. `patrol test`를 직접 부르지 않습니다. 스크립트가 늘 `-d <에뮬레이터>`로 지정하고(기기가 여러 대면 patrol이 고르라고 묻고 멈춤), 실행 중 기기가 60초 넘게 빠지면 끝내고, 설치 단계 `device offline`처럼 테스트가 하나도 돌지 못한 기기 문제는 기기가 돌아오면 한 번 다시 돌리며, 잠금으로 동시 실행을 막고 실행마다 새 로그(`build/patrol-local/`)를 씁니다. 종료 코드 0 통과, 1 테스트 실패, 2 기기 문제, 3 환경 문제, 4 시간 초과(2026-10-20 에뮬레이터 이탈로 patrol이 멈춘 일에서 나옴). 포트는 기본값(8081·8082) 대신 47281/47282입니다. 개발 기기에서 다른 도구(예 React Native Metro의 `adb reverse tcp:8081`)가 8081을 잡고 있으면 계측이 `BindException`으로 죽습니다. adb 서버는 다른 프로젝트와 함께 쓰므로 `adb kill-server`를 하지 않습니다. CI(`app.yml`)도 같은 포트입니다.
@@ -54,9 +54,10 @@
 | MVP 화면 목록 (IA) `docs/ia/screens.json` (화면·상태·경로·슬롯·컴포넌트) | **사용** | 지휘 |
 | ui 원고 ARB `docs/identity/writing/generated/arb/app_{ko,en,ja}.arb` (`tool/import_writing_arb.dart`로 가져옴) | **사용** | writing |
 
-## 현재 상태 (2026-11-16, app 세션 갱신)
+## 현재 상태 (2026-11-24, app 세션 갱신)
 진행 중인 일만 적고, 병합하면 지웁니다(`docs/workflow.md` §3 마무리 2번). 병합된 일의 경과는 PR 본문, 결정 로그(`docs/decisions.md`), git에 있습니다.
-* **iOS iPhone 전용과 스토어 이미지(#1203, D133, A150, A151)**, 브랜치 `app/1203-store-images`. 콘텐츠 문장 한자 글꼴(컴포넌트 명세 8.2.0, design V134)을 반영했습니다. 생성 결과 경로를 #1203에 남기면 지휘가 두 스토어에 올립니다.
+* **빌드 11(#1254, D142 길일 금빛):** Play `alpha`와 TestFlight에 올림(2026-11-24), 브랜치 `app/build-11` PR로 대장 기록. #1254의 Q1 남은 항목(Q1-2~5, 8~11, APP-3, APP-4)은 I4 전 다음 빌드입니다.
+* **밤 E2E 판단(A155):** `software` 조치는 안 통했고(실행 45215247009), 에뮬레이터 36.1.9 고정 PR(`app/e2e-emulator-pin`) 병합 뒤 `e2e-android`가 연속 3번 성공하면 고쳐진 것, "테스트 중 에뮬레이터 프로세스가 사라졌습니다"가 한 번이라도 나면 안 고쳐진 것입니다. 세션을 열 때마다 [판단 계획](docs/plans/2026-11-24-e2e-emulator-gpu.md)의 명령으로 확인하고 표에 적습니다. 실험을 늘리지 않습니다(사용자 결정 2026-11-24). 월요일 최신 에뮬레이터 감시(`emu latest` job)가 3번 모두 통과하면 고정을 옮깁니다(같은 문서 "최신 에뮬레이터 감시").
 
 ## 다음 할 일
 0. **실기기와 도구:**

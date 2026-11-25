@@ -148,9 +148,9 @@ func TestBillingFlow_WithoutEntitlementsIsUnavailable(t *testing.T) {
 }
 
 const (
-	flowProductID       = "test.ad_free.month"
+	flowProductID = "test.ad_free.month"
 	// flowStoreProductID는 flowProductID(RevenueCat 상품 id)의 스토어 상품 식별자입니다(S166).
-	flowStoreProductID = "ad_free_1m"
+	flowStoreProductID  = "ad_free_1m"
 	flowWebhookAuth     = "Bearer flow-webhook-secret"
 	flowRewardKeyID     = 3335741209
 	flowRewardTxPrefix  = "tx-flow-"
@@ -240,7 +240,6 @@ func TestBillingFlow_RestoreWebhookAndRewardedAd(t *testing.T) {
 		RevenueCatAPIKey:      flowRevenueCatToken,
 		RevenueCatWebhookAuth: flowWebhookAuth,
 		AdFreeProducts:        map[string]string{flowProductID: flowStoreProductID},
-		ProductionOnly:        true,
 	}
 	var pool *pgxpool.Pool
 	env := newFlowEnvWith(t, func(deps *serverDeps) {

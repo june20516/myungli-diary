@@ -425,7 +425,7 @@ MVP는 PostgreSQL 테이블에 캐시를 두고 `ResultCache` 인터페이스 �
   * 만료 전 재구매를 이어 붙이는 규칙은 D61로 확정됐습니다.
   * 환불된 구매는 빼고 다시 계산합니다. 동기화는 RevenueCat REST v2 구매 목록을 쓰며 환불은 `status: refunded`로 표시됩니다(S79). 없는 고객은 404이고 구매 없음으로 봅니다.
   * "1개월"은 UTC 달력 기준이고 달의 날이 없으면 그 달 마지막 날로 맞춥니다(1월 31일 → 2월 28·29일, 시각 유지, S80).
-* **구매 범위:** 광고 제거권 상품은 설정 `AD_FREE_PRODUCT_IDS`의 목록(`<RevenueCat 상품 id>=<스토어 상품 식별자>`, 스토어마다 하나, S124, S166)이고 밖의 상품은 장부에만 적고 Warn을 남깁니다. `APP_ENV`가 prod면 `environment=production` 구매만, 그 밖에는 sandbox도 셉니다(S89).
+* **구매 범위:** 광고 제거권 상품은 설정 `AD_FREE_PRODUCT_IDS`의 목록(`<RevenueCat 상품 id>=<스토어 상품 식별자>`, 스토어마다 하나, S124, S166)이고 밖의 상품은 장부에만 적고 Warn을 남깁니다. 모든 환경에서 production과 sandbox 구매를 함께 세고, 환경은 장부 `production` 칸에 남깁니다(App Store 심사가 출시용 빌드에서 sandbox로 결제, S168).
 * **조정:** 계정의 `ad_free_pass` 행을 원하는 집합과 비교해 없는 행은 넣고 기간이 다른 행은 고치고, 집합에서 빠진 행은 `revoked_at`을 찍습니다. 행을 지우지 않습니다(S81).
 * **동시성:** 동기화는 트랜잭션 안에서 계정 advisory lock(저장소 관례의 int4 키 쌍, 구분 'bil')을 잡은 뒤 RevenueCat을 조회하고 조정합니다. 동시에 온 webhook·복원이 오래된 조회 결과로 새 결과를 덮지 않게 하려는 것입니다(S82).
 * **webhook 계정 찾기:** `app_user_id`, `original_app_user_id`, `aliases`, `transferred_from`, `transferred_to`에서 UUID 형식이고 `accounts`에 있는 id를 모두 모아 각각 동기화합니다. 하나도 없으면 기록만 하고 200(Warn 로그)이며 `TEST` 이벤트도 기록만 합니다(S84).

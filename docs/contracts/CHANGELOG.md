@@ -24,9 +24,13 @@
 
 ## 디자인 토큰 (색·오행 팔레트·타이포·간격·반경·그라데이션·모션·그림자)
 
+**1.11.0:** (2026-11-23, #1294, D142, V136) 길에서 붉은 계열을 빼고 금빛으로, 유료 열림은 자색으로. 원시 팔레트 `color.gold.50`~`900` 추가(primitive). 값 바뀜(색 두 파일): `color.badge.good.bg`, `color.badge.gwiin.bg`·`fg`, `color.tag.good.bg`·`fg`, `color.calendar.good.bg`가 `color.coral.*`에서 같은 단계 `color.gold.*`로, `color.calendar.level.great`·`good` 금빛(맑은 두 단계 규칙 그대로), 그 끝 색을 쓰는 `color.verdict.track`, `gradient.unlocked` 가운데 색 금빛에서 자색(양 끝 sage, coral 그대로). `gradient.today`와 `color.coral.*`는 그대로. 이름은 그대로라 app은 토큰 코드를 다시 생성하고 golden을 갱신합니다.
+
 **2026-11-14까지 이력:** **freeze** (1.0.0 PR #18 `d049e08`, 1.1.0 PR #43 `47a1867`: motion·shadow·V2 역할 색·글자 스타일 2개 추가만. 1.2.0: 역할 색 `color.timeline.entry`(같은 날 일기 사이 점선, #410) 추가만. 1.3.0: DS1(#801) `border.width.hairline`, `size.icon.16`~`28`, `motion.duration.page`·`motion.easing.page`·`motion.offset.page` 추가만. 1.4.0: DS1 2단계(#801) 역할 색 `color.calendar.level.great`·`good`·`caution`(달력 네 단계), `color.fill.soft`(흰 표면 위 옅은 채움), `color.verdict.track`(길흉판정 막대 그라데이션), `color.highlight.bg`(현재 강조 바탕 옅은 회색) 추가만, 색 두 파일. 1.5.0: 오행 금 흰색, 수 먹색(#892, D114, V98): 금과 수 `color.ohaeng.metal.*`·`water.*`의 `swatch`·`bg`·`fg` 값 바뀜(수는 반전 칸, 다크도 금이 가장 밝고 수가 가장 어두움), `color.ohaeng.metal.border`, `color.ohaeng.water.border`(칸 테두리)와 `color.ohaeng.<오행>.glyph`(간지 태그 흰 원 안 한자색) 추가, 이름은 그대로. 1.6.0: 권유 글자 `color.invite.fg`(#929, D116, V102) 추가만. 1.7.0: 열린 근거 표시 그라데이션 `gradient.unlocked`(세이지, 금빛, 산호, #950, D118, V111) 추가만, 색 두 파일). 1.8.0: 집중 시간 해와 달 아이콘 `color.time.day`·`night`(#1003, D122, V115, 칩 바탕 위 3:1) 추가만, 색 두 파일). 1.9.0: Pretendard JP가 든 글꼴 묶음마다 바로 뒤에 한자 대체 글꼴 `Myungli Hanja Supplement`(罡처럼 Pretendard JP에 없는 한자만, 파일 `fonts/hanja-supplement/` 굵기 넷 OFL, #1029, V121) 값 변경, 글자 두 파일. 1.10.0: 반짝임 지나감 전용 `motion.duration.glint` 2600ms 추가(#1141, V131), primitive만. DTCG 2025.10 JSON 5개 파일, Dart 코드 생성은 app
 
 ## 컴포넌트 명세
+
+**9.0.1:** (2026-11-23, #1294, V136, 문구만) 길흉 톤 좋음과 귀인 설명을 coral에서 gold로, 반짝임 `unlock.glint` 띠를 "금빛 띠"에서 열림 그라데이션(세이지 → 자색 → 산호)으로 고침. 이름, 구성, 토큰 참조는 그대로. 토큰 계약 1.11.0 이상을 기대. IA 컴포넌트 56개, 상호작용 패턴 15개, 요소 21개.
 
 **9.0.0:** (2026-11-17, #1266, V135, 하위 호환이 깨짐) 광고 제거권 사용 중 강조와 자동 결제 없음 강조. `offer-card` 부품 `period`, `status`, `remaining`을 지우고 `terms`(가격 아래 확인 두 줄: 기간 `ad-free.offer.period`, 자동 결제 없음 IA 밖 `ui.ad-free.renewal`)와 `owned`(이용 중 표시, `unlock.mark` 모양: 사용 중 글자 `gradient.unlocked`, 끝나는 날 `type.title`, 혜택 한 줄 IA 밖 `ui.ad-free.benefit`)를 더함. `active`는 가격과 확인 두 줄을 그리지 않고, 이 화면에서 산 직후만 head에 `unlock.glint` 한 번(`justPurchased`, 반복 없음, 동작 줄이기면 없음). `purchase-row` 사용 중은 채운 sage 알약 + `seal-check` Fill(전에는 `tag.status`), 구분선은 카드 좌우 안쪽 16 안에서 더 들이지 않아 글자 폭과 같음(`insetX` 0). IA 컴포넌트 56개, 상호작용 패턴 15개, 요소 21개.
 

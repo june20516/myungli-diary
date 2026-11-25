@@ -2,17 +2,20 @@ name: app
 
 on:
   push:
-    branches: [main]
-    # main push는 app 소유 경로만 본다. 계약 경로(openapi·screens·tokens·components·slots·tools)는
+    branches: [staging]
+    # staging push는 app 소유 경로만 본다. 계약 경로(openapi·screens·tokens·components·slots·tools)는
     # ci-gate의 drift 판정이 맡으므로 여기에 두지 않는다(D73, workflow §6.1).
     paths:
       - "app/**"
       - ".github/workflows/app.yml"
-  # PR 검사는 ci-gate가 부른다(#85). push는 main 병합 뒤 기기 E2E만 돌리려고 남긴다.
-  # checks·goldens는 main push에서도 ci-gate가 한 번 돌리므로 이 push에서는 돌지 않는다(D81).
-  # 기기 E2E(e2e-android)는 PR에서 돌지 않고 main push, 매일 03:00 KST, 수동 실행에서만 돈다.
+  # PR 검사는 ci-gate가 부른다(#85). push는 staging 병합 뒤 기기 E2E만 돌리려고 남긴다.
+  # checks·goldens는 staging push에서도 ci-gate가 한 번 돌리므로 이 push에서는 돌지 않는다(D81).
+  # 기기 E2E(e2e-android)는 PR에서 돌지 않고 staging push, 매일 03:00 KST, 수동 실행에서만 돈다.
   schedule:
     - cron: "0 18 * * *"
+    # 최신 에뮬레이터 감시(A155): 월요일 04:00 KST. 에뮬레이터 고정 없이 real 진단을 3번 돌려, 모두 통과하면
+    # 고정(emulator-build)을 풀거나 그 버전으로 옮길 때가 된 것이다. 실패는 여전히 고장이라는 뜻이다.
+    - cron: "0 19 * * 0"
   # ci-gate가 부르면 e2e-android는 돌지 않는다(판정에 넣지 않음). run_e2e로만 켤 수 있다.
   workflow_call:
     inputs:
@@ -34,6 +37,15 @@ on:
         description: "golden 기준 이미지를 Linux에서 다시 만들어 artifact로 올린다"
         type: boolean
         default: false
+      # 에뮬레이터 진단(2026-11-23 glint 교착). 주면 e2e-android만 이 matrix로 돌고 다른 job은 건너뛴다.
+      # 항목마다 variant(patrol_test/diag/glint_diag_test.dart의 GLINT_DIAG), api(시스템 이미지 API 수준),
+      # 같은 항목을 여러 번 돌릴 때 구분하는 rep(선택), 기기 애니메이션을 켜는 animations(선택, true),
+      # 에뮬레이터에 gdb를 붙이는 gdb(선택, true), 에뮬레이터 GPU 모드 gpu(선택, 기본 swangle_indirect),
+      # 에뮬레이터 빌드 emulator_build(선택, 기본 13823996 = 36.1.9, "latest"는 고정 없음).
+      e2e_diag_matrix:
+        description: 'e2e 진단 matrix JSON. 예: [{"variant":"control","api":34}]. 비우면 일반 실행'
+        type: string
+        default: ""
 
 # workflow 단위 concurrency는 두지 않는다. workflow_call로 불리면 호출 측 event·ref로 group이 겹쳐 서로 취소되며, concurrency는 ci-gate가 가진다.
 
@@ -42,16 +54,16 @@ permissions:
 
 jobs:
   checks:
-    # 직접 실행에서는 수동 실행만 돈다. main push는 ci-gate가 이미 돌리고, 밤 schedule은 e2e-android만 돈다(D81).
+    # 직접 실행에서는 수동 실행만 돈다. staging push는 ci-gate가 이미 돌리고, 밤 schedule은 e2e-android만 돈다(D81).
     # 재사용 호출이면 github.workflow가 호출 측 이름이다(e2e-android 주석).
-    if: github.workflow != 'app' || github.event_name == 'workflow_dispatch'
+    if: github.workflow != 'app' || (github.event_name == 'workflow_dispatch' && !inputs.e2e_diag_matrix)
     runs-on: ubuntu-latest
     # Gradle이 걸려 runner를 오래 점유하지 않게 상한을 둔다.
     timeout-minutes: 30
     env:
       # own은 빠른 검사 전체, drift·gate는 계약을 읽는 검사만 돈다(D81). 직접 실행에는 mode 입력이 없어 own이다.
       # 계약 검사: 생성 코드 차이, ARB 문구, fixture 스키마, E2E 커버리지(IA), contract 태그 테스트.
-      # drift·gate에서 생성 코드가 commit된 것과 같으면 app 코드도 main과 같으므로 analyze는 own에만 둔다.
+      # drift·gate에서 생성 코드가 commit된 것과 같으면 app 코드도 PR 대상 브랜치(staging)와 같으므로 analyze는 own에만 둔다.
       OWN: ${{ (inputs.mode || 'own') == 'own' }}
       # 계약 PR의 깨짐은 위 검사가 잡고, Gradle 문제는 app/ 변경에서만 생기므로 own에서만 빌드한다.
       BUILD_APK: ${{ (inputs.mode || 'own') == 'own' && (github.workflow == 'app' || inputs.build_apk == true) }}
@@ -143,7 +155,7 @@ jobs:
             exit 1
           fi
       # 저장소 루트의 검사기를 쓰므로 이 단계만 루트에서 실행한다.
-      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
       - name: ARB 문구 검사
         working-directory: .
         run: uv run --project docs/identity/writing/tools mlw check-arb app/lib/core/l10n/arb/*.arb
@@ -204,7 +216,7 @@ jobs:
           fi
 
   # 기기 E2E: Android 에뮬레이터에서 Patrol을 돈다. PR에서는 돌지 않는다(비용·시간).
-  # 재사용 호출(workflow_call)에서는 github.event_name이 호출 측 이벤트(ci-gate의 main push 등)라
+  # 재사용 호출(workflow_call)에서는 github.event_name이 호출 측 이벤트(ci-gate의 staging push 등)라
   # 이벤트만으로는 거를 수 없다. 호출되면 github.workflow가 호출 측 이름이 되므로, 직접 실행
   # (github.workflow == 'app')일 때만 이벤트로 켜고, 호출되면 run_e2e 입력으로만 켠다.
   e2e-android:
@@ -212,6 +224,15 @@ jobs:
       (github.workflow == 'app' &&
         (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'))
       || (github.workflow != 'app' && inputs.run_e2e == true)
+    # 진단 입력이 없으면 항목 하나(API 34, 전체 E2E)라 지금까지와 같다. 있으면 항목마다 job 하나다.
+    name: ${{ matrix.variant && format('e2e-diag ({0}, API {1}{2}{3}{4})', matrix.variant, matrix.api, matrix.animations && ', anim' || '', matrix.emulator_build && format(', emu {0}', matrix.emulator_build) || '', matrix.rep && format(' rep {0}', matrix.rep) || '') || 'e2e-android' }}
+    # 최신 에뮬레이터 감시 항목은 고장이 이어지는 동안 매주 실패하므로 실행 전체를 실패로 만들지 않는다.
+    # job 결과(failure/success)로 판단한다(app/docs/plans/2026-11-24-e2e-emulator-gpu.md).
+    continue-on-error: ${{ matrix.emulator_build == 'latest' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(inputs.e2e_diag_matrix || (github.event.schedule == '0 19 * * 0' && '[{"variant":"real","api":34,"rep":1,"emulator_build":"latest","gpu":"software"},{"variant":"real","api":34,"rep":2,"emulator_build":"latest","gpu":"software"},{"variant":"real","api":34,"rep":3,"emulator_build":"latest","gpu":"software"}]') || '[{"api":34}]') }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     defaults:
@@ -288,17 +309,27 @@ jobs:
       - name: Patrol E2E (fake 모드)
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
         with:
-          api-level: 34
+          api-level: ${{ matrix.api }}
           arch: x86_64
           target: google_apis
           profile: pixel_6
-          disable-animations: true
+          # 기기 애니메이션 끄기. 진단 matrix 항목에 "animations": true를 주면 켠다(로컬 에뮬레이터와 같은 조건).
+          disable-animations: ${{ matrix.animations != true }}
+          # 에뮬레이터를 36.1.9(빌드 13823996)로 고정하고 GPU는 swangle_indirect(ANGLE)를 쓴다(A155).
+          # 2026-11-11부터 37.2.13~37.3.10에서 호스트 SwiftShader가 실제 앱 화면을 그리다 SIGSEGV로 죽어 e2e가
+          # 멈췄다. 37.3.10의 software 모드도 GLES는 ANGLE 위 SwiftShader라 같이 죽었다(2026-11-24, 실행 45215247009).
+          # 같은 ANGLE 빌드의 호스트 crash를 36.1.9 고정으로 넘긴 사례: bdero/flutter_scene#314.
+          # 36.1.9에는 software, lavapipe 모드가 없다. 진단 matrix 항목에 "emulator_build", "gpu"를 주면 바꿔 띄운다.
+          # "emulator_build": "latest"는 고정 없이 sdkmanager의 최신 안정판을 쓴다(빈 값이면 액션이 따로 받지 않음).
+          emulator-build: ${{ matrix.emulator_build != 'latest' && (matrix.emulator_build || '13823996') || '' }}
+          emulator-options: -no-window -gpu ${{ matrix.gpu || 'swangle_indirect' }} -no-snapshot -noaudio -no-boot-anim
           working-directory: app
-          # sh 한 줄이라 pipefail 없이 로그를 파일로 받고, 실패하면 로그를 보여 주고 기기 전체 logcat을 남긴다.
-          # Patrol 포트는 기본값(8081·8082) 대신 덜 쓰이는 47281·47282로 고정한다(로컬 Metro 등과 충돌 방지, app/CLAUDE.md와 같은 값).
-          script: mkdir -p build && patrol test -t patrol_test --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake --test-server-port 47281 --app-server-port 47282 --screenshots-output-dir build/e2e-native-screenshots > build/patrol.log 2>&1 || { cat build/patrol.log; echo "--- instrumentation 결과, Patrol 요약에서 빠지는 프로세스 크래시 포함 ---"; tail -n 8 build/app/outputs/androidTest-results/connected/debug/*/testlog/test-results.log || true; adb logcat -d > build/logcat-full.txt; exit 1; }; n=$(adb logcat -d | grep -c "Destroy timeout of remove-task" || true); echo "remove-task destroy timeout=$n"; if [ "$n" != 0 ]; then echo "::warning title=e2e A100::테스트 뒤 Activity가 닫히지 않은 채 끝난 task가 $n개 있습니다. app/README.md 기기 E2E 실패 읽기"; fi
+          # 실행, 30분 timeout, 실패 때 진단(메모리, OOM, 에뮬레이터 생존, logcat)은 스크립트 머리말에 있다.
+          script: tool/e2e_ci.sh ${{ matrix.variant && format('patrol_test/diag/glint_diag_test.dart --dart-define=GLINT_DIAG={0}', matrix.variant) || '' }}
         env:
           PATROL_ANALYTICS_ENABLED: "false"
+          # 진단 항목에 "gdb": true를 주면 에뮬레이터에 gdb를 붙여 신호 순간 스택을 받는다(tool/e2e_ci_monitor.sh).
+          E2E_GDB_WATCH: ${{ matrix.gdb && '1' || '' }}
       # 빌드가 캐시 키 밖의 NDK·CMake를 설치했으면 키가 낡은 것이다(README "NDK·CMake 캐시").
       - name: NDK·CMake 캐시 대상 확인
         if: always() && steps.android-native.outputs.key != ''
@@ -326,22 +357,30 @@ jobs:
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: e2e-screenshots
+          name: e2e-screenshots${{ matrix.variant && format('-{0}-{1}{2}{3}', matrix.variant, matrix.api, matrix.animations && '-anim' || '', matrix.rep && format('-{0}', matrix.rep) || '') || '' }}
           path: |
             app/build/e2e-screenshots/**
             app/build/e2e-native-screenshots/**
             app/build/patrol.log
+            app/build/e2e-metrics.tsv
+            app/build/e2e-threads.log
           if-no-files-found: warn
-      # 실패 원인 추적용: Gradle(androidTest) 보고서와 결과 XML, 기기 전체 logcat.
+      # 실패 원인 추적용: Gradle(androidTest) 보고서와 결과 XML, 기기 logcat, 시간순 지표, 기기 응답 기록,
+      # 에뮬레이터 스레드 CPU와 스택, 에뮬레이터 crash 기록(tool/e2e_ci_monitor.sh).
       - name: Gradle 보고서 올리기
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: e2e-gradle-reports
+          name: e2e-gradle-reports${{ matrix.variant && format('-{0}-{1}{2}{3}', matrix.variant, matrix.api, matrix.animations && '-anim' || '', matrix.rep && format('-{0}', matrix.rep) || '') || '' }}
           path: |
             app/build/app/reports/androidTests/**
             app/build/app/outputs/androidTest-results/**
             app/build/logcat-full.txt
+            app/build/logcat-stream.txt
+            app/build/e2e-metrics.tsv
+            app/build/e2e-threads.log
+            app/build/e2e-freeze.log
+            app/build/e2e-diag/**
           if-no-files-found: warn
 
   # golden 비교: Flutter 버전을 app/tool/golden_flutter_version으로 고정한다.
@@ -349,7 +388,7 @@ jobs:
   # 토큰 계약이 바뀌면 drift의 생성 코드 차이 확인이 먼저 잡는다.
   goldens:
     if: >-
-      (github.workflow == 'app' && github.event_name == 'workflow_dispatch')
+      (github.workflow == 'app' && github.event_name == 'workflow_dispatch' && !inputs.e2e_diag_matrix)
       || (github.workflow != 'app' && (inputs.mode || 'own') == 'own')
     runs-on: ubuntu-latest
     timeout-minutes: 30

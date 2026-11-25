@@ -28,7 +28,7 @@ ICON_SIZES = (16, 20, 24, 28)
 PAGE_OFFSET = 24
 # 토큰 1.4.0: 길흉판정 위치 막대 그라데이션 (왼쪽 조심할 날 → 오른쪽 잘 풀리는 날)
 VERDICT_TRACK_ANGLE = 90
-UNLOCKED_GRADIENT_ANGLE = 90  # 열린 근거 표시: 글자 읽는 방향으로 세이지 → 금빛 → 산호 (V111)
+UNLOCKED_GRADIENT_ANGLE = 90  # 열린 근거 표시: 글자 읽는 방향으로 세이지 → 자색 → 산호 (V111, 가운데 자색은 V136)
 
 # 모드별 알파 색 (spec §3.3): (원시 팔레트 이름 또는 white, 단계, 알파)
 CHIP_ALPHA = {"light": 0.70, "dark": 0.08}
@@ -307,7 +307,8 @@ def _color_document(palette: dict, mode: str) -> dict:
         "gradient",
         [{"color": color_value(stop), "position": index / (len(unlocked) - 1)} for index, stop in enumerate(unlocked)],
         "열린 근거 표시(D118, V111): 반짝임 띠, 모션 줄이기 때 구역 제목 글자와 왼쪽 선, 열린 날 근거 아이콘, 열림 꼬리표 "
-        "테두리. 멈춤 색마다 bg.base, bg.sheet 위 글자 대비 4.5:1 이상(1.7.0)",
+        "테두리, 광고 제거권 사용 중. 세이지 → 자색 → 산호이고 가운데 자색이 유료 열림의 색(1.11.0, V136, 1.7.0의 금빛을 바꿈). "
+        "멈춤 색마다 bg.base, bg.sheet 위 글자 대비 4.5:1 이상(1.7.0)",
         {"angle": UNLOCKED_GRADIENT_ANGLE}))
     return document
 

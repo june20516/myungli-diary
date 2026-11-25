@@ -26,16 +26,16 @@ jobs:
       # 측정 글꼴이 없으면 글자 수 표·워드마크 테스트가 skip되지 않고 실패한다(#362).
       DESIGN_FONTS_REQUIRED: "1"
     steps:
-      - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10.3.3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
         with:
           version: "0.11.3"
           python-version: "3.13"
       # 키는 fonts.py의 해시(주소·sha256 목록)다. 글꼴 파일은 runner OS와 상관없고, 복원한 뒤에도 fonts.py가 sha256을 다시 확인해
-      # 없거나 다른 파일만 받는다. 수동 실행은 캐시 없이 새로 받고, 저장은 main push의 own 실행에서만 한다(D81 ⑥).
+      # 없거나 다른 파일만 받는다. 수동 실행은 캐시 없이 새로 받고, 저장은 기준 브랜치 staging push의 own 실행에서만 한다(D81 ⑥, D136 ①).
       - name: 측정 글꼴 캐시 복원
         if: github.event_name != 'workflow_dispatch' && github.event_name != 'schedule'
-        uses: actions/cache/restore@v6
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: .suberpowers/fonts
           key: design-fonts-${{ hashFiles('docs/identity/design/tools/fonts.py') }}
@@ -58,8 +58,8 @@ jobs:
         if: env.OWN == 'true'
         run: python3 docs/identity/design/tools/palette.py --check
       - name: 측정 글꼴 캐시 저장
-        if: env.OWN == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/cache/save@v6
+        if: env.OWN == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/staging'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: .suberpowers/fonts
           key: design-fonts-${{ hashFiles('docs/identity/design/tools/fonts.py') }}

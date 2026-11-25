@@ -1,5 +1,5 @@
 {
-  "version": "9.0.0",
+  "version": "9.0.1",
   "group": "calendar",
   "components": [
     {
@@ -113,7 +113,7 @@
         "일기 도장과 오늘 윤곽은 같은 크기·자리(숫자 상자 가운데 26px)다.",
         "음력은 초하루만 'M.1', 절기 날은 절기 이름(굵게), 그 밖에는 일(日)만. 윤달 초하루는 윤달 표지를 붙인 'M.1'(leapNewMoon)이다.",
         "길흉은 색만으로 전하지 않는다. 스크린리더 라벨에 길흉 낱말(네 단계 이름, 범례와 같은 낱말)을 넣는다.",
-        "길흉 바탕은 네 단계다: 아주 잘 풀리는 날 calendar.level.great, 잘 풀리는 날 calendar.level.good, 무난한 날 채우지 않음, 조심할 날 calendar.level.caution(결정 V84). 라이트는 잘 풀리는 두 단계 모두 맑은 coral(회색 섞임 없음)이고 아주 잘 풀리는 날이 더 진하다(다크는 명도가 같고 채도로 나뉨, 사용자 결정 2026-11-07).",
+        "길흉 바탕은 네 단계다: 아주 잘 풀리는 날 calendar.level.great, 잘 풀리는 날 calendar.level.good, 무난한 날 채우지 않음, 조심할 날 calendar.level.caution(결정 V84). 라이트는 잘 풀리는 두 단계 모두 맑은 금빛(회색 섞임 없음, 1.10.0까지 coral, 결정 V136)이고 아주 잘 풀리는 날이 더 진하다(다크는 명도가 같고 채도로 나뉨, 사용자 결정 2026-11-07).",
         "시스템 글자 크기는 1.3배까지만 키운다(textScaleMax). 칸 높이 62는 최소 높이이고, 그 글자가 들어가는 만큼만 늘어난다(1.3배에서 약 65). 1.3배 위 설정은 1.3배와 같다(결정 V36)."
       ]
     },
@@ -239,7 +239,7 @@
       "a11y": { "role": "group", "label": "이름, 뜻, 더함 둘", "countWords": true, "labelSlot": "day-sheet.verdict.item", "dotsDecorative": true, "tagFocus": "verdict 변형에서 태그는 따로 버튼" },
       "rules": [
         "숫자 대신 점이다. 점 개수는 그 항목 점수의 절댓값이고 최대 셋, 넘으면 셋 뒤에 +를 붙인다.",
-        "더함은 + 와 coral 점(badge.good.bg), 뺌은 − 와 회색 점(text.secondary)이다. 부호는 색 없이 본문색이라 색만으로 전하지 않는다.",
+        "더함은 + 와 gold 점(badge.good.bg), 뺌은 − 와 회색 점(text.secondary)이다. 부호는 색 없이 본문색이라 색만으로 전하지 않는다.",
         "태그는 hanja-tag이고 톤은 부호를 따른다(더함 verdictTone.good, 뺌 verdictTone.bad). 이 톤은 score-row와 fortune-verdict 안에서만 쓴다(Q4 ①).",
         "스크린리더는 '이름, 뜻, 더함 둘'처럼 부호와 개수를 낱말로 읽는다. 점은 읽지 않는다."
       ]

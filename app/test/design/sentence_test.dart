@@ -23,6 +23,7 @@ import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/elements/lock_veil.dart';
 import 'package:myungli_diary/design/elements/seal.dart';
 import 'package:myungli_diary/design/interaction/patterns.dart';
+import 'package:myungli_diary/design/interaction/unlock_glint.dart';
 import 'package:myungli_diary/design/text/keep_all.dart';
 import 'package:myungli_diary/design/theme/app_theme.dart';
 import 'package:myungli_diary/design/theme/hanja_fallback.dart';
@@ -250,11 +251,12 @@ void main() {
       final text = tester.widget<Text>(find.text('식신'));
       expect(text.style!.color, colors.termFg);
       expect(text.style!.fontWeight, isNot(FontWeight.bold));
+      // 칩 바탕은 반짝임 띠가 칠하지 않는 UnlockGlintBackdrop입니다(A154).
       final box = tester
-          .widgetList<DecoratedBox>(
+          .widgetList<UnlockGlintBackdrop>(
             find.descendant(
               of: find.byType(TermToken),
-              matching: find.byType(DecoratedBox),
+              matching: find.byType(UnlockGlintBackdrop),
             ),
           )
           .map((d) => d.decoration)
