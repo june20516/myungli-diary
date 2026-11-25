@@ -1,5 +1,6 @@
 # 환경 하나에 server를 배포합니다(deploy-server.yml이 부름, spec §7.1).
-# 순서: 엔진 이미지 확인 → Terraform apply → 설정·Secret 확인 → 이미지 → migrate → seed → server → Job → Scheduler → 부하 생성기(부하 환경만) → Firebase Hosting.
+# 순서: 엔진 이미지 확인 → Terraform apply → 설정·Secret 확인 → 이미지 → migrate → seed → server → Job → Scheduler → 부하 생성기(부하 환경만) → Firebase Hosting
+# → 판 맞춤 확인 → 조합 확인(D147, S169). 엔진이 뒤처졌으면 조합 확인을 건너뛰고 engine_behind를 내어, 부르는 쪽이 엔진을 배포한 뒤 확인합니다.
 # env와 Secret 연결은 Terraform이 두지 않고, 준비를 확인한 뒤 이미지와 함께 여기서 붙입니다(S121).
 name: deploy-server-env
 
@@ -21,6 +22,10 @@ on:
       service_account:
         type: string
         required: true
+    outputs:
+      engine_behind:
+        description: "배포한 환경의 엔진이 이 commit의 core/와 다른지(true|false). server를 배포하지 않았으면 비어 있습니다"
+        value: ${{ jobs.deploy.outputs.engine_behind }}
 
 permissions:
   contents: read
@@ -38,10 +43,15 @@ jobs:
     concurrency:
       group: deploy-server-${{ inputs.environment }}
       cancel-in-progress: false
+    outputs:
+      engine_behind: ${{ steps.versions.outputs.engine_behind }}
     env:
       PROJECT: ${{ inputs.project_id }}
     steps:
+      # 판 맞춤 확인이 배포된 이미지 commit의 core/, server/ 내용을 HEAD와 비교하므로 이력 전체를 받습니다.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
       - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
         with:
           workload_identity_provider: ${{ inputs.wif_provider }}
@@ -171,6 +181,10 @@ jobs:
             --image "${{ steps.image.outputs.image }}" \
             --env-vars-file "$RUNNER_TEMP/server-env.yaml" --set-secrets "${{ steps.ready.outputs.secrets }}"
           resume notify-every-5m
+          # 조합 확인 Job은 Scheduler 없이 아래 조합 확인 단계와 deploy-engine이 실행합니다(S169).
+          gcloud run jobs update server-smoke --region "$REGION" --project "$PROJECT" \
+            --image "${{ steps.image.outputs.image }}" \
+            --env-vars-file "$RUNNER_TEMP/server-env.yaml" --set-secrets "${{ steps.ready.outputs.secrets }}"
 
       # 부하 생성기 Job(load-k6, L1-2b)은 load_generator_enabled(Terraform 출력)가 true인 부하 환경에만 있습니다.
       # 스크립트 이미지를 빌드해 붙이고, 테스트 로그인 비밀만 연결합니다(server Secret 전부를 붙이지 않음).
@@ -190,3 +204,19 @@ jobs:
         if: steps.ready.outputs.ready == 'true'
         working-directory: server/deploy/firebase
         run: npx --yes firebase-tools@14 deploy --only hosting --project "$PROJECT" --non-interactive
+
+      # 판 맞춤 확인(D147 ②): 그 환경의 server, 엔진 이미지 commit을 적고 HEAD와 다르면 경고합니다.
+      - name: 판 맞춤 확인
+        if: steps.ready.outputs.ready == 'true'
+        id: versions
+        run: server/deploy/compose-check.sh versions "$PROJECT"
+
+      # 조합 확인(D147 ①): 엔진이 뒤처졌으면 지금 돌려도 옛 엔진과의 조합이라 건너뛰고, deploy-server가 엔진을 배포한 뒤 그쪽에서 돌립니다.
+      - name: 조합 확인
+        if: steps.ready.outputs.ready == 'true'
+        run: |
+          if [ "${{ steps.versions.outputs.engine_behind }}" = "true" ]; then
+            echo "### 조합 확인 미룸 (${{ inputs.environment }}): 엔진이 뒤처져 엔진 배포 뒤에 확인합니다." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          server/deploy/compose-check.sh smoke "$PROJECT"

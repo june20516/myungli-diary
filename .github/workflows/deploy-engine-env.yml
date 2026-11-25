@@ -1,4 +1,5 @@
-# 환경 하나에 엔진을 배포합니다(deploy-engine.yml이 부름, spec §7.2).
+# 환경 하나에 엔진을 배포합니다(deploy-engine.yml과, 엔진이 뒤처졌을 때 deploy-server.yml이 부름, spec §7.2).
+# 배포 뒤 판 맞춤 확인과 조합 확인을 돕니다(D147, S169).
 name: deploy-engine-env
 
 on:
@@ -32,7 +33,10 @@ jobs:
       group: deploy-engine-${{ inputs.environment }}
       cancel-in-progress: false
     steps:
+      # 판 맞춤 확인이 배포된 이미지 commit의 core/, server/ 내용을 HEAD와 비교하므로 이력 전체를 받습니다.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
       - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
         with:
           workload_identity_provider: ${{ inputs.wif_provider }}
@@ -92,6 +96,7 @@ jobs:
           echo "image=$repo/engine:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
 
       - name: 엔진 배포
+        id: deploy
         run: |
           # 서비스가 없을 때만 push로 끝내고, 권한·일시 오류는 실패로 드러냅니다(#647).
           # gcloud 591은 "Cannot find service [engine]"을 내고, 앞의 두 문구는 API 원문(NOT_FOUND)을 그대로 낼 때를 위해 둡니다.
@@ -99,9 +104,26 @@ jobs:
             gcloud run services update engine --image "${{ steps.image.outputs.image }}" --region "$REGION" --project "${{ inputs.project_id }}"
             # traffic이 이전 리비전에 고정돼 있으면(되돌리기 등) update가 새 리비전으로 옮기지 않으므로 최신으로 돌립니다(#824).
             gcloud run services update-traffic engine --to-latest --region "$REGION" --project "${{ inputs.project_id }}"
+            echo "deployed=true" >> "$GITHUB_OUTPUT"
           elif grep -q "Cannot find service\|NOT_FOUND\|could not be found" <<< "$output"; then
             echo "### 엔진 서비스가 아직 없어 이미지 push만 했습니다. deploy-server가 Terraform으로 만듭니다." >> "$GITHUB_STEP_SUMMARY"
           else
             echo "$output" >&2
             exit 1
           fi
+
+      # 판 맞춤 확인(D147 ②)과 조합 확인(D147 ①). server가 뒤처졌으면(같은 push의 deploy-server가 아직 도는 중 등) 지금 돌려도
+      # 옛 server와의 조합이라 조합 확인을 미룹니다. 그 server 배포가 끝에서 조합 확인을 돌립니다.
+      - name: 판 맞춤 확인
+        if: steps.deploy.outputs.deployed == 'true'
+        id: versions
+        run: server/deploy/compose-check.sh versions "${{ inputs.project_id }}"
+
+      - name: 조합 확인
+        if: steps.deploy.outputs.deployed == 'true'
+        run: |
+          if [ "${{ steps.versions.outputs.server_behind }}" = "true" ]; then
+            echo "### 조합 확인 미룸 (${{ inputs.environment }}): server가 뒤처져 deploy-server가 배포한 뒤 확인합니다." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          server/deploy/compose-check.sh smoke "${{ inputs.project_id }}"

@@ -1,5 +1,6 @@
 # server 배포(D65, spec server/docs/specs/2026-10-28-p9-deploy-design.md §7.1, S121).
 # PR: Terraform fmt·validate와 workflow 검사, bootstrap 뒤에는 plan. staging push: staging 배포. main push(승격): prod 배포(environment 승인, D136).
+# 배포 뒤 판 맞춤과 조합 확인을 하고, 엔진이 뒤처졌으면 같은 실행에서 엔진도 배포합니다(D147, S169).
 # 저장소 변수 DEPLOY_ENABLED가 true가 아니면(bootstrap 전) plan과 배포 job은 건너뜁니다.
 name: deploy-server
 
@@ -136,6 +137,34 @@ jobs:
       environment: prod
       project_id: myungli-diary
       go_tags: ""
+      wif_provider: ${{ vars.GCP_WIF_PROVIDER_PROD }}
+      service_account: ${{ vars.GCP_DEPLOYER_PROD }}
+
+  # 판 맞춤(D147 ②, S169): server를 배포한 환경의 엔진이 이 commit의 core/와 다르면 같은 실행에서 엔진을 배포하고,
+  # 그 끝에서 조합 확인을 돌립니다. 엔진 배포 관문(D110)은 server가 이미 이 commit이라 통과합니다. prod는 엔진 배포도 승인을 받습니다.
+  staging-engine:
+    needs: staging
+    if: needs.staging.outputs.engine_behind == 'true'
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/deploy-engine-env.yml
+    with:
+      environment: staging
+      project_id: myungli-diary-staging
+      wif_provider: ${{ vars.GCP_WIF_PROVIDER_STAGING }}
+      service_account: ${{ vars.GCP_DEPLOYER_STAGING }}
+
+  prod-engine:
+    needs: prod
+    if: needs.prod.outputs.engine_behind == 'true'
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/deploy-engine-env.yml
+    with:
+      environment: prod
+      project_id: myungli-diary
       wif_provider: ${{ vars.GCP_WIF_PROVIDER_PROD }}
       service_account: ${{ vars.GCP_DEPLOYER_PROD }}
 
