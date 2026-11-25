@@ -36,7 +36,7 @@
 | 순서 | 담당 | 할 일 | 끝나면 풀리는 것 |
 | --- | --- | --- | --- |
 | 1 | 사용자 | 14일이 차는 12-03 무렵 프로덕션 액세스 신청(빌드 11 업데이트 업체 알림은 끝남 2026-11-25, Google 집계상 참여 테스터가 기준과 같은 12명) | T1 통과 |
-| 2 | server → app → 사용자 | I3 ② prod 리허설: server prod 점검은 끝남(2026-11-25, #1281: 빠진 값 없음, prod도 sandbox 구매 반영 #1312, D99 ③ 개정). #1312 병합 뒤 지휘가 prod 승격, 사용자가 AdMob SSV 주소를 prod로 바꾸면 prod 준비 끝. 이어서 app prod 설정 빌드(내부 테스트), 사용자 실기기 전 과정(D139). app은 같은 때 ① 자동 E2E 다시 돌리기 | I4 |
+| 2 | server → app → 사용자 | I3 ② prod 리허설: server prod 점검은 끝남(2026-11-25, #1281: 빠진 값 없음, prod도 sandbox 구매 반영 #1312, D99 ③ 개정). AdMob SSV 주소 prod 전환(E13)도 끝남. 지휘의 prod 승격(#1312 포함)이 끝나면 prod 준비 끝. 이어서 app prod 설정 빌드(내부 테스트), 사용자 실기기 전 과정(D139). app은 같은 때 ① 자동 E2E 다시 돌리기 | I4 |
 | 2 | writing → 사용자 | 원어민 검수 시트 내보내기(D140), 사용자가 감수자에게 전달 | I4 |
 | 뒤 | 각자 | Q1 뒤처리 server #1253, core #1255, writing SHA 고정 #1236, core #59, writing #531(MVP 밖), server #794, #817 | I4 |
 | I4 2주 전 | 사용자 + 지휘 | Cloud SQL tier와 예산 점검(#903, D135 ④) | I4(1월 최고 부하) |
@@ -44,7 +44,6 @@
 ## I4 준비물
 | 항목 | 시점 |
 | --- | --- |
-| AdMob 보상형 단위 두 개의 SSV 콜백 주소를 prod `https://api.myungli-diary.app/webhooks/admob-ssv`로 바꾸고 "URL 확인"(E13, 사용자). RevenueCat prod 연결(E12)과 prod Secret 점검(E16 사업자 정보 포함)은 끝남(2026-11-25, #1281) | I3 ② 전 |
 | App Store 지원 연락처 `support@`로 통일(E14, Play는 끝남 2026-11-24) | 지금 |
 | Kakao debug 키 해시 삭제(E9), Google OAuth 브랜드 인증(E11), 보상형 광고 고지와 심사 기준(E19), 원어민 검수(E18, D140), 법적 문서 시행일 | I4 전 |
 | Cloud SQL tier와 예산(#903) | I4 2주 전 |
