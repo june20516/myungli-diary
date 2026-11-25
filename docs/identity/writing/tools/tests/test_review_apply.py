@@ -1,0 +1,183 @@
+"""검수 수정안 판정과 원고 반영 테스트(#1283)."""
+
+import shutil
+from pathlib import Path
+
+import pytest
+import yaml
+
+from mlw.cli import collect_findings, default_check_inputs
+from mlw.loader import load_content
+from mlw.model import Entry, Finding
+from mlw.paths import CONTENT_DIR
+from mlw.review.apply import (
+    Change,
+    Outcome,
+    apply_review,
+    prejudge,
+    replace_text_in_line,
+    rewind_tokens,
+    write_texts,
+)
+from mlw.review.export import row_id
+from mlw.review.sheet import ReviewRow
+
+
+def make_entry(text: str, key: str = "k") -> Entry:
+    return Entry(Path("content/en/ui.yaml"), 3, "s", key, None, 1, "en", text)
+
+
+def make_row(entry: Entry, suggestion: str, current: str | None = None, verdict: str = "") -> ReviewRow:
+    return ReviewRow(
+        id=row_id(entry),
+        key=entry.key,
+        bundle="ui",
+        place="",
+        source="",
+        current=entry.text if current is None else current,
+        example="",
+        suggestion=suggestion,
+        verdict=verdict,
+    )
+
+
+def reasons(rows: list[ReviewRow], entries: list[Entry]) -> dict[str, str]:
+    _, outcomes = prejudge(rows, {row_id(entry): entry for entry in entries})
+    return {outcome.row_id: outcome.reason for outcome in outcomes}
+
+
+def test_outcome_text() -> None:
+    assert Outcome("a", True).text == "반영함"
+    assert Outcome("a", False, "변경 없음").text == "반영 안 함: 변경 없음"
+
+
+def test_prejudge_reasons() -> None:
+    base = make_entry("Hello {name}", key="base")
+    verdict = make_entry("Keep", key="verdict")
+    missing = make_entry("Gone", key="missing")
+    stale = make_entry("New text", key="stale")
+    placeholder = make_entry("See {date}", key="placeholder")
+    term = make_entry("With [[Bigyeop|ten_god_group.bigyeop]] here", key="term")
+    same = make_entry("Same", key="same")
+    empty = make_entry("Untouched", key="empty")
+    entries = [base, verdict, stale, placeholder, term, same, empty]
+    rows = [
+        make_row(base, "Hi {name}"),
+        make_row(verdict, "Kept", verdict="tone is intended"),
+        make_row(missing, "Whatever"),
+        make_row(stale, "Better text", current="Old text"),
+        make_row(placeholder, "See you"),
+        make_row(term, "With Siksang here"),
+        make_row(same, "Same"),
+        make_row(empty, ""),
+    ]
+    changes, _ = prejudge(rows, {row_id(entry): entry for entry in entries})
+    assert changes == {row_id(base): "Hi {name}"}
+    assert reasons(rows, entries) == {
+        row_id(verdict): "writing 판정: tone is intended",
+        row_id(missing): "원고에 없는 줄",
+        row_id(stale): "내보낸 뒤 원고가 바뀜, 다시 확인",
+        row_id(placeholder): "자리표시자가 바뀜",
+        row_id(term): "용어 표기가 바뀜, writing이 직접 반영",
+        row_id(same): "변경 없음",
+    }
+
+
+def test_prejudge_duplicate_rows() -> None:
+    entry = make_entry("Hello")
+    rows = [make_row(entry, "Hi"), make_row(entry, "Hey")]
+    changes, outcomes = prejudge(rows, {row_id(entry): entry})
+    assert changes == {}
+    assert [outcome.reason for outcome in outcomes] == ["같은 줄이 두 번"]
+
+
+@pytest.mark.parametrize(
+    ("suggestion", "ok"),
+    [("{b} then {a}", True), ("{a} only", False), ("{a} {a} {b}", False), ("{a} and {b", False)],
+)
+def test_placeholder_multiset(suggestion: str, ok: bool) -> None:
+    entry = make_entry("{a} and {b}")
+    changes, _ = prejudge([make_row(entry, suggestion)], {row_id(entry): entry})
+    assert (row_id(entry) in changes) is ok
+
+
+def test_plural_structure_must_match() -> None:
+    entry = make_entry("{count, plural, one{{count} day} other{{count} days}}")
+    good = "{count, plural, one{{count} day left} other{{count} days left}}"
+    bad = "{count} days left"
+    for suggestion, ok in ((good, True), (bad, False)):
+        changes, _ = prejudge([make_row(entry, suggestion)], {row_id(entry): entry})
+        assert (row_id(entry) in changes) is ok
+
+
+def test_rewind_tokens() -> None:
+    current = "With [[Bigyeop|ten_god_group.bigyeop]] here"
+    assert rewind_tokens(current, "Bigyeop is here") == "[[Bigyeop|ten_god_group.bigyeop]] is here"
+    kept = "[[Bigyeop|ten_god_group.bigyeop]] is here"
+    assert rewind_tokens(current, kept) == kept
+    assert rewind_tokens(current, "Nothing here") is None
+    two = "[[Inseong|ten_god_group.inseong]] and [[Bigyeop|ten_god_group.bigyeop]]"
+    assert rewind_tokens(two, "Bigyeop, Inseong") is None
+    assert rewind_tokens(two, "Inseong with Bigyeop") == two.replace(" and ", " with ")
+    assert rewind_tokens("Plain", "Still plain") == "Still plain"
+
+
+@pytest.mark.parametrize("text", ['new "q" \\ x\ny', "ゆきさん、こんにちは", "50% off: {count}", "#tag"])
+def test_replace_text_in_line(text: str) -> None:
+    line = '- {slot: a, key: b, text: "old"}'
+    replaced = replace_text_in_line(line, text)
+    assert yaml.safe_load(replaced)[0]["text"] == text
+    assert replaced.startswith('- {slot: a, key: b, text: "')
+
+
+def test_replace_text_in_line_rejects_other_quotes() -> None:
+    with pytest.raises(ValueError):
+        replace_text_in_line("- {slot: a, key: b, text: 'x'}", "y")
+
+
+def test_write_texts_preserves_file(tmp_path: Path) -> None:
+    path = tmp_path / "en" / "ui.yaml"
+    path.parent.mkdir()
+    original = (
+        "# comment one\n# comment two\n"
+        '- {slot: a, key: one, text: "One"}\n'
+        '- {slot: a, key: two, text: "Two"}\n'
+        '- {slot: a, key: three, text: "Three"}\n'
+    )
+    path.write_text(original, encoding="utf-8")
+    write_texts(tmp_path, [Change(Path("en/ui.yaml"), 3, "Uno"), Change(Path("en/ui.yaml"), 5, 'Tres "3"\nend')])
+    lines = path.read_text(encoding="utf-8").splitlines()
+    assert lines[:2] == ["# comment one", "# comment two"]
+    assert lines[3] == '- {slot: a, key: two, text: "Two"}'
+    assert len(lines) == 5
+    texts = [item["text"] for item in yaml.safe_load(path.read_text(encoding="utf-8"))]
+    assert texts == ["Uno", "Two", 'Tres "3"\nend']
+
+
+def check(content_dir: Path) -> list[Finding]:
+    return collect_findings(default_check_inputs(), content_dir)
+
+
+def store_entries(content: Path) -> dict[str, Entry]:
+    return {e.key: e for e in load_content(content) if e.lang == "en" and e.file.stem == "store"}
+
+
+def test_apply_review_end_to_end(tmp_path: Path) -> None:
+    content = tmp_path / "content"
+    shutil.copytree(CONTENT_DIR, content)
+    entries = store_entries(content)
+    subtitle, promo = entries["subtitle"], entries["promotionalText"]
+    good = "Daily readings for your chart"
+    rows = [make_row(subtitle, good), make_row(promo, promo.text + " Calm·clear.")]
+    store_file = content / "en" / "store.yaml"
+    before = store_file.read_text(encoding="utf-8")
+
+    dry = apply_review(content, rows, "en", check, dry_run=True)
+    assert store_file.read_text(encoding="utf-8") == before
+    outcomes = apply_review(content, rows, "en", check, dry_run=False)
+
+    assert [outcome.applied for outcome in dry] == [outcome.applied for outcome in outcomes] == [True, False]
+    assert outcomes[1].reason.startswith("검사: style.S9")
+    after = {key: entry.text for key, entry in store_entries(content).items()}
+    assert after["subtitle"] == good
+    assert after["promotionalText"] == promo.text
