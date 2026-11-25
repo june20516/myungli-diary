@@ -18,6 +18,7 @@ UNIT_CLAUDE_FILES = (
     "core/CLAUDE.md",
     "server/CLAUDE.md",
     "app/CLAUDE.md",
+    "web/CLAUDE.md",
     "docs/identity/writing/CLAUDE.md",
     "docs/identity/design/CLAUDE.md",
 )
