@@ -14,7 +14,7 @@ from mlw.paths import (
     CONTENT_DIR,
     EVIDENCE_RULES_FILE,
     EVIDENCE_SOURCES_FILE,
-    IA_FILE,
+    IA_FILES,
     MESSAGE_KEYS_FILE,
     RULES_DIR,
     SLOTS_DIR,
@@ -36,7 +36,7 @@ def slots(rules: RuleSet) -> dict[str, Slot]:
 
 @pytest.fixture(scope="module")
 def ia() -> Ia:
-    return load_ia(IA_FILE)
+    return load_ia(IA_FILES)
 
 
 def test_content_ia_covered(slots: dict[str, Slot], ia: Ia) -> None:

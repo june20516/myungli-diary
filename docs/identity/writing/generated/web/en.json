@@ -1,0 +1,43 @@
+{
+  "web-landing.meta.title": {
+    "metaTitle": "Myungli Diary | Daily Readings for Your Chart"
+  },
+  "web-landing.meta.description": {
+    "metaDescription": "The same day is different for everyone. See each day read for your own chart."
+  },
+  "web-landing.hero.tagline": {
+    "heroTagline": "Daily Readings for Your Chart"
+  },
+  "web-landing.hero.body": {
+    "heroBody": "See today read for your own chart, then keep what happened beside it in your diary. Check smooth days and careful days ahead of time in the calendar."
+  },
+  "web-landing.shots.alt": {
+    "today": "Today screen. The day's overall reading in one sentence and the day's character, read for your own chart",
+    "evidence": "Basis screen. The reasoning behind a reading and the original classical text",
+    "calendar": "Calendar screen. A month with smooth days and careful days marked",
+    "daySheet": "Day screen. A diary entry kept beside that day's reading",
+    "mySaju": "My chart screen. Your natal chart and five-element balance in a table",
+    "share": "Share card. Today's luck on a single card"
+  },
+  "web-landing.store.soon": {
+    "storeSoon": "Coming soon to the App Store and Google Play."
+  },
+  "web-landing.store.apple": {
+    "storeApple": "Download on the App Store"
+  },
+  "web-landing.store.google": {
+    "storeGoogle": "Get it on Google Play"
+  },
+  "web-landing.footer.terms": {
+    "footerTerms": "Terms of Service"
+  },
+  "web-landing.footer.privacy": {
+    "footerPrivacy": "Privacy Policy"
+  },
+  "web-landing.footer.support": {
+    "footerSupport": "Help and Support"
+  },
+  "web-landing.lang.label": {
+    "langLabel": "Language"
+  }
+}

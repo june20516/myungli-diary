@@ -329,6 +329,18 @@
 | ui.shinsal.weighing | 컴포넌트 explain-sheet | info | - | 1 | 1 | - | ko 52, en 88, ja 38 |
 | ui.system.tracking | 컴포넌트 dialog | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.tag-sheet.sentence-kind | 컴포넌트 tag-sentence-list | info | - | 1 | 2 | - | ko -, en -, ja - |
+| web-landing.footer.privacy | web-landing.footer.privacy | guide | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-landing.footer.support | web-landing.footer.support | guide | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-landing.footer.terms | web-landing.footer.terms | guide | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-landing.hero.body | web-landing.hero.body | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-landing.hero.tagline | web-landing.hero.tagline | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-landing.lang.label | web-landing.lang.label | guide | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-landing.meta.description | web-landing.meta.description | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-landing.meta.title | web-landing.meta.title | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-landing.shots.alt | web-landing.shots.alt | info | - | 1 | 6 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-landing.store.apple | web-landing.store.apple | guide | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-landing.store.google | web-landing.store.google | guide | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-landing.store.soon | web-landing.store.soon | guide | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | welcome.concept.body | welcome.concept.body | info | - | 1 | 1 | - | ko -, en -, ja - |
 | welcome.concept.head | welcome.concept.head | info | - | 1 | 1 | - | ko -, en -, ja - |
 | welcome.cta.signin | welcome.cta.signin | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |

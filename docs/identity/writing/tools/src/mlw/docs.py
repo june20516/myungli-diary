@@ -19,6 +19,7 @@ from mlw.model import (
     Slot,
 )
 from mlw.store import LISTING_FILE, render_listing
+from mlw.web import render_web_files
 
 HEADER = "<!-- mlw gen-docs로 생성. 직접 고치지 않습니다 -->"
 RULE_STALE = "docs.stale"
@@ -172,7 +173,7 @@ def _render_ia_coverage(slots: Mapping[str, Slot], ia: Ia) -> str:
         (ia_id, source, ", ".join(covering.get(ia_id, [])) or NONE_TEXT) for ia_id, source in ia.slots.items()
     ]
     table = _table(("IA 슬롯", "source", "writing 슬롯"), rows)
-    description = "원본은 `docs/ia/screens.json`과 `slots/`의 YAML입니다. IA 화면 순서이고, `-`는 담는 슬롯이 없음입니다."
+    description = "원본은 `docs/ia/screens.json`, `docs/ia/site.json`과 `slots/`의 YAML입니다. IA 화면 순서이고, `-`는 담는 슬롯이 없음입니다."
     return _document("IA 슬롯 대응", description, table)
 
 
@@ -190,6 +191,7 @@ def render_docs(
     for lang in LANGS:
         docs[f"{ARB_DIR}/app_{lang}.arb"] = render_arb(slots, entries, lang, ia.roles)
     docs[LISTING_FILE] = render_listing(slots, entries)
+    docs.update(render_web_files(slots, entries))
     return docs
 
 

@@ -35,6 +35,7 @@ from mlw.placeholders import Placeholder, parse
 from mlw.sentence import check_sentence
 from mlw.store import is_store_slot
 from mlw.terms import check_tokens
+from mlw.web import is_web_slot
 
 GLOSSARY_SLOT = "glossary.value_name"
 # 태그 이름 메시지 키의 접두어입니다. 용어 id에 들어갑니다.
@@ -344,9 +345,11 @@ def _read_fixture(path: Path) -> dict[str, object]:
 def _check(args: argparse.Namespace) -> int:
     rules = load_rules(args.rules_dir)
     all_slots = load_slots(args.slots_dir, rules)
-    # 하루·한 주 묶음 검사는 콘텐츠 슬롯만 봅니다. ui, store 원고는 완결성·문장·표기 검사만 받습니다.
+    # 하루·한 주 묶음 검사는 콘텐츠 슬롯만 봅니다. ui, store, web 원고는 완결성·문장·표기 검사만 받습니다.
     content_slots = {
-        slot_id: slot for slot_id, slot in all_slots.items() if not is_ui_slot(slot) and not is_store_slot(slot)
+        slot_id: slot
+        for slot_id, slot in all_slots.items()
+        if not is_ui_slot(slot) and not is_store_slot(slot) and not is_web_slot(slot)
     }
     entries = load_content(args.content)
     message_keys = _read_message_keys(args.message_keys)
@@ -476,7 +479,9 @@ def _build_parser() -> argparse.ArgumentParser:
         command.add_argument("--slots-dir", type=Path, default=paths.SLOTS_DIR, help="슬롯 명세 디렉터리")
 
     def add_ia(command: argparse.ArgumentParser) -> None:
-        command.add_argument("--ia", type=Path, default=paths.IA_FILE, help="IA 계약 파일(screens.json)")
+        command.add_argument(
+            "--ia", type=Path, nargs="+", default=list(paths.IA_FILES), help="IA 계약 파일(screens.json, site.json)"
+        )
 
     check = commands.add_parser("check", help="원고를 검사합니다")
     check.add_argument("content", nargs="?", type=Path, default=paths.CONTENT_DIR, help="원고 디렉터리")
