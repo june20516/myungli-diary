@@ -30,16 +30,30 @@
 ## 현재 상태
 진행 중인 일만 적고, 병합하면 지웁니다(`docs/workflow.md` §3 마무리 2번).
 
-* 단위를 막 열었습니다(2026-11-25). 코드는 아직 없습니다.
+* **WB1 뼈대와 최소 판(#1331, 브랜치 `web/wb1-skeleton`):** workspace, 토큰 CSS, 최소 판 랜딩(세 언어, 언어 고르기, OG, `app-ads.txt`), `web.yml`, `deploy-web.yml`, 배포 Terraform. PR은 `참고 #1331`이고 병합은 사용자. 실제 배포는 사용자 E25(#1332, Firebase 사이트와 DNS, 배포 권한) 뒤 저장소 변수 `WEB_DEPLOY_ENABLED`로 켭니다.
+* 원고는 writing 생성물(#1329) 전이라 자리 문구(`site/src/copy/placeholder/`, 스토어 문구에서 가져옴)로 빌드합니다. 빌드 로그에 "자리 문구 사용" 경고가 납니다.
 
 ## 기준 문서와 도구
 * WB1 준비 메모: [`docs/specs/2026-11-25-web-landing-design.md`](../docs/specs/2026-11-25-web-landing-design.md)
 * 지휘 plan: [`docs/plans/2026-11-25-web-landing.md`](../docs/plans/2026-11-25-web-landing.md)(web 몫은 Task 3 Step 3)
-* web 자기 spec과 plan은 `web/docs/specs/`, `web/docs/plans/`에 둡니다.
+* web 자기 spec과 plan은 `web/docs/specs/`, `web/docs/plans/`에 둡니다. WB1 뼈대 plan: [`docs/plans/2026-11-25-wb1-skeleton.md`](docs/plans/2026-11-25-wb1-skeleton.md)
+* 배포 절차와 환경 표: [`deploy/README.md`](deploy/README.md)
 
 ## 검사 방법
-뼈대를 세운 뒤 여기에 적습니다(설치, 타입 검사, lint, 단위 테스트, 빌드, Playwright 명령).
+`web/`에서 실행합니다. Node와 pnpm 준비는 [`README.md`](README.md)입니다.
+
+| 명령 | 하는 일 |
+| --- | --- |
+| `pnpm install --frozen-lockfile` | 설치(lockfile 고정) |
+| `pnpm lint` | ESLint |
+| `pnpm typecheck` | 패키지마다 타입 검사(`astro check` 포함) |
+| `pnpm test` | Vitest 단위 테스트 전체 |
+| `pnpm build` | 사이트 빌드와 빌드 뒤 검사 |
+| `pnpm e2e` | 빌드 뒤 Hosting 에뮬레이터 위 Playwright |
 
 ## 다음 할 일
-1. **WB1 뼈대와 랜딩 #1331:** 자기 plan을 쓰고, workspace, 토큰 패키지, `web.yml`, `deploy-web.yml`, 최소 판 staging 배포. 사이트 이름과 배포 계정 절차를 사용자 E25 #1332에 코멘트로.
-2. 시안(design #1330)과 원고(writing #1329)가 오면 랜딩 구현과 Playwright.
+1. **staging 배포 확인:** 사용자 E25(#1332)가 끝나면 `deploy-web`을 staging에서 돌려 `https://staging.myungli-diary.app/`(세 언어, `app-ads.txt`, OG)를 확인합니다. 절차는 [`deploy/README.md`](deploy/README.md).
+2. **ci-gate 전환:** 지휘가 ci-gate에 web 갈래를 넣으면 `web.yml`의 `pull_request` 트리거를 지웁니다.
+3. **원고 연결(#1329):** writing 생성물이 오면 형식을 맞추고 `site/src/copy/placeholder/`를 지웁니다.
+4. **시안 구현(#1330):** 고른 안의 화면, 앱 화면 사진, Apple, Google 공식 배지, 웹 글꼴(@font-face), 404 안내 문구(슬롯 요청). 다음 web plan으로 쓰고 그 PR에서 `Closes #1331`.
+5. 출시 때 `site/src/config/site.ts`의 `release`를 `live`로, 두 스토어 주소를 넣습니다.

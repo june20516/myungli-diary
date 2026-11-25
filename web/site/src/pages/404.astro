@@ -1,0 +1,39 @@
+---
+import { DEFAULT_LANG, LANGS } from "../config/lang.ts";
+import { loadCopy } from "../copy/load.ts";
+import { LANG_NATIVE_NAME, OG_LOCALE } from "../i18n/locale.ts";
+import Base from "../layouts/Base.astro";
+
+const copy = loadCopy(DEFAULT_LANG);
+---
+
+<Base
+  htmlLang={DEFAULT_LANG}
+  title={copy.text("web-landing.meta.title")}
+  description={copy.text("web-landing.meta.description")}
+  ogImagePath={`/${DEFAULT_LANG}/og.png`}
+  ogLocale={OG_LOCALE[DEFAULT_LANG]}
+>
+  <main>
+    <h1>404</h1>
+    <ul>
+      {
+        LANGS.map((lang) => (
+          <li>
+            <a href={`/${lang}/`} hreflang={lang} lang={lang}>
+              {LANG_NATIVE_NAME[lang]}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </main>
+</Base>
+
+<style>
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: var(--space-48) var(--space-20);
+  }
+</style>

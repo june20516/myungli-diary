@@ -1,0 +1,64 @@
+---
+// 모든 페이지의 <head>: 제목, 설명, canonical, hreflang, OG.
+import "@myungli/tokens/tokens.css";
+import { LANGS } from "../config/lang.ts";
+import { siteConfig } from "../config/site.ts";
+
+interface Props {
+  /** <html lang>. 언어 고르기 페이지(/)는 en. */
+  htmlLang: string;
+  title: string;
+  description: string;
+  /** origin 뒤 경로, 빗금으로 시작하고 끝남. 없으면(404) canonical과 og:url을 내지 않습니다. */
+  path?: string;
+  ogImagePath: string;
+  ogLocale: string;
+}
+
+const { htmlLang, title, description, path, ogImagePath, ogLocale } = Astro.props;
+const absolute = (pathname: string) => `${siteConfig.origin}${pathname}`;
+---
+
+<!doctype html>
+<html lang={htmlLang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {!siteConfig.indexable && <meta name="robots" content="noindex" />}
+    {path !== undefined && <link rel="canonical" href={absolute(path)} />}
+    {LANGS.map((lang) => <link rel="alternate" hreflang={lang} href={absolute(`/${lang}/`)} />)}
+    <link rel="alternate" hreflang="x-default" href={absolute("/")} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {path !== undefined && <meta property="og:url" content={absolute(path)} />}
+    <meta property="og:image" content={absolute(ogImagePath)} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content={ogLocale} />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    color-scheme: light dark;
+  }
+  body {
+    margin: 0;
+    background: var(--color-bg-base);
+    color: var(--color-text-primary);
+    font-family: var(--font-family-ui);
+    font-size: var(--type-body-ui-font-size);
+    line-height: var(--type-body-ui-line-height);
+    letter-spacing: var(--type-body-ui-letter-spacing);
+  }
+  a {
+    color: inherit;
+  }
+</style>

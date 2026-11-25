@@ -1,0 +1,43 @@
+---
+import { LANGS, type Lang } from "../config/lang.ts";
+import { LANG_NATIVE_NAME } from "../i18n/locale.ts";
+
+interface Props {
+  current: Lang;
+  label: string;
+}
+
+const { current, label } = Astro.props;
+---
+
+<nav aria-label={label}>
+  <ul>
+    {
+      LANGS.map((lang) => (
+        <li>
+          <a href={`/${lang}/`} hreflang={lang} lang={lang} aria-current={lang === current ? "page" : undefined}>
+            {LANG_NATIVE_NAME[lang]}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<style>
+  ul {
+    display: flex;
+    gap: var(--space-12);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  a {
+    color: var(--color-text-secondary);
+    text-decoration: none;
+  }
+  a[aria-current="page"] {
+    color: var(--color-text-primary);
+    font-weight: 600;
+  }
+</style>
