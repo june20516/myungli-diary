@@ -6,13 +6,12 @@
 
 ## 마일스톤
 
-끝난 단계: R0, C1, C2, C3, S1, S2, S3, A1, A2, B0, IA, M0, W0, V0, V1, V2, W1, I1, I2, DS1, H1, O1, Q1. 행 원문(내용, 담당, 선행 조건)은 [`roadmap-history.md`](roadmap-history.md) "끝난 마일스톤 행"에 있습니다. 단계가 끝나면 그 행을 같은 곳으로 옮깁니다(D131).
+끝난 단계: R0, C1, C2, C3, S1, S2, S3, A1, A2, B0, IA, M0, W0, V0, V1, V2, W1, I1, I2, DS1, H1, O1, Q1, I3. 행 원문(내용, 담당, 선행 조건)은 [`roadmap-history.md`](roadmap-history.md) "끝난 마일스톤 행"에 있습니다. 단계가 끝나면 그 행을 같은 곳으로 옮깁니다(D131).
 
 | ID | 마일스톤 | 담당 | 선행 조건 | 끝나면 열리는 것 | 상태 |
 | --- | --- | --- | --- | --- | --- |
 | T1 | **비공개 테스트: 테스트용 클라우드에 server와 엔진을 올리고, 테스트 빌드를 배포해 테스터가 실제로 써 봅니다** ① 테스트 인프라: GCP staging 프로젝트, 도메인과 DNS, 비밀 값(외부 준비물 E4, E6~E12) ② server와 엔진 staging 배포(server P9, 엔진 실행 조건 #79). ①②는 I2가 staging에서 app E2E를 돌릴 때 먼저 세우고 T1에서 그대로 씁니다 ③ 테스트 빌드 배포: iOS TestFlight, Android Play 비공개 테스트 트랙(E2, E3) ④ 테스터 초대와 사용: Play 새 개인 계정 조건(테스터 12명 이상이 14일 연속) | 지휘 + server + app + 사용자 | I1, I2, Q1, O1 | I4(Play 비공개 테스트 의무를 이 단계에서 채움), E15(D92: 앱을 받아 본 뒤 사업자등록) | **진행 중** (Play 비공개 테스트 14일 진행, 2026-11-18 시작. 목표는 Play 요건 통과) |
 | L1 | **부하 테스트와 용량 산정:** 비슷한 범주 앱의 대형, 중형, 소형 활성 사용자 규모를 시나리오로(수치는 비공개 `business/`, D74), 요청당 연산과 비용, 한계에서의 server 응답과 app 대응. 부하 전용 환경 우선. 준비 메모 같은 파일 | 지휘 + server + app | O1 | I4 | **진행 중** (3회차까지 잼, 남은 것 server #817, tier는 I4 2주 전 점검 #903, D135) |
-| I3 | 통합 3(D139): ① 자동 E2E를 main으로 staging에서 다시 돌리고 커버리지 갱신 ② **prod 리허설**: prod 설정 빌드로 prod server에서 전 과정 1회(실기기) ③ 시스템 경계 실기기 목록 | server + app + 사용자 | I1, I2, W1 | I4 | 진행 중(①③ 끝남, ② 사용자 실기기 리허설 남음) |
 | WB1 | **랜딩과 web 단위 세우기(D144, D145):** `myungli-diary.app` 랜딩(스토어 웹사이트, `app-ads.txt`, 피처링과 광고 도착지, 세 언어)과 새 단위 `web/`(Astro, CI, 배포). 준비 메모 [`docs/specs/2026-11-25-web-landing-design.md`](specs/2026-11-25-web-landing-design.md) | 지휘 + writing + design + web + 사용자 | D144 | I4 | plan 작성 중(준비 메모 승인 2026-11-25) |
 | I4 | 스토어 심사·출시 (iOS / Android) | 지휘 + app | I3, T1, WB1 | Phase 2 | - |
 | WB2 | **첫 셀프 테스트(D144 ①②):** `social.myungli-diary.app`, 문항형, 결과 몇~십몇 분류, 결과별 정적 도착 페이지. 준비 메모는 WB1 뒤 | 지휘 + writing + design + web | WB1, I4 | 신년 유입 | - |
@@ -38,7 +37,7 @@
 | --- | --- | --- | --- |
 | 1 | 사용자 | App Store Featuring Nomination(앱 출시) 신청, 출시 2주 전까지(E23, #1318) | I4 노출 |
 | 1 | 사용자 | 14일이 차는 12-03 무렵 프로덕션 액세스 신청(빌드 11 업데이트 업체 알림은 끝남 2026-11-25, Google 집계상 참여 테스터가 기준과 같은 12명) | T1 통과 |
-| 2 | 사용자 | I3 ② prod 리허설: 빌드 12(prod 설정, Play 내부 테스트와 TestFlight 내부 테스터)로 실기기 전 과정. 목록 `app/docs/plans/2026-11-25-i3-prod-device-checklist.md`에 `[x]`, `[!]` 표시. 시작 전 AdMob 테스트 기기와 sandbox 결제 계정. prod 준비(server #1281, 승격 #1315, SSV E13)와 ① 자동 E2E, ③ 목록(#1282)은 끝남. 나온 문제는 app이 담당 단위 Issue로, I3는 `sev:1` 0이면 끝 | I4 |
+| 2 | app | I3에서 나온 것(I4 전 필수): 계정 전환 뒤 이전 계정 일기가 목록에 보임, LINE 계정 배너 안 뜸(#1345, sev:2). Q1 남은 항목 #1254와 같은 빌드로 | I4 |
 | 2 | writing → 사용자 | 원어민 검수 시트 내보내기(D140), 사용자가 감수자에게 전달 | I4 |
 | 2 | server | I4 전 운영 명령: 계정 조회, 권한 부여와 회수, 감사 기록(D145, #1321) | I4 |
 | 2 | web → writing → design → 사용자 | WB1(plan `docs/plans/2026-11-25-web-landing.md`): web 뼈대와 랜딩 #1331, writing 원고와 `site.json` 읽기 #1329, design 시안 #1330, 사용자 E25 #1332. 지휘는 web.yml이 생기면 `ci-gate` web 갈래 | WB1 |
