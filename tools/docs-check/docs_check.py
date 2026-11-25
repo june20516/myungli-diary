@@ -360,16 +360,21 @@ def check_ia(root: Path) -> list[str]:
             screen_id = screen.get("id")
             if not isinstance(screen_id, str):
                 continue
-            if screen_id in seen_screens and seen_screens[screen_id] != rel:
-                problems.append(f"{rel} [{screen_id}]: 화면 id가 {seen_screens[screen_id]}과 겹침")
-            seen_screens.setdefault(screen_id, rel)
-            for slot in screen.get("slots") or []:
+            owner = seen_screens.setdefault(screen_id, rel)
+            if owner != rel:
+                # 화면이 겹치면 그 슬롯 겹침은 같은 원인이라 따로 보고하지 않습니다.
+                message = f"{rel} [{screen_id}]: 화면 id가 {owner}과 겹침"
+                if message not in problems:
+                    problems.append(message)
+                continue
+            slots = screen.get("slots")
+            for slot in slots if isinstance(slots, list) else []:
                 slot_id = slot.get("id") if isinstance(slot, dict) else None
                 if not isinstance(slot_id, str):
                     continue
-                if slot_id in seen_slots and seen_slots[slot_id] != rel:
-                    problems.append(f"{rel} [{screen_id}]: 슬롯 id가 {seen_slots[slot_id]}과 겹침: {slot_id}")
-                seen_slots.setdefault(slot_id, rel)
+                slot_owner = seen_slots.setdefault(slot_id, rel)
+                if slot_owner != rel:
+                    problems.append(f"{rel} [{screen_id}]: 슬롯 id가 {slot_owner}과 겹침: {slot_id}")
     return problems
 
 

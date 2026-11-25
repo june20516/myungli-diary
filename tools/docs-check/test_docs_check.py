@@ -353,9 +353,47 @@ class IaTests(RepoTestCase):
         self.write_ia(ia_doc())
         site = ia_doc(tabs=[], components=[], screens=[ia_screen(tab=None, components=[])])
         write(self.root, "docs/ia/site.json", json.dumps(site, ensure_ascii=False))
-        joined = "\n".join(docs_check.check_ia(self.root))
-        self.assertIn("docs/ia/site.json [today]: 화면 id가 docs/ia/screens.json과 겹침", joined)
-        self.assertIn("docs/ia/site.json [today]: 슬롯 id가 docs/ia/screens.json과 겹침: today.fortune.head", joined)
+        problems = docs_check.check_ia(self.root)
+        self.assertIn("docs/ia/site.json [today]: 화면 id가 docs/ia/screens.json과 겹침", problems)
+        # 화면이 겹치면 그 화면의 슬롯 겹침은 따로 보고하지 않습니다(같은 원인이 여러 줄로 불어나지 않게).
+        self.assertFalse(any("슬롯 id가" in p for p in problems), problems)
+
+    def test_slot_id_shared_across_files_reported(self) -> None:
+        # 화면 id는 다르지만 슬롯이 접두 규칙을 어겨 다른 파일 슬롯과 겹치는 경우입니다.
+        self.write_ia(ia_doc())
+        bad_slot = {"id": "today.fortune.head", "source": "content", "role": "r"}
+        site = ia_doc(tabs=[], components=[], screens=[ia_screen(id="web-landing", tab=None, components=[], slots=[bad_slot])])
+        write(self.root, "docs/ia/site.json", json.dumps(site, ensure_ascii=False))
+        problems = docs_check.check_ia(self.root)
+        self.assertIn("docs/ia/site.json [web-landing]: 슬롯 id가 docs/ia/screens.json과 겹침: today.fortune.head", problems)
+
+    def test_overlap_reported_once_per_file_and_id(self) -> None:
+        # 한 파일 안에서 중복된 화면이 다른 파일과도 겹치면, 파일 사이 겹침은 한 번만 보고합니다.
+        self.write_ia(ia_doc())
+        site = ia_doc(tabs=[], components=[], screens=[ia_screen(tab=None, components=[]), ia_screen(tab=None, components=[])])
+        write(self.root, "docs/ia/site.json", json.dumps(site, ensure_ascii=False))
+        problems = docs_check.check_ia(self.root)
+        self.assertEqual(problems.count("docs/ia/site.json [today]: 화면 id가 docs/ia/screens.json과 겹침"), 1, problems)
+
+    def test_duplicate_within_one_file_is_not_cross_file_overlap(self) -> None:
+        self.write_ia(ia_doc(screens=[ia_screen(), ia_screen()]))
+        problems = docs_check.check_ia(self.root)
+        self.assertTrue(any("화면 id 중복" in p for p in problems), problems)
+        self.assertFalse(any("겹침" in p for p in problems), problems)
+
+    def test_later_file_in_name_order_is_named(self) -> None:
+        # screens.json이 먼저이고 나머지는 이름순입니다. 문장은 뒤 파일이 앞 파일과 겹친다고 씁니다.
+        screen = ia_screen(id="x", tab=None, components=[], slots=[])
+        for name in ("admin.json", "site.json"):
+            write(self.root, f"docs/ia/{name}", json.dumps(ia_doc(tabs=[], components=[], screens=[screen]), ensure_ascii=False))
+        write(self.root, "docs/decisions.md", "| D13 | 2026-10-10 | x | x | x |\n")
+        problems = docs_check.check_ia(self.root)
+        self.assertIn("docs/ia/site.json [x]: 화면 id가 docs/ia/admin.json과 겹침", problems)
+
+    def test_non_list_slots_reported_without_crash(self) -> None:
+        for bad in (5, True, "today.a.b"):
+            with self.subTest(slots=bad):
+                self.assert_reported(ia_doc(screens=[ia_screen(slots=bad)]), "slots")
 
 
 IDEAS_HEADER = "| id | 날짜 | 아이디어 | 출처 | 범위 | 수익 | 상태 | 메모 |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n"
