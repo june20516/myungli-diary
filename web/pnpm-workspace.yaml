@@ -9,3 +9,12 @@ minimumReleaseAgeExclude:
 allowBuilds:
   protobufjs: false
   re2: false
+
+# 보안 고정(Dependabot 알림 17, 19, 21, #1331). 상위 패키지(firebase-tools, satori)가 이미 최신이라 하위 의존성을 고친 판으로 올립니다.
+# 셋 다 배포되는 정적 사이트에는 들어가지 않습니다(uuid, minimatch는 firebase-tools, fflate는 빌드 때 OG를 그리는 satori).
+# minimatch 9 줄에는 고친 판이 없고 glob 10은 minimatch 9에서만 동작하므로, glob을 고친 판(minimatch ^11.0.5를 씀)으로 올립니다.
+# 상위 패키지가 고친 판을 받아들이면 지웁니다.
+overrides:
+  uuid@<11.1.1: 11.1.1
+  fflate@>=0.7.0 <0.7.5: 0.7.5
+  glob@>=9.0.0 <14.0.2: 14.0.6
