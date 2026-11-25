@@ -2,8 +2,8 @@
 # drift Issue 열기·모으기·닫기 (ci-gate의 drift-report·drift-close, docs/workflow.md §6.1)
 #
 # 사용:
-#   drift.sh report  PR 실행에서. env: PR, PR_TITLE, CONTRACTS, RUN_URL, 단위별 SERVER·APP·WRITING·DESIGN = "<mode>:<result>"
-#   drift.sh close   staging push에서. env: SHA, RUN_URL, 단위별 SERVER·APP·WRITING·DESIGN = "<result>"
+#   drift.sh report  PR 실행에서. env: PR, PR_TITLE, CONTRACTS, RUN_URL, 단위별 SERVER·APP·WRITING·DESIGN·WEB = "<mode>:<result>"
+#   drift.sh close   staging push에서. env: SHA, RUN_URL, 단위별 SERVER·APP·WRITING·DESIGN·WEB = "<result>"
 # gh는 GH_REPO·GH_TOKEN을 읽습니다. 테스트(test_drift.py)는 PATH 앞에 가짜 gh를 둡니다.
 #
 # 단위마다 열린 drift Issue는 하나로 모읍니다. 받는 쪽이 따라잡기 전에 다른 PR이 그 단위의 계약을 또 바꾸면,
@@ -12,7 +12,7 @@
 set -euo pipefail
 
 ADDED="* 더해진 원인: PR #"
-UNITS=(server app writing design)
+UNITS=(server app writing design web)
 
 # 그 단위 앞으로 열린 drift Issue 배열(번호 오름차순)
 # `gh issue list`의 라벨 조건은 검색 색인을 거쳐 가끔 빈 결과를 돌려줍니다(그래서 #479가 열려 있는데 #490이 새로 열림).
@@ -36,6 +36,7 @@ unit_state() {
     app) echo "${APP:-}" ;;
     writing) echo "${WRITING:-}" ;;
     design) echo "${DESIGN:-}" ;;
+    web) echo "${WEB:-}" ;;
   esac
 }
 
