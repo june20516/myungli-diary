@@ -755,6 +755,44 @@ def test_review_import_warns_repo_path(tmp_path: Path, monkeypatch: pytest.Monke
     assert "저장소 안 시트" in capsys.readouterr().err
 
 
+def test_review_import_warns_repo_root(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+    from mlw import paths
+
+    content, sheet = _review_fixture(tmp_path, {})
+    monkeypatch.setattr(paths, "WRITING_DIR", tmp_path / "docs" / "identity" / "writing")
+    capsys.readouterr()
+    assert main(["review-import", str(content), str(sheet), "--dry-run"]) == 0
+    assert "저장소 안 시트" in capsys.readouterr().err
+
+
+def test_review_export_bundle_spaces(tmp_path: Path) -> None:
+    out = tmp_path / "t.xlsx"
+    assert main(["review-export", str(CONTENT_DIR), "--lang", "en", "--bundle", "store, ui", "--out", str(out)]) == 0
+
+
+def test_head_commit_outside_git(tmp_path: Path) -> None:
+    from mlw.cli import head_commit
+
+    assert head_commit(tmp_path) == "unknown"
+
+
+def test_head_commit_marks_dirty(tmp_path: Path) -> None:
+    import subprocess
+
+    from mlw.cli import head_commit
+
+    def git(*args: str) -> None:
+        subprocess.run(["git", *args], cwd=tmp_path, check=True, capture_output=True)
+
+    git("init", "-q")
+    (tmp_path / "a.txt").write_text("a", encoding="utf-8")
+    git("add", "a.txt")
+    git("-c", "user.name=t", "-c", "user.email=t@example.invalid", "-c", "commit.gpgsign=false", "commit", "-q", "-m", "init")
+    assert re.fullmatch(r"[0-9a-f]{40}", head_commit(tmp_path))
+    (tmp_path / "a.txt").write_text("b", encoding="utf-8")
+    assert head_commit(tmp_path).endswith("+dirty")
+
+
 def test_review_import_bad_sheet(tmp_path: Path) -> None:
     bad = tmp_path / "bad.xlsx"
     bad.write_text("not a workbook", encoding="utf-8")

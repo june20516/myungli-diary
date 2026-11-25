@@ -1,6 +1,7 @@
 """검수 수정안 판정과 원고 반영 테스트(#1283)."""
 
 import shutil
+from collections.abc import Callable
 from pathlib import Path
 
 import pytest
@@ -181,3 +182,93 @@ def test_apply_review_end_to_end(tmp_path: Path) -> None:
     after = {key: entry.text for key, entry in store_entries(content).items()}
     assert after["subtitle"] == good
     assert after["promotionalText"] == promo.text
+
+
+# 최종 리뷰 지적 재현 테스트
+
+
+@pytest.mark.parametrize(
+    ("current", "suggestion"),
+    [
+        ("[[火|five_element.fire]]の気が強い日", "火曜日は火の気が強い日"),
+        ("Your [[Fire|five_element.fire]] side", "Your Firefly side"),
+    ],
+)
+def test_rewind_tokens_rejects_ambiguous_or_partial_match(current: str, suggestion: str) -> None:
+    assert rewind_tokens(current, suggestion) is None
+
+
+def test_rewind_tokens_word_boundary_ok() -> None:
+    assert rewind_tokens("Your [[Fire|e.fire]] side", "Your Fire, then") == "Your [[Fire|e.fire]], then"
+    assert rewind_tokens("Your [[Fire|e.fire]] side", "Your Firefly-like Fire side") == "Your Firefly-like [[Fire|e.fire]] side"
+    assert rewind_tokens("[[火|e.fire]]の気", "強い火の気") == "強い[[火|e.fire]]の気"
+
+
+def _seed(tmp_path: Path) -> tuple[Path, list[Entry]]:
+    content = tmp_path / "content"
+    (content / "en").mkdir(parents=True)
+    (content / "en" / "ui.yaml").write_text(
+        '- {slot: s, key: a, text: "Alpha"}\n- {slot: s, key: b, text: "Beta"}\n- {slot: s, key: c, text: "Gamma"}\n',
+        encoding="utf-8",
+    )
+    return content, load_content(content)
+
+
+def _fake_check(rule: Callable[[Path, str], list[Finding]]) -> Callable[[Path], list[Finding]]:
+    def check(content_dir: Path) -> list[Finding]:
+        path = content_dir / "en" / "ui.yaml"
+        return rule(path, path.read_text(encoding="utf-8"))
+
+    return check
+
+
+def test_error_on_other_line_rejects_its_cause(tmp_path: Path) -> None:
+    content, entries = _seed(tmp_path)
+    by_key = {entry.key: entry for entry in entries}
+
+    def rule(path: Path, text: str) -> list[Finding]:
+        # 묶음 상한처럼, 앞 줄의 표현이 뒤 줄 위치로 보고됩니다.
+        return [Finding(path, 3, "limit.L1", "error", "too many")] if "Bad" in text else []
+
+    rows = [make_row(by_key["a"], "Bad alpha"), make_row(by_key["b"], "Better beta")]
+    outcomes = apply_review(content, rows, "en", _fake_check(rule), dry_run=False)
+    assert [(o.applied, o.reason) for o in outcomes] == [
+        (False, "검사: 다른 줄에 새 error limit.L1 too many"),
+        (True, ""),
+    ]
+    assert yaml.safe_load((content / "en" / "ui.yaml").read_text(encoding="utf-8"))[0]["text"] == "Alpha"
+
+
+def test_existing_error_with_new_count_is_not_new(tmp_path: Path) -> None:
+    content, entries = _seed(tmp_path)
+
+    def rule(path: Path, text: str) -> list[Finding]:
+        length = len(yaml.safe_load(text)[0]["text"])
+        return [Finding(path, 1, "length.max", "error", f"{length}자")]
+
+    outcomes = apply_review(content, [make_row(entries[0], "Alph")], "en", _fake_check(rule), dry_run=True)
+    assert outcomes[0].applied
+
+
+def test_apply_review_over_length(tmp_path: Path) -> None:
+    content = tmp_path / "content"
+    shutil.copytree(CONTENT_DIR, content)
+    subtitle = store_entries(content)["subtitle"]
+    outcomes = apply_review(content, [make_row(subtitle, "Daily readings for your own birth chart today")], "en", check, dry_run=True)
+    assert not outcomes[0].applied
+    assert outcomes[0].reason.startswith("검사: ")
+
+
+def test_write_texts_keeps_crlf(tmp_path: Path) -> None:
+    path = tmp_path / "en" / "ui.yaml"
+    path.parent.mkdir()
+    path.write_bytes(b'# c\r\n- {slot: a, key: one, text: "One"}\r\n')
+    write_texts(tmp_path, [Change(Path("en/ui.yaml"), 2, "Uno")])
+    assert path.read_bytes() == b'# c\r\n- {slot: a, key: one, text: "Uno"}\r\n'
+
+
+def test_prejudge_rejects_changed_cell_format() -> None:
+    entry = make_entry("Half")
+    row = ReviewRow(**{**make_row(entry, "0.5").__dict__, "suggestion_format_changed": True})
+    _, outcomes = prejudge([row], {row_id(entry): entry})
+    assert outcomes[0].reason == "Sheets가 셀 형식을 바꿈, 글자로 다시 입력"

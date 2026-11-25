@@ -530,11 +530,20 @@ RULE_TIER_COVERAGE = "review.tier_coverage"
 PACKAGE_NAME = "myungli-writing"
 
 
-def _head_commit() -> str:
-    result = subprocess.run(
-        ["git", "rev-parse", "HEAD"], cwd=paths.WRITING_DIR, check=True, capture_output=True, text=True
-    )
-    return result.stdout.strip()
+UNKNOWN_COMMIT = "unknown"
+DIRTY_MARK = "+dirty"
+
+
+def head_commit(cwd: Path) -> str:
+    """시트 `_meta`에 적는 commit입니다. git이 없으면 `unknown`, 원고에 commit 안 된 변경이 있으면 끝에 `+dirty`."""
+    try:
+        head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=cwd, check=True, capture_output=True, text=True)
+        status = subprocess.run(
+            ["git", "status", "--porcelain", "--", "."], cwd=cwd, check=True, capture_output=True, text=True
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return UNKNOWN_COMMIT
+    return head.stdout.strip() + (DIRTY_MARK if status.stdout.strip() else "")
 
 
 def _review_export(args: argparse.Namespace) -> int:
@@ -546,7 +555,7 @@ def _review_export(args: argparse.Namespace) -> int:
             for bundle in uncovered
         ]
         return _print_findings(findings)
-    bundle_list = args.bundle.split(",") if args.bundle is not None else None
+    bundle_list = [bundle.strip() for bundle in args.bundle.split(",")] if args.bundle is not None else None
     try:
         bundles = bundles_for(args.tier, bundle_list)
     except ValueError as error:
@@ -556,7 +565,7 @@ def _review_export(args: argparse.Namespace) -> int:
     rows = build_rows(load_content(args.content), load_slots(args.slots_dir, rules), lang, bundles)
     meta = SheetMeta(
         lang=lang,
-        commit=_head_commit(),
+        commit=head_commit(args.content),
         exported=date.today().isoformat(),
         tool_version=importlib.metadata.version(PACKAGE_NAME),
     )
@@ -583,13 +592,17 @@ def _review_summary(outcomes: Sequence[Outcome], term_rows: int) -> list[str]:
 
 def _review_import(args: argparse.Namespace) -> int:
     sheet: Path = args.sheet
-    if sheet.resolve().is_relative_to(paths.WRITING_DIR.resolve()):
+    # 저장소 루트(docs/identity/writing의 세 단계 위) 안이면 경고합니다.
+    if sheet.resolve().is_relative_to(paths.WRITING_DIR.resolve().parents[2]):
         print(f"경고: 저장소 안 시트입니다. 감수자 정보가 섞일 수 있으니 저장소 밖에 두세요: {sheet}", file=sys.stderr)
+    skipped: list[str] = []
     try:
-        meta, rows = read_sheet(sheet)
+        meta, rows = read_sheet(sheet, skipped)
     except SheetError as error:
         print(f"시트를 읽지 못했습니다: {error}", file=sys.stderr)
         return EXIT_LOAD_ERROR
+    for title in skipped:
+        print(f"경고: 칸 머리가 없는 탭을 건너뜁니다: {title}", file=sys.stderr)
     if meta.lang not in CATEGORIES:
         print(f"시트 언어가 검수 대상이 아닙니다: {meta.lang}", file=sys.stderr)
         return EXIT_LOAD_ERROR

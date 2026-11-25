@@ -1,5 +1,6 @@
 """원어민 검수 시트 xlsx 입출력 테스트(#1283)."""
 
+from datetime import date, datetime, time
 from pathlib import Path
 
 import openpyxl
@@ -128,12 +129,45 @@ def test_read_sorted_rows(tmp_path: Path) -> None:
     assert {row.id: row.current for row in rows} == {UI_ROW.id: "Get started", "x|y||1": "Other"}
 
 
-@pytest.mark.parametrize(("value", "expected"), [(3, "3"), (2.5, "2.5"), (10.0, "10")])
+@pytest.mark.parametrize(("value", "expected"), [(3, "3"), (10.0, "10")])
 def test_numeric_suggestion(tmp_path: Path, value: object, expected: str) -> None:
     path = tmp_path / "s.xlsx"
     write_default(path)
     edit(path, "ui", "수정안", value)
     assert suggestion_of(path, UI_ROW.id) == expected
+
+
+@pytest.mark.parametrize("value", [2.5, datetime(2026, 3, 4), date(2026, 3, 4), time(9, 30)])
+def test_changed_cell_format_is_flagged(tmp_path: Path, value: object) -> None:
+    path = tmp_path / "s.xlsx"
+    write_default(path)
+    edit(path, "ui", "수정안", value)
+    _, rows = read_sheet(path)
+    assert next(row for row in rows if row.id == UI_ROW.id).suggestion_format_changed
+
+
+def test_percent_cell_is_flagged(tmp_path: Path) -> None:
+    path = tmp_path / "s.xlsx"
+    write_default(path)
+    book = openpyxl.load_workbook(path)
+    sheet = book["ui"]
+    cell = sheet.cell(row=2, column=column_of(sheet, "수정안"), value=0.5)
+    cell.number_format = "0%"
+    book.save(path)
+    _, rows = read_sheet(path)
+    assert next(row for row in rows if row.id == UI_ROW.id).suggestion_format_changed
+
+
+def test_extra_tab_is_skipped(tmp_path: Path) -> None:
+    path = tmp_path / "s.xlsx"
+    write_default(path)
+    book = openpyxl.load_workbook(path)
+    book.create_sheet("notes")["A1"] = "reviewer notes"
+    book.save(path)
+    skipped: list[str] = []
+    _, rows = read_sheet(path, skipped)
+    assert skipped == ["notes"]
+    assert {row.id for row in rows} == {STORE_ROW.id, UI_ROW.id}
 
 
 @pytest.mark.parametrize(("value", "expected"), [("  Hello\n", "Hello"), ("a\nb", "a\nb")])

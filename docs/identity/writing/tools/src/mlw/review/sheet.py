@@ -7,10 +7,12 @@
 import zipfile
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, fields
+from datetime import date, datetime, time
 from pathlib import Path
 from typing import Final
 
 import openpyxl
+from openpyxl.cell.cell import Cell, MergedCell
 from openpyxl.styles import Alignment, PatternFill
 from openpyxl.utils import get_column_letter
 from openpyxl.utils.exceptions import InvalidFileException
@@ -48,6 +50,8 @@ class ReviewRow:
     category: str = ""
     memo: str = ""
     verdict: str = ""
+    # Sheets가 수정안을 날짜, 시각, 소수, 퍼센트 셀로 바꿔 원래 글자를 되찾을 수 없음
+    suggestion_format_changed: bool = False
 
 
 @dataclass(frozen=True)
@@ -236,16 +240,32 @@ def _column_map(sheet: Worksheet) -> dict[str, int]:
     return found
 
 
+def _format_changed(value: object, number_format: str) -> bool:
+    """셀 값이 Sheets 자동 변환으로 원래 글자를 잃었는지입니다. 정수는 글자 그대로 돌릴 수 있어 제외합니다."""
+    if isinstance(value, (datetime, date, time)):
+        return True
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return "%" in number_format or (isinstance(value, float) and not value.is_integer())
+    return False
+
+
+def _cell(cells: Sequence[Cell | MergedCell], column: int) -> Cell | MergedCell | None:
+    return cells[column - 1] if column - 1 < len(cells) else None
+
+
 def _read_bundle(sheet: Worksheet) -> list[ReviewRow]:
     columns = _column_map(sheet)
     rows: list[ReviewRow] = []
-    for values in sheet.iter_rows(min_row=2, values_only=True):
-        cells = {name: _cell_text(values[index - 1]) if index - 1 < len(values) else "" for name, index in columns.items()}
-        if not cells["id"].strip():
+    for cells in sheet.iter_rows(min_row=2):
+        found = {name: _cell(cells, column) for name, column in columns.items()}
+        values = {name: cell.value if cell is not None else None for name, cell in found.items()}
+        texts = {name: _cell_text(value) for name, value in values.items()}
+        if not texts["id"].strip():
             continue
-        rows.append(
-            ReviewRow(**{name: text.strip() if name in _EDITABLE_FIELDS else text for name, text in cells.items()})
-        )
+        suggestion_cell = found["suggestion"]
+        number_format = str(suggestion_cell.number_format) if suggestion_cell is not None else ""
+        fields_ = {name: text.strip() if name in _EDITABLE_FIELDS else text for name, text in texts.items()}
+        rows.append(ReviewRow(**fields_, suggestion_format_changed=_format_changed(values["suggestion"], number_format)))
     return rows
 
 
@@ -260,11 +280,20 @@ def _load(path: Path) -> openpyxl.Workbook:
         raise SheetError(f"xlsx로 열 수 없습니다: {path} ({error})") from error
 
 
-def read_sheet(path: Path) -> tuple[SheetMeta, list[ReviewRow]]:
-    """메타와 모든 묶음 탭의 행입니다. 감수자가 고치는 칸은 앞뒤 공백을 지웁니다."""
+def read_sheet(path: Path, skipped: list[str] | None = None) -> tuple[SheetMeta, list[ReviewRow]]:
+    """메타와 묶음 탭의 행입니다. 감수자가 고치는 칸은 앞뒤 공백을 지웁니다.
+
+    칸 머리가 없는 탭(감수자가 더한 메모 탭 등)은 건너뛰고, `skipped`가 있으면 그 탭 이름을 덧붙입니다.
+    """
     book = _load(path)
     meta = _read_meta(book)
-    rows = [row for sheet in _bundle_sheets(book) for row in _read_bundle(sheet)]
+    rows: list[ReviewRow] = []
+    for sheet in _bundle_sheets(book):
+        try:
+            rows.extend(_read_bundle(sheet))
+        except SheetError:
+            if skipped is not None:
+                skipped.append(sheet.title)
     return meta, rows
 
 
@@ -273,7 +302,10 @@ def write_results(src: Path, dst: Path, results: Mapping[str, str]) -> None:
     book = _load(src)
     meta = _read_meta(book)
     for sheet in _bundle_sheets(book):
-        id_column = _column_map(sheet)["id"]
+        try:
+            id_column = _column_map(sheet)["id"]
+        except SheetError:
+            continue
         column = sheet.max_column + 1
         sheet.cell(row=1, column=column, value=_header(meta.lang, RESULT_KOREAN)).alignment = _WRAP
         sheet.column_dimensions[get_column_letter(column)].width = 36
