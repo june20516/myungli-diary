@@ -7,13 +7,18 @@ import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/platform/crash_reporter.dart';
 import 'package:myungli_diary/core/platform/platform_providers.dart';
 import 'package:myungli_diary/core/storage/cache_first.dart';
+import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/features/diary/data/diary_repository.dart';
 import 'package:myungli_diary/features/diary/model/diary_write_entry.dart';
 
 /// 일기 저장소. 로그인한 계정에서만 읽을 수 있습니다.
-final diaryRepositoryProvider = Provider<DiaryRepository>(
-  (ref) => DiaryRepository(ref.watch(restClientProvider)),
-);
+///
+/// 계정이 바뀌면 다시 만들어져, 그것을 watch하는 일기 provider가 새 계정 것으로 다시
+/// 받습니다([signedInAccountIdProvider], #1345).
+final diaryRepositoryProvider = Provider<DiaryRepository>((ref) {
+  ref.watch(signedInAccountIdProvider);
+  return DiaryRepository(ref.watch(restClientProvider));
+});
 
 /// [CalendarDate] 날에 쓴 일기 요약. server 순서(같은 날은 작성 순) 그대로입니다.
 ///

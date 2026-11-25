@@ -188,6 +188,15 @@ final currentAccountIdProvider = Provider<String>(
   (ref) => throw UnimplementedError('currentAccountIdProvider를 override하세요.'),
 );
 
+/// 로그인한 계정 id. 로그아웃이면 null입니다. 인증 흐름이 override하고, override가 없으면
+/// (계정과 상관없는 단위 테스트) null입니다.
+///
+/// 캐시를 거치지 않고 계정 데이터를 받는 저장소(일기, 회고, 일정)가 watch합니다. 그래서
+/// 로그아웃이나 다른 계정 로그인으로 값이 바뀌면 저장소와 그것을 watch하는 provider가 모두
+/// 다시 만들어지고, 붙들린 provider도 이전 계정의 값을 남기지 않습니다(#1345).
+/// [currentAccountIdProvider]와 달리 로그아웃 상태에서도 읽을 수 있습니다.
+final signedInAccountIdProvider = Provider<String?>((ref) => null);
+
 /// 현재 계정으로 범위를 정한 캐시 저장소.
 final cacheStoreProvider = Provider<CacheStore>(
   (ref) => CacheStore(

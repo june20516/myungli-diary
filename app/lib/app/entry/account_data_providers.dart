@@ -16,9 +16,10 @@ import 'package:myungli_diary/features/schedule/application/schedule_providers.d
 /// * [scheduleRepositoryProvider]: 일정.
 /// * [diaryDraftStoreProvider]: 일기 초안(합친 뒤 지웠으므로 쓰는 중인 화면도 다시 읽게).
 ///
-/// 로그아웃·로그인은 계정 id(`currentAccountIdProvider`·`meProvider`)가 바뀌어 저절로 다시
-/// 만들어지므로 이 목록을 쓰지 않습니다. 계정 데이터를 읽는 새 뿌리 provider를 만들면 여기에
-/// 더합니다.
+/// 로그아웃·로그인은 계정 id가 바뀌어 저절로 다시 만들어지므로 이 목록을 쓰지 않습니다. 캐시를
+/// 거치는 것은 [cacheStoreProvider]가 `currentAccountIdProvider`를, 캐시 없이 받는 저장소(일기,
+/// 회고, 일정)는 `signedInAccountIdProvider`를 watch합니다(#1345). 계정 데이터를 읽는 새 뿌리
+/// provider를 만들면 둘 중 하나를 watch하게 하고 여기에 더합니다.
 final List<ProviderOrFamily> accountDataProviders = [
   cacheStoreProvider,
   diaryRepositoryProvider,
