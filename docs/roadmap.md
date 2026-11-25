@@ -41,7 +41,7 @@
 | 2 | server → app → 사용자 | I3 ② prod 리허설: server prod 점검은 끝남(2026-11-25, #1281: 빠진 값 없음, prod도 sandbox 구매 반영 #1312, D99 ③ 개정). AdMob SSV 주소 prod 전환(E13)도 끝남. 지휘의 prod 승격(#1312 포함)이 끝나면 prod 준비 끝. 이어서 app prod 설정 빌드(내부 테스트), 사용자 실기기 전 과정(D139). app은 같은 때 ① 자동 E2E 다시 돌리기 | I4 |
 | 2 | writing → 사용자 | 원어민 검수 시트 내보내기(D140), 사용자가 감수자에게 전달 | I4 |
 | 2 | server | I4 전 운영 명령: 계정 조회, 권한 부여와 회수, 감사 기록(D145, #1321) | I4 |
-| 2 | 지휘 | WB1 plan, IA `web-landing` 슬롯, 소유 표, 착수 안내(writing, design, web), E25(준비 메모 승인 2026-11-25) | WB1 |
+| 2 | web → writing → design → 사용자 | WB1(plan `docs/plans/2026-11-25-web-landing.md`): web 뼈대와 랜딩 #1331, writing 원고와 `site.json` 읽기 #1329, design 시안 #1330, 사용자 E25 #1332. 지휘는 web.yml이 생기면 `ci-gate` web 갈래 | WB1 |
 | 뒤 | 각자 | Q1 뒤처리 server #1253, core #1255, writing SHA 고정 #1236, core #59, writing #531(MVP 밖), server #794, #817 | I4 |
 | I4 2주 전 | 사용자 + 지휘 | Cloud SQL tier와 예산 점검(#903, D135 ④) | I4(1월 최고 부하) |
 

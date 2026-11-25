@@ -118,7 +118,7 @@ suberpowers skill이 기본으로 쓰는 `docs/suberpowers/specs/`, `docs/suberp
   | 디렉터리 | 쓰는 세션 |
   | --- | --- |
   | `myungli-diary` (본 저장소) | 지휘 |
-  | `../myungli-diary-<단위>` (`git worktree`) | core, server, app, writing, design |
+  | `../myungli-diary-<단위>` (`git worktree`) | core, server, app, web, writing, design |
   | `../myungli-diary-internal` (**별도 비공개 저장소**, worktree 아님) | 지휘만. 수익화 기록·아이디어 함·제품 배경 원문(D74). 공개 저장소는 이곳을 링크하거나 CI에서 읽지 않습니다 |
 * **단위의 worktree는 한 번 만들고 재사용합니다.** 브랜치가 병합되면 디렉터리를 새로 만들지 않고 그 안에서 브랜치만 바꿉니다: `git fetch origin && git switch -c <단위>/<주제> --no-track origin/staging && git push -u origin <단위>/<주제> && git status -sb`. 단위의 worktree가 아직 없을 때만 `git worktree add ../myungli-diary-<단위> -b <브랜치> --no-track origin/staging && cd ../myungli-diary-<단위> && git push -u origin <브랜치> && git status -sb`로 만듭니다.
 * **착수 안내는 한 덩어리 명령으로 적습니다.** 그 디렉터리가 지금 어느 브랜치에 있든 따라 할 수 있게, `cd ../myungli-diary-<단위>` → 위의 브랜치 바꾸기(없으면 worktree 만들기) → `cd <시작 디렉터리> && claude` 순서로 씁니다. 다른 단위 브랜치 위에 쌓아야 하면 `origin/staging`에서 딴 뒤 그 브랜치를 `git merge`합니다.
