@@ -1,0 +1,5 @@
+packages:
+  - packages/*
+  - site
+minimumReleaseAgeExclude:
+  - '@types/node@26.6.7'

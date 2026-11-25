@@ -38,7 +38,16 @@
 * web 자기 spec과 plan은 `web/docs/specs/`, `web/docs/plans/`에 둡니다.
 
 ## 검사 방법
-뼈대를 세운 뒤 여기에 적습니다(설치, 타입 검사, lint, 단위 테스트, 빌드, Playwright 명령).
+`web/`에서 실행합니다. Node와 pnpm 준비는 [`README.md`](README.md)입니다.
+
+| 명령 | 하는 일 |
+| --- | --- |
+| `pnpm install --frozen-lockfile` | 설치(lockfile 고정) |
+| `pnpm lint` | ESLint |
+| `pnpm typecheck` | 패키지마다 타입 검사(`astro check` 포함) |
+| `pnpm test` | Vitest 단위 테스트 전체 |
+| `pnpm build` | 사이트 빌드와 빌드 뒤 검사 |
+| `pnpm e2e` | 빌드 뒤 Hosting 에뮬레이터 위 Playwright |
 
 ## 다음 할 일
 1. **WB1 뼈대와 랜딩 #1331:** 자기 plan을 쓰고, workspace, 토큰 패키지, `web.yml`, `deploy-web.yml`, 최소 판 staging 배포. 사이트 이름과 배포 계정 절차를 사용자 E25 #1332에 코멘트로.
