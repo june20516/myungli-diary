@@ -8,6 +8,7 @@ dependencies = [
     "regex>=2024.11",
     "grpcio==1.84.0",
     "protobuf>=7.35.1",  # 생성 코드(mlw._gen)의 런타임 요구 버전
+    "openpyxl>=3.1",  # 원어민 검수 시트(xlsx, #1283)
 ]
 
 [project.scripts]
@@ -22,6 +23,7 @@ dev = [
     "types-pyyaml",
     "types-regex",
     "types-protobuf",
+    "types-openpyxl",
     "types-grpcio>=1.84.0.20260928",
 ]
 
