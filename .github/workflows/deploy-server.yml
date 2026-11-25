@@ -9,10 +9,14 @@ on:
     paths:
       - "server/**"
       - ".github/workflows/deploy-*.yml"
+      # web 소유 workflow(D144)는 server 배포를 부르지 않습니다(#1341).
+      - "!.github/workflows/deploy-web.yml"
   pull_request:
     paths:
       - "server/**"
       - ".github/workflows/deploy-*.yml"
+      # web 소유 workflow(D144)는 server 배포를 부르지 않습니다(#1341).
+      - "!.github/workflows/deploy-web.yml"
   workflow_dispatch:
     inputs:
       target:
