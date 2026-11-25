@@ -13,7 +13,7 @@
 | T1 | **비공개 테스트: 테스트용 클라우드에 server와 엔진을 올리고, 테스트 빌드를 배포해 테스터가 실제로 써 봅니다** ① 테스트 인프라: GCP staging 프로젝트, 도메인과 DNS, 비밀 값(외부 준비물 E4, E6~E12) ② server와 엔진 staging 배포(server P9, 엔진 실행 조건 #79). ①②는 I2가 staging에서 app E2E를 돌릴 때 먼저 세우고 T1에서 그대로 씁니다 ③ 테스트 빌드 배포: iOS TestFlight, Android Play 비공개 테스트 트랙(E2, E3) ④ 테스터 초대와 사용: Play 새 개인 계정 조건(테스터 12명 이상이 14일 연속) | 지휘 + server + app + 사용자 | I1, I2, Q1, O1 | I4(Play 비공개 테스트 의무를 이 단계에서 채움), E15(D92: 앱을 받아 본 뒤 사업자등록) | **진행 중** (Play 비공개 테스트 14일 진행, 2026-11-18 시작. 목표는 Play 요건 통과) |
 | L1 | **부하 테스트와 용량 산정:** 비슷한 범주 앱의 대형, 중형, 소형 활성 사용자 규모를 시나리오로(수치는 비공개 `business/`, D74), 요청당 연산과 비용, 한계에서의 server 응답과 app 대응. 부하 전용 환경 우선. 준비 메모 같은 파일 | 지휘 + server + app | O1 | I4 | **진행 중** (3회차까지 잼, 남은 것 server #817, tier는 I4 2주 전 점검 #903, D135) |
 | I3 | 통합 3(D139): ① 자동 E2E를 main으로 staging에서 다시 돌리고 커버리지 갱신 ② **prod 리허설**: prod 설정 빌드로 prod server에서 전 과정 1회(실기기) ③ 시스템 경계 실기기 목록 | server + app + 사용자 | I1, I2, W1 | I4 | 진행 중(② server prod 점검 끝남) |
-| WB1 | **랜딩과 web 단위 세우기(D144, D145):** `myungli-diary.app` 랜딩(스토어 웹사이트, `app-ads.txt`, 피처링과 광고 도착지, 세 언어)과 새 단위 `web/`(Astro, CI, 배포). 준비 메모 [`docs/specs/2026-11-25-web-landing-design.md`](specs/2026-11-25-web-landing-design.md) | 지휘 + writing + design + web + 사용자 | D144 | I4 | 준비 메모 검토 중 |
+| WB1 | **랜딩과 web 단위 세우기(D144, D145):** `myungli-diary.app` 랜딩(스토어 웹사이트, `app-ads.txt`, 피처링과 광고 도착지, 세 언어)과 새 단위 `web/`(Astro, CI, 배포). 준비 메모 [`docs/specs/2026-11-25-web-landing-design.md`](specs/2026-11-25-web-landing-design.md) | 지휘 + writing + design + web + 사용자 | D144 | I4 | plan 작성 중(준비 메모 승인 2026-11-25) |
 | I4 | 스토어 심사·출시 (iOS / Android) | 지휘 + app | I3, T1, WB1 | Phase 2 | - |
 | WB2 | **첫 셀프 테스트(D144 ①②):** `social.myungli-diary.app`, 문항형, 결과 몇~십몇 분류, 결과별 정적 도착 페이지. 준비 메모는 WB1 뒤 | 지휘 + writing + design + web | WB1, I4 | 신년 유입 | - |
 | WB3 | **어드민 웹(D144 ④, D145 ③):** 문의함, 계정 조회, 권한 조정을 server 운영 명령 위에 얹음. 준비 메모는 WB1 뒤 | 지휘 + web + server | WB1, server #1321 | 출시 뒤 운영 | - |
@@ -41,7 +41,7 @@
 | 2 | server → app → 사용자 | I3 ② prod 리허설: server prod 점검은 끝남(2026-11-25, #1281: 빠진 값 없음, prod도 sandbox 구매 반영 #1312, D99 ③ 개정). AdMob SSV 주소 prod 전환(E13)도 끝남. 지휘의 prod 승격(#1312 포함)이 끝나면 prod 준비 끝. 이어서 app prod 설정 빌드(내부 테스트), 사용자 실기기 전 과정(D139). app은 같은 때 ① 자동 E2E 다시 돌리기 | I4 |
 | 2 | writing → 사용자 | 원어민 검수 시트 내보내기(D140), 사용자가 감수자에게 전달 | I4 |
 | 2 | server | I4 전 운영 명령: 계정 조회, 권한 부여와 회수, 감사 기록(D145, #1321) | I4 |
-| 2 | 사용자 → 지휘 | WB1 준비 메모 검토(`docs/specs/2026-11-25-web-landing-design.md`), 승인되면 지휘가 plan과 착수 안내 | WB1 |
+| 2 | 지휘 | WB1 plan, IA `web-landing` 슬롯, 소유 표, 착수 안내(writing, design, web), E25(준비 메모 승인 2026-11-25) | WB1 |
 | 뒤 | 각자 | Q1 뒤처리 server #1253, core #1255, writing SHA 고정 #1236, core #59, writing #531(MVP 밖), server #794, #817 | I4 |
 | I4 2주 전 | 사용자 + 지휘 | Cloud SQL tier와 예산 점검(#903, D135 ④) | I4(1월 최고 부하) |
 
