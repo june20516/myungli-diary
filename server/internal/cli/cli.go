@@ -58,10 +58,10 @@ var commands = map[string]Command{
 const usageText = `usage: server <command>
 
 commands:
-  serve                           HTTP 서버를 시작합니다
-  migrate up|down|status          DB 마이그레이션을 실행합니다
-  seed                            시드 데이터를 넣습니다
-  job precompute|notify|retention 배치 작업을 실행합니다`
+  serve                                 HTTP 서버를 시작합니다
+  migrate up|down|status                DB 마이그레이션을 실행합니다
+  seed                                  시드 데이터를 넣습니다
+  job precompute|notify|retention|smoke 배치 작업을 실행합니다`
 
 // Run은 하위 명령을 실행하고 종료 코드를 반환합니다.
 // 0은 성공, 1은 실행 오류, 2는 사용법 오류입니다.
@@ -203,7 +203,7 @@ func runSeed(ctx context.Context, args []string, getenv func(string) string, _, 
 	return nil
 }
 
-var jobNames = []string{"precompute", "notify", "retention"}
+var jobNames = []string{"precompute", "notify", "retention", "smoke"}
 
 // runJob은 작업 이름을 검증하고 실행합니다.
 func runJob(ctx context.Context, args []string, getenv func(string) string, _, stderr io.Writer) error {
@@ -217,6 +217,8 @@ func runJob(ctx context.Context, args []string, getenv func(string) string, _, s
 		return runPrecompute(ctx, getenv, stderr)
 	case "notify":
 		return runNotify(ctx, getenv, stderr)
+	case "smoke":
+		return runSmoke(ctx, getenv, stderr)
 	}
 	return ErrNotImplemented
 }
