@@ -38,7 +38,7 @@ jobs:
           fetch-depth: 2
       # setup-go 캐시는 키가 go.sum뿐이라 끄고 아래에서 직접 둡니다(D81 ⑥ 캐시 원칙).
       - id: go
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
+        uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7
         with:
           go-version-file: server/go.mod
           cache: false
@@ -67,7 +67,7 @@ jobs:
       - if: env.OWN == 'true'
         run: go vet -tags staging ./...
       # 시드의 원본인 writing 원고를 검사합니다(spec §6.1). 원고가 W1로 다 오기 전까지 --partial입니다(P4-8).
-      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
         with:
           version: "0.11.3"
           python-version: "3.13"
