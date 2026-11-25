@@ -1,0 +1,38 @@
+---
+import type { Lang } from "../config/lang.ts";
+import { siteConfig } from "../config/site.ts";
+import type { Copy } from "../copy/load.ts";
+
+interface Props {
+  lang: Lang;
+  copy: Copy;
+}
+
+const { lang, copy } = Astro.props;
+const legal = siteConfig.legal(lang);
+---
+
+<footer>
+  <ul>
+    <li><a href={legal.terms}>{copy.text("web-landing.footer.terms")}</a></li>
+    <li><a href={legal.privacy}>{copy.text("web-landing.footer.privacy")}</a></li>
+    <li><a href={legal.support}>{copy.text("web-landing.footer.support")}</a></li>
+  </ul>
+</footer>
+
+<style>
+  footer {
+    padding: var(--space-24) 0;
+    border-top: 1px solid var(--color-line);
+    color: var(--color-text-secondary);
+    font-size: var(--type-caption-md-font-size);
+  }
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-16);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+</style>

@@ -2,13 +2,16 @@
 // 원고는 writing 생성물(#1329)이 있으면 그것을, 없으면 자리 문구(placeholder/)를 씁니다.
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { type Lang } from "../config/lang.ts";
 import { SITE_IA_PATH, STORE_LISTING_PATH, WRITING_WEB_DIR } from "../config/paths.ts";
 import { findD93 } from "../text/d93.ts";
+import placeholderEn from "./placeholder/en.json" with { type: "json" };
+import placeholderJa from "./placeholder/ja.json" with { type: "json" };
+import placeholderKo from "./placeholder/ko.json" with { type: "json" };
 
 const LANDING_SCREEN_ID = "web-landing";
-const PLACEHOLDER_DIR = fileURLToPath(new URL("./placeholder/", import.meta.url));
+/** writing 원고(#1329) 전 자리 문구. 빌드 때 함께 묶이도록 import합니다. */
+const PLACEHOLDERS: Record<Lang, Record<string, unknown>> = { ko: placeholderKo, en: placeholderEn, ja: placeholderJa };
 
 export type CopySource = "writing" | "placeholder";
 export type CopyParams = Readonly<Record<string, string | number>>;
@@ -89,8 +92,9 @@ function fill(template: string, params: CopyParams, slotId: string): string {
 export function loadCopy(lang: Lang, options: LoadCopyOptions = {}): Copy {
   const writingFile = join(options.writingDir ?? WRITING_WEB_DIR, `${lang}.json`);
   const source: CopySource = existsSync(writingFile) ? "writing" : "placeholder";
-  const file = source === "writing" ? writingFile : join(PLACEHOLDER_DIR, `${lang}.json`);
-  const texts = validate(readJsonObject(file), landingSlotIds(options.iaPath), file);
+  const file = source === "writing" ? writingFile : `placeholder/${lang}.json`;
+  const entries = source === "writing" ? readJsonObject(writingFile) : PLACEHOLDERS[lang];
+  const texts = validate(entries, landingSlotIds(options.iaPath), file);
   return {
     lang,
     source,

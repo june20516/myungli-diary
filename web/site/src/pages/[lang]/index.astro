@@ -1,0 +1,73 @@
+---
+// 언어별 랜딩 최소 판. 시안(#1330)을 고른 뒤 화면을 다시 짭니다.
+import Footer from "../../components/Footer.astro";
+import LangSwitch from "../../components/LangSwitch.astro";
+import StoreBadges from "../../components/StoreBadges.astro";
+import { LANGS, type Lang } from "../../config/lang.ts";
+import { loadCopy } from "../../copy/load.ts";
+import { OG_LOCALE } from "../../i18n/locale.ts";
+import Base from "../../layouts/Base.astro";
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+const copy = loadCopy(lang);
+---
+
+<Base
+  htmlLang={lang}
+  title={copy.text("web-landing.meta.title")}
+  description={copy.text("web-landing.meta.description")}
+  path={`/${lang}/`}
+  ogImagePath={`/${lang}/og.png`}
+  ogLocale={OG_LOCALE[lang]}
+>
+  <div class="page">
+    <header>
+      <LangSwitch current={lang} label={copy.text("web-landing.lang.label")} />
+    </header>
+    <main>
+      <h1>{copy.appName}</h1>
+      <p class="tagline">{copy.text("web-landing.hero.tagline")}</p>
+      <p class="body">{copy.text("web-landing.hero.body")}</p>
+      <StoreBadges copy={copy} />
+    </main>
+    <Footer lang={lang} copy={copy} />
+  </div>
+</Base>
+
+<style>
+  .page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-48);
+    max-width: 720px;
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: var(--space-24) var(--space-20) 0;
+    box-sizing: border-box;
+  }
+  header {
+    display: flex;
+    justify-content: flex-end;
+  }
+  main {
+    flex: 1;
+  }
+  h1 {
+    margin: 0 0 var(--space-8);
+    font-size: var(--type-title-font-size);
+    font-weight: var(--type-title-font-weight);
+  }
+  .tagline {
+    margin: 0 0 var(--space-24);
+    font-family: var(--font-family-sentence);
+    font-size: var(--type-caption-lg-font-size);
+  }
+  .body {
+    margin: 0 0 var(--space-32);
+    color: var(--color-text-secondary);
+  }
+</style>

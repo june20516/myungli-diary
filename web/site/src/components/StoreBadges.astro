@@ -1,0 +1,44 @@
+---
+// 출시 전에는 곧 출시 안내만, 출시 뒤에는 두 스토어 링크. 공식 배지 그림은 시안(#1330) 뒤에 넣습니다.
+import type { Copy } from "../copy/load.ts";
+import { siteConfig } from "../config/site.ts";
+
+interface Props {
+  copy: Copy;
+}
+
+const { copy } = Astro.props;
+---
+
+{
+  siteConfig.release === "soon" ? (
+    <p class="soon">{copy.text("web-landing.store.soon")}</p>
+  ) : (
+    <ul class="stores">
+      <li>
+        <a href={siteConfig.stores.apple}>{copy.text("web-landing.store.apple")}</a>
+      </li>
+      <li>
+        <a href={siteConfig.stores.google}>{copy.text("web-landing.store.google")}</a>
+      </li>
+    </ul>
+  )
+}
+
+<style>
+  .soon {
+    display: inline-block;
+    margin: 0;
+    padding: var(--space-12) var(--space-20);
+    border-radius: var(--radius-full);
+    background: var(--color-bg-sheet);
+    color: var(--color-text-secondary);
+  }
+  .stores {
+    display: flex;
+    gap: var(--space-12);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+</style>
