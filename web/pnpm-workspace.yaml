@@ -3,3 +3,9 @@ packages:
   - site
 minimumReleaseAgeExclude:
   - '@types/node@26.6.7'
+
+# 의존성 build script는 기본으로 막고, 이름을 적은 것만 정합니다(pnpm 12는 정하지 않은 것이 있으면 설치 실패).
+# protobufjs, re2는 firebase-tools(Hosting 에뮬레이터)의 의존성이고, 에뮬레이터는 그 build 없이 돕니다.
+allowBuilds:
+  protobufjs: false
+  re2: false
