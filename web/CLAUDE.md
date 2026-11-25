@@ -30,7 +30,8 @@
 ## 현재 상태
 진행 중인 일만 적고, 병합하면 지웁니다(`docs/workflow.md` §3 마무리 2번).
 
-* **WB1 뼈대와 최소 판(#1331, 브랜치 `web/wb1-skeleton`):** workspace, 토큰 CSS, 최소 판 랜딩(세 언어, 언어 고르기, OG, `app-ads.txt`), `web.yml`, `deploy-web.yml`, 배포 Terraform. PR은 `참고 #1331`이고 병합은 사용자. 실제 배포는 사용자 E25(#1332, Firebase 사이트와 DNS, 배포 권한) 뒤 저장소 변수 `WEB_DEPLOY_ENABLED`로 켭니다.
+* **보안 고정(#1331 지휘 코멘트, 브랜치 `web/dep-security-1331`):** Dependabot 알림 17(uuid), 19(fflate), 21(minimatch)을 `pnpm-workspace.yaml` overrides로 닫고 `web.yml`의 임시 `pull_request` 트리거를 지움. 병합은 사용자.
+* **배포 대기:** 랜딩 뼈대(#1340)는 staging에 병합됐고, 실제 배포는 사용자 E25(#1332, Firebase 사이트와 DNS, 배포 권한) 뒤 저장소 변수 `WEB_DEPLOY_ENABLED`로 켭니다.
 * 원고는 writing 생성물(#1329) 전이라 자리 문구(`site/src/copy/placeholder/`, 스토어 문구에서 가져옴)로 빌드합니다. 빌드 로그에 "자리 문구 사용" 경고가 납니다.
 
 ## 기준 문서와 도구
@@ -53,7 +54,6 @@
 
 ## 다음 할 일
 1. **staging 배포 확인:** 사용자 E25(#1332)가 끝나면 `deploy-web`을 staging에서 돌려 `https://staging.myungli-diary.app/`(세 언어, `app-ads.txt`, OG)를 확인합니다. 절차는 [`deploy/README.md`](deploy/README.md).
-2. **ci-gate 전환:** 지휘가 ci-gate에 web 갈래를 넣으면 `web.yml`의 `pull_request` 트리거를 지웁니다.
-3. **원고 연결(#1329):** writing 생성물이 오면 형식을 맞추고 `site/src/copy/placeholder/`를 지웁니다.
-4. **시안 구현(#1330):** 고른 안의 화면, 앱 화면 사진, Apple, Google 공식 배지, 웹 글꼴(@font-face), 404 안내 문구(슬롯 요청). 다음 web plan으로 쓰고 그 PR에서 `Closes #1331`.
-5. 출시 때 `site/src/config/site.ts`의 `release`를 `live`로, 두 스토어 주소를 넣습니다.
+2. **원고 연결(#1329):** writing 생성물이 오면 형식을 맞추고 `site/src/copy/placeholder/`를 지웁니다.
+3. **시안 구현(#1330):** 고른 안의 화면, 앱 화면 사진, Apple, Google 공식 배지, 웹 글꼴(@font-face), 404 안내 문구(슬롯 요청). 다음 web plan으로 쓰고 그 PR에서 `Closes #1331`.
+4. 출시 때 `site/src/config/site.ts`의 `release`를 `live`로, 두 스토어 주소를 넣습니다.

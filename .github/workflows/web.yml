@@ -1,8 +1,6 @@
 name: web
 
-# ci-gate가 부르는 web 단위 검사입니다(D144, WB1 #1331).
-# pull_request 트리거는 ci-gate에 web 갈래가 생기기 전까지만 둡니다(ci-gate.yml 머리 주석의 전환 순서 1단계).
-# 지휘가 web 갈래를 넣으면(지휘 plan docs/plans/2026-11-25-web-landing.md Task 5) web이 다음 PR에서 지웁니다.
+# ci-gate가 부르는 전용 workflow입니다(D144, WB1 #1331). 직접 push·pull_request로 돌면 중복 실행되므로 트리거를 두지 않습니다(#1344로 ci-gate web 갈래가 생김).
 on:
   workflow_call:
     inputs:
@@ -10,10 +8,6 @@ on:
         description: "ci-gate 판별(own·drift·gate). own은 빠른 검사 전체, drift·gate는 계약(토큰, IA site.json, writing 생성물)을 읽는 검사만"
         type: string
         default: own
-  pull_request:
-    paths:
-      - "web/**"
-      - ".github/workflows/web.yml"
   workflow_dispatch:
 
 # workflow 단위 concurrency는 두지 않습니다. workflow_call로 불리면 호출 측과 group이 겹치고, concurrency는 ci-gate가 가집니다.
@@ -28,7 +22,7 @@ jobs:
       run:
         working-directory: web
     env:
-      # 직접 실행(pull_request, workflow_dispatch)에는 mode 입력이 없어 own입니다.
+      # 직접 실행(workflow_dispatch)에는 mode 입력이 없어 own입니다.
       OWN: ${{ (inputs.mode || 'own') == 'own' }}
       # 캐시 저장은 기준 브랜치 staging push의 own 실행에서만 합니다(D81 ⑥). 정기, 수동 실행은 캐시 없이 새로 받습니다.
       USE_CACHE: ${{ github.event_name != 'workflow_dispatch' && github.event_name != 'schedule' }}
