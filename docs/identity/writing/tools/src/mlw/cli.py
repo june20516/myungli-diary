@@ -5,8 +5,10 @@
 
 import argparse
 import dataclasses
+import importlib.metadata
 import json
 import os
+import subprocess
 import sys
 from collections import Counter
 from collections.abc import Mapping, Sequence
@@ -32,6 +34,16 @@ from mlw.loader import load_content, load_rules, load_slots
 from mlw.markup import check_name_position, check_ui_josa, check_ui_markup, strip_vocative
 from mlw.model import LANGS, PARAM_KIND_NUMBER, Entry, Finding, LoadError, ParamKind, RuleSet, Slot
 from mlw.placeholders import Placeholder, parse
+from mlw.review.apply import Outcome, apply_review
+from mlw.review.export import (
+    REVIEW_LANGS,
+    build_rows,
+    bundles_for,
+    check_tier_coverage,
+    read_guide,
+    sheet_name,
+)
+from mlw.review.sheet import CATEGORIES, SheetError, SheetMeta, read_sheet, write_results, write_sheet
 from mlw.sentence import check_sentence
 from mlw.store import is_store_slot
 from mlw.terms import check_tokens
@@ -342,29 +354,70 @@ def _read_fixture(path: Path) -> dict[str, object]:
     return cast(dict[str, object], data)
 
 
-def _check(args: argparse.Namespace) -> int:
-    rules = load_rules(args.rules_dir)
-    all_slots = load_slots(args.slots_dir, rules)
+@dataclasses.dataclass(frozen=True)
+class CheckInputs:
+    """원고 밖에서 `mlw check`가 읽는 입력(규칙, 슬롯, 계약 파일) 경로입니다."""
+
+    rules_dir: Path
+    slots_dir: Path
+    message_keys: Path
+    message_params: Path
+    evidence_rules: Path
+    evidence_sources: Path
+    fixture: Path
+    ia: Sequence[Path]
+
+    @classmethod
+    def from_args(cls, args: argparse.Namespace) -> "CheckInputs":
+        return cls(
+            rules_dir=args.rules_dir,
+            slots_dir=args.slots_dir,
+            message_keys=args.message_keys,
+            message_params=args.message_params,
+            evidence_rules=args.evidence_rules,
+            evidence_sources=args.evidence_sources,
+            fixture=args.fixture,
+            ia=tuple(args.ia),
+        )
+
+
+def default_check_inputs() -> CheckInputs:
+    return CheckInputs(
+        rules_dir=paths.RULES_DIR,
+        slots_dir=paths.SLOTS_DIR,
+        message_keys=paths.MESSAGE_KEYS_FILE,
+        message_params=paths.MESSAGE_PARAMS_FILE,
+        evidence_rules=paths.EVIDENCE_RULES_FILE,
+        evidence_sources=paths.EVIDENCE_SOURCES_FILE,
+        fixture=paths.FIXTURE_FILE,
+        ia=paths.IA_FILES,
+    )
+
+
+def collect_findings(inputs: CheckInputs, content_dir: Path, *, partial: bool = False) -> list[Finding]:
+    """`mlw check`의 모든 검사 결과입니다(정렬 전)."""
+    rules = load_rules(inputs.rules_dir)
+    all_slots = load_slots(inputs.slots_dir, rules)
     # 하루·한 주 묶음 검사는 콘텐츠 슬롯만 봅니다. ui, store, web 원고는 완결성·문장·표기 검사만 받습니다.
     content_slots = {
         slot_id: slot
         for slot_id, slot in all_slots.items()
         if not is_ui_slot(slot) and not is_store_slot(slot) and not is_web_slot(slot)
     }
-    entries = load_content(args.content)
-    message_keys = _read_message_keys(args.message_keys)
-    message_params = _read_message_params(args.message_params)
-    evidence_rules = _read_message_params(args.evidence_rules)
-    evidence_sources = _read_evidence_sources(args.evidence_sources)
-    fixture = _read_fixture(args.fixture)
-    ia = load_ia(args.ia)
+    entries = load_content(content_dir)
+    message_keys = _read_message_keys(inputs.message_keys)
+    message_params = _read_message_params(inputs.message_params)
+    evidence_rules = _read_message_params(inputs.evidence_rules)
+    evidence_sources = _read_evidence_sources(inputs.evidence_sources)
+    fixture = _read_fixture(inputs.fixture)
+    ia = load_ia(list(inputs.ia))
     tag_keys = [key for key in message_keys if key.startswith(TAG_KEY_PREFIX)]
-    hanja = load_hanja(args.content / HANJA_FILE_NAME)
+    hanja = load_hanja(content_dir / HANJA_FILE_NAME)
 
     completeness = check_completeness(all_slots, entries, message_keys, LANGS, message_params)
-    if args.partial:
+    if partial:
         completeness = [finding for finding in completeness if finding.rule_id != RULE_MISSING]
-    findings = [
+    return [
         *check_ia(all_slots, ia),
         *completeness,
         *check_evidence(all_slots, evidence_rules, evidence_sources),
@@ -375,10 +428,13 @@ def _check(args: argparse.Namespace) -> int:
         *check_hanja(hanja, term_ids(tag_keys)),
         *check_days(content_slots, entries, rules.limits.values(), LANGS, rules),
         *check_weeks(
-            content_slots, entries, rules.limits.values(), LANGS, rules, fixture, message_keys, fixture_path=args.fixture
+            content_slots, entries, rules.limits.values(), LANGS, rules, fixture, message_keys, fixture_path=inputs.fixture
         ),
     ]
-    return _print_findings(findings)
+
+
+def _check(args: argparse.Namespace) -> int:
+    return _print_findings(collect_findings(CheckInputs.from_args(args), args.content, partial=args.partial))
 
 
 def _check_arb(args: argparse.Namespace) -> int:
@@ -470,6 +526,104 @@ def _gen_week_fixture(args: argparse.Namespace) -> int:
     return week_fixture.main(["--engine", args.engine])
 
 
+RULE_TIER_COVERAGE = "review.tier_coverage"
+PACKAGE_NAME = "myungli-writing"
+
+
+UNKNOWN_COMMIT = "unknown"
+DIRTY_MARK = "+dirty"
+
+
+def head_commit(cwd: Path) -> str:
+    """시트 `_meta`에 적는 commit입니다. git이 없으면 `unknown`, 원고에 commit 안 된 변경이 있으면 끝에 `+dirty`."""
+    try:
+        head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=cwd, check=True, capture_output=True, text=True)
+        status = subprocess.run(
+            ["git", "status", "--porcelain", "--", "."], cwd=cwd, check=True, capture_output=True, text=True
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return UNKNOWN_COMMIT
+    return head.stdout.strip() + (DIRTY_MARK if status.stdout.strip() else "")
+
+
+def _review_export(args: argparse.Namespace) -> int:
+    lang: str = args.lang
+    uncovered = check_tier_coverage(args.content, lang)
+    if uncovered:
+        findings = [
+            Finding(args.content / lang / f"{bundle}.yaml", 1, RULE_TIER_COVERAGE, "error", "검수 차수 표와 원고 파일이 어긋납니다")
+            for bundle in uncovered
+        ]
+        return _print_findings(findings)
+    bundle_list = [bundle.strip() for bundle in args.bundle.split(",")] if args.bundle is not None else None
+    try:
+        bundles = bundles_for(args.tier, bundle_list)
+    except ValueError as error:
+        print(error, file=sys.stderr)
+        return EXIT_ERROR
+    rules = load_rules(args.rules_dir)
+    rows = build_rows(load_content(args.content), load_slots(args.slots_dir, rules), lang, bundles)
+    meta = SheetMeta(
+        lang=lang,
+        commit=head_commit(args.content),
+        exported=date.today().isoformat(),
+        tool_version=importlib.metadata.version(PACKAGE_NAME),
+    )
+    out: Path = args.out or paths.REVIEW_DIR / lang / sheet_name(args.tier, bundles)
+    write_sheet(out, meta, read_guide(paths.REVIEW_DIR / f"guide-{lang}.md"), rows)
+    print(out)
+    return 0
+
+
+TERM_CATEGORY_MARK = "(용어)"
+RESULT_SUFFIX = "-result"
+
+
+def _review_summary(outcomes: Sequence[Outcome], term_rows: int) -> list[str]:
+    """반영 수, 반영 안 한 수와 이유 종류별 수, 용어 분류 행 수입니다."""
+    applied = sum(1 for outcome in outcomes if outcome.applied)
+    skipped = [outcome for outcome in outcomes if not outcome.applied]
+    kinds = Counter(outcome.reason.split(":")[0] for outcome in skipped)
+    lines = [f"반영 {applied}", f"반영 안 함 {len(skipped)}"]
+    lines += [f"  {kind}: {count}" for kind, count in sorted(kinds.items())]
+    lines.append(f"용어 분류 {term_rows}")
+    return lines
+
+
+def _review_import(args: argparse.Namespace) -> int:
+    sheet: Path = args.sheet
+    # 저장소 루트(docs/identity/writing의 세 단계 위) 안이면 경고합니다.
+    if sheet.resolve().is_relative_to(paths.WRITING_DIR.resolve().parents[2]):
+        print(f"경고: 저장소 안 시트입니다. 감수자 정보가 섞일 수 있으니 저장소 밖에 두세요: {sheet}", file=sys.stderr)
+    skipped: list[str] = []
+    try:
+        meta, rows = read_sheet(sheet, skipped)
+    except SheetError as error:
+        print(f"시트를 읽지 못했습니다: {error}", file=sys.stderr)
+        return EXIT_LOAD_ERROR
+    for title in skipped:
+        print(f"경고: 칸 머리가 없는 탭을 건너뜁니다: {title}", file=sys.stderr)
+    if meta.lang not in CATEGORIES:
+        print(f"시트 언어가 검수 대상이 아닙니다: {meta.lang}", file=sys.stderr)
+        return EXIT_LOAD_ERROR
+    inputs = dataclasses.replace(
+        default_check_inputs(), rules_dir=args.rules_dir, slots_dir=args.slots_dir, ia=tuple(args.ia)
+    )
+    outcomes = apply_review(
+        args.content, rows, meta.lang, lambda content: collect_findings(inputs, content), dry_run=args.dry_run
+    )
+    write_results(sheet, sheet.with_name(f"{sheet.stem}{RESULT_SUFFIX}{sheet.suffix}"), {o.row_id: o.text for o in outcomes})
+    term_rows = sum(1 for row in rows if row.suggestion and row.category.endswith(TERM_CATEGORY_MARK))
+    for line in _review_summary(outcomes, term_rows):
+        print(line)
+    if args.dry_run:
+        return 0
+    rules = load_rules(args.rules_dir)
+    docs = render_docs(rules, load_slots(args.slots_dir, rules), load_ia(args.ia), load_content(args.content))
+    write_docs(args.out_dir, docs)
+    return _print_findings(collect_findings(inputs, args.content))
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="mlw", description="명리일기 라이팅 검사기")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -533,6 +687,25 @@ def _build_parser() -> argparse.ArgumentParser:
     judge.add_argument("--shadow-out", type=Path, help="shadow 기록 JSONL 경로(--shadow에 필수, 이미 있으면 멈춤)")
     add_dirs(judge)
     judge.set_defaults(handler=_judge)
+
+    review_export = commands.add_parser("review-export", help="원어민 검수 시트(xlsx)를 내보냅니다(#1283)")
+    review_export.add_argument("content", nargs="?", type=Path, default=paths.CONTENT_DIR, help="원고 디렉터리")
+    review_export.add_argument("--lang", required=True, choices=REVIEW_LANGS, help="검수할 언어")
+    scope = review_export.add_mutually_exclusive_group(required=True)
+    scope.add_argument("--tier", type=int, help="차수(1, 2, 3)")
+    scope.add_argument("--bundle", help="쉼표로 이은 묶음(원고 파일 이름), 예: store,ui")
+    review_export.add_argument("--out", type=Path, help="시트 경로(기본: review/<언어>/<차수 또는 묶음>.xlsx)")
+    add_dirs(review_export)
+    review_export.set_defaults(handler=_review_export)
+
+    review_import = commands.add_parser("review-import", help="돌아온 검수 시트의 수정안을 원고에 반영합니다(#1283)")
+    review_import.add_argument("content", type=Path, help="원고 디렉터리")
+    review_import.add_argument("sheet", type=Path, help="감수자가 채운 시트(xlsx, 저장소 밖)")
+    review_import.add_argument("--dry-run", action="store_true", help="원고와 생성 문서를 쓰지 않고 결과 시트만 만듭니다")
+    review_import.add_argument("--out-dir", type=Path, default=paths.GENERATED_DIR, help="생성 문서 디렉터리")
+    add_dirs(review_import)
+    add_ia(review_import)
+    review_import.set_defaults(handler=_review_import)
 
     fixture = commands.add_parser("gen-week-fixture", help="엔진으로 한 주 검사 고정 자료를 만듭니다")
     fixture.add_argument("--engine", required=True, help="엔진 주소, 예: localhost:50051")

@@ -58,6 +58,8 @@
 
 ## 라이팅 검사기 (`mlw` CLI, 패키지 `myungli-writing`)
 
+**v0.16.0 (2026-11-26, writing #1283, W84):** 원어민 검수 시트 명령 두 개를 더했습니다. `review-export`는 en, ja 원고를 차수(`--tier`)나 묶음(`--bundle`)별 xlsx로 내보내고, `review-import`는 감수자가 채운 시트의 수정안을 판정해 원고 `text`에 반영한 뒤 `gen-docs`와 전체 검사를 돌립니다. 원고 형식과 기존 명령의 동작은 바뀌지 않습니다. 의존성 `openpyxl`이 늘었습니다.
+
 **v0.15.0 (2026-11-25, writing #1329, W83):** IA를 표면별 파일 여러 개로 읽습니다(D146). `--ia`가 파일 여러 개를 받고 기본값은 `docs/ia/screens.json`과 `docs/ia/site.json`이며, 화면 id나 슬롯 id가 파일 사이에서 겹치면 `load.json` 오류입니다. 슬롯 묶음 `web`(IA 대조, 문장, 완결성 검사는 받고 하루와 한 주 묶음 검사에서는 빠짐), `gen-docs`가 `generated/web/<언어>.json`을 만듭니다.
 
 **v0.14.0 (2026-11-16, writing #1208, W80):** 슬롯 묶음 `store`, 필드 `max_lines`, `length_unit`, `gen-docs`의 `generated/store/listing.json`.

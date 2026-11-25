@@ -8,6 +8,8 @@ RULES_DIR = WRITING_DIR / "rules"
 SLOTS_DIR = WRITING_DIR / "slots"
 CONTENT_DIR = WRITING_DIR / "content"
 GENERATED_DIR = WRITING_DIR / "generated"
+# 원어민 검수 시트와 감수자 안내 원문(#1283)
+REVIEW_DIR = WRITING_DIR / "review"
 # docs/identity/writing/ -> 저장소 루트
 MESSAGE_KEYS_FILE = WRITING_DIR.parents[2] / "core" / "message_keys.json"
 MESSAGE_PARAMS_FILE = WRITING_DIR.parents[2] / "core" / "message_params.json"

@@ -624,3 +624,176 @@ def test_cli_judge_shadow_out_without_shadow_is_error(monkeypatch: pytest.Monkey
     monkeypatch.setattr("mlw.cli.claude_cli_caller", no_call)
     with pytest.raises(SystemExit):
         main(["judge", "--shadow-out", "x.jsonl"])
+
+
+def test_review_export_tier1(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    from mlw import paths
+    from mlw.review.sheet import read_sheet
+
+    out = tmp_path / "t.xlsx"
+    assert main(["review-export", str(CONTENT_DIR), "--lang", "en", "--tier", "1", "--out", str(out)]) == 0
+    assert str(out) in capsys.readouterr().out
+    meta, rows = read_sheet(out)
+    assert meta.lang == "en"
+    assert re.fullmatch(r"[0-9a-f]{40}", meta.commit)
+    assert {row.bundle for row in rows} == {"store", "ui", "system", "web"}
+    import openpyxl
+
+    guide = openpyxl.load_workbook(out).worksheets[0]
+    first = (paths.REVIEW_DIR / "guide-en.md").read_text(encoding="utf-8").split("\n\n")[0].strip()
+    assert guide["A1"].value == first
+
+
+def test_review_export_bundle_name(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from mlw import paths
+
+    monkeypatch.setattr(paths, "REVIEW_DIR", tmp_path)
+    shutil.copy(paths.WRITING_DIR / "review" / "guide-ja.md", tmp_path / "guide-ja.md")
+    assert main(["review-export", str(CONTENT_DIR), "--lang", "ja", "--bundle", "store,ui"]) == 0
+    assert (tmp_path / "ja" / "store-ui.xlsx").is_file()
+
+
+def test_review_export_rejects_ko() -> None:
+    with pytest.raises(SystemExit):
+        main(["review-export", str(CONTENT_DIR), "--lang", "ko", "--tier", "1"])
+
+
+def test_review_export_needs_tier_or_bundle() -> None:
+    with pytest.raises(SystemExit):
+        main(["review-export", str(CONTENT_DIR), "--lang", "en"])
+
+
+def test_review_export_rejects_uncovered_file(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    content = tmp_path / "content"
+    shutil.copytree(CONTENT_DIR, content)
+    (content / "en" / "extra.yaml").write_text("[]\n", encoding="utf-8")
+    out = tmp_path / "t.xlsx"
+    assert main(["review-export", str(content), "--lang", "en", "--tier", "1", "--out", str(out)]) == 1
+    assert "extra" in capsys.readouterr().out
+    assert not out.exists()
+
+
+def test_collect_findings_matches_check(tmp_path: Path) -> None:
+    from mlw.cli import collect_findings, default_check_inputs
+
+    findings = collect_findings(default_check_inputs(), CONTENT_DIR)
+    assert all(finding.rule_id in ("complete.pending", "slot.empty_keys") for finding in findings)
+    content = tmp_path / "content"
+    shutil.copytree(CONTENT_DIR, content)
+    (content / "ko" / "color.yaml").write_text(BAD_CONTENT, encoding="utf-8")
+    errors = [f for f in collect_findings(default_check_inputs(), content) if f.severity == "error"]
+    assert errors and all(f.file.is_relative_to(content) for f in errors)
+
+
+def _review_fixture(tmp_path: Path, suggestions: dict[str, str]) -> tuple[Path, Path]:
+    """원고 사본과, 그 사본으로 내보낸 store 시트에 수정안을 넣은 파일입니다."""
+    import openpyxl
+
+    content = tmp_path / "content"
+    shutil.copytree(CONTENT_DIR, content)
+    sheet = tmp_path / "back" / "store.xlsx"
+    assert main(["review-export", str(content), "--lang", "en", "--bundle", "store", "--out", str(sheet)]) == 0
+    book = openpyxl.load_workbook(sheet)
+    tab = book["store"]
+    headers = {cell.value: cell.column for cell in tab[1]}
+    key_column = headers["Key (키)"]
+    for row in range(2, tab.max_row + 1):
+        key = tab.cell(row=row, column=key_column).value
+        if key in suggestions:
+            tab.cell(row=row, column=headers["Suggestion (수정안)"], value=suggestions[key])
+            tab.cell(row=row, column=headers["Category (분류)"], value="Grammar (문법)")
+    book.save(sheet)
+    return content, sheet
+
+
+IMPORT_SUGGESTIONS = {"subtitle": "Daily readings for your chart", "appName": "Myungli·Diary"}
+
+
+def test_review_import_round_trip(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    import openpyxl
+
+    content, sheet = _review_fixture(tmp_path, IMPORT_SUGGESTIONS)
+    out_dir = tmp_path / "generated"
+    assert main(["review-import", str(content), str(sheet), "--out-dir", str(out_dir)]) == 0
+    assert "Daily readings for your chart" in (content / "en" / "store.yaml").read_text(encoding="utf-8")
+    assert "Daily readings for your chart" in (out_dir / "store" / "listing.json").read_text(encoding="utf-8")
+    result = openpyxl.load_workbook(tmp_path / "back" / "store-result.xlsx")["store"]
+    values = {cell.value for column in result.iter_cols(min_col=result.max_column) for cell in column}
+    assert "반영함" in values
+    assert any(isinstance(value, str) and value.startswith("반영 안 함: 검사: style.S9") for value in values)
+    capsys.readouterr()
+
+
+def test_review_import_dry_run(tmp_path: Path) -> None:
+    content, sheet = _review_fixture(tmp_path, IMPORT_SUGGESTIONS)
+    before = (content / "en" / "store.yaml").read_text(encoding="utf-8")
+    out_dir = tmp_path / "generated"
+    assert main(["review-import", str(content), str(sheet), "--dry-run", "--out-dir", str(out_dir)]) == 0
+    assert (content / "en" / "store.yaml").read_text(encoding="utf-8") == before
+    assert not out_dir.exists()
+    assert (tmp_path / "back" / "store-result.xlsx").is_file()
+
+
+def test_review_import_summary(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    content, sheet = _review_fixture(tmp_path, IMPORT_SUGGESTIONS)
+    capsys.readouterr()
+    assert main(["review-import", str(content), str(sheet), "--dry-run"]) == 0
+    lines = capsys.readouterr().out.splitlines()
+    assert "반영 1" in lines
+    assert "반영 안 함 1" in lines
+    assert "  검사: 1" in lines
+    assert "용어 분류 0" in lines
+
+
+def test_review_import_warns_repo_path(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+    from mlw import paths
+
+    content, sheet = _review_fixture(tmp_path, {})
+    monkeypatch.setattr(paths, "WRITING_DIR", tmp_path)
+    capsys.readouterr()
+    assert main(["review-import", str(content), str(sheet), "--dry-run"]) == 0
+    assert "저장소 안 시트" in capsys.readouterr().err
+
+
+def test_review_import_warns_repo_root(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+    from mlw import paths
+
+    content, sheet = _review_fixture(tmp_path, {})
+    monkeypatch.setattr(paths, "WRITING_DIR", tmp_path / "docs" / "identity" / "writing")
+    capsys.readouterr()
+    assert main(["review-import", str(content), str(sheet), "--dry-run"]) == 0
+    assert "저장소 안 시트" in capsys.readouterr().err
+
+
+def test_review_export_bundle_spaces(tmp_path: Path) -> None:
+    out = tmp_path / "t.xlsx"
+    assert main(["review-export", str(CONTENT_DIR), "--lang", "en", "--bundle", "store, ui", "--out", str(out)]) == 0
+
+
+def test_head_commit_outside_git(tmp_path: Path) -> None:
+    from mlw.cli import head_commit
+
+    assert head_commit(tmp_path) == "unknown"
+
+
+def test_head_commit_marks_dirty(tmp_path: Path) -> None:
+    import subprocess
+
+    from mlw.cli import head_commit
+
+    def git(*args: str) -> None:
+        subprocess.run(["git", *args], cwd=tmp_path, check=True, capture_output=True)
+
+    git("init", "-q")
+    (tmp_path / "a.txt").write_text("a", encoding="utf-8")
+    git("add", "a.txt")
+    git("-c", "user.name=t", "-c", "user.email=t@example.invalid", "-c", "commit.gpgsign=false", "commit", "-q", "-m", "init")
+    assert re.fullmatch(r"[0-9a-f]{40}", head_commit(tmp_path))
+    (tmp_path / "a.txt").write_text("b", encoding="utf-8")
+    assert head_commit(tmp_path).endswith("+dirty")
+
+
+def test_review_import_bad_sheet(tmp_path: Path) -> None:
+    bad = tmp_path / "bad.xlsx"
+    bad.write_text("not a workbook", encoding="utf-8")
+    assert main(["review-import", str(CONTENT_DIR), str(bad), "--dry-run"]) == 2
