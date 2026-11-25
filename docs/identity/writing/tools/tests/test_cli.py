@@ -624,3 +624,50 @@ def test_cli_judge_shadow_out_without_shadow_is_error(monkeypatch: pytest.Monkey
     monkeypatch.setattr("mlw.cli.claude_cli_caller", no_call)
     with pytest.raises(SystemExit):
         main(["judge", "--shadow-out", "x.jsonl"])
+
+
+def test_review_export_tier1(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    from mlw import paths
+    from mlw.review.sheet import read_sheet
+
+    out = tmp_path / "t.xlsx"
+    assert main(["review-export", str(CONTENT_DIR), "--lang", "en", "--tier", "1", "--out", str(out)]) == 0
+    assert str(out) in capsys.readouterr().out
+    meta, rows = read_sheet(out)
+    assert meta.lang == "en"
+    assert re.fullmatch(r"[0-9a-f]{40}", meta.commit)
+    assert {row.bundle for row in rows} == {"store", "ui", "system", "web"}
+    import openpyxl
+
+    guide = openpyxl.load_workbook(out).worksheets[0]
+    first = (paths.REVIEW_DIR / "guide-en.md").read_text(encoding="utf-8").split("\n\n")[0].strip()
+    assert guide["A1"].value == first
+
+
+def test_review_export_bundle_name(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from mlw import paths
+
+    monkeypatch.setattr(paths, "REVIEW_DIR", tmp_path)
+    shutil.copy(paths.WRITING_DIR / "review" / "guide-ja.md", tmp_path / "guide-ja.md")
+    assert main(["review-export", str(CONTENT_DIR), "--lang", "ja", "--bundle", "store,ui"]) == 0
+    assert (tmp_path / "ja" / "store-ui.xlsx").is_file()
+
+
+def test_review_export_rejects_ko() -> None:
+    with pytest.raises(SystemExit):
+        main(["review-export", str(CONTENT_DIR), "--lang", "ko", "--tier", "1"])
+
+
+def test_review_export_needs_tier_or_bundle() -> None:
+    with pytest.raises(SystemExit):
+        main(["review-export", str(CONTENT_DIR), "--lang", "en"])
+
+
+def test_review_export_rejects_uncovered_file(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    content = tmp_path / "content"
+    shutil.copytree(CONTENT_DIR, content)
+    (content / "en" / "extra.yaml").write_text("[]\n", encoding="utf-8")
+    out = tmp_path / "t.xlsx"
+    assert main(["review-export", str(content), "--lang", "en", "--tier", "1", "--out", str(out)]) == 1
+    assert "extra" in capsys.readouterr().out
+    assert not out.exists()

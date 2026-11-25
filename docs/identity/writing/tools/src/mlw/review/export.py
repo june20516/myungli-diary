@@ -25,6 +25,17 @@ LIST_SEPARATOR: Final = ", "
 _ContentKey = tuple[str, str, str | None, int]
 
 
+def read_guide(path: Path) -> list[str]:
+    """감수자 안내 원문을 빈 줄로 나눈 문단 목록으로 읽습니다. 문단 하나가 안내 탭 셀 하나입니다."""
+    text = path.read_text(encoding="utf-8")
+    return [paragraph.strip() for paragraph in text.split("\n\n") if paragraph.strip()]
+
+
+def sheet_name(tier: int | None, bundles: Sequence[str]) -> str:
+    """빈 시트 파일 이름입니다: 차수면 `tier<n>.xlsx`, 묶음 목록이면 `<묶음>-<묶음>.xlsx`."""
+    return f"tier{tier}.xlsx" if tier is not None else f"{'-'.join(bundles)}.xlsx"
+
+
 def row_id(entry: Entry) -> str:
     """시트 숨김 칸 `id`입니다. 다시 읽을 때 원고 줄을 이 값으로 찾습니다."""
     return f"{entry.slot}|{entry.key}|{entry.type or ''}|{entry.variant}"

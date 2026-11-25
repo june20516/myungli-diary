@@ -5,8 +5,10 @@
 
 import argparse
 import dataclasses
+import importlib.metadata
 import json
 import os
+import subprocess
 import sys
 from collections import Counter
 from collections.abc import Mapping, Sequence
@@ -32,6 +34,15 @@ from mlw.loader import load_content, load_rules, load_slots
 from mlw.markup import check_name_position, check_ui_josa, check_ui_markup, strip_vocative
 from mlw.model import LANGS, PARAM_KIND_NUMBER, Entry, Finding, LoadError, ParamKind, RuleSet, Slot
 from mlw.placeholders import Placeholder, parse
+from mlw.review.export import (
+    REVIEW_LANGS,
+    build_rows,
+    bundles_for,
+    check_tier_coverage,
+    read_guide,
+    sheet_name,
+)
+from mlw.review.sheet import SheetMeta, write_sheet
 from mlw.sentence import check_sentence
 from mlw.store import is_store_slot
 from mlw.terms import check_tokens
@@ -470,6 +481,46 @@ def _gen_week_fixture(args: argparse.Namespace) -> int:
     return week_fixture.main(["--engine", args.engine])
 
 
+RULE_TIER_COVERAGE = "review.tier_coverage"
+PACKAGE_NAME = "myungli-writing"
+
+
+def _head_commit() -> str:
+    result = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=paths.WRITING_DIR, check=True, capture_output=True, text=True
+    )
+    return result.stdout.strip()
+
+
+def _review_export(args: argparse.Namespace) -> int:
+    lang: str = args.lang
+    uncovered = check_tier_coverage(args.content, lang)
+    if uncovered:
+        findings = [
+            Finding(args.content / lang / f"{bundle}.yaml", 1, RULE_TIER_COVERAGE, "error", "검수 차수 표와 원고 파일이 어긋납니다")
+            for bundle in uncovered
+        ]
+        return _print_findings(findings)
+    bundle_list = args.bundle.split(",") if args.bundle is not None else None
+    try:
+        bundles = bundles_for(args.tier, bundle_list)
+    except ValueError as error:
+        print(error, file=sys.stderr)
+        return EXIT_ERROR
+    rules = load_rules(args.rules_dir)
+    rows = build_rows(load_content(args.content), load_slots(args.slots_dir, rules), lang, bundles)
+    meta = SheetMeta(
+        lang=lang,
+        commit=_head_commit(),
+        exported=date.today().isoformat(),
+        tool_version=importlib.metadata.version(PACKAGE_NAME),
+    )
+    out: Path = args.out or paths.REVIEW_DIR / lang / sheet_name(args.tier, bundles)
+    write_sheet(out, meta, read_guide(paths.REVIEW_DIR / f"guide-{lang}.md"), rows)
+    print(out)
+    return 0
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="mlw", description="명리일기 라이팅 검사기")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -533,6 +584,16 @@ def _build_parser() -> argparse.ArgumentParser:
     judge.add_argument("--shadow-out", type=Path, help="shadow 기록 JSONL 경로(--shadow에 필수, 이미 있으면 멈춤)")
     add_dirs(judge)
     judge.set_defaults(handler=_judge)
+
+    review_export = commands.add_parser("review-export", help="원어민 검수 시트(xlsx)를 내보냅니다(#1283)")
+    review_export.add_argument("content", nargs="?", type=Path, default=paths.CONTENT_DIR, help="원고 디렉터리")
+    review_export.add_argument("--lang", required=True, choices=REVIEW_LANGS, help="검수할 언어")
+    scope = review_export.add_mutually_exclusive_group(required=True)
+    scope.add_argument("--tier", type=int, help="차수(1, 2, 3)")
+    scope.add_argument("--bundle", help="쉼표로 이은 묶음(원고 파일 이름), 예: store,ui")
+    review_export.add_argument("--out", type=Path, help="시트 경로(기본: review/<언어>/<차수 또는 묶음>.xlsx)")
+    add_dirs(review_export)
+    review_export.set_defaults(handler=_review_export)
 
     fixture = commands.add_parser("gen-week-fixture", help="엔진으로 한 주 검사 고정 자료를 만듭니다")
     fixture.add_argument("--engine", required=True, help="엔진 주소, 예: localhost:50051")
