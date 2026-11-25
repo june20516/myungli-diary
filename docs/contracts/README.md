@@ -16,9 +16,9 @@
 | 브랜드 기반 | `docs/identity/README.md` | 지휘 | writing, design | - | 확정 (B0) | 브랜드 기반 spec, D38 |
 | MVP 화면 목록 (IA) | `docs/ia/screens.json` (읽는 문서 `docs/ia/README.md`) | 지휘 | app, writing, design, server | 5 | **확정** | IA spec, D39·D51·D53·D58·D60·D62·D66·D67·D68·D71·D77, app A6 |
 | 웹 화면 목록 (IA, 랜딩과 social) | `docs/ia/site.json` (읽는 문서 `docs/ia/README.md` "표면별 IA 파일") | 지휘 | web, writing | 1 | **초안** (WB1 `web-landing`) | D144, D146, WB1 준비 메모 |
-| 슬롯 명세 (원고 표기 포함: `{param}`, `{param:범주}`, 조사 표기 6쌍, 용어 토큰 `[[...]]`) | `docs/identity/writing/slots/` (`_schema.yaml`, `content/`, `ui/`, 읽는 문서 `generated/slot-catalog.md`) | writing | server, app | v1.50 | **확정** | 브랜드 기반 spec §8, W0 spec, writing 결정 W1~W67(W15·W17 D79 개정) |
+| 슬롯 명세 (원고 표기 포함: `{param}`, `{param:범주}`, 조사 표기 6쌍, 용어 토큰 `[[...]]`) | `docs/identity/writing/slots/` (`_schema.yaml`, `content/`, `ui/`, `store/`, `web/`, 읽는 문서 `generated/slot-catalog.md`) | writing | server, app | v1.51 | **확정** | 브랜드 기반 spec §8, W0 spec, writing 결정 W1~W67(W15·W17 D79 개정) |
 | 호칭·조사 처리 규칙 (렌더 순서 포함) | `docs/identity/writing/guide/honorific-josa.md`, `rules/josa.yaml` | writing | server (콘텐츠 모듈), app (ui ARB 조사 `josaClass`) | v1.2 | **확정** | D36, W0 spec |
-| 라이팅 검사기 (`mlw` CLI, 패키지 `myungli-writing`) | `docs/identity/writing/tools/`. 저장소 루트에서 `uv run --project docs/identity/writing/tools mlw <명령>` | writing | server (시드 CI), app (CI, `check-arb`) | v0.13.0 | **확정** | 브랜드 기반 spec §8, W0 spec |
+| 라이팅 검사기 (`mlw` CLI, 패키지 `myungli-writing`) | `docs/identity/writing/tools/`. 저장소 루트에서 `uv run --project docs/identity/writing/tools mlw <명령>` | writing | server (시드 CI), app (CI, `check-arb`) | v0.15.0 | **확정** | 브랜드 기반 spec §8, W0 spec |
 | 근거 규칙 목록 (`rule_id` → `detail` 키) | `core/evidence_rules.json` (선언 `core/src/myungli_engine/constants/evidence_rules.py`) | core | writing (`evidence.basis`·`explain.today_reason` 키), server | - | **구현 완료** | 엔진 spec §11, Issue #130 |
 | 근거 원전 목록 (`source_ref` → 원전 이름·대목·원문) | `core/evidence_sources.json` (생성 `core/src/myungli_engine/references/sources.py`) | core | writing (`evidence.source` 키), server | - | **구현 완료** | 엔진 spec §11, Issue #130 |
 | 계산 규칙 지도 (공통 틀, 그룹, 항목별 규칙과 원전, 바탕지식, 불일치 목록) | `core/rules_map.json` (원본 `core/docs/rules-map/rules_map.toml`, 생성 `core/tools/rules_map.py`) | core | root (제품 지도 "계산 규칙" 탭) | `meta.version` 2 | **구현 완료** | Issue #988 |
@@ -28,6 +28,7 @@
 | 글자 수 상한 표 | `docs/identity/design/lengths.md` | design | writing (슬롯 `max_length` 대조 테스트) | - | **사용 중** | design `lengths.md`, writing W26 |
 | 스토어 이미지 명세 (장면, 틀, 스크린샷 글 상한, Play 그래픽) | `docs/identity/design/store/store.json` (읽는 문서 `store/README.md`) | design | app (스토어 이미지 생성, #1203), writing (스크린샷 위 글 상한, #1201) | 1.0.0 | **확정** | store 스크린샷 spec, D133, design 결정 V133 |
 | 스토어 등록정보 문구 (앱 이름, 부제, 설명, 키워드, 스크린샷 위 글) | `docs/identity/writing/generated/store/listing.json` (원고 `content/<언어>/store.yaml`, 슬롯 `slots/store/`) | writing | app (스크린샷 위 글, #1203), 지휘 (콘솔 업로드), web (랜딩 앱 이름, WB1 #1342) | - | **사용 중** | writing 결정 W80, 라운드 R49, D133 |
+| 웹 페이지 문구 (랜딩) | `docs/identity/writing/generated/web/<언어>.json` (슬롯 → 키 → 글, 원고 `content/<언어>/web.yaml`, 슬롯 `slots/web/`) | writing | web (WB1 랜딩, #1329) | 1.0.0 | **초안** (en과 ja는 원어민 검수 전) | writing 결정 W83, IA `site.json`, D146 |
 
 ## 생성 코드
 * proto에서 생성한 코드는 사용하는 서비스마다 자기 디렉터리에 commit합니다(D33).

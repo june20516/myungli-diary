@@ -1,0 +1,19 @@
+# 웹 랜딩 원고(#1329). 슬롯은 slots/web/landing.yaml, web이 읽는 생성물은 generated/web/en.json입니다.
+# en, ja는 원어민 검수(E18) 전 초안입니다.
+- {slot: web-landing.meta.title, key: metaTitle, text: "Myungli Diary | Daily Readings for Your Chart"}
+- {slot: web-landing.meta.description, key: metaDescription, text: "The same day is different for everyone. See each day read for your own chart."}
+- {slot: web-landing.hero.tagline, key: heroTagline, text: "Daily Readings for Your Chart"}
+- {slot: web-landing.hero.body, key: heroBody, text: "See today read for your own chart, then keep what happened beside it in your diary. Check smooth days and careful days ahead of time in the calendar."}
+- {slot: web-landing.shots.alt, key: today, text: "Today screen. The day's overall reading in one sentence and the day's character, read for your own chart"}
+- {slot: web-landing.shots.alt, key: evidence, text: "Basis screen. The reasoning behind a reading and the original classical text"}
+- {slot: web-landing.shots.alt, key: calendar, text: "Calendar screen. A month with smooth days and careful days marked"}
+- {slot: web-landing.shots.alt, key: daySheet, text: "Day screen. A diary entry kept beside that day's reading"}
+- {slot: web-landing.shots.alt, key: mySaju, text: "My chart screen. Your natal chart and five-element balance in a table"}
+- {slot: web-landing.shots.alt, key: share, text: "Share card. Today's luck on a single card"}
+- {slot: web-landing.store.soon, key: storeSoon, text: "Coming soon to the App Store and Google Play."}
+- {slot: web-landing.store.apple, key: storeApple, text: "Download on the App Store"}
+- {slot: web-landing.store.google, key: storeGoogle, text: "Get it on Google Play"}
+- {slot: web-landing.footer.terms, key: footerTerms, text: "Terms of Service"}
+- {slot: web-landing.footer.privacy, key: footerPrivacy, text: "Privacy Policy"}
+- {slot: web-landing.footer.support, key: footerSupport, text: "Help and Support"}
+- {slot: web-landing.lang.label, key: langLabel, text: "Language"}

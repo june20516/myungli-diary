@@ -1,0 +1,43 @@
+{
+  "web-landing.meta.title": {
+    "metaTitle": "명리일기 | 오늘 일진을 내 사주에 맞춰 풀어 주는 일기"
+  },
+  "web-landing.meta.description": {
+    "metaDescription": "같은 날이라도 각자의 오늘은 달라요. 내 사주로 매일의 일진을 풀어 드려요."
+  },
+  "web-landing.hero.tagline": {
+    "heroTagline": "오늘 일진을 내 사주에 맞춰 풀어 주는 일기"
+  },
+  "web-landing.hero.body": {
+    "heroBody": "내 사주로 풀이한 오늘을 보고, 그날 있었던 일을 풀이 옆에 일기로 남겨요. 잘 풀리는 날과 조심할 날은 달력에서 미리 확인해요."
+  },
+  "web-landing.shots.alt": {
+    "today": "오늘 화면. 내 사주로 풀이한 그날의 총운 한 문장과 날의 성격",
+    "evidence": "풀이의 근거 화면. 풀이 문장의 판정 근거와 고전 원문",
+    "calendar": "달력 화면. 잘 풀리는 날과 조심할 날이 표시된 한 달",
+    "daySheet": "하루 화면. 그날의 운세 옆에 남긴 일기",
+    "mySaju": "나의 사주 화면. 사주 원국과 오행 분포 표",
+    "share": "공유 카드. 오늘의 행운을 담은 카드 한 장"
+  },
+  "web-landing.store.soon": {
+    "storeSoon": "App Store와 Google Play에 곧 출시합니다."
+  },
+  "web-landing.store.apple": {
+    "storeApple": "App Store에서 다운로드"
+  },
+  "web-landing.store.google": {
+    "storeGoogle": "Google Play에서 다운로드"
+  },
+  "web-landing.footer.terms": {
+    "footerTerms": "이용약관"
+  },
+  "web-landing.footer.privacy": {
+    "footerPrivacy": "개인정보 처리방침"
+  },
+  "web-landing.footer.support": {
+    "footerSupport": "문의와 지원"
+  },
+  "web-landing.lang.label": {
+    "langLabel": "언어"
+  }
+}

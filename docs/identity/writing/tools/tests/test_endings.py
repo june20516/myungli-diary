@@ -24,7 +24,7 @@ IA_DATA = {
 def ia(tmp_path: Path) -> Ia:
     path = tmp_path / "screens.json"
     path.write_text(json.dumps(IA_DATA), encoding="utf-8")
-    return load_ia(path)
+    return load_ia([path])
 
 
 def make_slot(slot_id: str, group: str, ia_ids: tuple[str, ...] = ()) -> Slot:
