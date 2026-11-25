@@ -36,7 +36,7 @@
         {
           "id": "web-landing.shots.alt",
           "source": "content",
-          "role": "앱 화면 사진의 대체 텍스트. 매개변수 index(1부터), 화면마다 무엇을 보여 주는지"
+          "role": "앱 화면 사진의 대체 텍스트. 키는 스토어 스크린샷 장면 id(today, evidence, calendar, daySheet, mySaju, share, design store/store.json)이고, 사진마다 무엇을 보여 주는지"
         },
         {
           "id": "web-landing.store.soon",
