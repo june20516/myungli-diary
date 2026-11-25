@@ -401,8 +401,6 @@ type BillingConfig struct {
 	// AdFreeProducts는 광고 제거권으로 치는 RevenueCat 상품 id(prod…, 스토어마다 하나, S124)에서 스토어 상품 식별자
 	// (App Store, Play 상품 id, 예 ad_free_1m)로 가는 표입니다(S166). 목록 밖 상품은 무시합니다.
 	AdFreeProducts map[string]string
-	// ProductionOnly가 true면 production 환경 구매만 셉니다(APP_ENV가 prod일 때, P7-2).
-	ProductionOnly bool
 }
 
 // Configured는 결제 동기화에 필요한 네 값이 모두 있는지 알려 줍니다.
@@ -432,7 +430,6 @@ func LoadBilling(getenv func(string) string) (BillingConfig, error) {
 		RevenueCatAPIKey:      getenv("REVENUECAT_API_KEY"),
 		RevenueCatWebhookAuth: getenv("REVENUECAT_WEBHOOK_AUTH"),
 		AdFreeProducts:        products,
-		ProductionOnly:        env == "prod",
 	}
 
 	billingOff := env == defaultEnv || (env == "staging" && cfg.empty())

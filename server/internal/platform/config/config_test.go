@@ -474,7 +474,7 @@ func TestLoadBilling(t *testing.T) {
 	t.Run("local에서 모두 비면 통과하고 Configured는 false", func(t *testing.T) {
 		for _, env := range []map[string]string{nil, {"APP_ENV": "local"}} {
 			cfg, err := LoadBilling(fakeEnv(env))
-			if err != nil || cfg.Configured() || cfg.ProductionOnly {
+			if err != nil || cfg.Configured() {
 				t.Errorf("LoadBilling(%v) = %+v, %v, want 미설정과 nil 오류", env, cfg, err)
 			}
 		}
@@ -535,14 +535,6 @@ func TestLoadBilling(t *testing.T) {
 		cfg, err := LoadBilling(fakeEnv(with(map[string]string{"AD_FREE_PRODUCT_IDS": "prod2559315a97=ad_free_1m,prod083797223e=sub.monthly:base-plan"})))
 		if err != nil || cfg.AdFreeProducts["prod083797223e"] != "sub.monthly:base-plan" {
 			t.Errorf("LoadBilling(Play 구독 식별자) = %+v, %v, want 쌍점 허용", cfg, err)
-		}
-	})
-	t.Run("ProductionOnly는 prod에서만 true", func(t *testing.T) {
-		for appEnv, want := range map[string]bool{"prod": true, "staging": false, "local": false} {
-			cfg, err := LoadBilling(fakeEnv(with(map[string]string{"APP_ENV": appEnv})))
-			if err != nil || cfg.ProductionOnly != want {
-				t.Errorf("LoadBilling(APP_ENV=%s) = %+v, %v, want ProductionOnly %v", appEnv, cfg, err, want)
-			}
 		}
 	})
 }

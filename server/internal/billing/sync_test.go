@@ -575,24 +575,32 @@ func TestSync_DeletedOwnerPurchaseNotTakenByNewAccount(t *testing.T) {
 	require.NoError(t, f.syncer.Sync(context.Background(), deleted))
 }
 
-// productionOnly면 sandbox 구매는 장부에 적지 않습니다(spec §5.5, P7).
-func TestSync_ProductionOnly_SandboxNotRecorded(t *testing.T) {
-	pool := dbtest.New(t)
-	source := newFakePurchases()
-	syncer := billing.NewSyncer(pool, source, billing.SyncConfig{
-		Catalog:        billing.AdFreeCatalog(map[string]string{testAdFreeProduct: testAdFreeProduct}),
-		ProductionOnly: true,
-	}, clocktest.New(now))
-	accountID := newAccount(t, pool)
+// sandbox 구매도 장부에 적고 구간을 만들며, 장부의 production 칸은 false로 남깁니다(S168).
+// App Store 심사는 출시용 빌드에서 sandbox로 결제하므로 prod에서도 광고 제거가 열려야 합니다.
+func TestSync_SandboxPurchase_GrantsAndKeepsEnvironment(t *testing.T) {
+	f := newSyncFixture(t)
+	accountID := newAccount(t, f.pool)
 	sandbox := owned("sandbox", oct1)
 	sandbox.Production = false
-	source.set(accountID, sandbox, owned("prod", oct10))
+	f.source.set(accountID, sandbox, owned("prod", oct10))
 
-	require.NoError(t, syncer.Sync(context.Background(), accountID))
+	require.NoError(t, f.syncer.Sync(context.Background(), accountID))
 
-	assert.Equal(t, 1, ledgerCount(t, pool))
-	assert.Equal(t, accountID, ledgerOf(t, pool, "prod").Owner)
-	assertPeriod(t, allGrants(t, pool), "prod", oct10, time.Date(2026, 11, 10, 0, 0, 0, 0, time.UTC), nil)
+	assert.Equal(t, 2, ledgerCount(t, f.pool))
+	assert.False(t, productionOf(t, f.pool, "sandbox"), "sandbox 구매는 production=false")
+	assert.True(t, productionOf(t, f.pool, "prod"))
+	grants := allGrants(t, f.pool)
+	nov1 := time.Date(2026, 11, 1, 0, 0, 0, 0, time.UTC)
+	assertPeriod(t, grants, "sandbox", oct1, nov1, nil)
+	assertPeriod(t, grants, "prod", nov1, time.Date(2026, 12, 1, 0, 0, 0, 0, time.UTC), nil)
+}
+
+func productionOf(t *testing.T, pool *pgxpool.Pool, purchaseID string) bool {
+	t.Helper()
+	var production bool
+	require.NoError(t, pool.QueryRow(context.Background(),
+		`SELECT production FROM purchases WHERE id = $1`, purchaseID).Scan(&production), "장부에 %s 없음", purchaseID)
+	return production
 }
 
 // 목록 밖 상품은 장부에만 적고 구간을 만들지 않습니다(spec §5.1).
