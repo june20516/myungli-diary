@@ -12,7 +12,7 @@
 | --- | --- | --- | --- | --- | --- |
 | T1 | **비공개 테스트: 테스트용 클라우드에 server와 엔진을 올리고, 테스트 빌드를 배포해 테스터가 실제로 써 봅니다** ① 테스트 인프라: GCP staging 프로젝트, 도메인과 DNS, 비밀 값(외부 준비물 E4, E6~E12) ② server와 엔진 staging 배포(server P9, 엔진 실행 조건 #79). ①②는 I2가 staging에서 app E2E를 돌릴 때 먼저 세우고 T1에서 그대로 씁니다 ③ 테스트 빌드 배포: iOS TestFlight, Android Play 비공개 테스트 트랙(E2, E3) ④ 테스터 초대와 사용: Play 새 개인 계정 조건(테스터 12명 이상이 14일 연속) | 지휘 + server + app + 사용자 | I1, I2, Q1, O1 | I4(Play 비공개 테스트 의무를 이 단계에서 채움), E15(D92: 앱을 받아 본 뒤 사업자등록) | **진행 중** (Play 비공개 테스트 14일 진행, 2026-11-18 시작. 목표는 Play 요건 통과) |
 | L1 | **부하 테스트와 용량 산정:** 비슷한 범주 앱의 대형, 중형, 소형 활성 사용자 규모를 시나리오로(수치는 비공개 `business/`, D74), 요청당 연산과 비용, 한계에서의 server 응답과 app 대응. 부하 전용 환경 우선. 준비 메모 같은 파일 | 지휘 + server + app | O1 | I4 | **진행 중** (3회차까지 잼, 남은 것 server #817, tier는 I4 2주 전 점검 #903, D135) |
-| I3 | 통합 3(D139): ① 자동 E2E를 main으로 staging에서 다시 돌리고 커버리지 갱신 ② **prod 리허설**: prod 설정 빌드로 prod server에서 전 과정 1회(실기기) ③ 시스템 경계 실기기 목록 | server + app + 사용자 | I1, I2, W1 | I4 | 시작 전 |
+| I3 | 통합 3(D139): ① 자동 E2E를 main으로 staging에서 다시 돌리고 커버리지 갱신 ② **prod 리허설**: prod 설정 빌드로 prod server에서 전 과정 1회(실기기) ③ 시스템 경계 실기기 목록 | server + app + 사용자 | I1, I2, W1 | I4 | 진행 중(② server prod 점검 끝남) |
 | I4 | 스토어 심사·출시 (iOS / Android) | 지휘 + app | I3, T1 | Phase 2 | - |
 
 **통합 마일스톤(I1~I4)의 시작 조건:** 위 선행 조건에 더해 열린 `drift` Issue가 0이어야 합니다(`docs/workflow.md` §6.1).
@@ -36,7 +36,7 @@
 | 순서 | 담당 | 할 일 | 끝나면 풀리는 것 |
 | --- | --- | --- | --- |
 | 1 | 사용자 | 14일이 차는 12-03 무렵 프로덕션 액세스 신청(빌드 11 업데이트 업체 알림은 끝남 2026-11-25, Google 집계상 참여 테스터가 기준과 같은 12명) | T1 통과 |
-| 2 | server → app → 사용자 | I3 ② prod 리허설: server prod 준비, app prod 설정 빌드(내부 테스트), 사용자 실기기 전 과정(D139). app은 같은 때 ① 자동 E2E 다시 돌리기 | I4 |
+| 2 | server → app → 사용자 | I3 ② prod 리허설: server prod 점검은 끝남(2026-11-25, #1281: 빠진 값 없음, prod도 sandbox 구매 반영 #1312, D99 ③ 개정). #1312 병합 뒤 지휘가 prod 승격, 사용자가 AdMob SSV 주소를 prod로 바꾸면 prod 준비 끝. 이어서 app prod 설정 빌드(내부 테스트), 사용자 실기기 전 과정(D139). app은 같은 때 ① 자동 E2E 다시 돌리기 | I4 |
 | 2 | writing → 사용자 | 원어민 검수 시트 내보내기(D140), 사용자가 감수자에게 전달 | I4 |
 | 뒤 | 각자 | Q1 뒤처리 server #1253, core #1255, writing SHA 고정 #1236, core #59, writing #531(MVP 밖), server #794, #817 | I4 |
 | I4 2주 전 | 사용자 + 지휘 | Cloud SQL tier와 예산 점검(#903, D135 ④) | I4(1월 최고 부하) |
@@ -44,7 +44,7 @@
 ## I4 준비물
 | 항목 | 시점 |
 | --- | --- |
-| SSV 주소 prod 전환(E13), RevenueCat prod 연결(E12), prod Secret 점검(E16 사업자 정보 포함) | I3 ② 전 |
+| AdMob 보상형 단위 두 개의 SSV 콜백 주소를 prod `https://api.myungli-diary.app/webhooks/admob-ssv`로 바꾸고 "URL 확인"(E13, 사용자). RevenueCat prod 연결(E12)과 prod Secret 점검(E16 사업자 정보 포함)은 끝남(2026-11-25, #1281) | I3 ② 전 |
 | App Store 지원 연락처 `support@`로 통일(E14, Play는 끝남 2026-11-24) | 지금 |
 | Kakao debug 키 해시 삭제(E9), Google OAuth 브랜드 인증(E11), 보상형 광고 고지와 심사 기준(E19), 원어민 검수(E18, D140), 법적 문서 시행일 | I4 전 |
 | Cloud SQL tier와 예산(#903) | I4 2주 전 |
