@@ -209,6 +209,12 @@ importers:
 
   packages/tokens: {}
 
+  site:
+    dependencies:
+      '@myungli/tokens':
+        specifier: workspace:*
+        version: link:../packages/tokens
+
 packages:
 
   '@cacheable/memory@2.2.0':
