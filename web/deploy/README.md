@@ -38,7 +38,7 @@ server bootstrap(`server/deploy/terraform/README.md`)을 이미 apply한 두 프
    terraform apply -var-file="$env.tfvars"
    terraform output dns_records
    ```
-3. Cloudflare DNS에 `dns_records`의 기록을 넣습니다. **프록시는 끕니다**(회색 구름). 켜 두면 Firebase가 인증서를 발급하지 못합니다. 발급은 몇 분에서 하루까지 걸립니다. Firebase 콘솔 Hosting의 사이트 화면에서 도메인 상태가 "연결됨"이 되면 끝입니다.
+3. `dns_records`가 비어 있으면 Firebase가 아직 값을 만들지 않은 것이니 잠시 뒤 `terraform apply -refresh-only -var-file="$env.tfvars"`로 새로 읽습니다. Cloudflare DNS에 `dns_records`의 기록을 넣습니다. **프록시는 끕니다**(회색 구름). 켜 두면 Firebase가 인증서를 발급하지 못합니다. 발급은 몇 분에서 하루까지 걸립니다. Firebase 콘솔 Hosting의 사이트 화면에서 도메인 상태가 "연결됨"이 되면 끝입니다.
 4. GitHub 저장소 Settings의 Environments에서 `web-staging`(Deployment branches: `staging`)과 `web-prod`(Deployment branches: `main`, Required reviewers: 사용자)를 만듭니다. WIF도 environment와 브랜치를 함께 보지만 이 제한은 이중 장치입니다.
 5. 저장소 변수 `WEB_DEPLOY_ENABLED`를 `true`로 둡니다. 그 뒤 staging에 `web/**`가 바뀌거나 `deploy-web`을 staging 브랜치에서 수동 실행하면 배포됩니다.
 

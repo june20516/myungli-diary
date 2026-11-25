@@ -69,3 +69,34 @@ test("법적 문서와 지원 링크는 server 주소에 그 언어", async ({ p
   await expect(page.locator("footer a")).toHaveCount(3);
   await expect(page.locator('footer a[href="https://api.myungli-diary.app/legal/terms?lang=ja"]')).toHaveCount(1);
 });
+
+test.describe("캐시 헤더", () => {
+  for (const path of ["/", "/ko/", "/ja/"]) {
+    test(`${path} HTML은 no-cache`, async ({ request }) => {
+      const response = await request.get(path, { maxRedirects: 0 });
+      expect(response.status()).toBe(200);
+      expect(response.headers()["cache-control"]).toBe("no-cache");
+    });
+  }
+
+  test("/_astro/ 파일은 immutable", async ({ page, request }) => {
+    await page.goto("/en/");
+    const stylesheet = await page.locator('link[rel="stylesheet"][href^="/_astro/"]').first().getAttribute("href");
+    expect(stylesheet).not.toBeNull();
+    const response = await request.get(stylesheet ?? "");
+    expect(response.headers()["cache-control"]).toBe("public, max-age=31536000, immutable");
+  });
+});
+
+test("없는 주소는 404 상태이고 canonical을 내지 않음", async ({ page }) => {
+  const response = await page.goto("/ko/nope/");
+  expect(response?.status()).toBe(404);
+  await expect(page.locator("link[rel=canonical]")).toHaveCount(0);
+  await expect(page.locator("meta[property='og:url']")).toHaveCount(0);
+});
+
+test("prod가 아닌 origin은 검색 색인을 막음", async ({ page, request }) => {
+  expect((await (await request.get("/robots.txt")).text()).trim()).toBe("User-agent: *\nDisallow: /");
+  await page.goto("/en/");
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex");
+});

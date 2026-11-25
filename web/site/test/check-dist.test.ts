@@ -58,6 +58,16 @@ describe("checkDist", () => {
     expect(problems).toEqual([]);
   });
 
+  test("noscript 안의 글은 보이므로 D93 검사", () => {
+    const problems = checkDist(makeDist({ "en/index.html": page("en", "<noscript>a·b</noscript>") }), ORIGIN);
+    expect(problems.some((problem) => problem.includes("D93"))).toBe(true);
+  });
+
+  test("HTML 엔티티로 쓴 가운뎃점도 D93 문제", () => {
+    const problems = checkDist(makeDist({ "en/index.html": page("en", "<p>a&middot;b</p>") }), ORIGIN);
+    expect(problems.some((problem) => problem.includes("D93"))).toBe(true);
+  });
+
   test("깨진 내부 링크는 문제", () => {
     expect(checkDist(makeDist({ "ko/index.html": page("ko", '<a href="/ko/missing/">x</a>') }), ORIGIN)).toContain("깨진 링크: ko/index.html → /ko/missing/");
   });

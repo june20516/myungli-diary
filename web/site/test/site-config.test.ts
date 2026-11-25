@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { createSiteConfig } from "../src/config/site.ts";
+import { createSiteConfig, robotsTxt } from "../src/config/site.ts";
 
 describe("createSiteConfig", () => {
   test("WEB_ORIGIN이 없으면 로컬 주소", () => {
@@ -28,5 +28,18 @@ describe("createSiteConfig", () => {
 
   test("출시 전 기본값은 곧 출시", () => {
     expect(createSiteConfig({}).release).toBe("soon");
+  });
+});
+
+describe("검색 색인", () => {
+  test("prod origin만 색인을 허용", () => {
+    expect(createSiteConfig({ WEB_ORIGIN: "https://myungli-diary.app" }).indexable).toBe(true);
+    expect(createSiteConfig({ WEB_ORIGIN: "https://staging.myungli-diary.app" }).indexable).toBe(false);
+    expect(createSiteConfig({}).indexable).toBe(false);
+  });
+
+  test("robots.txt는 색인 여부를 따름", () => {
+    expect(robotsTxt(createSiteConfig({ WEB_ORIGIN: "https://myungli-diary.app" }))).toBe("User-agent: *\nAllow: /\n");
+    expect(robotsTxt(createSiteConfig({ WEB_ORIGIN: "https://staging.myungli-diary.app" }))).toBe("User-agent: *\nDisallow: /\n");
   });
 });

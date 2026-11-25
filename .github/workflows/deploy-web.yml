@@ -80,7 +80,16 @@ jobs:
           node-version-file: web/.nvmrc
       - name: 설치(lockfile 고정)
         run: pnpm install --frozen-lockfile
-      # 빌드 뒤 검사(check-dist)가 이 origin으로 OG 절대 주소와 페이지를 확인합니다.
+      # 빌드 뒤 검사(check-dist)가 이 origin으로 OG 절대 주소와 페이지를 확인하므로, origin이 비거나 로컬 값이면 빌드 전에 멈춥니다.
+      - name: origin 확인
+        run: |
+          case "$WEB_ORIGIN" in
+            https://myungli-diary.app | https://staging.myungli-diary.app) ;;
+            *)
+              echo "WEB_ORIGIN이 배포 주소가 아닙니다: '$WEB_ORIGIN'" >&2
+              exit 1
+              ;;
+          esac
       - name: 빌드
         run: pnpm build
       - name: Firebase Hosting(사이트 target landing)

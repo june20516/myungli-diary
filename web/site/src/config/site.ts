@@ -19,6 +19,8 @@ export interface SiteConfig extends SiteSettings {
   legal(lang: Lang): { terms: string; privacy: string; support: string };
   /** /app-ads.txt 본문 한 줄. 게시자 id는 앱 설정(Info.plist)에 이미 공개돼 있습니다. */
   readonly appAdsTxt: string;
+  /** 검색 색인 허용. prod origin에서만 참이고, staging과 로컬은 robots와 noindex로 막습니다. */
+  readonly indexable: boolean;
 }
 
 /** 출시 때 release를 "live"로, stores에 두 스토어 주소를 넣습니다. */
@@ -27,6 +29,8 @@ export const SITE_SETTINGS: SiteSettings = {
   stores: { apple: "", google: "" },
 };
 
+/** prod 랜딩 origin. 이 origin으로 빌드할 때만 검색 색인을 허용합니다. */
+export const PROD_ORIGIN = "https://myungli-diary.app";
 const LEGAL_ORIGIN = "https://api.myungli-diary.app";
 const LOCAL_ORIGIN = "http://localhost:4321";
 const APP_ADS_TXT = "google.com, pub-5703509220233743, DIRECT, f08c47fec0942fa0";
@@ -45,7 +49,13 @@ export function createSiteConfig(env: { readonly WEB_ORIGIN?: string | undefined
       support: `${LEGAL_ORIGIN}/support?lang=${lang}`,
     }),
     appAdsTxt: APP_ADS_TXT,
+    indexable: origin === PROD_ORIGIN,
   };
+}
+
+/** /robots.txt 본문. */
+export function robotsTxt(config: SiteConfig): string {
+  return `User-agent: *\n${config.indexable ? "Allow" : "Disallow"}: /\n`;
 }
 
 export const siteConfig: SiteConfig = createSiteConfig(process.env);

@@ -92,6 +92,7 @@ function fill(template: string, params: CopyParams, slotId: string): string {
 export function loadCopy(lang: Lang, options: LoadCopyOptions = {}): Copy {
   const writingFile = join(options.writingDir ?? WRITING_WEB_DIR, `${lang}.json`);
   const source: CopySource = existsSync(writingFile) ? "writing" : "placeholder";
+  if (source === "placeholder") console.warn(`원고: 자리 문구 사용(${lang}). writing 생성물이 없음: ${writingFile}`);
   const file = source === "writing" ? writingFile : `placeholder/${lang}.json`;
   const entries = source === "writing" ? readJsonObject(writingFile) : PLACEHOLDERS[lang];
   const texts = validate(entries, landingSlotIds(options.iaPath), file);

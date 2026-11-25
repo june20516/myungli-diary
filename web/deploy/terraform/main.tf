@@ -23,17 +23,30 @@ resource "google_firebase_hosting_site" "landing" {
   site_id  = var.site_id
 }
 
+# 본 도메인을 먼저 붙이고, 그 도메인으로 보내기만 하는 도메인(www)은 뒤에 붙입니다(redirect_target이 사이트에 있어야 함).
 resource "google_firebase_hosting_custom_domain" "landing" {
   provider = google-beta
-  for_each = { for domain in var.domains : domain.name => domain }
+  for_each = { for domain in var.domains : domain.name => domain if domain.redirect_target == null }
 
-  project         = var.project_id
-  site_id         = google_firebase_hosting_site.landing.site_id
-  custom_domain   = each.value.name
-  redirect_target = each.value.redirect_target
+  project       = var.project_id
+  site_id       = google_firebase_hosting_site.landing.site_id
+  custom_domain = each.value.name
 
   # DNS는 사용자가 Cloudflare에 넣으므로 apply가 검증을 기다리지 않습니다. 넣을 값은 output dns_records입니다.
   wait_dns_verification = false
+}
+
+resource "google_firebase_hosting_custom_domain" "redirect" {
+  provider = google-beta
+  for_each = { for domain in var.domains : domain.name => domain if domain.redirect_target != null }
+
+  project               = var.project_id
+  site_id               = google_firebase_hosting_site.landing.site_id
+  custom_domain         = each.value.name
+  redirect_target       = each.value.redirect_target
+  wait_dns_verification = false
+
+  depends_on = [google_firebase_hosting_custom_domain.landing]
 }
 
 resource "google_service_account" "web_deployer" {

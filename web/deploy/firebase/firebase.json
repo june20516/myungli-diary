@@ -2,28 +2,63 @@
   "hosting": {
     "target": "landing",
     "public": "../../site/dist",
-    "ignore": ["**/.*"],
+    "ignore": [
+      "**/.*"
+    ],
     "cleanUrls": false,
     "appAssociation": "NONE",
     "headers": [
       {
         "source": "/app-ads.txt",
-        "headers": [{ "key": "Content-Type", "value": "text/plain; charset=utf-8" }]
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "text/plain; charset=utf-8"
+          }
+        ]
+      },
+      {
+        "regex": "^/(?:[^.]*/)?$",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
       },
       {
         "source": "**/*.html",
-        "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
       },
       {
         "source": "/_astro/**",
-        "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=31536000, immutable"
+          }
+        ]
       }
     ]
   },
   "emulators": {
-    "hosting": { "host": "127.0.0.1", "port": 47291 },
-    "ui": { "enabled": false },
-    "hub": { "port": 47292 },
-    "logging": { "port": 47293 }
+    "hosting": {
+      "host": "127.0.0.1",
+      "port": 47291
+    },
+    "ui": {
+      "enabled": false
+    },
+    "hub": {
+      "port": 47292
+    },
+    "logging": {
+      "port": 47293
+    }
   }
 }

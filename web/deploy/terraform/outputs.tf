@@ -12,5 +12,8 @@ output "web_deployer_email" {
 
 # Cloudflare에 넣을 기록입니다(프록시 끔). 도메인마다 Firebase가 요구하는 기록 목록입니다.
 output "dns_records" {
-  value = { for name, domain in google_firebase_hosting_custom_domain.landing : name => domain.required_dns_updates }
+  value = {
+    for name, domain in merge(google_firebase_hosting_custom_domain.landing, google_firebase_hosting_custom_domain.redirect) :
+    name => domain.required_dns_updates
+  }
 }

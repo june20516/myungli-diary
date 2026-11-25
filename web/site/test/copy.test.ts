@@ -1,7 +1,7 @@
 import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { LANGS } from "../src/config/lang.ts";
 import { landingSlotIds, loadCopy } from "../src/copy/load.ts";
 
@@ -26,6 +26,13 @@ describe("loadCopy", () => {
     const copy = loadCopy(lang, { writingDir: mkdtempSync(join(tmpdir(), "empty-")) });
     expect(copy.source).toBe("placeholder");
     for (const id of landingSlotIds()) expect(copy.text(id, { index: 1 }).length).toBeGreaterThan(0);
+  });
+
+  test("자리 문구를 쓰면 언어를 밝혀 경고", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    loadCopy("ja", { writingDir: mkdtempSync(join(tmpdir(), "empty-")) });
+    expect(warn).toHaveBeenCalledWith(expect.stringMatching(/자리 문구.*ja/));
+    warn.mockRestore();
   });
 
   test("writing 생성물이 있으면 그것을 씀", () => {

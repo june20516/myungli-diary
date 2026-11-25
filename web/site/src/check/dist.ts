@@ -7,7 +7,8 @@ import { findD93 } from "../text/d93.ts";
 
 /** 사람이 읽는 글이 들어가는 속성. */
 const TEXT_ATTRIBUTES = ["title", "alt", "aria-label", "placeholder"];
-const HIDDEN_TEXT_PARENTS = new Set(["script", "style", "noscript"]);
+/** 사용자에게 보이지 않는 글. noscript는 JS를 끈 사용자에게 보이므로 넣지 않습니다. */
+const HIDDEN_TEXT_PARENTS = new Set(["script", "style"]);
 
 function requiredFiles(): string[] {
   return ["index.html", "app-ads.txt", ...LANGS.flatMap((lang) => [`${lang}/index.html`, `${lang}/og.png`])];
@@ -24,7 +25,8 @@ function visibleTexts(root: HTMLElement): string[] {
   const texts: string[] = [];
   const walk = (node: Node, hidden: boolean) => {
     if (node.nodeType === NodeType.TEXT_NODE) {
-      if (!hidden) texts.push(node.rawText);
+      // 엔티티(&middot; 등)를 푼 글로 봅니다.
+      if (!hidden) texts.push(node.text);
       return;
     }
     if (node.nodeType !== NodeType.ELEMENT_NODE) return;

@@ -9,8 +9,8 @@ interface Props {
   htmlLang: string;
   title: string;
   description: string;
-  /** origin 뒤 경로, 빗금으로 시작하고 끝남. */
-  path: string;
+  /** origin 뒤 경로, 빗금으로 시작하고 끝남. 없으면(404) canonical과 og:url을 내지 않습니다. */
+  path?: string;
   ogImagePath: string;
   ogLocale: string;
 }
@@ -26,13 +26,14 @@ const absolute = (pathname: string) => `${siteConfig.origin}${pathname}`;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={absolute(path)} />
+    {!siteConfig.indexable && <meta name="robots" content="noindex" />}
+    {path !== undefined && <link rel="canonical" href={absolute(path)} />}
     {LANGS.map((lang) => <link rel="alternate" hreflang={lang} href={absolute(`/${lang}/`)} />)}
     <link rel="alternate" hreflang="x-default" href={absolute("/")} />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:url" content={absolute(path)} />
+    {path !== undefined && <meta property="og:url" content={absolute(path)} />}
     <meta property="og:image" content={absolute(ogImagePath)} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
