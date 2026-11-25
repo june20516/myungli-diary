@@ -4,6 +4,7 @@
 행을 정렬하거나 칸 순서를 바꿔도 읽힙니다.
 """
 
+import zipfile
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, fields
 from pathlib import Path
@@ -12,6 +13,7 @@ from typing import Final
 import openpyxl
 from openpyxl.styles import Alignment, PatternFill
 from openpyxl.utils import get_column_letter
+from openpyxl.utils.exceptions import InvalidFileException
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.worksheet.worksheet import Worksheet
 
@@ -251,9 +253,16 @@ def _bundle_sheets(book: openpyxl.Workbook) -> list[Worksheet]:
     return [book[title] for title in book.sheetnames if title != META_SHEET and not _is_guide(title)]
 
 
+def _load(path: Path) -> openpyxl.Workbook:
+    try:
+        return openpyxl.load_workbook(path)
+    except (OSError, zipfile.BadZipFile, InvalidFileException, KeyError) as error:
+        raise SheetError(f"xlsx로 열 수 없습니다: {path} ({error})") from error
+
+
 def read_sheet(path: Path) -> tuple[SheetMeta, list[ReviewRow]]:
     """메타와 모든 묶음 탭의 행입니다. 감수자가 고치는 칸은 앞뒤 공백을 지웁니다."""
-    book = openpyxl.load_workbook(path)
+    book = _load(path)
     meta = _read_meta(book)
     rows = [row for sheet in _bundle_sheets(book) for row in _read_bundle(sheet)]
     return meta, rows
@@ -261,7 +270,7 @@ def read_sheet(path: Path) -> tuple[SheetMeta, list[ReviewRow]]:
 
 def write_results(src: Path, dst: Path, results: Mapping[str, str]) -> None:
     """받은 시트의 묶음 탭마다 끝에 `반영 결과` 칸을 더해 `dst`로 씁니다. 다른 칸은 건드리지 않습니다."""
-    book = openpyxl.load_workbook(src)
+    book = _load(src)
     meta = _read_meta(book)
     for sheet in _bundle_sheets(book):
         id_column = _column_map(sheet)["id"]

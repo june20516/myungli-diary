@@ -34,6 +34,7 @@ from mlw.loader import load_content, load_rules, load_slots
 from mlw.markup import check_name_position, check_ui_josa, check_ui_markup, strip_vocative
 from mlw.model import LANGS, PARAM_KIND_NUMBER, Entry, Finding, LoadError, ParamKind, RuleSet, Slot
 from mlw.placeholders import Placeholder, parse
+from mlw.review.apply import Outcome, apply_review
 from mlw.review.export import (
     REVIEW_LANGS,
     build_rows,
@@ -42,7 +43,7 @@ from mlw.review.export import (
     read_guide,
     sheet_name,
 )
-from mlw.review.sheet import SheetMeta, write_sheet
+from mlw.review.sheet import CATEGORIES, SheetError, SheetMeta, read_sheet, write_results, write_sheet
 from mlw.sentence import check_sentence
 from mlw.store import is_store_slot
 from mlw.terms import check_tokens
@@ -565,6 +566,51 @@ def _review_export(args: argparse.Namespace) -> int:
     return 0
 
 
+TERM_CATEGORY_MARK = "(용어)"
+RESULT_SUFFIX = "-result"
+
+
+def _review_summary(outcomes: Sequence[Outcome], term_rows: int) -> list[str]:
+    """반영 수, 반영 안 한 수와 이유 종류별 수, 용어 분류 행 수입니다."""
+    applied = sum(1 for outcome in outcomes if outcome.applied)
+    skipped = [outcome for outcome in outcomes if not outcome.applied]
+    kinds = Counter(outcome.reason.split(":")[0] for outcome in skipped)
+    lines = [f"반영 {applied}", f"반영 안 함 {len(skipped)}"]
+    lines += [f"  {kind}: {count}" for kind, count in sorted(kinds.items())]
+    lines.append(f"용어 분류 {term_rows}")
+    return lines
+
+
+def _review_import(args: argparse.Namespace) -> int:
+    sheet: Path = args.sheet
+    if sheet.resolve().is_relative_to(paths.WRITING_DIR.resolve()):
+        print(f"경고: 저장소 안 시트입니다. 감수자 정보가 섞일 수 있으니 저장소 밖에 두세요: {sheet}", file=sys.stderr)
+    try:
+        meta, rows = read_sheet(sheet)
+    except SheetError as error:
+        print(f"시트를 읽지 못했습니다: {error}", file=sys.stderr)
+        return EXIT_LOAD_ERROR
+    if meta.lang not in CATEGORIES:
+        print(f"시트 언어가 검수 대상이 아닙니다: {meta.lang}", file=sys.stderr)
+        return EXIT_LOAD_ERROR
+    inputs = dataclasses.replace(
+        default_check_inputs(), rules_dir=args.rules_dir, slots_dir=args.slots_dir, ia=tuple(args.ia)
+    )
+    outcomes = apply_review(
+        args.content, rows, meta.lang, lambda content: collect_findings(inputs, content), dry_run=args.dry_run
+    )
+    write_results(sheet, sheet.with_name(f"{sheet.stem}{RESULT_SUFFIX}{sheet.suffix}"), {o.row_id: o.text for o in outcomes})
+    term_rows = sum(1 for row in rows if row.suggestion and row.category.endswith(TERM_CATEGORY_MARK))
+    for line in _review_summary(outcomes, term_rows):
+        print(line)
+    if args.dry_run:
+        return 0
+    rules = load_rules(args.rules_dir)
+    docs = render_docs(rules, load_slots(args.slots_dir, rules), load_ia(args.ia), load_content(args.content))
+    write_docs(args.out_dir, docs)
+    return _print_findings(collect_findings(inputs, args.content))
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="mlw", description="명리일기 라이팅 검사기")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -638,6 +684,15 @@ def _build_parser() -> argparse.ArgumentParser:
     review_export.add_argument("--out", type=Path, help="시트 경로(기본: review/<언어>/<차수 또는 묶음>.xlsx)")
     add_dirs(review_export)
     review_export.set_defaults(handler=_review_export)
+
+    review_import = commands.add_parser("review-import", help="돌아온 검수 시트의 수정안을 원고에 반영합니다(#1283)")
+    review_import.add_argument("content", type=Path, help="원고 디렉터리")
+    review_import.add_argument("sheet", type=Path, help="감수자가 채운 시트(xlsx, 저장소 밖)")
+    review_import.add_argument("--dry-run", action="store_true", help="원고와 생성 문서를 쓰지 않고 결과 시트만 만듭니다")
+    review_import.add_argument("--out-dir", type=Path, default=paths.GENERATED_DIR, help="생성 문서 디렉터리")
+    add_dirs(review_import)
+    add_ia(review_import)
+    review_import.set_defaults(handler=_review_import)
 
     fixture = commands.add_parser("gen-week-fixture", help="엔진으로 한 주 검사 고정 자료를 만듭니다")
     fixture.add_argument("--engine", required=True, help="엔진 주소, 예: localhost:50051")

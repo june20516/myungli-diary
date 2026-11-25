@@ -167,3 +167,10 @@ def test_missing_meta(tmp_path: Path) -> None:
     book.save(path)
     with pytest.raises(SheetError):
         read_sheet(path)
+
+
+def test_not_a_workbook(tmp_path: Path) -> None:
+    path = tmp_path / "bad.xlsx"
+    path.write_text("not a workbook", encoding="utf-8")
+    with pytest.raises(SheetError):
+        read_sheet(path)
