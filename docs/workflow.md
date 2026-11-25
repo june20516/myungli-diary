@@ -22,9 +22,10 @@
 | `core/` | core | |
 | `server/` | server | |
 | `app/` | app | |
+| `web/` | web | 랜딩, social, 어드민(D144). 자기 workflow `web.yml`, `deploy-web.yml` 포함 |
 | `proto/myungli/engine/`, `proto/buf.yaml` | core | 엔진 gRPC 계약의 제공자 |
 | `.github/workflows/<서브 프로젝트 또는 작업 단위>.yml` | 해당 서브 프로젝트·작업 단위 | 예: `writing.yml`(검사기 자체의 CI). server·app이 자기 CI에서 검사기를 실행하는 단계는 server·app 소유 |
-| `.github/workflows/deploy-*.yml` | server | 엔진 배포(`deploy-engine.yml`)도 server 소유. 엔진 이미지와 실행 조건은 core 소유(D65) |
+| `.github/workflows/deploy-*.yml` | server | `deploy-web.yml`은 빼고(web 소유, D144). 엔진 배포(`deploy-engine.yml`)도 server 소유. 엔진 이미지와 실행 조건은 core 소유(D65) |
 | `docs/identity/writing/` | writing | |
 | `docs/identity/design/` | design | |
 | GitHub Issues | 모두 | 작성은 누구나, 라벨·상태 규칙은 §5.2 |
