@@ -220,3 +220,15 @@ func TestOps_AccountSummaryTextShowsSections(t *testing.T) {
 		assert.Contains(t, out, section)
 	}
 }
+
+// 허용 목록 밖 거절 행(denied)은 계정과 목적 없이 실행자, 행위, 경로를 보여 줍니다.
+func TestOps_AuditListShowsDeniedRows(t *testing.T) {
+	record := ops.AuditRecord{
+		ID: uuid.New(), At: opsAt, Actor: "gone@example.com", ActorSub: "accounts.google.com:9", Channel: "ops_api",
+		Action: "denied", Reason: "허용 목록 밖 운영자의 요청(자동 기록)", Target: json.RawMessage(`{"route":"/ops/v1/grants"}`),
+	}
+	out := renderOps(t, func(w io.Writer) error { return printAuditRecords(w, []ops.AuditRecord{record}) })
+	for _, want := range []string{"denied", "gone@example.com", "/ops/v1/grants", record.ID.String()} {
+		assert.Contains(t, out, want)
+	}
+}

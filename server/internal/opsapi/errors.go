@@ -21,6 +21,7 @@ const (
 	codeNotFound        = "not_found"
 	codeProfileNotFound = "profile_not_found"
 	codeConflict        = "conflict"
+	codeRateLimited     = "rate_limited"
 	codeUnavailable     = "unavailable"
 	codeInternal        = "internal"
 )

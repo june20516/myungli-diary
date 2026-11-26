@@ -3,17 +3,21 @@ package cli
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"net"
 	"net/http"
 	"strconv"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgxpool"
+
 	"github.com/june20516/myungli-diary/server/internal/ops"
 	"github.com/june20516/myungli-diary/server/internal/opsapi"
 	"github.com/june20516/myungli-diary/server/internal/platform/clock"
 	"github.com/june20516/myungli-diary/server/internal/platform/config"
 	"github.com/june20516/myungli-diary/server/internal/platform/logging"
+	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
 )
 
 // iapKeyHTTPTimeout은 IAP 공개키를 받는 요청의 전체 제한입니다.
@@ -30,7 +34,8 @@ func (f fixedIdentity) Verify(context.Context, string) (opsapi.Identity, error) 
 
 // runOpsServe는 IAP 뒤의 운영 API 서버를 시작하고 ctx가 취소되면 처리 중인 요청을 마친 뒤 종료합니다.
 // 앱 서버(serve)와 다른 Cloud Run 서비스이고 DB에는 자기 서비스 계정(IAM 사용자)으로 붙습니다.
-// 배포 환경(staging, prod)에서는 CLOUD_SQL_INSTANCE와 IAP_AUDIENCE가 필수이고 OPS_DEV_IDENTITY는 기동 실패입니다.
+// 배포 환경(staging, prod)에서는 CLOUD_SQL_INSTANCE, IAP_AUDIENCE, OPS_OPERATORS_FILE, DB 사용자 이름 셋이 필수이고
+// OPS_DEV_IDENTITY는 기동 실패입니다. 기동 때 운영자 목록 파일을 한 번 읽고 DB 역할 검사를 돌려, 실패하면 뜨지 않습니다.
 func runOpsServe(ctx context.Context, args []string, getenv func(string) string, _, stderr io.Writer) error {
 	if len(args) != 0 {
 		return usageErrorf("usage: server ops-serve")
@@ -61,6 +66,13 @@ func runOpsServe(ctx context.Context, args []string, getenv func(string) string,
 		logger.WarnContext(ctx, "OPS_DEV_IDENTITY의 고정 신원으로 IAP 검증 없이 시작합니다", "env", cfg.Env)
 	}
 
+	// 운영자 목록을 기동 때 한 번 읽어 Secret 볼륨 마운트 설정 오류를 배포에서 잡습니다. 내용과 경로는 남기지 않습니다.
+	operators := newOperatorSource(opsCfg)
+	if _, err := operators.Operators(ctx); err != nil {
+		logger.ErrorContext(ctx, "운영자 목록 읽기 실패", "kind", "operators_unavailable")
+		return &loggedError{err: err}
+	}
+
 	pool, closeDB, err := openDatabase(ctx, cfg)
 	if err != nil {
 		logger.ErrorContext(ctx, "DB 연결 실패", "error", err)
@@ -68,10 +80,19 @@ func runOpsServe(ctx context.Context, args []string, getenv func(string) string,
 	}
 	defer closeDB()
 
+	if err := checkOpsDBRoles(ctx, pool, opsCfg.DBUsers); err != nil {
+		logger.ErrorContext(ctx, "DB 역할 확인 실패", "error", err)
+		return &loggedError{err: err}
+	}
+	if !opsCfg.DBUsers.Set() {
+		// config.LoadOps가 배포 환경에서는 세 이름을 모두 요구하므로 여기에 오는 것은 local뿐입니다.
+		logger.WarnContext(ctx, "DB 사용자 이름이 없어 기동 때 역할 검사를 건너뜁니다(local)")
+	}
+
 	handler, err := opsapi.NewHandler(opsapi.Deps{
 		Service:   ops.NewService(pool),
 		Verifier:  authenticator,
-		Allowlist: opsapi.ParseAllowlist(opsCfg.Operators),
+		Operators: operators,
 		Logger:    logger,
 	})
 	if err != nil {
@@ -105,4 +126,29 @@ func newOpsAuthenticator(cfg config.OpsConfig) (opsapi.Authenticator, error) {
 		return nil, err
 	}
 	return opsapi.NewVerifier(keys, cfg.Audience, clock.System{})
+}
+
+// newOperatorSource는 운영자 목록 원천을 만듭니다. 파일 경로가 있으면 TTL마다 다시 읽는 파일 원천(배포 환경),
+// 없으면 OPS_OPERATORS 환경 변수의 고정 목록(local 전용, 비면 모두 거절)입니다.
+func newOperatorSource(cfg config.OpsConfig) opsapi.OperatorSource {
+	if cfg.OperatorsFile != "" {
+		return opsapi.NewFileOperators(cfg.OperatorsFile, clock.System{})
+	}
+	return opsapi.ParseAllowlist(cfg.Operators)
+}
+
+// checkOpsDBRoles는 운영 API 기동 때 런타임과 운영 API의 역할 분리, 예상 밖 로그인 role(사람 DB 계정)이 없는지 확인합니다.
+// migrate가 배포마다 같은 검사를 하지만, 그 뒤에 생긴 변경도 운영 API가 뜰 때 잡으려는 것입니다(지휘 2차 감사 L8).
+// 이름이 없으면(local) 건너뜁니다. 오류에는 role 이름이 없습니다.
+func checkOpsDBRoles(ctx context.Context, pool *pgxpool.Pool, users config.OpsDBUsers) error {
+	if !users.Set() {
+		return nil
+	}
+	if err := postgres.CheckRoleSeparation(ctx, pool, users.Runtime, users.Ops); err != nil {
+		return fmt.Errorf("런타임과 운영 API DB 사용자 역할 분리: %w", err)
+	}
+	if err := postgres.CheckLoginRoles(ctx, pool, users.Migrator, users.Runtime, users.Ops); err != nil {
+		return fmt.Errorf("로그인 가능한 DB role: %w", err)
+	}
+	return nil
 }

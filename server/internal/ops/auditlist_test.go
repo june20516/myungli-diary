@@ -138,3 +138,31 @@ func TestService_EmptyResultsAreJSONArrays(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "[]", string(raw))
 }
+
+// 허용 목록 밖 거절은 실행자와 경로만 담은 denied 행으로 남고, 시작 시각으로 조회하면 보입니다.
+func TestRecordDenied(t *testing.T) {
+	svc, pool := newTestService(t)
+	ctx := context.Background()
+
+	require.NoError(t, svc.RecordDenied(ctx, Actor{Email: " Op@Example.com ", Subject: "sub-9"}, "/ops/v1/grants"))
+
+	rows := auditRows(t, pool)
+	require.Len(t, rows, 1)
+	row := rows[0]
+	assert.Equal(t, "denied", row.Action)
+	assert.Equal(t, "op@example.com", row.Actor)
+	assert.Equal(t, "sub-9", row.ActorSub)
+	assert.Nil(t, row.AccountID)
+	assert.JSONEq(t, `{"route":"/ops/v1/grants"}`, row.Target)
+
+	// at은 trigger가 DB의 now()로 정하므로 시작 시각은 넉넉히 과거로 둡니다.
+	since := time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)
+	got, err := svc.AuditList(ctx, testActor, AuditFilter{Since: &since}, "점검")
+	require.NoError(t, err)
+	require.Len(t, got, 1)
+	assert.Equal(t, "denied", got[0].Action)
+	assert.Nil(t, got[0].AccountID)
+
+	assert.ErrorIs(t, svc.RecordDenied(ctx, Actor{Email: "op@example.com"}, "/ops/v1/grants"), ErrActor)
+	assert.Error(t, svc.RecordDenied(ctx, testActor, ""))
+}

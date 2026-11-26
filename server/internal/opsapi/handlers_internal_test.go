@@ -54,3 +54,12 @@ func TestCommandHandler_ActorErrorIs500(t *testing.T) {
 	assert.Equal(t, errorResponse{Code: "internal", Message: "내부 오류입니다"}, body)
 	assert.Contains(t, logs, `"kind":"actor"`)
 }
+
+// 상한을 세는 콘텐츠 경로는 모두 등록된 명령 경로여야 합니다(오타면 상한이 걸리지 않음).
+func TestContentPaths_AreCommands(t *testing.T) {
+	registered := commands()
+	assert.Len(t, contentPaths, 3)
+	for path := range contentPaths {
+		assert.Contains(t, registered, path)
+	}
+}

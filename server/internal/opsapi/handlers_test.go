@@ -50,7 +50,7 @@ func newEnv(t *testing.T, options ...envOption) *opsEnv {
 	deps := opsapi.Deps{
 		Service:   ops.NewService(pool),
 		Verifier:  newVerifier(t, key),
-		Allowlist: opsapi.ParseAllowlist(" Op@Example.com , other@example.com "),
+		Operators: opsapi.ParseAllowlist(" Op@Example.com , other@example.com "),
 		Logger:    slog.New(slog.NewJSONHandler(logs, nil)),
 	}
 	for _, option := range options {
@@ -219,13 +219,85 @@ func TestHandlers_Allowlist(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			env := newEnv(t, func(d *opsapi.Deps) { d.Allowlist = tt.allowlist })
-			rec := env.post(t, "/ops/v1/accounts:show", body)
+			env := newEnv(t, func(d *opsapi.Deps) { d.Operators = tt.allowlist })
+			rec := env.post(t, "/ops/v1/grants", body)
 			assert.Equal(t, http.StatusForbidden, rec.Code)
 			assert.Equal(t, "forbidden", decodeError(t, rec).Code)
-			assert.Zero(t, env.auditCount(t), "허용 목록 밖은 감사 행을 남기지 않습니다")
+
+			// IAP 검증을 통과한 실행자는 거절도 기록합니다. 본문(계정, 사유)은 읽지 않고 경로만 남깁니다.
+			var action, actor, actorSub, target string
+			var accountID *uuid.UUID
+			require.NoError(t, env.pool.QueryRow(context.Background(),
+				`SELECT action, actor, actor_sub, target::text, account_id FROM ops_audit`).Scan(&action, &actor, &actorSub, &target, &accountID))
+			assert.Equal(t, "denied", action)
+			assert.Equal(t, operatorEmail, actor)
+			assert.Equal(t, operatorSubject, actorSub)
+			assert.JSONEq(t, `{"route":"/ops/v1/grants"}`, target)
+			assert.Nil(t, accountID)
+			assert.Equal(t, 1, env.auditCount(t))
 		})
 	}
+}
+
+// 거절 기록이 실패해도 응답은 그대로 403이고, 로그에는 kind만 남습니다.
+func TestHandlers_DeniedAuditFailureKeeps403(t *testing.T) {
+	env := newEnv(t, func(d *opsapi.Deps) { d.Operators = opsapi.ParseAllowlist("someone@example.com") })
+	env.pool.Close()
+
+	rec := env.post(t, "/ops/v1/grants", jsonBody(t, map[string]any{"accountId": uuid.New(), "reason": secretReason}))
+	assert.Equal(t, http.StatusForbidden, rec.Code)
+	assert.Equal(t, "forbidden", decodeError(t, rec).Code)
+	out := env.logs.String()
+	assert.Contains(t, out, `"kind"`)
+	for _, forbidden := range []string{operatorEmail, operatorSubject, secretReason, "closed pool"} {
+		assert.NotContains(t, out, forbidden)
+	}
+}
+
+// failingOperators는 운영자 목록을 읽지 못하는 원천입니다.
+type failingOperators struct{}
+
+func (failingOperators) Operators(context.Context) (opsapi.Allowlist, error) {
+	return opsapi.Allowlist{}, opsapi.ErrOperatorsUnavailable
+}
+
+// 운영자 목록을 읽지 못하면 마지막 목록으로 통과시키지 않고 503으로 거절합니다. 거절 행은 남기지 않습니다.
+func TestHandlers_OperatorsUnavailable(t *testing.T) {
+	env := newEnv(t, func(d *opsapi.Deps) { d.Operators = failingOperators{} })
+	rec := env.post(t, "/ops/v1/accounts:show", jsonBody(t, map[string]any{"accountId": uuid.New(), "reason": secretReason}))
+	assert.Equal(t, http.StatusServiceUnavailable, rec.Code)
+	assert.Equal(t, "unavailable", decodeError(t, rec).Code)
+	assert.Zero(t, env.auditCount(t))
+	assert.Contains(t, env.logs.String(), `"kind":"operators_unavailable"`)
+	assert.NotContains(t, env.logs.String(), operatorEmail)
+}
+
+// 콘텐츠 열람 세 경로는 합쳐서 운영자(sub)마다 분당 30건까지이고, 넘으면 429 rate_limited입니다.
+// 다른 경로는 세지 않고, 1분이 지나면 다시 됩니다.
+func TestHandlers_ContentRateLimit(t *testing.T) {
+	clk := clocktest.New(testNow)
+	env := newEnv(t, func(d *opsapi.Deps) { d.Clock = clk })
+	paths := []string{"/ops/v1/content:diary", "/ops/v1/content:schedule", "/ops/v1/content:profile"}
+	for i := range 30 {
+		rec := env.post(t, paths[i%len(paths)], `{}`)
+		require.Equal(t, http.StatusBadRequest, rec.Code, "%d번째: %s", i+1, rec.Body.String())
+	}
+	rec := env.post(t, "/ops/v1/content:diary", `{}`)
+	assert.Equal(t, http.StatusTooManyRequests, rec.Code)
+	assert.Equal(t, "rate_limited", decodeError(t, rec).Code)
+	assert.Equal(t, "no-store", rec.Header().Get("Cache-Control"))
+
+	// 콘텐츠 밖 경로는 상한에 걸리지 않습니다.
+	assert.Equal(t, http.StatusBadRequest, env.post(t, "/ops/v1/accounts:show", `{}`).Code)
+
+	// 다른 운영자는 따로 셉니다.
+	other := validClaims()
+	other["sub"], other["email"] = "accounts.google.com:5678", "other@example.com"
+	rec = env.do(t, request{path: "/ops/v1/content:diary", body: `{}`, headers: map[string]string{opsapi.AssertionHeader: sign(t, env.key, "k1", other)}})
+	assert.Equal(t, http.StatusBadRequest, rec.Code, rec.Body.String())
+
+	clk.Advance(time.Minute)
+	assert.Equal(t, http.StatusBadRequest, env.post(t, "/ops/v1/content:diary", `{}`).Code)
 }
 
 func TestHandlers_ResponseHeaders(t *testing.T) {
@@ -586,14 +658,16 @@ func mapKeys(m map[string]any) []string {
 func TestNewHandler_RejectsMissingDeps(t *testing.T) {
 	key := newKey(t)
 	full := opsapi.Deps{
-		Service:  &ops.Service{},
-		Verifier: newVerifier(t, key),
-		Logger:   slog.New(slog.NewJSONHandler(io.Discard, nil)),
+		Service:   &ops.Service{},
+		Verifier:  newVerifier(t, key),
+		Operators: opsapi.ParseAllowlist(""),
+		Logger:    slog.New(slog.NewJSONHandler(io.Discard, nil)),
 	}
 	for name, mutate := range map[string]func(*opsapi.Deps){
-		"Service":  func(d *opsapi.Deps) { d.Service = nil },
-		"Verifier": func(d *opsapi.Deps) { d.Verifier = nil },
-		"Logger":   func(d *opsapi.Deps) { d.Logger = nil },
+		"Operators": func(d *opsapi.Deps) { d.Operators = nil },
+		"Service":   func(d *opsapi.Deps) { d.Service = nil },
+		"Verifier":  func(d *opsapi.Deps) { d.Verifier = nil },
+		"Logger":    func(d *opsapi.Deps) { d.Logger = nil },
 	} {
 		deps := full
 		mutate(&deps)

@@ -533,10 +533,26 @@ func LoadSupport(getenv func(string) string) (SupportConfig, error) {
 type OpsConfig struct {
 	// Audience는 IAP 서명 헤더의 aud(/projects/<번호>/locations/<리전>/services/server-ops)입니다.
 	Audience string
-	// Operators는 운영자 허용 목록 원문(OPS_OPERATORS, Secret)입니다. 해석은 운영 API 서버가 합니다.
+	// Operators는 운영자 허용 목록 원문(OPS_OPERATORS)입니다. local에서만 씁니다. 해석은 운영 API 서버가 합니다.
 	Operators string
+	// OperatorsFile은 운영자 허용 목록 파일 경로(OPS_OPERATORS_FILE)입니다. 배포 환경은 Secret OPS_OPERATORS를
+	// Cloud Run 볼륨(버전 latest)으로 이 경로에 마운트하고, 운영 API 서버가 짧은 TTL로 다시 읽습니다(운영자 빼기 반영).
+	OperatorsFile string
 	// DevIdentity는 local 전용 고정 신원(OPS_DEV_IDENTITY)입니다. 있으면 IAP 검증을 대신합니다.
 	DevIdentity *OpsDevIdentity
+	// DBUsers는 기동 때 로그인 role과 역할 분리를 검사할 DB 사용자 이름입니다.
+	DBUsers OpsDBUsers
+}
+
+// OpsDBUsers는 배포 환경의 DB 사용자 이름입니다(DB_MIGRATOR_USER, DB_RUNTIME_USER, DB_OPS_USER).
+// 운영 API 서버는 기동 때 이 셋 밖의 로그인 role이 없는지, 런타임과 운영 API의 권한이 섞이지 않았는지 확인합니다.
+type OpsDBUsers struct {
+	Migrator, Runtime, Ops string
+}
+
+// Set은 세 이름이 모두 있는지 알려 줍니다. LoadOps가 모두 있거나 모두 없도록 검사합니다.
+func (u OpsDBUsers) Set() bool {
+	return u.Migrator != "" && u.Runtime != "" && u.Ops != ""
 }
 
 // OpsDevIdentity는 local 개발용 고정 운영자 신원입니다. Email은 소문자로 정규화한 값입니다.
@@ -544,16 +560,29 @@ type OpsDevIdentity struct {
 	Email, Subject string
 }
 
-// LoadOps는 getenv로 운영 API 서버 설정을 읽습니다. 값은 앞뒤 공백을 지운 뒤 씁니다.
-// IAP_AUDIENCE는 필수입니다. 다만 APP_ENV가 local이고 OPS_DEV_IDENTITY가 있으면 IAP 검증을 하지 않으므로 비워 둘 수 있습니다.
-// OPS_DEV_IDENTITY는 `email,sub` 형식이고 APP_ENV가 local일 때만 허용합니다.
-// OPS_OPERATORS는 비어 있어도 읽힙니다(비면 모든 요청이 403). 오류에는 변수 이름만 담고 값은 담지 않습니다.
+// opsDBUserVars는 운영 API 서버가 읽는 DB 사용자 변수입니다.
+var opsDBUserVars = []string{"DB_MIGRATOR_USER", "DB_RUNTIME_USER", "DB_OPS_USER"}
+
+// LoadOps는 getenv로 운영 API 서버 설정을 읽습니다. 값은 앞뒤 공백을 지운 뒤 씁니다. 오류에는 변수 이름만 담고 값은 담지 않습니다.
+//   - IAP_AUDIENCE는 필수입니다. 다만 APP_ENV가 local이고 OPS_DEV_IDENTITY가 있으면 IAP 검증을 하지 않으므로 비워 둘 수 있습니다.
+//   - OPS_DEV_IDENTITY는 `email,sub` 형식이고 APP_ENV가 local일 때만 허용합니다. Cloud Run이 넣는 K_SERVICE가 있으면
+//     APP_ENV와 상관없이 거절합니다(배포 서비스에 APP_ENV를 잘못 넣어도 인증 우회가 켜지지 않게).
+//   - 운영자 목록은 배포 환경이면 OPS_OPERATORS_FILE만 받고 OPS_OPERATORS 환경 변수는 거절합니다(기동 때 한 번 읽는 값은
+//     운영자를 빼도 인스턴스가 살아 있는 동안 남기 때문입니다). local은 둘 중 하나만 씁니다. 둘 다 비면 모든 요청이 403입니다.
+//   - DB_MIGRATOR_USER, DB_RUNTIME_USER, DB_OPS_USER는 배포 환경에서 필수이고, local은 모두 있거나 모두 없어야 합니다.
 func LoadOps(getenv func(string) string) (OpsConfig, error) {
 	getenv = trimmedEnv(getenv)
 	env := orDefault(getenv("APP_ENV"), defaultEnv)
+	deployed := env != defaultEnv
 	cfg := OpsConfig{
-		Audience:  getenv("IAP_AUDIENCE"),
-		Operators: getenv("OPS_OPERATORS"),
+		Audience:      getenv("IAP_AUDIENCE"),
+		Operators:     getenv("OPS_OPERATORS"),
+		OperatorsFile: getenv("OPS_OPERATORS_FILE"),
+		DBUsers: OpsDBUsers{
+			Migrator: getenv("DB_MIGRATOR_USER"),
+			Runtime:  getenv("DB_RUNTIME_USER"),
+			Ops:      getenv("DB_OPS_USER"),
+		},
 	}
 
 	var errs []error
@@ -561,8 +590,10 @@ func LoadOps(getenv func(string) string) (OpsConfig, error) {
 	if rawDev != "" {
 		identity, err := parseDevIdentity(rawDev)
 		switch {
-		case env != defaultEnv:
+		case deployed:
 			errs = append(errs, errors.New("OPS_DEV_IDENTITY는 APP_ENV가 local일 때만 쓸 수 있습니다"))
+		case getenv("K_SERVICE") != "":
+			errs = append(errs, errors.New("OPS_DEV_IDENTITY는 Cloud Run(K_SERVICE가 있는 환경)에서 쓸 수 없습니다"))
 		case err != nil:
 			errs = append(errs, err)
 		default:
@@ -572,6 +603,27 @@ func LoadOps(getenv func(string) string) (OpsConfig, error) {
 	if cfg.Audience == "" && rawDev == "" {
 		errs = append(errs, errors.New("IAP_AUDIENCE가 필요합니다(APP_ENV가 local이고 OPS_DEV_IDENTITY가 있을 때만 비워 둘 수 있습니다)"))
 	}
+
+	switch {
+	case deployed && cfg.OperatorsFile == "":
+		errs = append(errs, errors.New("배포 환경에는 OPS_OPERATORS_FILE(운영자 목록 Secret 볼륨 경로)이 필요합니다"))
+	case deployed && cfg.Operators != "":
+		errs = append(errs, errors.New("배포 환경에서는 OPS_OPERATORS 환경 변수를 쓸 수 없습니다(OPS_OPERATORS_FILE만 씁니다)"))
+	case cfg.Operators != "" && cfg.OperatorsFile != "":
+		errs = append(errs, errors.New("OPS_OPERATORS와 OPS_OPERATORS_FILE은 하나만 지정해야 합니다"))
+	}
+
+	var missing []string
+	for _, name := range opsDBUserVars {
+		if getenv(name) == "" {
+			missing = append(missing, name)
+		}
+	}
+	if len(missing) > 0 && (deployed || len(missing) < len(opsDBUserVars)) {
+		errs = append(errs, fmt.Errorf("%s가 필요합니다(배포 환경은 셋 모두 필수, local은 모두 있거나 모두 없어야 합니다): %s",
+			strings.Join(opsDBUserVars, ", "), strings.Join(missing, ", ")))
+	}
+
 	if err := errors.Join(errs...); err != nil {
 		return OpsConfig{}, err
 	}

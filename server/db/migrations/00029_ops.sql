@@ -18,14 +18,17 @@ CREATE TABLE IF NOT EXISTS ops_audit (
     -- 실행자의 IAP sub입니다. 메일이 바뀌어도 같은 사람을 찾게 actor(메일)와 따로 남깁니다.
     actor_sub  text        NOT NULL CHECK (actor_sub <> ''),
     channel    text        NOT NULL CHECK (channel IN ('ops_api')),
-    action     text        NOT NULL CHECK (action IN ('account_show', 'grant', 'revoke', 'content_view', 'audit_list')),
+    -- denied는 IAP 검증은 통과했지만 허용 목록 밖이라 거절한 요청입니다(실행자와 경로만, 지휘 2차 감사 L2).
+    action     text        NOT NULL CHECK (action IN ('account_show', 'grant', 'revoke', 'content_view', 'audit_list', 'denied')),
     account_id uuid,
     purpose    text        CHECK (purpose IN ('inquiry', 'incident', 'policy', 'legal')),
     reason     text        NOT NULL CHECK (char_length(reason) BETWEEN 1 AND 500),
     target     jsonb       NOT NULL,
     before     jsonb,
     after      jsonb,
-    CONSTRAINT ops_audit_purpose_for_view CHECK ((action = 'content_view') = (purpose IS NOT NULL))
+    CONSTRAINT ops_audit_purpose_for_view CHECK ((action = 'content_view') = (purpose IS NOT NULL)),
+    -- 거절 행은 대상 계정과 전후 값이 없습니다. 거절한 요청의 본문은 읽지 않으므로 남길 것이 없습니다.
+    CONSTRAINT ops_audit_denied_shape CHECK (action <> 'denied' OR (account_id IS NULL AND before IS NULL AND after IS NULL))
 );
 
 CREATE INDEX IF NOT EXISTS ops_audit_account_idx ON ops_audit (account_id, at DESC);

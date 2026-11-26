@@ -179,6 +179,26 @@ func TestOpsAudit_PurposeRequiredOnlyForView(t *testing.T) {
 	}
 }
 
+// 허용 목록 밖 거절(denied) 행은 실행자와 경로만 남기고 계정, 목적, 전후 값을 담지 않습니다.
+func TestOpsAudit_DeniedShape(t *testing.T) {
+	ctx := context.Background()
+	pool := dbtest.New(t)
+	const insert = `INSERT INTO ops_audit (id, at, actor, actor_sub, channel, action, account_id, reason, target, before)
+		VALUES ($1, now(), 'op@example.com', 'sub-1', 'ops_api', 'denied', $2, '허용 목록 밖', '{"route":"/ops/v1/grants"}', $3)`
+
+	if _, err := pool.Exec(ctx, insert, uuid.Must(uuid.NewV7()), nil, nil); err != nil {
+		t.Errorf("denied INSERT: %v", err)
+	}
+	_, err := pool.Exec(ctx, insert, uuid.Must(uuid.NewV7()), uuid.New(), nil)
+	requirePgError(t, err, checkViolation, "ops_audit_denied_shape")
+	_, err = pool.Exec(ctx, insert, uuid.Must(uuid.NewV7()), nil, `{"x":1}`)
+	requirePgError(t, err, checkViolation, "ops_audit_denied_shape")
+	_, err = pool.Exec(ctx, insertOpsAudit, uuid.Must(uuid.NewV7()), "0 seconds", "denied", "inquiry")
+	requirePgError(t, err, checkViolation, "")
+	_, err = pool.Exec(ctx, insertOpsAudit, uuid.Must(uuid.NewV7()), "0 seconds", "unknown_action", nil)
+	requirePgError(t, err, checkViolation, "ops_audit_action_check")
+}
+
 // 운영자 부여의 출처 operator를 받습니다.
 func TestEntitlementGrants_OperatorSourceAllowed(t *testing.T) {
 	ctx := context.Background()

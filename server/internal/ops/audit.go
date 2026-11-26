@@ -104,6 +104,8 @@ const (
 	ActionRevoke      Action = "revoke"
 	ActionContentView Action = "content_view"
 	ActionAuditList   Action = "audit_list"
+	// ActionDenied는 IAP 검증은 통과했지만 허용 목록 밖이라 거절한 요청입니다. 실행자와 경로만 남깁니다.
+	ActionDenied Action = "denied"
 )
 
 // Entry는 감사 행 한 건의 내용입니다.
@@ -184,4 +186,33 @@ func isNil(v any) bool {
 	default:
 		return false
 	}
+}
+
+// deniedReason은 거절 행의 사유입니다. 거절한 요청은 본문을 읽지 않으므로 운영자가 쓴 사유 대신 고정 문구를 남깁니다.
+const deniedReason = "허용 목록 밖 운영자의 요청(자동 기록)"
+
+// maxDeniedRouteLen은 거절 행에 남기는 경로의 최대 길이입니다. 호출자는 등록된 경로 패턴만 넘깁니다.
+const maxDeniedRouteLen = 100
+
+// deniedTarget은 거절 행의 target입니다.
+type deniedTarget struct {
+	Route string `json:"route"`
+}
+
+// RecordDenied는 IAP 검증을 통과했지만 허용 목록 밖이라 거절한 요청을 감사 행(action denied)으로 남깁니다.
+// 실행자 메일, sub, 경로만 남기고 계정, 목적, 전후 값은 비웁니다(DB 제약 ops_audit_denied_shape).
+// route는 요청 값이 아니라 등록된 경로 패턴이어야 합니다.
+func (s *Service) RecordDenied(ctx context.Context, actor Actor, route string) error {
+	if err := validateActor(actor); err != nil {
+		return err
+	}
+	if route == "" || len(route) > maxDeniedRouteLen {
+		return fmt.Errorf("거절 기록의 경로는 1~%d자여야 합니다", maxDeniedRouteLen)
+	}
+	auditID := uuid.New()
+	return s.inTx(ctx, func(tx pgx.Tx) error {
+		return recordTx(ctx, tx, auditID, Entry{
+			Actor: actor, Action: ActionDenied, Reason: deniedReason, Target: deniedTarget{Route: route},
+		})
+	})
 }

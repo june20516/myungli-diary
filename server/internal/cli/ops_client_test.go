@@ -304,6 +304,7 @@ func TestOpsClient_ErrorStatus(t *testing.T) {
 		{http.StatusForbidden, 1},
 		{http.StatusNotFound, 1},
 		{http.StatusConflict, 1},
+		{http.StatusTooManyRequests, 1},
 		{http.StatusInternalServerError, 1},
 		{http.StatusServiceUnavailable, 1},
 	}
