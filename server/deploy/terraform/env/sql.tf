@@ -63,3 +63,10 @@ resource "google_sql_user" "migrator" {
   type           = "CLOUD_IAM_SERVICE_ACCOUNT"
   database_roles = ["cloudsqlsuperuser"]
 }
+
+# 운영 API(server-ops)의 DB 사용자입니다. cloudsqlsuperuser가 없고, migrate가 운영자 권한 묶음 myungli_ops의 구성원으로 둡니다(#1321).
+resource "google_sql_user" "ops" {
+  name     = local.ops_db_user
+  instance = google_sql_database_instance.main.name
+  type     = "CLOUD_IAM_SERVICE_ACCOUNT"
+}

@@ -27,8 +27,13 @@ output "server_env" {
 }
 
 output "migrator_env" {
-  description = "migrate와 seed Job의 env(S137). server_env에서 DB 사용자만 migrator로 바꾸고 DB_RUNTIME_USER를 더함"
+  description = "migrate와 seed Job의 env(S137). server_env에서 DB 사용자만 migrator로 바꾸고 DB_RUNTIME_USER, DB_OPS_USER를 더함"
   value       = local.migrator_env
+}
+
+output "ops_env" {
+  description = "배포 workflow가 server-ops 서비스에 붙이는 비밀이 아닌 환경 변수(#1321). Secret OPS_OPERATORS는 OPS_OPERATORS_FILE 경로에 볼륨으로 따로 붙입니다"
+  value       = local.ops_env
 }
 
 output "scheduler_enabled" {

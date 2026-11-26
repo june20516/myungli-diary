@@ -42,6 +42,10 @@ const (
 	RewardYears = 1
 	// TestGrantYears는 staging 테스트 광고 제거 기간(S125)을 끝난 뒤 남겨 두는 기간입니다. prod에는 이 행이 없습니다.
 	TestGrantYears = 1
+	// OpsAuditYears는 운영 감사 기록(ops_audit)과 운영자 부여 권한 행의 보관 기간입니다.
+	// ops_audit trigger가 같은 2년을 강제하므로 줄이면 안 됩니다.
+	// 정리 쿼리(db/queries/retention.sql)와 trigger(migration 00029)의 SQL 리터럴 interval '2 years'와 함께 바꿔야 합니다.
+	OpsAuditYears = 2
 	// BillingYears는 결제 기록(webhook 수신, 구매 장부, 결제 구간)의 보관 기간입니다.
 	// 결제 동기화가 이보다 오래된 구매를 다시 적지 않도록 billing과 같은 값을 씁니다.
 	BillingYears = billing.RecordYears
@@ -81,6 +85,8 @@ func (s *Store) Steps() []Step {
 		{Name: "미리보기 설치 해시", Run: s.yearsBefore(PreviewUsageYears, s.q.DeletePreviewUsageBefore)},
 		{Name: "보상 기록", Run: s.deleteRewardRecords},
 		{Name: "테스트 광고 제거 기간", Run: s.yearsBefore(TestGrantYears, s.q.DeleteTestGrantsEndedBefore)},
+		{Name: "운영 감사 기록", Run: s.yearsBefore(OpsAuditYears, s.q.DeleteOpsAuditBefore)},
+		{Name: "운영자 부여 권한", Run: s.yearsBefore(OpsAuditYears, s.q.DeleteOperatorGrantsEndedBefore)},
 		{Name: "결제 기록", Run: s.deleteBillingRecords},
 		{Name: "지운 일기", Run: s.purgeDeletedDiaries},
 		{Name: "지운 일정", Run: s.purgeDeletedSchedules},

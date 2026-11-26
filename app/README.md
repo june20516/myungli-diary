@@ -36,7 +36,7 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
 ```
 
 * **로컬 server(http):** `server/`에서 `docker compose up -d --wait`(DB, 엔진), `server migrate up`, `server seed`(콘텐츠 문장 틀. 없으면 오늘 화면이 503), `server serve`로 띄웁니다(인증 값은 로컬에서도 모두 필요합니다. 서명 키는 이 기기에서만 쓰는 임시 값으로 만들어 보관 폴더 `${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/app/local/`(D98, `docs/local-values.md` K6)에 두고 `source "${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/app/local/env.sh"`로 읽습니다. server 바이너리와 로그처럼 버려도 되는 것만 `app/.local/`(gitignore)에 둡니다. `KAKAO_APP_KEY`는 카카오 네이티브 앱 키입니다(id_token `aud`, #610). Android 에뮬레이터는 `adb reverse tcp:8080 tcp:8080`으로 기기의 localhost를 Mac에 잇고 `API_BASE_URL`을 비워 둡니다(debug 기본값 `http://localhost:8080`). 평문 http는 debug 빌드에서만 localhost에 허용합니다(`android/app/src/debug/res/xml/network_security_config.xml`). 미리보기, 시진 확인, 음력 변환은 App Check 요청입니다. debug 빌드는 staging Firebase의 debug provider를 쓰고, 토큰은 콘솔에 등록한 고정 값을 `--dart-define-from-file="${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/app/staging/dart-defines.json"`(`APP_CHECK_DEBUG_TOKEN`, D98 K4, #659)으로 넘깁니다. debug provider는 넘긴 고정 토큰도 logcat(`DebugAppCheckProvider`)에 그대로 찍으니 그 로그를 공유하거나 붙여 넣지 않습니다. 파일 없이 실행하면 SDK가 첫 실행 때 만든 토큰을 로그에 찍고, 그 토큰을 콘솔에 등록하기 전까지는 헤더 없이 나갑니다(#657). release는 staging이어도 기기 증명(Android Play Integrity, iOS DeviceCheck)만 씁니다.
-* **staging 빌드(Play 내부 테스트):** release는 저장소 밖 보관 폴더의 업로드 키로 서명합니다(A94, D98 K1). 키는 한 번만 만들고, 두 파일은 잃으면 다시 얻을 수 없으니 기기 밖(비밀번호 관리자 등)에 꼭 백업합니다. 파일이 없으면 release도 debug 키로 서명되고 Gradle이 경고를 한 줄 냅니다(Play에 올릴 수 없음).
+* **staging 빌드(Play 내부 테스트):** release는 저장소 밖 보관 폴더의 업로드 키로 서명합니다(A94, D98 K1). 키는 한 번만 만들고, 두 파일은 잃으면 다시 얻을 수 없으니 기기 밖(비밀번호 관리자 등)에 꼭 백업합니다. 파일이 없으면 release 빌드(`assembleRelease`, `bundleRelease`)는 실패합니다(debug 키로 서명한 release를 만들지 않음, #1254 app-Q1-9). debug 빌드는 키 없이 됩니다.
   ```
   D="${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/app/shared"; mkdir -p "$D" && chmod 700 "$D"
   keytool -genkeypair -v -keystore "$D/upload-keystore.jks" -keyalg RSA -keysize 2048 -validity 10000 -alias upload
@@ -268,7 +268,7 @@ uv run --with jsonschema --with pyyaml --with referencing --with rfc3339-validat
 
 * **갱신(로컬):** `tool/goldens_linux.sh`. Docker(linux/amd64)에서 기준 이미지를 만들어 `test/goldens/`에 되돌려 놓습니다. 반복 중에는 바꾼 golden 테스트 파일만 줍니다(`tool/goldens_linux.sh test/design/saju_golden_test.dart`). 이때는 다른 기준 이미지를 지우지 않으므로, golden을 지운 변경은 대상 없이 전체로 돌립니다.
 * **갱신(CI):** Actions에서 `app` workflow를 수동 실행하고(`workflow_dispatch`) `update_goldens`를 켭니다. `update-goldens` job이 `goldens` artifact로 올리면 받아서 `test/goldens/`에 덮어 commit합니다.
-* **Flutter 버전:** CI와 golden이 쓰는 버전은 `tool/golden_flutter_version` 한 곳(현재 3.47.7)에서 정합니다. `goldens_linux.sh`와 CI의 `checks`, `e2e-android`, `goldens`, `update-goldens` job이 모두 이 값을 읽습니다(A144). stable 최신을 받으면 SDK에 묶인 패키지가 바뀌어 `pubspec.lock` 생성 코드 차이 검사가 깨지기 때문입니다. Flutter를 올릴 때는 이 값과 로컬 Flutter를 함께 올리고, 같은 PR에서 `pubspec.lock`과 golden을 다시 만듭니다.
+* **Flutter 버전:** CI와 golden이 쓰는 버전은 `tool/golden_flutter_version` 한 곳(현재 3.47.7)에서 정합니다. `goldens_linux.sh`와 CI의 `checks`, `tests`, `e2e-android`, `goldens`, `update-goldens` job이 모두 이 값을 읽습니다(A144). stable 최신을 받으면 SDK에 묶인 패키지가 바뀌어 `pubspec.lock` 생성 코드 차이 검사가 깨지기 때문입니다. Flutter를 올릴 때는 이 값과 로컬 Flutter를 함께 올리고, 같은 PR에서 `pubspec.lock`과 golden을 다시 만듭니다.
 
 ### 화면 스크린샷 (#336)
 화면별·상태별 스크린샷을 golden과 같은 Linux 렌더(Docker)로 그려 `docs/artifacts/`에 등록합니다. 제품 지도가 `index.json`의 `screens`로 화면 카드 그림을 고릅니다.
@@ -335,7 +335,8 @@ tool/patrol_staging.sh patrol_test/diary_test.dart   # 흐름 하나
 ## CI (`.github/workflows/app.yml`)
 | job | 언제 | 하는 일 |
 | --- | --- | --- |
-| `checks` | `ci-gate` 호출(PR, `staging`과 `main` push), 수동 | `own`: format, 생성 코드 차이, ARB 검사(`mlw check-arb`), fixture 검증, analyze, 커버리지 ratchet, Widgetbook analyze·테스트, 테스트(golden 제외), Android debug 빌드(NDK·CMake 캐시). `drift`·`gate`: 생성 코드 차이, ARB 검사, fixture 검증, 커버리지 ratchet, `contract` 태그 테스트만 |
+| `checks` | `ci-gate` 호출(PR, `staging`과 `main` push), 수동 | `own`: format, 생성 코드 차이, ARB 검사(`mlw check-arb`), fixture 검증, analyze, 커버리지 ratchet, Widgetbook analyze·테스트, Android debug 빌드(NDK·CMake 캐시). `drift`·`gate`: 생성 코드 차이, ARB 검사, fixture 검증, 커버리지 ratchet, `contract` 태그 테스트만 |
+| `tests` | `ci-gate` 호출 중 `own`, 수동 | 테스트(golden 제외)를 `--total-shards 3`으로 나눠 job 3개가 동시에 돕니다. 한 job에서 13분쯤 걸려 `checks`가 시간 상한 30분에 가까워졌기 때문입니다(2026-11-26) |
 | `goldens` | `ci-gate` 호출 중 `own`, 수동 | `golden_flutter_version`의 Flutter로 golden 비교 |
 | `update-goldens` | 수동(`update_goldens`) | golden을 Linux에서 다시 만들어 artifact로 올림 |
 | `e2e-android` | `staging` push, 매일 03:00 KST, 수동 | Android 에뮬레이터에서 Patrol 실행, 스크린샷 artifact. PR에서는 돌지 않고 `ci-gate` 판정에도 넣지 않습니다 |

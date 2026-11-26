@@ -14,6 +14,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/testcontainers/testcontainers-go"
 	tcpostgres "github.com/testcontainers/testcontainers-go/modules/postgres"
@@ -151,4 +152,55 @@ func (s shared) databaseURL(database string) string {
 	u := *s.baseURL
 	u.Path = "/" + database
 	return u.String()
+}
+
+// clusterLockKey는 cluster 전체 상태(역할과 구성원 관계)를 바꾸는 테스트가 함께 쓰는 advisory lock 키입니다.
+const clusterLockKey = 1321_0001
+
+// LockCluster는 cluster 공용 상태(로그인 역할과 구성원 관계)를 바꾸는 테스트 구간을 직렬화합니다.
+// 역할은 DB가 아니라 cluster에 속해, myungli_ops 구성원 전체를 검사하는 CheckRoleSeparation 같은 코드는 다른 테스트가 만든 구성원과 섞일 수 있습니다.
+// advisory lock은 연결 하나가 쥐므로 전용 연결에서 잡고, 테스트가 끝나면 풉니다.
+func LockCluster(t testing.TB) {
+	t.Helper()
+
+	// 컨테이너를 아직 띄우지 않았으면 여기서 띄웁니다.
+	setupOnce.Do(func() { setupState, setupErr = setup() })
+	if setupErr != nil {
+		t.Fatalf("테스트 DB 준비 실패: %v", setupErr)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), setupTimeout)
+	defer cancel()
+	conn, err := setupState.adminPool.Acquire(ctx)
+	if err != nil {
+		t.Fatalf("cluster 잠금 연결: %v", err)
+	}
+	if _, err := conn.Exec(ctx, "SELECT pg_advisory_lock($1)", clusterLockKey); err != nil {
+		conn.Release()
+		t.Fatalf("cluster 잠금: %v", err)
+	}
+	t.Cleanup(func() {
+		defer conn.Release()
+		if _, err := conn.Exec(context.Background(), "SELECT pg_advisory_unlock($1)", clusterLockKey); err != nil {
+			t.Errorf("cluster 잠금 풀기: %v", err)
+		}
+	})
+}
+
+// ExecWithoutTriggers는 sql을 trigger를 끈 트랜잭션 하나에서 실행합니다.
+// ops_audit처럼 trigger가 시각과 실행자를 덮어쓰는 표에 과거 시각이나 다른 실행자의 행을 미리 넣을 때 씁니다.
+// session_replication_role은 superuser만 바꿀 수 있어 운영 역할(myungli_app, myungli_ops)로는 같은 우회가 되지 않습니다.
+func ExecWithoutTriggers(t testing.TB, pool *pgxpool.Pool, sql string, args ...any) {
+	t.Helper()
+	ctx := context.Background()
+	err := pgx.BeginFunc(ctx, pool, func(tx pgx.Tx) error {
+		if _, err := tx.Exec(ctx, "SET LOCAL session_replication_role = replica"); err != nil {
+			return fmt.Errorf("trigger 끄기: %w", err)
+		}
+		_, err := tx.Exec(ctx, sql, args...)
+		return err
+	})
+	if err != nil {
+		t.Fatalf("trigger를 끈 실행: %v", err)
+	}
 }

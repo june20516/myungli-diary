@@ -20,6 +20,12 @@ final class _FakeMessagingApi implements MessagingApi {
   @override
   Future<String?> getToken() async => 'fcm-token';
 
+  /// [deleteToken]을 부른 횟수.
+  int deletes = 0;
+
+  @override
+  Future<void> deleteToken() async => deletes++;
+
   @override
   Stream<String> get onTokenRefresh => refreshes.stream;
 
@@ -40,6 +46,9 @@ final class _ThrowingMessagingApi implements MessagingApi {
 
   @override
   Future<String?> getToken() => Future.error(StateError('실패'));
+
+  @override
+  Future<void> deleteToken() => Future.error(StateError('실패'));
 
   @override
   Stream<String> get onTokenRefresh => throw StateError('초기화 전');
@@ -80,6 +89,16 @@ void main() {
       expect(
         await FirebasePushMessaging(api: _ThrowingMessagingApi()).token(),
         isNull,
+      );
+    });
+
+    test('deleteToken은 SDK를 부르고, 실패해도 던지지 않음(#1254 app-Q1-4)', () async {
+      final api = _FakeMessagingApi();
+      await FirebasePushMessaging(api: api).deleteToken();
+      expect(api.deletes, 1);
+      await expectLater(
+        FirebasePushMessaging(api: _ThrowingMessagingApi()).deleteToken(),
+        completes,
       );
     });
 

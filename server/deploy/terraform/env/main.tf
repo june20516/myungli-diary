@@ -10,6 +10,10 @@ locals {
   db_user = trimsuffix(google_service_account.server.email, ".gserviceaccount.com")
   # migration과 seed를 적용하는 DB 사용자입니다(S137). 표의 주인이고 런타임 db_user는 읽기와 쓰기만 합니다.
   migrator_db_user = trimsuffix(google_service_account.migrator.email, ".gserviceaccount.com")
+  # 운영 API(server-ops, #1321)의 DB 사용자입니다. migrate가 운영자 권한 묶음 myungli_ops의 구성원으로 둡니다.
+  ops_db_user = trimsuffix(google_service_account.ops.email, ".gserviceaccount.com")
+  # 배포 계정(bootstrap이 만듦)입니다. server-ops 계정을 빌려 쓸 수 있는 유일한 주체로 둡니다.
+  deployer_email = "deployer@${var.project_id}.iam.gserviceaccount.com"
 
   # 비밀은 Secret Manager에 두고 환경 변수 이름을 Secret id로 씁니다(spec §5).
   # LEGAL_BUSINESS_INFO는 비밀은 아니지만 공개 저장소에 두지 않는 법적 문서 사업자 정보입니다(D126 ②, D74, S157).
@@ -57,10 +61,36 @@ locals {
     var.token_previous_key_id != "" ? { TOKEN_PREVIOUS_KEY_ID = var.token_previous_key_id } : {},
   )
   # migrate와 seed Job의 env입니다. DB 사용자만 migrator로 바꾸고, migrate가 런타임 사용자를 권한 묶음 구성원으로 둡니다(S137).
+  # migrate는 배포 환경에서 DB_RUNTIME_USER와 DB_OPS_USER를 함께 요구합니다(하나만 있으면 실패, #1321).
   migrator_env = merge(local.server_env, {
     DATABASE_URL    = "user=${local.migrator_db_user} dbname=${google_sql_database.main.name} sslmode=disable"
     DB_RUNTIME_USER = local.db_user
+    DB_OPS_USER     = local.ops_db_user
   })
+
+  # 운영 API 서비스(server-ops)의 env입니다. 앱 설정과 앱 Secret은 붙이지 않고, OPS_OPERATORS만 workflow가 Secret 볼륨으로 붙입니다.
+  # OPS_DEV_IDENTITY는 local 전용이라 여기에 두지 않습니다(배포 환경에서 있으면 기동 실패).
+  # GOOGLE_CLOUD_PROJECT는 로그의 trace 연결에 씁니다(serve와 같음).
+  ops_env = {
+    APP_ENV              = var.environment
+    GOOGLE_CLOUD_PROJECT = var.project_id
+    CLOUD_SQL_INSTANCE   = google_sql_database_instance.main.connection_name
+    DATABASE_URL         = "user=${local.ops_db_user} dbname=${google_sql_database.main.name} sslmode=disable"
+    # IAP가 서명한 JWT의 aud입니다. Cloud Run 직접 IAP는 프로젝트 번호, 리전, 서비스 이름으로 만듭니다.
+    IAP_AUDIENCE = "/projects/${var.project_number}/locations/${var.region}/services/${google_cloud_run_v2_service.server_ops.name}"
+    LOG_LEVEL    = lookup(var.server_settings, "LOG_LEVEL", "info")
+    # 운영자 허용 목록 Secret(OPS_OPERATORS, 버전 latest)을 workflow가 이 경로에 볼륨으로 마운트합니다. Cloud Run은 볼륨의 secret을
+    # 읽을 때마다 latest 값을 가져오고 ops-serve가 1분마다 다시 읽어, 운영자를 빼면 재배포 없이 반영됩니다(지휘 2차 감사 M1).
+    # 디렉터리(/secrets/ops)에는 이 파일 하나만 있습니다. Cloud Run은 /dev, /proc, /sys 아래 마운트를 받지 않습니다.
+    OPS_OPERATORS_FILE = local.ops_operators_file
+    # 기동 때 역할 분리와 예상 밖 로그인 role 검사에 쓰는 DB 사용자 이름입니다(migrate와 같은 검사, 지휘 2차 감사 L8).
+    DB_MIGRATOR_USER = local.migrator_db_user
+    DB_RUNTIME_USER  = local.db_user
+    DB_OPS_USER      = local.ops_db_user
+  }
+
+  # server-ops에 운영자 목록 Secret을 마운트하는 파일 경로입니다. workflow가 terraform output ops_env에서 읽어 --set-secrets에 씁니다.
+  ops_operators_file = "/secrets/ops/operators"
 }
 
 resource "google_service_account" "server" {
@@ -71,6 +101,11 @@ resource "google_service_account" "server" {
 resource "google_service_account" "migrator" {
   account_id   = "server-migrator"
   display_name = "server migration과 seed (DDL, Secret 없음)"
+}
+
+resource "google_service_account" "ops" {
+  account_id   = "server-ops"
+  display_name = "운영 API 실행 (IAP 뒤, #1321)"
 }
 
 resource "google_service_account" "engine" {
@@ -91,6 +126,31 @@ resource "google_project_iam_member" "migrator" {
   project = var.project_id
   role    = each.value
   member  = "serviceAccount:${google_service_account.migrator.email}"
+}
+
+resource "google_project_iam_member" "ops" {
+  for_each = toset([
+    "roles/cloudsql.client",
+    "roles/cloudsql.instanceUser",
+  ])
+  project = var.project_id
+  role    = each.value
+  member  = "serviceAccount:${google_service_account.ops.email}"
+}
+
+# server-ops 계정을 빌려 쓰는 길을 막습니다(지휘 검토 1, #1321). 이 계정의 IAM 정책 전체를 Terraform이 정하고(권한 있는 관리),
+# 배포 계정의 actAs(Cloud Run에 이 계정으로 배포하는 데 필요)만 둡니다. 토큰 발급(serviceAccountTokenCreator)과
+# 다른 주체는 두지 않습니다. 프로젝트 단위 부여는 배포 workflow의 check-ops-sa.sh가 검사합니다.
+data "google_iam_policy" "ops_sa" {
+  binding {
+    role    = "roles/iam.serviceAccountUser"
+    members = ["serviceAccount:${local.deployer_email}"]
+  }
+}
+
+resource "google_service_account_iam_policy" "ops" {
+  service_account_id = google_service_account.ops.name
+  policy_data        = data.google_iam_policy.ops_sa.policy_data
 }
 
 resource "google_project_iam_member" "server" {
@@ -125,4 +185,25 @@ resource "google_secret_manager_secret_iam_member" "server" {
   secret_id = each.value.id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${google_service_account.server.email}"
+}
+
+# 운영 API의 운영자 허용 목록(쉼표 구분 메일)입니다. 메일은 저장소와 tfvars에 두지 않고(D74) 사람이 Secret 값으로 넣습니다.
+# secret_ids에 넣지 않습니다. server에 붙지 않아야 하고, 값이 없어도 server 배포를 막지 않게 workflow가 따로 확인합니다.
+resource "google_secret_manager_secret" "ops_operators" {
+  secret_id = "OPS_OPERATORS"
+
+  replication {
+    user_managed {
+      replicas {
+        location = var.region
+      }
+    }
+  }
+}
+
+# 이 Secret 하나만 server-ops가 읽습니다.
+resource "google_secret_manager_secret_iam_member" "ops_operators" {
+  secret_id = google_secret_manager_secret.ops_operators.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.ops.email}"
 }

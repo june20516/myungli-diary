@@ -480,3 +480,73 @@ func TestSteps_KeepsWebLoginWithinGrace(t *testing.T) {
 	assert.True(t, f.appleWebLoginExists(id))
 	assert.Zero(t, f.count("SELECT count(*) FROM provider_revocations"))
 }
+
+// ops_audit 삭제 trigger가 DB의 now()를 쓰므로 이 테스트들은 실제 시각 근처의 행을 씁니다.
+func newRealClockFixture(t *testing.T) *fixture {
+	t.Helper()
+	pool := dbtest.New(t)
+	return &fixture{t: t, pool: pool, store: retention.NewStore(pool, clocktest.New(time.Now()))}
+}
+
+func (f *fixture) insertOpsAudit(at time.Time) uuid.UUID {
+	f.t.Helper()
+	id := uuid.Must(uuid.NewV7())
+	// trigger(ops_audit_stamp)가 at을 now()로 덮으므로 끄고 넣습니다.
+	dbtest.ExecWithoutTriggers(f.t, f.pool, `INSERT INTO ops_audit (id, at, actor, actor_sub, channel, action, reason, target)
+		VALUES ($1, $2, 'op@example.com', 'sub-1', 'ops_api', 'account_show', '문의 확인', '{}'::jsonb)`, id, at)
+	return id
+}
+
+func (f *fixture) opsAuditExists(id uuid.UUID) bool {
+	f.t.Helper()
+	return f.count("SELECT count(*) FROM ops_audit WHERE id = $1", id) == 1
+}
+
+// 감사 기록은 2년이 지나면 지웁니다. 지우는 경계가 DB trigger보다 보수적이어서 retention이 실패하지 않습니다.
+func TestSteps_DeletesOpsAuditOlderThanTwoYears(t *testing.T) {
+	f := newRealClockFixture(t)
+	realNow := time.Now()
+	old := f.insertOpsAudit(realNow.AddDate(-2, 0, -1))
+	recent := f.insertOpsAudit(realNow.AddDate(-1, 0, 0))
+
+	f.runSteps()
+
+	assert.False(t, f.opsAuditExists(old))
+	assert.True(t, f.opsAuditExists(recent))
+}
+
+// 시계가 DB보다 앞서도 trigger가 막는 행은 건드리지 않아 단계가 실패하지 않습니다.
+func TestSteps_OpsAuditKeepsRowsTriggerWouldRejectWhenClockAhead(t *testing.T) {
+	pool := dbtest.New(t)
+	ahead := time.Now().Add(48 * time.Hour)
+	f := &fixture{t: t, pool: pool, store: retention.NewStore(pool, clocktest.New(ahead))}
+	protected := f.insertOpsAudit(time.Now().AddDate(-2, 0, 1))
+
+	f.runSteps()
+
+	assert.True(t, f.opsAuditExists(protected))
+}
+
+// 운영자 부여 행은 끝난 지(회수 또는 만료) 2년이 지나면 지웁니다. 다른 출처는 건드리지 않습니다.
+func TestSteps_DeletesOperatorGrantsEndedTwoYearsAgo(t *testing.T) {
+	f := newRealClockFixture(t)
+	account := f.account()
+	realNow := time.Now()
+	f.insertGrant(account, "operator", "op-old", realNow.AddDate(-2, 0, -1))
+	f.insertGrant(account, "operator", "op-recent", realNow.AddDate(-2, 0, 1))
+	f.insertGrant(account, "operator", "op-revoked-old", realNow.AddDate(0, 6, 0))
+	f.exec(`UPDATE entitlement_grants SET revoked_at = $1 WHERE source_ref = 'op-revoked-old'`, realNow.AddDate(-2, 0, -1))
+	f.insertGrant(account, "operator", "op-revoked-recent", realNow.AddDate(0, 6, 0))
+	f.exec(`UPDATE entitlement_grants SET revoked_at = $1 WHERE source_ref = 'op-revoked-recent'`, realNow.AddDate(-2, 0, 1))
+	f.insertGrant(account, "operator", "op-active", realNow.AddDate(0, 0, 30))
+	f.insertGrant(account, "ad_free_pass", "pass-old", realNow.AddDate(-2, 0, -1))
+
+	f.runSteps()
+
+	assert.False(t, f.grantExists("op-old"))
+	assert.True(t, f.grantExists("op-recent"))
+	assert.False(t, f.grantExists("op-revoked-old"))
+	assert.True(t, f.grantExists("op-revoked-recent"))
+	assert.True(t, f.grantExists("op-active"))
+	assert.True(t, f.grantExists("pass-old"))
+}

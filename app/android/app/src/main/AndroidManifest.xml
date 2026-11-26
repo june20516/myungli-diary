@@ -23,6 +23,12 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
+            <!-- 앱이 받는 외부 링크가 없어 Flutter 기본 딥링크를 끕니다(#1254 app-Q1-5).
+                 로그인 복귀는 아래 SDK 전용 Activity가 받습니다. -->
+            <meta-data
+              android:name="flutter_deeplinking_enabled"
+              android:value="false"
+              />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

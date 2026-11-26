@@ -74,6 +74,81 @@ func (q *Queries) ExistingAccountIDs(ctx context.Context, ids []uuid.UUID) ([]uu
 	return items, nil
 }
 
+const grantByID = `-- name: GrantByID :one
+SELECT id, account_id, entitlement, source, source_ref, starts_at, expires_at, revoked_at, created_at
+FROM entitlement_grants
+WHERE id = $1 AND account_id = $2
+FOR UPDATE
+`
+
+type GrantByIDParams struct {
+	ID        int64
+	AccountID uuid.UUID
+}
+
+// 회수할 행을 잠가 읽습니다. 다른 계정의 행은 없는 행으로 봅니다.
+func (q *Queries) GrantByID(ctx context.Context, arg GrantByIDParams) (EntitlementGrant, error) {
+	row := q.db.QueryRow(ctx, grantByID, arg.ID, arg.AccountID)
+	var i EntitlementGrant
+	err := row.Scan(
+		&i.ID,
+		&i.AccountID,
+		&i.Entitlement,
+		&i.Source,
+		&i.SourceRef,
+		&i.StartsAt,
+		&i.ExpiresAt,
+		&i.RevokedAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const grantsBySourceRef = `-- name: GrantsBySourceRef :many
+SELECT id, account_id, entitlement, source, source_ref, starts_at, expires_at, revoked_at, created_at
+FROM entitlement_grants
+WHERE account_id = $1 AND source = $2 AND source_ref = $3
+ORDER BY id
+FOR UPDATE
+`
+
+type GrantsBySourceRefParams struct {
+	AccountID uuid.UUID
+	Source    string
+	SourceRef string
+}
+
+// 같은 계정, 같은 출처, 같은 source_ref 묶음을 잠가 읽습니다.
+func (q *Queries) GrantsBySourceRef(ctx context.Context, arg GrantsBySourceRefParams) ([]EntitlementGrant, error) {
+	rows, err := q.db.Query(ctx, grantsBySourceRef, arg.AccountID, arg.Source, arg.SourceRef)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []EntitlementGrant
+	for rows.Next() {
+		var i EntitlementGrant
+		if err := rows.Scan(
+			&i.ID,
+			&i.AccountID,
+			&i.Entitlement,
+			&i.Source,
+			&i.SourceRef,
+			&i.StartsAt,
+			&i.ExpiresAt,
+			&i.RevokedAt,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const insertBillingEvent = `-- name: InsertBillingEvent :exec
 INSERT INTO billing_events (event_id, account_id, payload, received_at)
 VALUES ($1, $2, $3, $4)
@@ -96,6 +171,44 @@ func (q *Queries) InsertBillingEvent(ctx context.Context, arg InsertBillingEvent
 		arg.ReceivedAt,
 	)
 	return err
+}
+
+const insertOperatorGrant = `-- name: InsertOperatorGrant :one
+INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)
+VALUES ($1, $2, 'operator', $3, $4, $5)
+RETURNING id, account_id, entitlement, source, source_ref, starts_at, expires_at, revoked_at, created_at
+`
+
+type InsertOperatorGrantParams struct {
+	AccountID   uuid.UUID
+	Entitlement string
+	SourceRef   string
+	StartsAt    time.Time
+	ExpiresAt   time.Time
+}
+
+// 운영자가 준 권한 한 행입니다(#1321). 부여 묶음은 같은 source_ref를 씁니다.
+func (q *Queries) InsertOperatorGrant(ctx context.Context, arg InsertOperatorGrantParams) (EntitlementGrant, error) {
+	row := q.db.QueryRow(ctx, insertOperatorGrant,
+		arg.AccountID,
+		arg.Entitlement,
+		arg.SourceRef,
+		arg.StartsAt,
+		arg.ExpiresAt,
+	)
+	var i EntitlementGrant
+	err := row.Scan(
+		&i.ID,
+		&i.AccountID,
+		&i.Entitlement,
+		&i.Source,
+		&i.SourceRef,
+		&i.StartsAt,
+		&i.ExpiresAt,
+		&i.RevokedAt,
+		&i.CreatedAt,
+	)
+	return i, err
 }
 
 const insertPassGrant = `-- name: InsertPassGrant :exec
@@ -242,6 +355,44 @@ func (q *Queries) InsertTestGrant(ctx context.Context, arg InsertTestGrantParams
 	return err
 }
 
+const listAccountGrants = `-- name: ListAccountGrants :many
+SELECT id, account_id, entitlement, source, source_ref, starts_at, expires_at, revoked_at, created_at
+FROM entitlement_grants
+WHERE account_id = $1
+ORDER BY starts_at DESC, id DESC
+`
+
+// 계정의 권한 행을 취소와 만료까지 전부 돌려줍니다. 최근 시작이 먼저입니다.
+func (q *Queries) ListAccountGrants(ctx context.Context, accountID uuid.UUID) ([]EntitlementGrant, error) {
+	rows, err := q.db.Query(ctx, listAccountGrants, accountID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []EntitlementGrant
+	for rows.Next() {
+		var i EntitlementGrant
+		if err := rows.Scan(
+			&i.ID,
+			&i.AccountID,
+			&i.Entitlement,
+			&i.Source,
+			&i.SourceRef,
+			&i.StartsAt,
+			&i.ExpiresAt,
+			&i.RevokedAt,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listAccountPurchases = `-- name: ListAccountPurchases :many
 SELECT p.id, p.product_id, p.purchased_at, p.refunded_at,
        g.starts_at AS segment_starts_at, g.expires_at AS segment_expires_at, g.revoked_at AS segment_revoked_at
@@ -307,7 +458,7 @@ func (q *Queries) ListAccountPurchases(ctx context.Context, accountID uuid.UUID)
 
 const listLiveGrants = `-- name: ListLiveGrants :many
 
-SELECT entitlement, source, starts_at, expires_at
+SELECT id, entitlement, source, starts_at, expires_at
 FROM entitlement_grants
 WHERE account_id = $1
   AND revoked_at IS NULL
@@ -321,6 +472,7 @@ type ListLiveGrantsParams struct {
 }
 
 type ListLiveGrantsRow struct {
+	ID          int64
 	Entitlement string
 	Source      string
 	StartsAt    time.Time
@@ -340,6 +492,7 @@ func (q *Queries) ListLiveGrants(ctx context.Context, arg ListLiveGrantsParams) 
 	for rows.Next() {
 		var i ListLiveGrantsRow
 		if err := rows.Scan(
+			&i.ID,
 			&i.Entitlement,
 			&i.Source,
 			&i.StartsAt,
@@ -450,6 +603,19 @@ func (q *Queries) ListPassSegments(ctx context.Context, accountID uuid.UUID) ([]
 		return nil, err
 	}
 	return items, nil
+}
+
+const lockAccountStatus = `-- name: LockAccountStatus :one
+SELECT status FROM accounts WHERE id = $1 FOR SHARE
+`
+
+// 운영자 부여와 회수(#1321)를 다룰 계정의 status입니다. 행이 없으면 없는 계정입니다.
+// FOR SHARE로 잡아 계정 삭제(FOR UPDATE)와 직렬화합니다.
+func (q *Queries) LockAccountStatus(ctx context.Context, accountID uuid.UUID) (string, error) {
+	row := q.db.QueryRow(ctx, lockAccountStatus, accountID)
+	var status string
+	err := row.Scan(&status)
+	return status, err
 }
 
 const lockActiveAccountForTestGrant = `-- name: LockActiveAccountForTestGrant :one
@@ -658,6 +824,37 @@ type RevokeGrantParams struct {
 func (q *Queries) RevokeGrant(ctx context.Context, arg RevokeGrantParams) error {
 	_, err := q.db.Exec(ctx, revokeGrant, arg.Now, arg.ID, arg.AccountID)
 	return err
+}
+
+const revokeGrantByID = `-- name: RevokeGrantByID :one
+UPDATE entitlement_grants
+SET revoked_at = $1::timestamptz
+WHERE id = $2 AND account_id = $3 AND revoked_at IS NULL
+RETURNING id, account_id, entitlement, source, source_ref, starts_at, expires_at, revoked_at, created_at
+`
+
+type RevokeGrantByIDParams struct {
+	Now       time.Time
+	ID        int64
+	AccountID uuid.UUID
+}
+
+// 아직 취소되지 않은 행만 취소하고 바뀐 행을 돌려줍니다.
+func (q *Queries) RevokeGrantByID(ctx context.Context, arg RevokeGrantByIDParams) (EntitlementGrant, error) {
+	row := q.db.QueryRow(ctx, revokeGrantByID, arg.Now, arg.ID, arg.AccountID)
+	var i EntitlementGrant
+	err := row.Scan(
+		&i.ID,
+		&i.AccountID,
+		&i.Entitlement,
+		&i.Source,
+		&i.SourceRef,
+		&i.StartsAt,
+		&i.ExpiresAt,
+		&i.RevokedAt,
+		&i.CreatedAt,
+	)
+	return i, err
 }
 
 const revokeTestGrants = `-- name: RevokeTestGrants :execrows

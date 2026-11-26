@@ -3,7 +3,7 @@
 -- name: ListLiveGrants :many
 -- 계정의 취소되지 않았고 아직 만료되지 않은 권한 행입니다. 시작 전인 행도 포함하므로 호출한 쪽이 starts_at을 봅니다.
 -- 순서는 (expires_at, id) 오름차순으로 고정합니다.
-SELECT entitlement, source, starts_at, expires_at
+SELECT id, entitlement, source, starts_at, expires_at
 FROM entitlement_grants
 WHERE account_id = @account_id
   AND revoked_at IS NULL
@@ -205,3 +205,43 @@ WHERE account_id = @account_id
   AND source = 'test_grant'
   AND revoked_at IS NULL
   AND expires_at > @now::timestamptz;
+
+-- name: LockAccountStatus :one
+-- 운영자 부여와 회수(#1321)를 다룰 계정의 status입니다. 행이 없으면 없는 계정입니다.
+-- FOR SHARE로 잡아 계정 삭제(FOR UPDATE)와 직렬화합니다.
+SELECT status FROM accounts WHERE id = @account_id FOR SHARE;
+
+-- name: InsertOperatorGrant :one
+-- 운영자가 준 권한 한 행입니다(#1321). 부여 묶음은 같은 source_ref를 씁니다.
+INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)
+VALUES (@account_id, @entitlement, 'operator', @source_ref, @starts_at, @expires_at)
+RETURNING *;
+
+-- name: GrantByID :one
+-- 회수할 행을 잠가 읽습니다. 다른 계정의 행은 없는 행으로 봅니다.
+SELECT *
+FROM entitlement_grants
+WHERE id = @id AND account_id = @account_id
+FOR UPDATE;
+
+-- name: GrantsBySourceRef :many
+-- 같은 계정, 같은 출처, 같은 source_ref 묶음을 잠가 읽습니다.
+SELECT *
+FROM entitlement_grants
+WHERE account_id = @account_id AND source = @source AND source_ref = @source_ref
+ORDER BY id
+FOR UPDATE;
+
+-- name: RevokeGrantByID :one
+-- 아직 취소되지 않은 행만 취소하고 바뀐 행을 돌려줍니다.
+UPDATE entitlement_grants
+SET revoked_at = @now::timestamptz
+WHERE id = @id AND account_id = @account_id AND revoked_at IS NULL
+RETURNING *;
+
+-- name: ListAccountGrants :many
+-- 계정의 권한 행을 취소와 만료까지 전부 돌려줍니다. 최근 시작이 먼저입니다.
+SELECT *
+FROM entitlement_grants
+WHERE account_id = @account_id
+ORDER BY starts_at DESC, id DESC;
