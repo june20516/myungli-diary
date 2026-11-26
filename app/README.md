@@ -268,7 +268,7 @@ uv run --with jsonschema --with pyyaml --with referencing --with rfc3339-validat
 
 * **갱신(로컬):** `tool/goldens_linux.sh`. Docker(linux/amd64)에서 기준 이미지를 만들어 `test/goldens/`에 되돌려 놓습니다. 반복 중에는 바꾼 golden 테스트 파일만 줍니다(`tool/goldens_linux.sh test/design/saju_golden_test.dart`). 이때는 다른 기준 이미지를 지우지 않으므로, golden을 지운 변경은 대상 없이 전체로 돌립니다.
 * **갱신(CI):** Actions에서 `app` workflow를 수동 실행하고(`workflow_dispatch`) `update_goldens`를 켭니다. `update-goldens` job이 `goldens` artifact로 올리면 받아서 `test/goldens/`에 덮어 commit합니다.
-* **Flutter 버전:** CI와 golden이 쓰는 버전은 `tool/golden_flutter_version` 한 곳(현재 3.47.7)에서 정합니다. `goldens_linux.sh`와 CI의 `checks`, `e2e-android`, `goldens`, `update-goldens` job이 모두 이 값을 읽습니다(A144). stable 최신을 받으면 SDK에 묶인 패키지가 바뀌어 `pubspec.lock` 생성 코드 차이 검사가 깨지기 때문입니다. Flutter를 올릴 때는 이 값과 로컬 Flutter를 함께 올리고, 같은 PR에서 `pubspec.lock`과 golden을 다시 만듭니다.
+* **Flutter 버전:** CI와 golden이 쓰는 버전은 `tool/golden_flutter_version` 한 곳(현재 3.47.7)에서 정합니다. `goldens_linux.sh`와 CI의 `checks`, `tests`, `e2e-android`, `goldens`, `update-goldens` job이 모두 이 값을 읽습니다(A144). stable 최신을 받으면 SDK에 묶인 패키지가 바뀌어 `pubspec.lock` 생성 코드 차이 검사가 깨지기 때문입니다. Flutter를 올릴 때는 이 값과 로컬 Flutter를 함께 올리고, 같은 PR에서 `pubspec.lock`과 golden을 다시 만듭니다.
 
 ### 화면 스크린샷 (#336)
 화면별·상태별 스크린샷을 golden과 같은 Linux 렌더(Docker)로 그려 `docs/artifacts/`에 등록합니다. 제품 지도가 `index.json`의 `screens`로 화면 카드 그림을 고릅니다.
@@ -335,7 +335,8 @@ tool/patrol_staging.sh patrol_test/diary_test.dart   # 흐름 하나
 ## CI (`.github/workflows/app.yml`)
 | job | 언제 | 하는 일 |
 | --- | --- | --- |
-| `checks` | `ci-gate` 호출(PR, `staging`과 `main` push), 수동 | `own`: format, 생성 코드 차이, ARB 검사(`mlw check-arb`), fixture 검증, analyze, 커버리지 ratchet, Widgetbook analyze·테스트, 테스트(golden 제외), Android debug 빌드(NDK·CMake 캐시). `drift`·`gate`: 생성 코드 차이, ARB 검사, fixture 검증, 커버리지 ratchet, `contract` 태그 테스트만 |
+| `checks` | `ci-gate` 호출(PR, `staging`과 `main` push), 수동 | `own`: format, 생성 코드 차이, ARB 검사(`mlw check-arb`), fixture 검증, analyze, 커버리지 ratchet, Widgetbook analyze·테스트, Android debug 빌드(NDK·CMake 캐시). `drift`·`gate`: 생성 코드 차이, ARB 검사, fixture 검증, 커버리지 ratchet, `contract` 태그 테스트만 |
+| `tests` | `ci-gate` 호출 중 `own`, 수동 | 테스트(golden 제외)를 `--total-shards 3`으로 나눠 job 3개가 동시에 돕니다. 한 job에서 13분쯤 걸려 `checks`가 시간 상한 30분에 가까워졌기 때문입니다(2026-11-26) |
 | `goldens` | `ci-gate` 호출 중 `own`, 수동 | `golden_flutter_version`의 Flutter로 golden 비교 |
 | `update-goldens` | 수동(`update_goldens`) | golden을 Linux에서 다시 만들어 artifact로 올림 |
 | `e2e-android` | `staging` push, 매일 03:00 KST, 수동 | Android 에뮬레이터에서 Patrol 실행, 스크린샷 artifact. PR에서는 돌지 않고 `ci-gate` 판정에도 넣지 않습니다 |

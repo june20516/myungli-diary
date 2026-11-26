@@ -32,6 +32,7 @@ import 'package:myungli_diary/design/components/sentence/term_token.dart';
 import 'package:myungli_diary/design/components/today/color_pair_sheet_body.dart';
 import 'package:myungli_diary/design/components/today/date_header.dart';
 import 'package:myungli_diary/design/components/today/lucky_card.dart';
+import 'package:myungli_diary/design/components/today/share_image.dart';
 import 'package:myungli_diary/design/components/today/tag_sentence_list.dart';
 import 'package:myungli_diary/design/components/today/time_band.dart';
 import 'package:myungli_diary/design/elements/app_icon.dart';
@@ -635,6 +636,9 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    // 공유는 로고를 먼저 읽고 그립니다. asset 디코딩은 실제 비동기라 가짜 시계의 pumpAndSettle이
+    // 기다려 주지 않으므로, 실행 속도에 따라 결과가 갈리지 않게 미리 캐시에 올려 둡니다.
+    await tester.runAsync(ShareImage.precache);
     await tester.tap(
       find.descendant(of: sheet, matching: find.byType(PrimaryButton)),
     );

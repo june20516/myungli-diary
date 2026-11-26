@@ -185,10 +185,7 @@ jobs:
         if: env.OWN == 'true'
         working-directory: app/widgetbook
         run: flutter test
-      # golden은 Flutter 버전을 고정한 goldens job이 비교한다(stable 추종과 분리).
-      - name: 테스트
-        if: env.OWN == 'true'
-        run: flutter test --exclude-tags golden
+      # own의 전체 테스트는 tests job이 나눠 돈다(golden은 goldens job).
       # 계약 파일을 읽는 테스트만 고른다. 태그를 붙일 곳은 test/contract/contract_tags_test.dart가 대조한다.
       - name: 계약 테스트
         if: env.OWN != 'true'
@@ -214,6 +211,43 @@ jobs:
           if [ -n "$new" ]; then
             echo "::warning title=NDK·CMake 캐시::캐시 키 밖의 설치가 있습니다:$new. app.yml의 ANDROID_CMAKE_VERSION 또는 키를 맞춥니다."
           fi
+
+  # 전체 테스트(golden 제외): own에서만, 3개로 나눠 동시에 돈다. 한 job에서 13분쯤 걸려 checks가
+  # 시간 상한(30분)에 가까워졌기 때문이다(2026-11-26). flutter test가 파일을 shard에 고르게 나눈다.
+  # 직접 실행은 checks와 같이 수동 실행만, 재사용 호출은 own에서만 돈다(D81).
+  tests:
+    if: >-
+      (github.workflow == 'app' && github.event_name == 'workflow_dispatch' && !inputs.e2e_diag_matrix)
+      || (github.workflow != 'app' && (inputs.mode || 'own') == 'own')
+    name: tests (${{ matrix.shard }}/3)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      # shard마다 다른 실패를 한 번에 보려고 하나가 실패해도 나머지를 끝까지 돌린다.
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2]
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      # checks와 같은 고정 버전이다(tool/golden_flutter_version).
+      - name: Flutter 버전 읽기
+        id: pinned-flutter
+        working-directory: .
+        run: |
+          version="$(app/tool/golden_flutter_version.sh)"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          channel: stable
+          flutter-version: ${{ steps.pinned-flutter.outputs.version }}
+          cache: true
+      - name: 의존성 받기
+        run: flutter pub get
+      - name: 테스트
+        run: flutter test --exclude-tags golden --total-shards 3 --shard-index ${{ matrix.shard }}
 
   # 기기 E2E: Android 에뮬레이터에서 Patrol을 돈다. PR에서는 돌지 않는다(비용·시간).
   # 재사용 호출(workflow_call)에서는 github.event_name이 호출 측 이벤트(ci-gate의 staging push 등)라
