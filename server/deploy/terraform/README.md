@@ -4,8 +4,8 @@
 
 | 디렉터리 | 누가 apply | 내용 |
 | --- | --- | --- |
-| `bootstrap/` | 사용자, 프로젝트마다 로컬에서 한 번(staging, prod, 부하 전용 load) | API, state bucket, Artifact Registry, WIF, `deployer`·`planner`, 알림 받는 곳(메일)과 예산(S133), Cloud Run 요청 로그 제외(S136), 로그 보관 90일(S164), 부하 프로젝트만 결과 bucket(L1-2b) |
-| `env/` | GitHub Actions(`deploy-server.yml`) | VPC, Cloud SQL, Secret 틀, Cloud Run 엔진·server, Job, Scheduler, 알림 정책과 uptime check(S133) |
+| `bootstrap/` | 사용자, 프로젝트마다 로컬에서 한 번(staging, prod, 부하 전용 load) | API, state bucket, Artifact Registry, WIF, `deployer`, `planner`, 알림 받는 곳(메일)과 예산(S133), Cloud Run 요청 로그 제외(S136), 로그 보관 90일(S164), 부하 프로젝트만 결과 bucket(L1-2b) |
+| `env/` | GitHub Actions(`deploy-server.yml`) | VPC, Cloud SQL, Secret 틀, Cloud Run 엔진과 server, Job, Scheduler, 알림 정책과 uptime check(S133) |
 
 ## 처음 한 번 (프로젝트마다)
 
@@ -50,8 +50,9 @@ env apply가 IAP를 켠 Cloud Run 서비스 `server-ops`, 서비스 계정 `serv
 
 * env apply 전에: bootstrap apply(IAP API, deployer의 `roles/iam.serviceAccountViewer`)와 IAP 서비스 에이전트 만들기(`gcloud services identity create --service=iap.googleapis.com --project=<프로젝트>`). 에이전트가 없으면 `server-ops`의 invoker 부여에서 apply가 실패합니다.
 * OAuth 동의 화면 외부, IAP용 맞춤 웹 OAuth 클라이언트, 데스크톱 OAuth 클라이언트(`programmatic_clients`)를 IAP 설정에 넣습니다(staging은 했음).
-* 운영자 메일은 개인정보라 tfvars에 두지 않습니다(D74). 운영자 IAP 접근(`roles/iap.httpsResourceAccessor`, 서비스 단위)과 `OPS_OPERATORS` 값은 runbook "운영자 등록과 빼기"의 명령으로 사람이 넣습니다. `OPS_OPERATORS`에 값이 없으면 `deploy-server`는 `server-ops` 갱신만 건너뜁니다.
-* 배포는 `server-ops` 갱신 전에 `server/deploy/check-ops-sa.sh`로 그 계정을 빌려 쓸 수 있는 주체를 검사하고, deployer 밖 주체가 있으면 멈춥니다. 고치는 법은 runbook "배포 검사가 멈췄을 때"입니다.
+* 운영자 메일은 개인정보라 tfvars에 두지 않습니다(D74). 운영자 IAP 접근(`roles/iap.httpsResourceAccessor`, 서비스 단위)과 `OPS_OPERATORS` 값은 runbook "운영자 등록과 빼기"의 명령으로 사람이 넣습니다. `OPS_OPERATORS`에 값이 없으면 `deploy-server`는 `server-ops` 갱신만 건너뜁니다. 값이 있으면 workflow가 Secret을 환경 변수가 아니라 볼륨(버전 `latest`, 경로는 `ops_env`의 `OPS_OPERATORS_FILE`)으로 붙이고, `server-ops`가 1분마다 다시 읽으므로 목록을 바꿀 때 다시 배포하지 않아도 됩니다. Terraform은 이 볼륨을 관리하지 않습니다(`ignore_changes`).
+* `ops_env`는 `DB_MIGRATOR_USER`, `DB_RUNTIME_USER`, `DB_OPS_USER`도 넘깁니다. `server-ops`가 기동 때 역할 분리와 예상 밖 로그인 role(사람 DB 계정)을 검사해 어긋나면 뜨지 않습니다(migrate와 같은 검사).
+* 배포는 `server-ops` 갱신 전에 `server/deploy/check-ops-sa.sh`로 그 계정을 빌려 쓸 수 있는 주체를 검사하고, deployer 밖 주체가 있거나, `iam.securityAdmin`, `iam.roleAdmin`, 커스텀 역할 바인딩이 있으면 멈춥니다. 폴더와 조직 단위 부여는 사람이 runbook 6절의 명령으로 확인합니다. 고치는 법은 runbook "배포 검사가 멈췄을 때"입니다.
 
 ### 법적 문서 사업자 정보
 
