@@ -1,0 +1,52 @@
+---
+// 앱 아이콘과 이름(V137 "재료"). ko는 워드마크 그림, en과 ja는 앱 이름 글자(워드마크가 한글뿐이라).
+import { Image } from "astro:assets";
+import { WORDMARK, icon } from "../assets/landing.ts";
+import type { Lang } from "../config/lang.ts";
+
+interface Props {
+  lang: Lang;
+  appName: string;
+}
+
+const { lang, appName } = Astro.props;
+---
+
+<p class="name">
+  <Image class="icon" src={icon} alt="" width={56} height={56} densities={[1, 2, 3]} format="webp" loading="eager" />
+  {
+    lang === "ko" ? (
+      <picture>
+        <source srcset={WORDMARK.dark} media="(prefers-color-scheme: dark)" />
+        <img class="wordmark" src={WORDMARK.light} alt={appName} width={WORDMARK.width} height={WORDMARK.height} />
+      </picture>
+    ) : (
+      <span class="text">{appName}</span>
+    )
+  }
+</p>
+
+<style>
+  .name {
+    display: flex;
+    align-items: center;
+    gap: var(--space-12);
+    margin: 0;
+  }
+  .icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 13px;
+  }
+  .wordmark {
+    width: auto;
+    height: 30px;
+  }
+  .text {
+    font-family: var(--type-title-font-family);
+    font-size: 26px;
+    font-weight: var(--type-title-font-weight);
+    letter-spacing: var(--type-title-letter-spacing);
+    line-height: 1;
+  }
+</style>

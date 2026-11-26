@@ -3,7 +3,7 @@ import { Resvg } from "@resvg/resvg-js";
 import satori from "satori";
 import type { Lang } from "../config/lang.ts";
 import { findD93 } from "../text/d93.ts";
-import { OG_FONTS, ensureFonts } from "./fonts.ts";
+import { FONTS, ensureFonts } from "../fonts/source.ts";
 
 export const OG_WIDTH = 1200;
 export const OG_HEIGHT = 630;
@@ -21,7 +21,7 @@ export async function renderOg(input: OgInput): Promise<Uint8Array<ArrayBuffer>>
   for (const [field, text] of [["title", input.title], ["tagline", input.tagline]] as const) {
     if (findD93(text).length > 0) throw new Error(`D93 문자가 든 OG ${field}: ${text}`);
   }
-  const [regular, bold] = input.lang === "ja" ? [OG_FONTS.jpRegular, OG_FONTS.jpBold] : [OG_FONTS.regular, OG_FONTS.bold];
+  const [regular, bold] = input.lang === "ja" ? [FONTS.jpRegular, FONTS.jpBold] : [FONTS.regular, FONTS.bold];
   const fonts = await ensureFonts([regular, bold]);
   const fontData = (name: string) => {
     const data = fonts.get(name);

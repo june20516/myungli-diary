@@ -1,9 +1,11 @@
 ---
-// 언어별 랜딩 최소 판. 시안(#1330)을 고른 뒤 화면을 다시 짭니다.
-import Footer from "../../components/Footer.astro";
-import LangSwitch from "../../components/LangSwitch.astro";
-import StoreBadges from "../../components/StoreBadges.astro";
+// 언어별 랜딩, design 명세 V137(A안 "오늘의 바탕"). 바탕 띠(이름, 한 줄 소개, 소개, 스토어 자리, 화면 사진)와 아래쪽.
+import AppName from "../../components/AppName.astro";
+import PageFoot from "../../components/PageFoot.astro";
+import ShotFan from "../../components/ShotFan.astro";
+import StoreSlot from "../../components/StoreSlot.astro";
 import { LANGS, type Lang } from "../../config/lang.ts";
+import { siteConfig } from "../../config/site.ts";
 import { loadCopy } from "../../copy/load.ts";
 import { OG_LOCALE } from "../../i18n/locale.ts";
 import Base from "../../layouts/Base.astro";
@@ -24,50 +26,57 @@ const copy = loadCopy(lang);
   ogImagePath={`/${lang}/og.png`}
   ogLocale={OG_LOCALE[lang]}
 >
-  <div class="page">
-    <header>
-      <LangSwitch current={lang} label={copy.text("web-landing.lang.label")} />
-    </header>
-    <main>
-      <h1>{copy.appName}</h1>
-      <p class="tagline">{copy.text("web-landing.hero.tagline")}</p>
+  <main class="hero">
+    <div class="hero-text">
+      <AppName lang={lang} appName={copy.appName} />
+      <h1 class="tagline">{copy.text("web-landing.hero.tagline")}</h1>
       <p class="body">{copy.text("web-landing.hero.body")}</p>
-      <StoreBadges copy={copy} />
-    </main>
-    <Footer lang={lang} copy={copy} />
-  </div>
+      <StoreSlot copy={copy} release={siteConfig.release} stores={siteConfig.stores} />
+    </div>
+    <ShotFan copy={copy} />
+  </main>
+  <PageFoot lang={lang} copy={copy} />
 </Base>
 
 <style>
-  .page {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-48);
+  .hero {
+    display: block;
+    overflow: hidden;
+    padding: clamp(var(--space-32), 7vw, 88px) var(--gutter) 0;
+    background: var(--gradient-today);
+  }
+  .hero-text {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-20);
     max-width: 720px;
-    min-height: 100vh;
     margin: 0 auto;
-    padding: var(--space-24) var(--space-20) 0;
-    box-sizing: border-box;
-  }
-  header {
-    display: flex;
-    justify-content: flex-end;
-  }
-  main {
-    flex: 1;
-  }
-  h1 {
-    margin: 0 0 var(--space-8);
-    font-size: var(--type-title-font-size);
-    font-weight: var(--type-title-font-weight);
+    text-align: center;
   }
   .tagline {
-    margin: 0 0 var(--space-24);
+    margin: var(--space-8) 0 0;
     font-family: var(--font-family-sentence);
-    font-size: var(--type-caption-lg-font-size);
+    font-size: clamp(28px, 4.2vw, 44px);
+    font-weight: 400;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
   }
   .body {
-    margin: 0 0 var(--space-32);
+    max-width: 34em;
+    margin: 0;
     color: var(--color-text-secondary);
+    font-size: 17px;
+    line-height: 1.65;
+    text-wrap: pretty;
+  }
+
+  @media (max-width: 600px) {
+    .tagline {
+      font-size: 26px;
+    }
+    .body {
+      font-size: 16px;
+    }
   }
 </style>

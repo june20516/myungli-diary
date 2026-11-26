@@ -1,12 +1,14 @@
 ---
 // 모든 페이지의 <head>: 제목, 설명, canonical, hreflang, OG.
 import "@myungli/tokens/tokens.css";
-import { LANGS } from "../config/lang.ts";
+import { LANGS, type Lang } from "../config/lang.ts";
 import { siteConfig } from "../config/site.ts";
+import { landingFonts } from "../fonts/landing.ts";
+import { fontFaceCss } from "../fonts/web.ts";
 
 interface Props {
-  /** <html lang>. 언어 고르기 페이지(/)는 en. */
-  htmlLang: string;
+  /** <html lang>와 웹 글꼴 언어. 언어 고르기 페이지(/)와 404는 en. */
+  htmlLang: Lang;
   title: string;
   description: string;
   /** origin 뒤 경로, 빗금으로 시작하고 끝남. 없으면(404) canonical과 og:url을 내지 않습니다. */
@@ -17,6 +19,7 @@ interface Props {
 
 const { htmlLang, title, description, path, ogImagePath, ogLocale } = Astro.props;
 const absolute = (pathname: string) => `${siteConfig.origin}${pathname}`;
+const fontCss = fontFaceCss(await landingFonts(htmlLang));
 ---
 
 <!doctype html>
@@ -39,6 +42,7 @@ const absolute = (pathname: string) => `${siteConfig.origin}${pathname}`;
     <meta property="og:image:height" content="630" />
     <meta property="og:locale" content={ogLocale} />
     <meta name="twitter:card" content="summary_large_image" />
+    <style set:html={fontCss}></style>
   </head>
   <body>
     <slot />
@@ -46,19 +50,37 @@ const absolute = (pathname: string) => `${siteConfig.origin}${pathname}`;
 </html>
 
 <style is:global>
+  /* V137 "글자와 줄바꿈", "테마, 포커스, 움직임". 다크는 토큰이 prefers-color-scheme로 바꿉니다. */
   :root {
     color-scheme: light dark;
+    --gutter: max(var(--space-20), 5vw);
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
   }
   body {
     margin: 0;
+    overflow-x: clip;
     background: var(--color-bg-base);
     color: var(--color-text-primary);
-    font-family: var(--font-family-ui);
-    font-size: var(--type-body-ui-font-size);
-    line-height: var(--type-body-ui-line-height);
-    letter-spacing: var(--type-body-ui-letter-spacing);
+    font-family: var(--type-body-ui-font-family);
+    font-size: 16px;
+    line-height: 1.55;
+    font-synthesis: none;
+  }
+  :root:lang(ko) body {
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  :root:lang(ja) body {
+    word-break: auto-phrase;
   }
   a {
     color: inherit;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-action-primary);
+    outline-offset: 3px;
+    border-radius: var(--radius-xs);
   }
 </style>

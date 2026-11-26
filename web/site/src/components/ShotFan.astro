@@ -1,0 +1,91 @@
+---
+// 화면 사진 세 장(V137 "화면 사진"): 가운데 오늘이 앞, 양옆 근거와 달력이 뒤. 아래쪽은 바탕 띠 끝에서 잘립니다.
+import { SHOT_SCENES, shot } from "../assets/landing.ts";
+import type { Copy } from "../copy/load.ts";
+
+interface Props {
+  copy: Copy;
+}
+
+const { copy } = Astro.props;
+const POSITION = { evidence: "back left", today: "front", calendar: "back right" } as const;
+---
+
+<div class="fan">
+  {
+    SHOT_SCENES.map((scene) => {
+      const image = shot(copy.lang, scene);
+      return (
+        <figure class:list={["shot", POSITION[scene]]}>
+          <img
+            src={image.src}
+            alt={copy.text("web-landing.shots.alt", scene)}
+            width={image.width}
+            height={image.height}
+            loading={scene === "today" ? "eager" : "lazy"}
+            data-scene={scene}
+          />
+        </figure>
+      );
+    })
+  }
+</div>
+
+<style>
+  .fan {
+    position: relative;
+    width: min(100%, 860px);
+    height: clamp(360px, 46vw, 500px);
+    margin: clamp(var(--space-32), 5vw, 64px) auto 0;
+  }
+  .shot {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: clamp(210px, 28vw, 300px);
+    margin: 0;
+  }
+  .shot img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 600 / 1282;
+    border-radius: var(--radius-xl);
+    background: var(--color-bg-sheet);
+    box-shadow: var(--shadow-raised);
+  }
+  .front {
+    z-index: 2;
+    transform: translateX(-50%);
+  }
+  .back {
+    z-index: 1;
+    top: clamp(28px, 4vw, 48px);
+    width: clamp(180px, 24vw, 260px);
+  }
+  .left {
+    transform: translateX(calc(-50% - clamp(130px, 22vw, 250px)));
+  }
+  .right {
+    transform: translateX(calc(-50% + clamp(130px, 22vw, 250px)));
+  }
+
+  @media (max-width: 600px) {
+    .fan {
+      height: 330px;
+    }
+    .front {
+      width: 200px;
+    }
+    .back {
+      top: 28px;
+      width: 168px;
+    }
+    .left {
+      transform: translateX(calc(-50% - 118px));
+    }
+    .right {
+      transform: translateX(calc(-50% + 118px));
+    }
+  }
+</style>

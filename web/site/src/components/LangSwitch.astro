@@ -1,4 +1,5 @@
 ---
+// 언어 바꾸기(V137 "아래쪽"). 각 언어 이름은 그 언어로 씁니다(원고 아님).
 import { LANGS, type Lang } from "../config/lang.ts";
 import { LANG_NATIVE_NAME } from "../i18n/locale.ts";
 
@@ -10,34 +11,24 @@ interface Props {
 const { current, label } = Astro.props;
 ---
 
-<nav aria-label={label}>
-  <ul>
-    {
-      LANGS.map((lang) => (
-        <li>
-          <a href={`/${lang}/`} hreflang={lang} lang={lang} aria-current={lang === current ? "page" : undefined}>
-            {LANG_NATIVE_NAME[lang]}
-          </a>
-        </li>
-      ))
-    }
-  </ul>
+<nav class="lang" aria-label={label}>
+  {
+    LANGS.map((lang) => (
+      <a href={`/${lang}/`} hreflang={lang} lang={lang} aria-current={lang === current ? "page" : undefined}>
+        {LANG_NATIVE_NAME[lang]}
+      </a>
+    ))
+  }
 </nav>
 
 <style>
-  ul {
+  .lang {
     display: flex;
-    gap: var(--space-12);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  a {
-    color: var(--color-text-secondary);
-    text-decoration: none;
+    flex-wrap: wrap;
+    gap: 0 var(--space-4);
   }
   a[aria-current="page"] {
-    color: var(--color-text-primary);
-    font-weight: 600;
+    color: var(--color-action-primary);
+    font-weight: var(--type-label-lg-font-weight);
   }
 </style>
