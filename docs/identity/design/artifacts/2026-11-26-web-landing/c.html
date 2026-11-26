@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>명리일기 랜딩 C안</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Zen+Maru+Gothic&display=swap">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="landing.css">
+<style>
+/* C안 하루의 흐름
+   VOICE 하루를 따라 넘기는 이야기, 한 화면에 한 문장
+   IDEA 아침에 오늘을 열고, 근거를 읽고, 달력으로 약속을 잡고, 밤에 그날을 적는 하루
+   PICTURE 화면 네 장이 각자 gradient.today 판 위에서 아래로 넘쳐 잘리고, 옆에 스토어 스크린샷 글
+   COLOUR 바탕 bg.base, 판 gradient.today, 글 text.primary
+   TYPE 한 줄 소개는 UI 글꼴 display 굵기, 화면마다 붙는 글은 문장 글꼴(고운돋움). 왼쪽 정렬 */
+.wrap { max-width: var(--page-max); margin: 0 auto; padding: 0 var(--gutter); }
+.intro { padding: clamp(var(--space-32), 6vw, 80px) 0 clamp(var(--space-32), 5vw, 64px); display: grid; gap: var(--space-24); }
+.intro-text { display: grid; gap: var(--space-20); max-width: 36em; }
+.tagline {
+  margin: var(--space-8) 0 0; font-family: var(--type-display-font-family); font-weight: var(--type-display-font-weight);
+  font-size: clamp(30px, 4.4vw, 52px); line-height: 1.2; letter-spacing: -0.025em; text-wrap: balance; max-width: 16em;
+}
+.body { margin: 0; color: var(--color-text-secondary); font-size: 17px; line-height: 1.65; text-wrap: pretty; }
+
+.flow { display: grid; gap: clamp(var(--space-24), 3vw, var(--space-32)); padding-bottom: clamp(var(--space-48), 7vw, 96px); }
+.step {
+  display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); align-items: center; gap: clamp(var(--space-24), 5vw, 72px);
+}
+.step:nth-child(even) { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); }
+.step:nth-child(even) .board { order: 2; }
+.board {
+  background: var(--gradient-today); border-radius: var(--radius-xl); overflow: hidden;
+  height: clamp(340px, 38vw, 460px); padding: clamp(var(--space-32), 4vw, var(--space-48)) 0 0;
+  display: flex; justify-content: center;
+}
+.board .shot { width: clamp(220px, 22vw, 280px); }
+.caption {
+  margin: 0; font-family: var(--font-family-sentence); font-weight: 400;
+  font-size: clamp(24px, 2.8vw, 34px); line-height: 1.45; letter-spacing: -0.01em;
+}
+.page-foot { border-top: var(--border-width-hairline) solid var(--color-line); padding: var(--space-16) 0 var(--space-32); }
+
+@media (max-width: 720px) {
+  .step, .step:nth-child(even) { grid-template-columns: minmax(0, 1fr); gap: var(--space-16); }
+  .step:nth-child(even) .board { order: 0; }
+  .step .caption { order: -1; font-size: 24px; }
+  .board { height: 320px; }
+  .board .shot { width: 210px; }
+  .page-foot .foot { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="intro">
+    <a class="name" href="#">
+      <img class="icon" src="icon.webp" alt="" width="56" height="56">
+      <img class="wordmark on-light" src="wordmark.svg" alt="명리일기" width="107" height="30">
+      <img class="wordmark on-dark" src="wordmark-dark.svg" alt="명리일기" width="107" height="30">
+      <span data-app-name></span>
+    </a>
+    <div class="intro-text">
+      <h1 class="tagline" data-slot="web-landing.hero.tagline"></h1>
+      <p class="body" data-slot="web-landing.hero.body"></p>
+      <div class="store">
+        <p class="soon" data-slot="web-landing.store.soon"></p>
+        <div class="badges">
+          <a class="badge apple" href="#" aria-label="" data-slot="web-landing.store.apple">App Store 공식 배지</a>
+          <a class="badge google" href="#" aria-label="" data-slot="web-landing.store.google">Google Play 공식 배지</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="flow">
+    <section class="step">
+      <div class="board"><figure class="shot" data-note="web-landing.shots.alt"><img data-scene="today" data-slot="web-landing.shots.alt" alt=""></figure></div>
+      <p class="caption" data-slot="web-landing.shots.caption" data-scene="today"></p>
+    </section>
+    <section class="step">
+      <div class="board"><figure class="shot"><img data-scene="evidence" data-slot="web-landing.shots.alt" alt=""></figure></div>
+      <p class="caption" data-slot="web-landing.shots.caption" data-scene="evidence"></p>
+    </section>
+    <section class="step">
+      <div class="board"><figure class="shot"><img data-scene="calendar" data-slot="web-landing.shots.alt" alt=""></figure></div>
+      <p class="caption" data-slot="web-landing.shots.caption" data-scene="calendar"></p>
+    </section>
+    <section class="step">
+      <div class="board"><figure class="shot"><img data-scene="daySheet" data-slot="web-landing.shots.alt" alt=""></figure></div>
+      <p class="caption" data-slot="web-landing.shots.caption" data-scene="daySheet"></p>
+    </section>
+  </main>
+
+
+  <footer class="page-foot">
+    <div class="foot">
+      <nav>
+        <a data-slot="web-landing.footer.terms" href="#"></a>
+        <a data-slot="web-landing.footer.privacy" href="#"></a>
+        <a data-slot="web-landing.footer.support" href="#"></a>
+      </nav>
+      <nav class="lang" aria-label="" data-slot="web-landing.lang.label"></nav>
+    </div>
+  </footer>
+</div>
+<script src="copy.js"></script>
+<script src="landing.js"></script>
+</body>
+</html>

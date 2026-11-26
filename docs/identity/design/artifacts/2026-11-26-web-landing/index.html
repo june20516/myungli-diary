@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>랜딩 시안 비교</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="landing.css">
+<style>
+/* 비교 페이지(#1330). 세 안을 데스크톱 1280과 모바일 390으로 나란히 둡니다.
+   VOICE 작업 문서, 차분하게. IDEA 시안 판을 벽에 나란히 붙인 검토 벽.
+   PICTURE 안마다 실제 폭 그대로 렌더한 두 틀. COLOUR 토큰 bg.base와 sage. TYPE Pretendard. LAYOUT 위에 조작, 안마다 띠 하나 */
+:root { color-scheme: light; }
+body { background: var(--color-neutral-100); }
+.page { max-width: 1320px; margin: 0 auto; padding: var(--space-32) var(--space-20) 80px; display: grid; gap: var(--space-32); }
+h1 { margin: 0; font-size: clamp(24px, 3vw, 32px); line-height: 1.2; letter-spacing: -0.02em; text-wrap: balance; }
+h2 { margin: 0; font-size: 22px; letter-spacing: -0.02em; }
+h3 { margin: 0 0 var(--space-8); font-size: 15px; }
+p, li { max-width: 72em; }
+.lead { margin: var(--space-8) 0 0; color: var(--color-text-secondary); }
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-16); }
+.note { background: var(--color-white); border-radius: var(--radius-lg); padding: var(--space-20); font-size: 14px; line-height: 1.6; }
+.note ul { margin: 0; padding-left: 1.1em; } .note li { margin: 3px 0; }
+
+.controls {
+  position: sticky; top: 0; z-index: 10; display: flex; flex-wrap: wrap; gap: var(--space-12) var(--space-24); align-items: center;
+  padding: var(--space-12) var(--space-16); background: rgb(238 238 237 / 0.92); backdrop-filter: blur(8px);
+  border-radius: var(--radius-md); border: var(--border-width-hairline) solid var(--color-line);
+}
+.seg { display: flex; align-items: center; gap: var(--space-8); font-size: 13px; color: var(--color-text-secondary); }
+.seg div { display: flex; background: var(--color-white); border-radius: var(--radius-full); padding: 3px; }
+.seg button {
+  min-height: 36px; padding: 0 var(--space-12); border: 0; border-radius: var(--radius-full); background: transparent;
+  font: 500 14px/1 Pretendard, sans-serif; color: var(--color-text-primary); cursor: pointer;
+}
+.seg button[aria-pressed="true"] { background: var(--color-action-primary); color: var(--color-action-on-primary); }
+
+.option { background: var(--color-white); border-radius: var(--radius-xl); padding: clamp(var(--space-20), 3vw, var(--space-32)); display: grid; gap: var(--space-20); }
+.option-head { display: grid; gap: var(--space-8); }
+.option-head p { margin: 0; color: var(--color-text-secondary); }
+.tag { display: inline-block; margin-left: var(--space-8); padding: 2px 10px; border-radius: var(--radius-full); font-size: 12px; font-weight: 600; vertical-align: 3px; background: var(--color-term-bg); color: var(--color-term-fg); }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--space-8) var(--space-24); font-size: 14px; margin: 0; padding: 0; list-style: none; }
+.facts li { padding-left: var(--space-16); position: relative; } .facts li::before { content: ""; position: absolute; left: 2px; top: 0.6em; width: 6px; height: 6px; border-radius: 50%; background: var(--color-sage-400); }
+.frames { display: grid; grid-template-columns: minmax(0, 1fr) 390px; gap: var(--space-24); align-items: start; }
+.frame { margin: 0; display: grid; gap: var(--space-8); }
+.frame figcaption { font-size: 12px; color: var(--color-text-secondary); display: flex; justify-content: space-between; gap: var(--space-8); }
+.frame figcaption a { color: var(--color-action-primary); }
+.screen { position: relative; overflow: hidden; border-radius: var(--radius-md); border: 1px solid var(--color-line); background: var(--color-white); }
+.screen iframe { position: absolute; top: 0; left: 0; border: 0; transform-origin: 0 0; }
+.desk .screen iframe { width: 1280px; }
+.mobile .screen iframe { width: 390px; }
+
+@media (max-width: 960px) { .frames { grid-template-columns: minmax(0, 1fr); } .mobile { max-width: 390px; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <h1>WB1 랜딩 웹 시안 세 안 (#1330)</h1>
+    <p class="lead">myungli-diary.app 첫 화면을 고르는 비교판입니다. 세 안 모두 같은 구성(이름과 한 줄 소개, 앱 화면, 스토어 자리, 약관과 처리방침과 지원 링크, 언어 바꾸기)이고, 색과 글자와 간격은 web이 쓰는 토큰 CSS(<code>web/packages/tokens/tokens.css</code>, 토큰 1.11.0)만 씁니다. 틀 안은 실제 폭으로 렌더한 페이지이고 스크롤해 볼 수 있습니다.</p>
+  </header>
+
+  <section class="notes">
+    <div class="note">
+      <h3>세 안 공통</h3>
+      <ul>
+        <li>글은 writing 원고 전 자리 문구입니다. 한 줄 소개와 소개 문장은 스토어 등록정보 원고(부제, 홍보 문구)를 빌렸습니다. "슬롯 id 보기"를 켜면 자리마다 <code>docs/ia/site.json</code> 슬롯 id가 보입니다.</li>
+        <li>앱 화면은 스토어 스크린샷(빌드 11 금빛 판)의 화면 판을 잘라 썼습니다. 다크에서도 화면 사진은 라이트입니다.</li>
+        <li>이름은 ko에서 워드마크 SVG, en과 ja에서는 스토어 앱 이름(Myungli Diary, 命理日記)을 UI 글꼴로 씁니다. 워드마크가 한글뿐이라서입니다.</li>
+      </ul>
+    </div>
+    <div class="note">
+      <h3>스토어 배지 규정 (2026-11-26 공식 문서 확인)</h3>
+      <ul>
+        <li>출시 전에는 배지 없이 "곧 나와요" 한 줄만 둡니다. 두 규정 모두 출시 전 배지 사용을 다루지 않고, 공식 배지는 스토어 페이지로 보내는 용도입니다.</li>
+        <li>출시 뒤: 공식 파일 그대로(고치거나 기울이거나 움직이지 않음), 언어별 배지, Apple은 검은 배지, 화면 높이 40px 이상, 둘레 여백은 배지 높이의 1/4 이상, App Store를 먼저, Google Play는 App Store와 같거나 크게, App Store 배지는 한 화면에 하나.</li>
+        <li>시안의 점선 상자는 배지 자리(높이 48)입니다. 흉내 그림은 규정 위반이라 그리지 않았습니다. 출시 뒤에는 Apple 상표 고지 줄이 필요해 IA 슬롯을 더해야 합니다.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="controls" role="group" aria-label="시안 상태">
+    <div class="seg">언어<div data-key="lang"><button data-value="ko">한국어</button><button data-value="en">English</button><button data-value="ja">日本語</button></div></div>
+    <div class="seg">스토어<div data-key="store"><button data-value="soon">출시 전</button><button data-value="live">출시 뒤</button></div></div>
+    <div class="seg">테마<div data-key="theme"><button data-value="light">라이트</button><button data-value="dark">다크</button></div></div>
+    <div class="seg">슬롯 id<div data-key="slots"><button data-value="off">숨김</button><button data-value="slots">보기</button></div></div>
+  </div>
+
+  <section class="option" data-option="a">
+    <div class="option-head">
+      <h2>A안 오늘의 바탕<span class="tag">추천</span></h2>
+      <p>앱 오늘 화면의 바탕(<code>gradient.today</code>) 띠 위에 이름, 한 줄 소개, 스토어 자리를 가운데로 모으고, 그 아래 화면 세 장(근거, 오늘, 달력)을 겹쳐 세워 띠 끝에서 자릅니다. 스토어 스크린샷 틀과 같은 첫인상이라, 스토어에서 넘어온 사람에게 같은 앱으로 읽힙니다. 첫 화면 하나로 끝나서 한눈에 보기 가장 쉽습니다.</p>
+    </div>
+    <ul class="facts">
+      <li>한 줄 소개는 문장 글꼴(고운돋움) 28~44px</li>
+      <li>화면 3장, 넘김 조작 없음</li>
+      <li>IA 슬롯 추가 없음</li>
+      <li>스크롤 거의 없이 끝나는 한 화면</li>
+    </ul>
+    <div class="frames">
+      <figure class="frame desk"><figcaption><span>데스크톱 1280</span><a href="a.html" target="_blank" rel="noopener">따로 열기</a></figcaption><div class="screen"><iframe name="a-desk" title="A안 데스크톱" data-page="a.html"></iframe></div></figure>
+      <figure class="frame mobile"><figcaption><span>모바일 390</span></figcaption><div class="screen"><iframe name="a-mobile" title="A안 모바일" data-page="a.html"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section class="option" data-option="b">
+    <div class="option-head">
+      <h2>B안 펼친 공책</h2>
+      <p>앱 아이콘의 세이지 공책을 펼친 모습입니다. 왼쪽 흰 속지에 이름과 소개와 스토어 자리를, 오른쪽 표지 면(<code>color.sage.700</code>, 다크 <code>sage.900</code>)에 화면 네 장을 옆으로 넘겨 봅니다. 색 면이 커서 가장 또렷하게 기억되고, 소개 문장은 앱 풀이와 같은 문장 글꼴입니다. 모바일에서는 글 아래로 표지 띠가 이어집니다.</p>
+    </div>
+    <ul class="facts">
+      <li>한 줄 소개는 UI 글꼴 display 굵기 30~44px</li>
+      <li>화면 4장, 옆으로 넘김(이전, 다음 단추와 방향키)</li>
+      <li>IA 슬롯 추가: 넘김 단추 이름 둘</li>
+      <li>표지색은 원시 토큰 sage를 직접 씀(의미 토큰 없음)</li>
+    </ul>
+    <div class="frames">
+      <figure class="frame desk"><figcaption><span>데스크톱 1280</span><a href="b.html" target="_blank" rel="noopener">따로 열기</a></figcaption><div class="screen"><iframe name="b-desk" title="B안 데스크톱" data-page="b.html"></iframe></div></figure>
+      <figure class="frame mobile"><figcaption><span>모바일 390</span></figcaption><div class="screen"><iframe name="b-mobile" title="B안 모바일" data-page="b.html"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section class="option" data-option="c">
+    <div class="option-head">
+      <h2>C안 하루의 흐름</h2>
+      <p>위에는 이름, 한 줄 소개, 스토어 자리만 두고, 아래로 오늘, 근거, 달력, 그날 시트 네 화면이 번갈아 나오며 화면마다 한 문장이 붙습니다. 하루를 따라가며 앱이 무엇을 하는지 가장 자세히 보여 줘서, 피처링 심사나 광고로 처음 온 사람에게 설명이 가장 많습니다. 대신 길고, 문장 슬롯이 늘어납니다.</p>
+    </div>
+    <ul class="facts">
+      <li>화면마다 붙는 글은 문장 글꼴 24~34px</li>
+      <li>화면 4장, 세로로 이어짐</li>
+      <li>IA 슬롯 추가: 화면별 글 넷(시안은 스토어 스크린샷 원고를 빌림)</li>
+      <li>가장 긴 페이지(데스크톱 약 2.5화면)</li>
+    </ul>
+    <div class="frames">
+      <figure class="frame desk"><figcaption><span>데스크톱 1280</span><a href="c.html" target="_blank" rel="noopener">따로 열기</a></figcaption><div class="screen"><iframe name="c-desk" title="C안 데스크톱" data-page="c.html"></iframe></div></figure>
+      <figure class="frame mobile"><figcaption><span>모바일 390</span></figcaption><div class="screen"><iframe name="c-mobile" title="C안 모바일" data-page="c.html"></iframe></div></figure>
+    </div>
+  </section>
+</div>
+<script>
+{
+  const state = { lang: "ko", store: "soon", theme: "light", slots: "off" };
+  const heights = {};
+  const frames = [...document.querySelectorAll("iframe[data-page]")];
+
+  const hash = () => [state.lang, state.store, state.theme, state.slots === "slots" ? "slots" : ""].filter(Boolean).join("-");
+
+  const layout = () => {
+    for (const frame of frames) {
+      const isDesk = frame.name.endsWith("desk");
+      const box = frame.parentElement;
+      const scale = isDesk ? box.clientWidth / 1280 : Math.min(1, box.clientWidth / 390);
+      const height = heights[frame.name] || (isDesk ? 820 : 844);
+      frame.style.height = `${height}px`;
+      frame.style.transform = `scale(${scale})`;
+      box.style.height = `${Math.ceil(height * scale)}px`;
+    }
+  };
+
+  const apply = (reload) => {
+    for (const frame of frames) {
+      const url = `${frame.dataset.page}#${hash()}`;
+      if (reload || !frame.getAttribute("src")) frame.setAttribute("src", url);
+      else frame.contentWindow.location.hash = hash();
+    }
+    for (const group of document.querySelectorAll(".seg [data-key]")) {
+      for (const button of group.querySelectorAll("button")) {
+        button.setAttribute("aria-pressed", String(button.dataset.value === state[group.dataset.key]));
+      }
+    }
+  };
+
+  document.querySelectorAll(".seg [data-key]").forEach((group) => {
+    group.addEventListener("click", (event) => {
+      const button = event.target.closest("button");
+      if (!button) return;
+      state[group.dataset.key] = button.dataset.value;
+      apply(false);
+    });
+  });
+
+  window.addEventListener("message", (event) => {
+    const data = event.data;
+    if (!data || typeof data.landingHeight !== "number" || typeof data.frame !== "string") return;
+    heights[data.frame] = Math.min(Math.max(data.landingHeight, 600), 6000);
+    layout();
+  });
+
+  new ResizeObserver(layout).observe(document.querySelector(".page"));
+  apply(true);
+  layout();
+}
+</script>
+</body>
+</html>

@@ -33,7 +33,7 @@
 ## 현재 상태
 진행 중인 일만 적고, 병합하면 지웁니다(`docs/workflow.md` §3 마무리 2번). 병합된 일의 경과는 PR 본문, 결정 행([`decisions.md`](decisions.md)), git에 있습니다.
 
-* **길일 붉은 계열 빼기, 길 금빛과 유료 자색 #1294** (브랜치 `design/palette-1294`, D142, 결정 V136, 토큰 1.11.0, 컴포넌트 명세 9.0.1): 원시 팔레트 `color.gold`, 좋은 날과 귀인의 날 배지, 좋은 태그, 달력 길일 칸 금빛, `gradient.unlocked` 가운데 자색. coral은 sage 짝 자리(오늘 바탕, 열림 끝, 로고 낙관)에 남김. 빌드 11에 실림. 같은 PR에 #1286(캐시 저장 조건 staging), #1237(Action SHA 고정).
+* **WB1 랜딩 웹 시안 #1330** (브랜치 `design/landing-1330`, D105, D144~D146): 세 안(A 오늘의 바탕, B 펼친 공책, C 하루의 흐름)을 `artifacts/2026-11-26-web-landing/`에 두고 비공개 페이지 "랜딩 시안 비교 (#1330)"로 게시. 지휘가 사용자에게 안을 묻는 중. 고르면 결정(V 번호)과 web 구현 명세(간격, 크기, 색 토큰 이름, 폭별 배치)를 남기고 #1330을 닫음.
 
 ## 기준 문서와 도구
 * 시각 정체성: [`visual-identity.md`](visual-identity.md)(시각에 관해서는 비공개 기록 06을 대체). 색 값의 출처는 [`tools/palette.py`](tools/palette.py)(`--check`로 대비 검사).
@@ -55,10 +55,10 @@
 * 워드마크를 바꾸면 `uv run --with fonttools==4.54.1 python docs/identity/design/tools/wordmark.py --font .suberpowers/fonts/GowunDodum-Regular.ttf --out-dir docs/identity/design/logo` 뒤 위 `app_icon.py`로 가로 조합 PNG를 다시 만듭니다.
 
 ## 다음 할 일
-1. **#1294 마무리:** PR 병합 뒤 "현재 상태"에서 지우고 #1294에 완료 보고를 남깁니다. app 토큰 drift(1.11.0)가 빌드 11에 실리는지 봅니다.
-   * app이 새 색으로 스토어 이미지를 다시 만들면 명세(`store/`)대로인지 봅니다: 장면 순서, 틀 수치, 글 넘침, 근거 장면 한자. 바탕 `gradient.today`는 그대로입니다.
+1. **#1330 마무리:** 사용자가 고른 안을 결정 행(V)으로 기록하고, web이 구현할 명세를 `docs/identity/design/`에 남깁니다. 고른 안에 따라 IA 슬롯 추가(B 넘김 단추 이름, C 화면별 글)와 출시 뒤 Apple 상표 고지 줄 슬롯을 지휘에 요청합니다. 그 전까지 PR은 draft로 둡니다.
 
 그 밖에는 대기합니다. 아래 일이 생기면 엽니다.
 2. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다.
 3. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
 4. app이 토큰 형식 변경을 요청하면 계약 버전 규칙(`tokens/README.md`)대로 대응합니다.
+5. app이 스토어 이미지를 다시 만들면 명세(`store/`)대로인지 봅니다: 장면 순서, 틀 수치, 글 넘침, 근거 장면 한자.

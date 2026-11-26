@@ -1,0 +1,83 @@
+/* WB1 랜딩 시안 공통(#1330). 색, 글자, 간격, 모서리는 tokens.css(web/packages/tokens 생성물) 변수만 씁니다.
+   여기 숫자로 적힌 값은 토큰에 없는 페이지 배치 값(최대 폭, 화면 사진 크기)뿐입니다. */
+
+/* 글꼴: Pretendard와 Pretendard JP는 시안 글자만 남긴 부분 집합(fonts/), 고운돋움과 Zen Maru Gothic은 Google Fonts */
+@font-face { font-family: Pretendard; font-weight: 400; font-display: swap; src: url(fonts/pretendard-400.woff2) format("woff2"); }
+@font-face { font-family: Pretendard; font-weight: 500; font-display: swap; src: url(fonts/pretendard-500.woff2) format("woff2"); }
+@font-face { font-family: Pretendard; font-weight: 600; font-display: swap; src: url(fonts/pretendard-600.woff2) format("woff2"); }
+@font-face { font-family: "Pretendard JP"; font-weight: 400 600; font-display: swap; src: url(fonts/pretendard-jp-400.woff2) format("woff2"); }
+
+:root { color-scheme: light; --page-max: 1120px; --gutter: max(var(--space-20), 5vw); }
+:root.dark { color-scheme: dark; }
+* { box-sizing: border-box; min-width: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--color-bg-base); color: var(--color-text-primary); overflow-x: clip;
+  font-family: var(--type-body-ui-font-family); font-size: 16px; line-height: 1.55; font-synthesis: none;
+}
+:root:lang(ko) body { word-break: keep-all; overflow-wrap: break-word; }
+:root:lang(ja) h1, :root:lang(ja) .caption { word-break: auto-phrase; }
+img { display: block; max-width: 100%; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--color-action-primary); outline-offset: 3px; border-radius: var(--radius-xs); }
+
+/* 이름: ko는 워드마크 SVG, en과 ja는 앱 이름 글자(워드마크가 한글뿐이라) */
+.name { display: flex; align-items: center; gap: var(--space-12); text-decoration: none; }
+.name .icon { width: 56px; height: 56px; border-radius: 13px; }
+.name .wordmark { height: 30px; width: auto; }
+.name .wordmark.on-dark, :root.dark .name .wordmark.on-light { display: none; }
+:root.dark .name .wordmark.on-dark { display: block; }
+.name [data-app-name] {
+  font-family: var(--type-title-font-family); font-size: 26px; font-weight: var(--type-title-font-weight);
+  letter-spacing: var(--type-title-letter-spacing); line-height: 1;
+}
+:root:lang(ko) .name [data-app-name] { display: none; }
+:root:not(:lang(ko)) .name .wordmark { display: none !important; }
+
+/* 화면 사진: 스토어 스크린샷(빌드 11 금빛 판)의 화면 판, 폭 600 webp */
+.shot { margin: 0; }
+.shot img {
+  width: 100%; height: auto; aspect-ratio: 600 / 1282; border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-raised); background: var(--color-bg-sheet);
+}
+
+/* 스토어: 출시 전은 안내 한 줄, 출시 뒤는 공식 배지 두 개(App Store 먼저, 같은 높이) */
+.store { display: flex; flex-wrap: wrap; gap: var(--space-12); align-items: center; }
+.soon {
+  margin: 0; display: inline-flex; align-items: center; gap: var(--space-8); min-height: 44px;
+  padding: var(--space-8) var(--space-20); border-radius: var(--radius-full);
+  background: var(--color-chip-bg); border: var(--border-width-hairline) solid var(--color-badge-ordinary-border);
+  font-size: var(--type-label-lg-font-size); font-weight: var(--type-label-lg-font-weight);
+  letter-spacing: var(--type-label-lg-letter-spacing); color: var(--color-text-primary);
+}
+.soon::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--color-badge-good-bg); flex: none; }
+.badges { display: flex; flex-wrap: wrap; gap: var(--space-16); }
+.badge {
+  /* 공식 배지 파일 자리. 시안에서는 흉내 그림 대신 크기만 보입니다 */
+  display: grid; place-items: center; height: 48px; padding: 0 var(--space-12);
+  border-radius: var(--radius-sm); border: 1px dashed var(--color-text-secondary);
+  font-size: var(--type-caption-md-font-size); color: var(--color-text-secondary); text-decoration: none; white-space: nowrap;
+}
+.badge.apple { width: 144px; }
+.badge.google { width: 162px; }
+:root[data-store="soon"] .badges, :root[data-store="live"] .soon { display: none; }
+
+/* 아래쪽: 법적 문서와 지원 링크, 언어 바꾸기 */
+.foot {
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-16) var(--space-32);
+  font-size: var(--type-label-md-font-size); font-weight: var(--type-label-md-font-weight); color: var(--color-text-secondary);
+}
+.foot nav { display: flex; flex-wrap: wrap; gap: 0 var(--space-4); }
+.foot a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 var(--space-8); text-decoration: none; }
+.foot a:hover { color: var(--color-text-primary); text-decoration: underline; text-underline-offset: 3px; }
+.lang a[aria-current] { color: var(--color-action-primary); font-weight: var(--type-label-lg-font-weight); }
+
+/* 슬롯 id 표시(비교 페이지의 "슬롯 id 보기") */
+.show-slots [data-slot]:not(img), .show-slots [data-note] { outline: 1px dashed #7a5b9c; outline-offset: 2px; position: relative; }
+.show-slots [data-slot]:not(img)::after, .show-slots [data-note]::after {
+  content: attr(data-slot) attr(data-note); position: absolute; left: 0; top: 100%; z-index: 5; margin-top: 3px;
+  padding: 1px 6px; border-radius: 4px; background: #7a5b9c; color: #fff;
+  font: 500 11px/1.4 Pretendard, sans-serif; letter-spacing: 0; white-space: nowrap; pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
