@@ -444,7 +444,7 @@ func TestOps_TextStripsTerminalControlCharacters(t *testing.T) {
 	require.Equal(t, 0, code, "stderr = %q", stderr)
 	assert.NotContains(t, stdout, "\x1b")
 	assert.NotContains(t, stdout, "\u009b")
-	assert.Contains(t, stdout, "빨강�[31m글자�끝\n둘째 줄\t탭")
+	assert.Contains(t, stdout, "빨강\ufffd[31m글자\ufffd끝\n둘째 줄\t탭")
 
 	// JSON은 이스케이프되어 그대로입니다.
 	_, stdout, _ = runCLIWithEnv(t, env, "ops", "content", "diary", "--account", id.String(), "--date", "2026-11-20", "--purpose", "inquiry", "--reason", opsReason, "--json")
