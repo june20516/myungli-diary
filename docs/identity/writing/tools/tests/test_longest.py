@@ -59,6 +59,15 @@ def test_keys_source_takes_longest_text_of_same_lang() -> None:
     assert longest_param_value("login-methods.unlink.confirm", "provider", values("ko")) == "구글"
 
 
+def test_values_asked_in_1362_are_measured() -> None:
+    # design V138: 사주 줄과 구매 기간은 짧은 날짜(yMd), 문의 번호는 32자리 hex입니다.
+    assert longest_param_value("ui.account-merge.saju", "date", values("ko")) == "2026. 12. 31."
+    assert longest_param_value("ui.purchase.meta", "start", values("ko")) == "2026. 12. 31."
+    assert longest_param_value("ui.purchase.meta", "end", values()) == "12/31/2026"
+    trace = longest_param_value("ui.app.trace", "traceId", values("ja"))
+    assert trace is not None and len(trace) == 32
+
+
 def test_unmeasured_and_unknown_give_none() -> None:
     assert isinstance(PARAM_SOURCES["title"], Unmeasured)
     assert longest_param_value("today.event.summary", "title", values()) is None

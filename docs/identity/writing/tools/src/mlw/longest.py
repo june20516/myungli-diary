@@ -58,9 +58,9 @@ COUNT = _same("9999")
 SMALL_COUNT = _same("10")
 YEAR = _same("2099")
 AGE = _same("100")
+# 문의 번호는 32자리 hex입니다. 글자 수만 쓰므로 W3C trace-context 예시 값을 씁니다(design V138).
+TRACE_ID = _same("4bf92f3577b34da6a3ce929d0e0e4736")
 USER_TEXT = Unmeasured("사용자가 쓴 글이라 길이를 정할 수 없습니다")
-# 틀만으로 상한을 넘어 design, app에 상한과 서식을 물었습니다. 답이 오면 값을 정하고 검사합니다.
-ASKED_1362 = Unmeasured("값 서식이 슬롯 상한보다 길어 design, app에 물었습니다(#1362)")
 TAG_CATEGORIES = ("day_kind", "ten_god_group", "relation", "shinsal")
 
 # 매개변수 이름 -> 값 출처입니다. 슬롯마다 서식이 다르면 SLOT_PARAM_SOURCES가 덮어씁니다.
@@ -121,16 +121,16 @@ PARAM_SOURCES: dict[str, Source] = {
     "after": Unmeasured("바뀐 항목 값을 app이 쉼표로 이어 만듭니다"),
     "email": Unmeasured("운영 메일 주소는 저장소 밖 값입니다(D98)"),
     "price": Unmeasured("스토어가 주는 가격 문자열입니다(D74)"),
-    "traceId": ASKED_1362,
+    "traceId": TRACE_ID,
 }
 
 # (슬롯, 매개변수) -> 값 출처입니다. 슬롯 설명에 적힌 서식을 따릅니다.
 SLOT_PARAM_SOURCES: dict[tuple[str, str], Source] = {
-    ("ui.account-merge.saju", "date"): ASKED_1362,
+    ("ui.account-merge.saju", "date"): SHORT_DATE,
     ("preview.used.input", "date"): SHORT_DATE,
     ("ui.purchase.meta", "date"): SHORT_DATE,
-    ("ui.purchase.meta", "start"): ASKED_1362,
-    ("ui.purchase.meta", "end"): ASKED_1362,
+    ("ui.purchase.meta", "start"): SHORT_DATE,
+    ("ui.purchase.meta", "end"): SHORT_DATE,
     ("settings.ad-free.label", "date"): FULL_DATE,
     ("ad-free.status.remaining", "date"): FULL_DATE,
     ("evidence-sheet.unlock.until", "date"): FULL_DATE,
