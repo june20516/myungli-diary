@@ -368,3 +368,86 @@ func TestOps_NonOperatorRole_Exits1WithGuidance(t *testing.T) {
 	assert.Empty(t, stdout)
 	assert.Equal(t, "ops: DB 사용자 "+name+"에 운영자 역할이 없습니다. runbook '운영자 등록'을 보세요\n", stderr)
 }
+
+func TestOps_UntilOffsetIsStoredAsUTC(t *testing.T) {
+	env, pool := opsEnv(t)
+	id := opsAccount(t, pool)
+	expires := time.Now().UTC().Add(48 * time.Hour).Truncate(time.Second)
+	until := expires.In(time.FixedZone("KST", 9*3600)).Format(time.RFC3339)
+	require.True(t, strings.HasSuffix(until, "+09:00"), until)
+
+	code, _, stderr := runCLIWithEnv(t, env, "ops", "grant", "--account", id.String(), "--entitlement", "insight", "--until", until, "--reason", opsReason)
+	require.Equal(t, 0, code, "stderr = %q", stderr)
+
+	var target string
+	require.NoError(t, pool.QueryRow(context.Background(), `SELECT target->>'expiresAt' FROM ops_audit WHERE action = 'grant'`).Scan(&target))
+	assert.Equal(t, expires.Format(time.RFC3339), target)
+	var stored time.Time
+	require.NoError(t, pool.QueryRow(context.Background(), `SELECT expires_at FROM entitlement_grants WHERE account_id = $1`, id).Scan(&stored))
+	assert.True(t, expires.Equal(stored), "stored = %v, want %v", stored, expires)
+}
+
+func TestOps_AuditSinceIsUTCMidnightBoundary(t *testing.T) {
+	env, pool := opsEnv(t)
+	for _, at := range []string{"2026-10-31T23:59:59Z", "2026-11-01T00:00:00Z"} {
+		_, err := pool.Exec(context.Background(), `INSERT INTO ops_audit (id, at, actor, channel, action, reason, target)
+			VALUES (gen_random_uuid(), $1, 'seed', 'cli', 'account_show', $2, '{}')`, at, "경계 "+at)
+		require.NoError(t, err)
+	}
+
+	code, stdout, stderr := runCLIWithEnv(t, env, "ops", "audit", "list", "--since", "2026-11-01", "--reason", opsReason, "--json")
+	require.Equal(t, 0, code, "stderr = %q", stderr)
+	var records []struct {
+		Reason string `json:"reason"`
+	}
+	require.NoError(t, json.Unmarshal([]byte(stdout), &records), stdout)
+	var seeded []string
+	for _, record := range records {
+		if strings.HasPrefix(record.Reason, "경계 ") {
+			seeded = append(seeded, record.Reason)
+		}
+	}
+	assert.Equal(t, []string{"경계 2026-11-01T00:00:00Z"}, seeded)
+}
+
+func TestOps_JSONEmptyListsAreArrays(t *testing.T) {
+	env, pool := opsEnv(t)
+	id := opsAccount(t, pool)
+
+	_, stdout, _ := runCLIWithEnv(t, env, "ops", "account", "show", "--account", id.String(), "--reason", opsReason, "--json")
+	for _, key := range []string{"identities", "devices", "grants", "purchases"} {
+		assert.Contains(t, stdout, `"`+key+`": []`, stdout)
+	}
+
+	_, stdout, _ = runCLIWithEnv(t, env, "ops", "content", "diary", "--account", id.String(), "--date", "2026-11-20", "--purpose", "inquiry", "--reason", opsReason, "--json")
+	assert.Contains(t, stdout, `"entries": []`)
+	assert.Contains(t, stdout, `"tags": []`)
+
+	_, stdout, _ = runCLIWithEnv(t, env, "ops", "content", "schedule", "--account", id.String(), "--date", "2026-11-20", "--purpose", "inquiry", "--reason", opsReason, "--json")
+	assert.Contains(t, stdout, `"entries": []`)
+
+	_, stdout, _ = runCLIWithEnv(t, env, "ops", "audit", "list", "--since", "2999-01-01", "--reason", opsReason, "--json")
+	assert.Equal(t, "[]", strings.TrimSpace(stdout))
+}
+
+func TestOps_TextStripsTerminalControlCharacters(t *testing.T) {
+	env, pool := opsEnv(t)
+	id := opsAccount(t, pool)
+	body := "빨강\x1b[31m글자\u009b끝\n둘째 줄\t탭"
+	_, err := pool.Exec(context.Background(), `INSERT INTO diary_days (account_id, date, all_tags, featured_tags, ruleset_version)
+		VALUES ($1, '2026-11-20', ARRAY['a'], '[]'::jsonb, 'v1')`, id)
+	require.NoError(t, err)
+	_, err = pool.Exec(context.Background(), `INSERT INTO diaries (id, account_id, date, body, created_at, updated_at) VALUES (gen_random_uuid(), $1, '2026-11-20', $2, now(), now())`, id, body)
+	require.NoError(t, err)
+
+	code, stdout, stderr := runCLIWithEnv(t, env, "ops", "content", "diary", "--account", id.String(), "--date", "2026-11-20", "--purpose", "inquiry", "--reason", opsReason)
+	require.Equal(t, 0, code, "stderr = %q", stderr)
+	assert.NotContains(t, stdout, "\x1b")
+	assert.NotContains(t, stdout, "\u009b")
+	assert.Contains(t, stdout, "빨강�[31m글자�끝\n둘째 줄\t탭")
+
+	// JSON은 이스케이프되어 그대로입니다.
+	_, stdout, _ = runCLIWithEnv(t, env, "ops", "content", "diary", "--account", id.String(), "--date", "2026-11-20", "--purpose", "inquiry", "--reason", opsReason, "--json")
+	assert.NotContains(t, stdout, "\x1b")
+	assert.Contains(t, stdout, `\u001b[31m`)
+}

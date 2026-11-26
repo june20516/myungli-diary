@@ -30,9 +30,20 @@ func newOpsTable(w io.Writer) *tabwriter.Writer {
 	return tabwriter.NewWriter(w, 0, 0, 2, ' ', 0)
 }
 
-// cell은 표 칸에 넣을 글자에서 탭과 줄바꿈을 공백으로 바꿔 열이 깨지지 않게 합니다.
+// cell은 표 칸에 넣을 글자에서 탭과 줄바꿈을 공백으로 바꿔 열이 깨지지 않게 하고, 터미널 제어문자를 지웁니다.
 func cell(s string) string {
-	return strings.NewReplacer("\t", " ", "\r", " ", "\n", " ").Replace(s)
+	return sanitizeTerminal(strings.NewReplacer("\t", " ", "\r", " ", "\n", " ").Replace(s))
+}
+
+// sanitizeTerminal은 사용자 입력 글에서 터미널 제어문자(\n, \t 외 C0 제어문자와 DEL, C1 U+0080~U+009F)를
+// U+FFFD로 바꿉니다. 사람이 읽는 출력에서 ESC 시퀀스로 터미널을 조작하지 못하게 합니다. JSON은 이스케이프되므로 그대로 둡니다.
+func sanitizeTerminal(s string) string {
+	return strings.Map(func(r rune) rune {
+		if r != '\n' && r != '\t' && (r < 0x20 || r == 0x7f || (r >= 0x80 && r <= 0x9f)) {
+			return '\uFFFD'
+		}
+		return r
+	}, s)
 }
 
 func formatTime(t time.Time) string { return t.UTC().Format(time.RFC3339) }
@@ -182,13 +193,13 @@ func printRevokeResult(w io.Writer, result ops.RevokeResult) error {
 func printDiaryView(w io.Writer, view ops.DiaryView) error {
 	for _, entry := range view.Entries {
 		if _, err := fmt.Fprintf(w, "[일기] %s  %04d-%02d-%02d  작성 %s  수정 %s\n%s\n\n",
-			entry.ID, entry.Date.Year, entry.Date.Month, entry.Date.Day, formatTime(entry.CreatedAt), formatTime(entry.UpdatedAt), entry.Body); err != nil {
+			entry.ID, entry.Date.Year, entry.Date.Month, entry.Date.Day, formatTime(entry.CreatedAt), formatTime(entry.UpdatedAt), sanitizeTerminal(entry.Body)); err != nil {
 			return err
 		}
 	}
 	tags := opsEmpty
 	if len(view.Tags) > 0 {
-		tags = strings.Join(view.Tags, ", ")
+		tags = sanitizeTerminal(strings.Join(view.Tags, ", "))
 	}
 	_, err := fmt.Fprintf(w, "일기 %d편, 지운 일기 %d편\n그날 태그: %s\n", len(view.Entries), view.DeletedCount, tags)
 	return err
@@ -201,7 +212,7 @@ func printScheduleView(w io.Writer, view ops.ScheduleView) error {
 			clock = formatStringPtr(entry.Time)
 		}
 		if _, err := fmt.Fprintf(w, "[일정] %s  %04d-%02d-%02d  %s\n제목: %s\n메모: %s\n\n",
-			entry.ID, entry.Date.Year, entry.Date.Month, entry.Date.Day, clock, entry.Title, opsMemo(entry.Memo)); err != nil {
+			entry.ID, entry.Date.Year, entry.Date.Month, entry.Date.Day, clock, sanitizeTerminal(entry.Title), opsMemo(entry.Memo)); err != nil {
 			return err
 		}
 	}
@@ -214,7 +225,7 @@ func opsMemo(memo *string) string {
 	if memo == nil {
 		return opsEmpty
 	}
-	return *memo
+	return sanitizeTerminal(*memo)
 }
 
 func printProfileView(w io.Writer, view ops.ProfileView) error {

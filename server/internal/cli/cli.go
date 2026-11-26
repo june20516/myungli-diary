@@ -59,10 +59,10 @@ var commands = map[string]Command{
 const usageText = `usage: server <command>
 
 commands:
-  serve                                 HTTP 서버를 시작합니다
-  migrate up|down|status                DB 마이그레이션을 실행합니다
-  seed                                  시드 데이터를 넣습니다
-  job precompute|notify|retention|smoke 배치 작업을 실행합니다
+  serve                                   HTTP 서버를 시작합니다
+  migrate up|down|status                  DB 마이그레이션을 실행합니다
+  seed                                    시드 데이터를 넣습니다
+  job precompute|notify|retention|smoke   배치 작업을 실행합니다
   ops account|grant|revoke|content|audit  운영 명령을 실행합니다(runbook)`
 
 // Run은 하위 명령을 실행하고 종료 코드를 반환합니다.

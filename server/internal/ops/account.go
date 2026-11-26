@@ -197,6 +197,9 @@ func (s *Service) loadSummary(ctx context.Context, tx pgx.Tx, accountID uuid.UUI
 		return AccountSummary{}, err
 	}
 
+	if grants == nil {
+		grants = []billing.GrantRow{}
+	}
 	summary := AccountSummary{
 		Account: AccountInfo{
 			ID: account.ID, Status: account.Status, CreatedAt: account.CreatedAt,

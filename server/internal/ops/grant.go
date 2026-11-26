@@ -135,5 +135,11 @@ func (s *Service) Revoke(ctx context.Context, actor Actor, req RevokeRequest) (R
 	if err != nil {
 		return RevokeResult{}, err
 	}
+	if before == nil {
+		before = []billing.GrantRow{}
+	}
+	if after == nil {
+		after = []billing.GrantRow{}
+	}
 	return RevokeResult{AuditID: auditID, Before: before, After: after}, nil
 }
