@@ -80,7 +80,7 @@
 ## 현재 상태
 * 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 * 여기에는 진행 중인 일(브랜치, 열린 PR, 막힌 것)만 적고, 병합하면 지웁니다(`docs/workflow.md` §3 마무리 2번). 병합된 일의 경과는 PR 본문, `decisions.md`, git에 있습니다.
-* **진행 중:** 원어민 검수 1차 반영과 숫자, 자유 글 자리표시자 글자 수 검사(W85)는 브랜치 `writing/review-apply-1283`. 상한보다 긴 값 서식 세 슬롯은 design, app 답 대기(#1362).
+* **진행 중:** 숫자와 app 값이 든 세 줄의 상한과 drift #1361 따라잡기(W86)는 브랜치 `writing/limits-1362`.
 
 ## 다음 할 일
 1. **열린 `drift` Issue가 있으면 먼저 맞춥니다**(`gh issue list --label drift --label to:writing`, `docs/workflow.md` §6.1).

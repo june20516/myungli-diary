@@ -173,6 +173,9 @@
   structure: "이름과 번호, 또는 복사했다는 한 문장."
   tone: {진지: 3, 격식: 2, 존중: 4, 담백: 5}
   max_length: {ko: 48, en: 78, ja: 34}
+  # 오류 화면 문의 번호는 두 줄까지라 ja 이름과 32자리 번호를 실측한 상한을 따로 씁니다(design V138).
+  key_max_length:
+    traceIdLabel: {ja: 41}
   components: [error-state, toast]
   keys:
     - {params: {traceId: text}, keys: [traceIdLabel]}

@@ -390,7 +390,7 @@
   user_state: "두 계정의 사주 정보를 견줍니다."
   structure: "달력 이름(calendar, `calendarSolar`·`calendarLunar`), 생일(app이 짧은 서식으로 넣는 date), 태어난 시각(time) 순서입니다. 시각을 모르면 `NoTime`, 사주 정보가 없는 계정은 `Empty`. 음력 윤달이면 달력 이름 바로 뒤, 날짜 앞에 윤달 낱말(`dayCellLeapMonth`와 같은 표기)을 둔 `Leap` 키를 씁니다(design V48)."
   tone: {진지: 2, 격식: 2, 존중: 4, 담백: 5}
-  max_length: {ko: 23, en: 43, ja: 18}
+  max_length: {ko: 28, en: 43, ja: 22}
   components: [account-choice]
   keys:
     - params: {date: text, calendar: text, time: text}
