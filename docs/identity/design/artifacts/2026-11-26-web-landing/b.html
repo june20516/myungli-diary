@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>명리일기 랜딩 B안</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Zen+Maru+Gothic&display=swap">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="landing.css">
+<style>
+/* B안 펼친 공책
+   VOICE 일기장을 펼친 첫 장처럼, 또렷하고 따뜻하게
+   IDEA 앱 아이콘의 세이지 공책을 펼친 모습. 왼쪽은 흰 속지, 오른쪽은 표지
+   PICTURE 표지 면(sage 700) 위에 화면 네 장을 옆으로 넘김
+   COLOUR 속지 bg.sheet, 표지 color.sage.700(다크 sage.900), 표지 위 글 white
+   TYPE 한 줄 소개는 UI 글꼴 display 굵기, 소개 문장은 문장 글꼴(고운돋움). 왼쪽 정렬 */
+:root { --cover: var(--color-sage-700); --cover-ink: var(--color-white); --cover-ghost: rgb(255 255 255 / 0.14); }
+:root.dark { --cover: var(--color-sage-900); --cover-ink: var(--color-neutral-100); --cover-ghost: rgb(255 255 255 / 0.1); }
+body { background: var(--color-bg-sheet); }
+
+.spread { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); min-height: min(100svh, 900px); }
+.leaf {
+  display: grid; grid-template-rows: auto 1fr auto; gap: var(--space-48);
+  padding: clamp(var(--space-32), 5vw, 64px) clamp(var(--space-24), 5vw, 72px) var(--space-24);
+}
+.leaf-text { align-self: center; display: grid; gap: var(--space-24); max-width: 30em; }
+.tagline {
+  margin: 0; font-family: var(--type-display-font-family); font-weight: var(--type-display-font-weight);
+  font-size: clamp(30px, 3.6vw, 44px); line-height: 1.25; letter-spacing: -0.02em; text-wrap: balance;
+}
+.body {
+  margin: 0; font-family: var(--font-family-sentence); color: var(--color-text-secondary);
+  font-size: var(--type-sentence-card-font-size); line-height: var(--type-sentence-card-line-height); text-wrap: pretty;
+}
+.leaf .foot { margin-left: calc(-1 * var(--space-8)); }
+
+/* 표지: 책등 쪽 그림자와 화면 넘김 */
+.cover {
+  position: relative; background: var(--cover); color: var(--cover-ink);
+  display: grid; align-content: center; gap: var(--space-24); padding: var(--space-48) 0;
+}
+.cover::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 28px; background: linear-gradient(90deg, rgb(0 0 0 / 0.18), transparent); pointer-events: none; }
+.rail {
+  display: flex; gap: var(--space-24); overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
+  padding: var(--space-8) clamp(var(--space-24), 4vw, 56px); scroll-padding: 0 clamp(var(--space-24), 4vw, 56px);
+}
+.rail::-webkit-scrollbar { display: none; }
+.rail .shot { flex: none; width: clamp(220px, 20vw, 270px); scroll-snap-align: start; }
+.rail .shot img { box-shadow: 0 10px 28px rgb(0 0 0 / 0.22); }
+.rail-controls { display: flex; align-items: center; gap: var(--space-12); padding: 0 clamp(var(--space-24), 4vw, 56px); }
+.rail-controls button {
+  width: 44px; height: 44px; display: grid; place-items: center; border-radius: var(--radius-full); cursor: pointer;
+  border: 1px solid var(--cover-ghost); background: transparent; color: var(--cover-ink);
+}
+.rail-controls button:hover { background: var(--cover-ghost); }
+.rail-controls button:disabled { opacity: 0.35; cursor: default; background: transparent; }
+.rail-controls svg { width: var(--size-icon-20); height: var(--size-icon-20); }
+.dots { display: flex; gap: var(--space-8); margin-left: var(--space-8); }
+.dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--cover-ghost); transition: background var(--motion-duration-short) var(--motion-easing-standard); }
+.dots span[aria-current] { background: var(--cover-ink); }
+
+.under { display: none; }
+
+@media (max-width: 900px) {
+  .spread { grid-template-columns: minmax(0, 1fr); min-height: 0; }
+  .leaf { grid-template-rows: auto auto; gap: var(--space-32); padding-bottom: var(--space-48); }
+  .leaf .foot { display: none; }
+  .cover::before { inset: 0 0 auto 0; width: auto; height: 20px; background: linear-gradient(180deg, rgb(0 0 0 / 0.16), transparent); }
+  .rail .shot { width: 230px; }
+  .under { display: block; padding: var(--space-16) var(--gutter) var(--space-32); }
+  .under .foot { flex-direction: column; align-items: flex-start; }
+}
+@media (max-width: 600px) {
+  .tagline { font-size: 28px; }
+  .rail .shot { width: 210px; }
+}
+</style>
+</head>
+<body>
+<main class="spread">
+  <section class="leaf">
+    <a class="name" href="#">
+      <img class="icon" src="icon.webp" alt="" width="56" height="56">
+      <img class="wordmark on-light" src="wordmark.svg" alt="명리일기" width="107" height="30">
+      <img class="wordmark on-dark" src="wordmark-dark.svg" alt="명리일기" width="107" height="30">
+      <span data-app-name></span>
+    </a>
+    <div class="leaf-text">
+      <h1 class="tagline" data-slot="web-landing.hero.tagline"></h1>
+      <p class="body" data-slot="web-landing.hero.body"></p>
+      <div class="store">
+        <p class="soon" data-slot="web-landing.store.soon"></p>
+        <div class="badges">
+          <a class="badge apple" href="#" aria-label="" data-slot="web-landing.store.apple">App Store 공식 배지</a>
+          <a class="badge google" href="#" aria-label="" data-slot="web-landing.store.google">Google Play 공식 배지</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot">
+      <nav>
+        <a data-slot="web-landing.footer.terms" href="#"></a>
+        <a data-slot="web-landing.footer.privacy" href="#"></a>
+        <a data-slot="web-landing.footer.support" href="#"></a>
+      </nav>
+      <nav class="lang" aria-label="" data-slot="web-landing.lang.label"></nav>
+    </div>
+  </section>
+  <section class="cover">
+    <div class="rail" tabindex="0">
+      <figure class="shot" data-note="web-landing.shots.alt"><img data-scene="today" data-slot="web-landing.shots.alt" alt=""></figure>
+      <figure class="shot"><img data-scene="evidence" data-slot="web-landing.shots.alt" alt=""></figure>
+      <figure class="shot"><img data-scene="calendar" data-slot="web-landing.shots.alt" alt=""></figure>
+      <figure class="shot"><img data-scene="daySheet" data-slot="web-landing.shots.alt" alt=""></figure>
+    </div>
+    <div class="rail-controls">
+      <button type="button" data-step="-1" aria-label="이전 화면"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button type="button" data-step="1" aria-label="다음 화면"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+      <div class="dots" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+    </div>
+  </section>
+</main>
+<footer class="under">
+  <div class="foot">
+    <nav>
+      <a data-slot="web-landing.footer.terms" href="#"></a>
+      <a data-slot="web-landing.footer.privacy" href="#"></a>
+      <a data-slot="web-landing.footer.support" href="#"></a>
+    </nav>
+    <nav class="lang" aria-label="" data-slot="web-landing.lang.label"></nav>
+  </div>
+</footer>
+<script src="copy.js"></script>
+<script src="landing.js"></script>
+<script>
+{
+  const rail = document.querySelector(".rail");
+  const shots = [...rail.children];
+  const dots = [...document.querySelectorAll(".dots span")];
+  const [prev, next] = document.querySelectorAll(".rail-controls button");
+
+  const currentIndex = () => {
+    const left = rail.getBoundingClientRect().left;
+    let best = 0;
+    shots.forEach((shot, index) => {
+      if (Math.abs(shot.getBoundingClientRect().left - left) < Math.abs(shots[best].getBoundingClientRect().left - left)) best = index;
+    });
+    return best;
+  };
+  const atEnd = () => rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 2;
+
+  const update = () => {
+    const index = atEnd() ? shots.length - 1 : currentIndex();
+    dots.forEach((dot, i) => dot.toggleAttribute("aria-current", i === index));
+    prev.disabled = rail.scrollLeft <= 2;
+    next.disabled = atEnd();
+  };
+  const go = (step) => {
+    const target = shots[Math.max(0, Math.min(shots.length - 1, currentIndex() + step))];
+    rail.scrollTo({ left: target.offsetLeft - shots[0].offsetLeft, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  };
+
+  document.querySelectorAll("[data-step]").forEach((button) => button.addEventListener("click", () => go(Number(button.dataset.step))));
+  rail.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowRight") { event.preventDefault(); go(1); }
+    if (event.key === "ArrowLeft") { event.preventDefault(); go(-1); }
+  });
+  rail.addEventListener("scroll", update, { passive: true });
+  new ResizeObserver(update).observe(rail);
+  update();
+}
+</script>
+</body>
+</html>

@@ -26,6 +26,7 @@
 | 디자인 토큰 (`tokens/`) | **제공** (V1 freeze, 그 뒤는 추가만) | app |
 | 컴포넌트 명세 (`components/`) | **제공** | app |
 | 스토어 이미지 명세 (`store/store.json`) | **제공** | app, writing |
+| 웹 랜딩 명세 (`web/README.md`, 화면 사진 `web/landing/shots/`) | **제공** | web |
 | 글자 수 상한 | **주고받음** (요청함) | writing |
 
 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
@@ -33,7 +34,7 @@
 ## 현재 상태
 진행 중인 일만 적고, 병합하면 지웁니다(`docs/workflow.md` §3 마무리 2번). 병합된 일의 경과는 PR 본문, 결정 행([`decisions.md`](decisions.md)), git에 있습니다.
 
-* **길일 붉은 계열 빼기, 길 금빛과 유료 자색 #1294** (브랜치 `design/palette-1294`, D142, 결정 V136, 토큰 1.11.0, 컴포넌트 명세 9.0.1): 원시 팔레트 `color.gold`, 좋은 날과 귀인의 날 배지, 좋은 태그, 달력 길일 칸 금빛, `gradient.unlocked` 가운데 자색. coral은 sage 짝 자리(오늘 바탕, 열림 끝, 로고 낙관)에 남김. 빌드 11에 실림. 같은 PR에 #1286(캐시 저장 조건 staging), #1237(Action SHA 고정).
+* **WB1 랜딩 A안 #1330** (브랜치 `design/landing-1330`, PR #1356, D105, 결정 V137): 사용자가 A안 "오늘의 바탕"을 고름. 구현 명세 `web/README.md`, 화면 사진 `web/landing/shots/`(도구 `tools/landing_shots.py`). 병합 대기.
 
 ## 기준 문서와 도구
 * 시각 정체성: [`visual-identity.md`](visual-identity.md)(시각에 관해서는 비공개 기록 06을 대체). 색 값의 출처는 [`tools/palette.py`](tools/palette.py)(`--check`로 대비 검사).
@@ -41,6 +42,7 @@
 * 컴포넌트 명세: [`components/`](components/README.md) JSON(사실) + MD(설명). 검사는 저장소 루트에서 `python3 docs/identity/design/tools/components.py`(IA, 토큰 참조, 요소, 패턴, 상태 대응표, 짝 MD). 판 기록(지움과 이름 바뀜)은 `components/README.md`에 있습니다.
 * 글자 수 상한: [`lengths.md`](lengths.md), 도구 `tools/lengths.py`. 표는 도구 출력과 같아야 합니다.
 * 시안 도구: `tools/token_css.py`(토큰을 CSS 변수로, `artifacts/ds1/tokens.css`), `tools/rules_audit.py`(간격 전수 점검), `tools/phosphor_names.txt`(Phosphor 이름 목록). 시안 기록은 [`artifacts/index.json`](artifacts/index.json).
+* 웹 랜딩: [`web/README.md`](web/README.md)(간격, 크기, 토큰 이름, 폭별 배치). 화면 사진은 app 스토어 이미지에서 `uv run --with pillow==11.0.0 python docs/identity/design/tools/landing_shots.py <스토어 이미지 폴더>`로 다시 만듭니다.
 * 스토어 이미지: [`store/`](store/README.md)(장면, 틀, 글 자리 상한, Play 그래픽 이미지). 검사는 `python3 docs/identity/design/tools/store.py`(`--font-dir`면 상한 실측 대조).
 * 로고: 원본 [`logo/`](logo/), 견본 [`specimen/index.html`](specimen/index.html). 옛 로고 모음(`artifacts/2026-10-10-v0-logo-final.*`)은 기록 고정본입니다.
 * 한자 대체 글꼴: writing이 Pretendard JP에 없는 한자를 새로 쓰면 `tools/hanja_supplement.py`로 `Myungli Hanja Supplement`를 다시 만듭니다(V121).
@@ -55,10 +57,11 @@
 * 워드마크를 바꾸면 `uv run --with fonttools==4.54.1 python docs/identity/design/tools/wordmark.py --font .suberpowers/fonts/GowunDodum-Regular.ttf --out-dir docs/identity/design/logo` 뒤 위 `app_icon.py`로 가로 조합 PNG를 다시 만듭니다.
 
 ## 다음 할 일
-1. **#1294 마무리:** PR 병합 뒤 "현재 상태"에서 지우고 #1294에 완료 보고를 남깁니다. app 토큰 drift(1.11.0)가 빌드 11에 실리는지 봅니다.
-   * app이 새 색으로 스토어 이미지를 다시 만들면 명세(`store/`)대로인지 봅니다: 장면 순서, 틀 수치, 글 넘침, 근거 장면 한자. 바탕 `gradient.today`는 그대로입니다.
+1. **#1356 병합 뒤:** "현재 상태"에서 지웁니다. web이 `web/README.md`로 구현하다 막히면 `to:design` Issue로 받습니다.
+   * app이 스토어 이미지를 다시 만들면 `tools/landing_shots.py`로 랜딩 화면 사진도 다시 만듭니다.
 
 그 밖에는 대기합니다. 아래 일이 생기면 엽니다.
 2. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다.
 3. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
 4. app이 토큰 형식 변경을 요청하면 계약 버전 규칙(`tokens/README.md`)대로 대응합니다.
+5. app이 스토어 이미지를 다시 만들면 명세(`store/`)대로인지 봅니다: 장면 순서, 틀 수치, 글 넘침, 근거 장면 한자.
