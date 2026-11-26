@@ -1,6 +1,6 @@
 [project]
 name = "myungli-engine"
-version = "0.1.0"
+version = "0.2.0"
 description = "명리 엔진: 원국과 일진 판정을 계산하는 상태 없는 gRPC 엔진"
 readme = "README.md"
 requires-python = ">=3.13"

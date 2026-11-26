@@ -42,10 +42,10 @@
 | 신살 도입 D124 계획 (#1028) | `core/docs/plans/2026-11-12-shinsal-d124.md` |
 | 원전 근거 자료 | `core/docs/references/` |
 | 계산 규칙 지도 (#988, 규칙을 바꾸면 함께 고침) | `core/docs/rules-map/rules_map.toml` → `core/rules_map.json` |
-| core 내부 결정 로그 | `core/docs/decisions.md` (현재 C1~C44, 번호 `C1`부터) |
+| core 내부 결정 로그 | `core/docs/decisions.md` (현재 C1~C46, 번호 `C1`부터) |
 | 대체된 core 결정의 원문 | `core/docs/decisions-history.md` |
 | 위키 검토 이력 | `core/docs/engine-logic-wiki-review.md` |
-| 관련 루트 결정 | `docs/decisions.md`의 D5~D10, D13~D14, D19~D21, D24~D27, D29~D32, D34, D41, D56, D58, D60, D63, D65, D71, D73, D74, D78, D108, D124, D125, D130 |
+| 관련 루트 결정 | `docs/decisions.md`의 D5~D10, D13~D14, D19~D21, D24~D27, D29~D32, D34, D41, D56, D58, D60, D63, D65, D71, D73, D74, D78, D108, D124, D125, D130, D136, D141, D147 |
 
 ## 검사 방법
 * **테스트 층:** 단위, 통합(gRPC), 불변 조건, 회귀 스냅샷(원국 10개 x 데일리 30일, 원국 4개의 원국·대운·세운과 월간), KASI 천문 골든, 기준 앱 만세력 골든, 분포 보정 확인. 기본은 `uv run pytest -q -m "not slow"`이고 slow는 보정 확인(`calibration`)과 KASI 골든(`kasi`) 두 묶음입니다. CI는 `.github/workflows/core.yml`이고, 범위(`mode`)와 시점은 `README.md` "테스트와 검사" 절에 있습니다(D81).
@@ -55,7 +55,7 @@
   uv run pytest -q --lf -m "not slow"                # 직전에 실패한 테스트만
   uv run pytest -q -m contract                       # 계약 파일을 다시 만든 뒤
   uv run pytest -q tests/snapshots                   # 판정 출력이 바뀌는 변경(규칙·상수·근거 데이터)
-  git diff --name-only $(git merge-base origin/main HEAD) | python3 -I tools/slow_scope.py   # 커밋하지 않은 변경까지 보고 돌릴 slow 묶음의 표지 식을 냄
+  git diff --name-only $(git merge-base origin/staging HEAD) | python3 -I tools/slow_scope.py   # 커밋하지 않은 변경까지 보고 돌릴 slow 묶음의 표지 식을 냄
   ```
 
 ## 현재 상태
@@ -63,9 +63,9 @@
 * 없음.
 
 ## 다음 할 일
-1. 새 작업은 `docs/workflow.md` §6대로 `origin/main`에서 새 브랜치로 시작합니다.
+1. 새 작업은 `docs/workflow.md` §6대로 `origin/staging`에서 새 브랜치로 시작하고, PR은 기본 브랜치 `staging`으로 냅니다(D141).
 2. 남은 요청은 `gh issue list --label to:core`로 봅니다.
-   * **#59-2:** 회귀 스냅샷 분할은 #804에서도 하지 않았습니다(2026-11-05 사용자 결정). 하게 되면 값 변경 없는 이동만 담은 단독 PR로 하고, 규칙 변경 PR은 스냅샷 변경을 필드 경로별 개수로 요약합니다.
+   * **회귀 스냅샷 분할(#59, 닫음):** 분할은 #804에서도 하지 않았습니다(2026-11-05 사용자 결정). 하게 되면 값 변경 없는 이동만 담은 단독 PR로 하고, 규칙 변경 PR은 스냅샷 변경을 필드 경로별 개수로 요약합니다.
    * 엔진 배포 workflow(`deploy-engine.yml`)는 server가 맡습니다(D65). core는 이미지(`core/Dockerfile`)와 실행 조건(`README.md` "컨테이너" 절, #79)을 맡고, 바꿀 때는 `to:server` Issue로 알립니다.
-3. server가 실제 엔진을 호출하며 발견하는 계약 문제는 `to:core` Issue로 받아 처리합니다. 출력이 달라지는 변경은 `ruleset_version`을 올립니다(`README.md`의 절차).
+3. server가 실제 엔진을 호출하며 발견하는 계약 문제는 `to:core` Issue로 받아 처리합니다. 출력이 달라지는 변경은 `ruleset_version`을, 응답 표면(proto, 메시지 키, 매개변수, 근거 detail 키)이 바뀌는 변경은 `engine_version`을 올립니다(`README.md`의 절차, C45).
 4. Phase 2 항목은 지휘 세션과 우선순위를 정한 뒤 별도 spec으로 진행합니다.
