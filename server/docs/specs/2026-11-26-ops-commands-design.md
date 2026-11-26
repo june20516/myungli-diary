@@ -37,8 +37,11 @@
 ### 3.1 prod 실행 권한 범위
 
 * DB에 새 역할 `myungli_ops`(NOLOGIN)를 migration으로 만듭니다. 권한은 명령이 읽는 표의 `SELECT`, `entitlement_grants`의 `INSERT`와 `revoked_at` 갱신(`UPDATE`), 감사 표 `ops_audit`의 `INSERT`와 `SELECT`뿐입니다. 표 구조 변경, 삭제, 다른 표 쓰기는 못 합니다.
-* 운영자는 Terraform 변수 `ops_operators`(메일 목록, 로컬 tfvars)로 정합니다. env 모듈이 그 사람마다 Cloud SQL IAM 사용자(`CLOUD_IAM_USER`)와 프로젝트 IAM `roles/cloudsql.client`, `roles/cloudsql.instanceUser`를 만들고, `migrate`가 `DB_OPS_USERS`로 그 DB 사용자를 `myungli_ops` 구성원으로 넣습니다(S137의 `DB_RUNTIME_USER`와 같은 방식).
-* 지금 운영자는 사용자 한 명입니다. staging과 prod 모두 같은 방식이며, 운영자를 늘리거나 빼는 것은 tfvars 한 줄입니다.
+* **운영자 등록은 Cloud SQL IAM 사용자 추가 하나입니다.** 운영자 메일은 개인정보라 공개 저장소의 tfvars나 CI 로그(env는 CI가 저장소 tfvars로 apply)에 둘 수 없습니다. 프로젝트 관리자가 `gcloud sql users create <메일> --instance=<인스턴스> --type=cloud_iam_user`로 추가하고, 다음 `migrate up`(배포마다 도는 `server-migrate` Job)이 사람 IAM 사용자 전부를 `myungli_ops` 구성원으로 넣습니다.
+* **사람 IAM 사용자 판별:** Cloud SQL은 사람 IAM 사용자의 DB 이름을 메일 전체로, 서비스 계정은 `.gserviceaccount.com`을 뗀 `<이름>@<프로젝트>.iam`으로 둡니다(Cloud SQL 문서 "Add and manage IAM users"). 그래서 로그인 가능한 역할 중 이름에 `@`가 있고 `.iam`으로 끝나지 않는 것을 사람으로 봅니다. 런타임과 migrator 서비스 계정은 들어가지 않습니다.
+* **IAM 권한:** 연결에는 프로젝트 IAM `roles/cloudsql.client`(connector)와 `roles/cloudsql.instanceUser`(IAM 로그인)가 필요합니다. 프로젝트 소유자가 아닌 운영자에게는 runbook대로 두 역할을 줍니다.
+* **빼기:** `gcloud sql users delete <메일>`로 DB 사용자를 지우면 역할 구성원도 함께 사라집니다.
+* 지금 운영자는 사용자 한 명이고, staging과 prod 모두 같은 방식입니다.
 
 ## 4. 명령
 
@@ -119,8 +122,9 @@
 
 * **조회와 열람도 기록합니다.** 개인정보 처리 시스템 접속 기록은 조회를 포함하므로(안전성 확보조치 기준) 모든 명령이 기록합니다.
 * **기록이 먼저:** 변경 명령은 변경과 기록을 한 트랜잭션에 씁니다. 조회와 열람 명령은 기록을 커밋한 뒤에만 결과를 출력합니다. 기록에 실패하면 아무것도 보이지 않습니다.
-* **고칠 수 없음:** `myungli_ops`와 `myungli_app` 모두 `ops_audit`에 `INSERT`와 `SELECT`만 있고 `UPDATE`, `DELETE`가 없습니다(app 역할의 기본 권한에서 거둠).
-* **보관:** 2년. `job retention`이 2년 지난 행을 지웁니다(접속 기록 보관 기준). 계정 삭제(익명화) 때도 지우지 않습니다. 계정 id만 있고 개인정보 본문이 없기 때문입니다. 지휘의 수집, 보관 대장(D87)에 반영을 요청합니다.
+* **고칠 수 없음:** `myungli_ops`는 `ops_audit`에 `INSERT`와 `SELECT`만 있습니다. `myungli_app`은 retention 때문에 `DELETE`가 필요하므로(app 역할의 `UPDATE`는 거둠), 표의 trigger가 `UPDATE`를 언제나 거절하고 `DELETE`는 `at`이 2년보다 오래된 행만 허용합니다. 표 주인(migrator)만 trigger를 끌 수 있습니다.
+* **보관:** 2년. `job retention`이 2년 지난 행을 지웁니다(접속 기록 보관 기준). 운영자 부여 권한 행(`operator`)도 끝난 지 2년이 지나면 함께 지웁니다.
+* **합치기:** 계정 합치기는 구매 구간만 옮깁니다(보상 구간과 같이 운영자 부여 행은 옮기지 않음). 필요하면 합친 계정에 다시 줍니다. 계정 삭제(익명화) 때도 지우지 않습니다. 계정 id만 있고 개인정보 본문이 없기 때문입니다. 지휘의 수집, 보관 대장(D87)에 반영을 요청합니다.
 * **기록 보기:** `ops audit list --account <uuid>` 또는 `--since <날짜>`. 이 조회 자체도 기록합니다(`action` `audit_list`).
 
 ## 6. 구조와 재사용
