@@ -1,180 +1,187 @@
-# 운영 명령: 계정 조회, 권한 부여와 회수, 콘텐츠 열람, 감사 기록 (#1321, D145)
+# 운영 API: 계정 조회, 권한 부여와 회수, 콘텐츠 열람, 감사 기록 (#1321, D145 ⑦)
+
+> 2026-11-26 개정: 처음 안(운영자 컴퓨터에서 운영자 본인의 Cloud SQL IAM 사용자로 DB에 붙음, PR #1381 첫 판)은 사람이 `psql`로 감사 없이 표를 읽고 쓰는 길이 되어(#1381 보안 점검 High) 쓰지 않습니다. 사용자 결정 D145 ⑦로 **IAP로 막은 내부 운영 API**로 바꿉니다. 조회, 부여와 회수, 열람, 감사 표와 trigger, retention 로직은 첫 판을 그대로 쓰고 접속 부분과 보안 점검의 나머지 지적을 고칩니다.
 
 ## 1. 목적
 
-출시 뒤 사용자 지원(결제 반영 누락, 환불 대응, 오류 문의)과 장애, 정책 위반, 법령 요청에 대응할 때 **prod DB에 직접 SQL로 붙지 않고** 정해진 명령으로만 데이터를 보고 고칩니다. 모든 명령은 감사 기록을 남깁니다. 출시 뒤 어드민 웹(D144)은 같은 핵심 함수와 감사 기록 위에 화면을 얹습니다.
+출시 뒤 사용자 지원(결제 반영 누락, 환불 대응, 오류 문의)과 장애, 정책 위반, 법령 요청에 대응할 때 **prod DB에 사람이 붙지 않고** 정해진 운영 API로만 데이터를 보고 고칩니다. 모든 호출은 감사 기록을 남깁니다. 출시 뒤 어드민 웹(D145 ③)도 같은 API를 씁니다.
 
 성공 기준:
 * 문의 메일의 계정 id 하나로 지원에 필요한 상태(가입, 로그인 수단, 최근 접속, 권한, 구매)를 한 번에 봅니다.
 * 광고 제거권과 근거 열람을 기간을 정해 주고, 운영자가 준 것과 보상 광고 권한을 거둡니다.
-* 일기, 일정, 프로필을 목적과 사유를 밝히고 좁혀서 열람하며, 본문은 실행한 사람의 터미널로만 갑니다.
-* 모든 조회, 변경, 열람이 언제, 누가, 무엇을, 왜, 전후 값과 함께 지울 수 없는 표에 남습니다.
+* 일기, 일정, 프로필을 목적과 사유를 밝히고 좁혀서 열람하며, 본문은 HTTPS 응답으로만 갑니다.
+* 모든 조회, 변경, 열람이 언제, 누가(IAP가 확인한 Google 계정), 무엇을, 왜, 전후 값과 함께 고칠 수 없는 표에 남습니다.
+* **사람 DB 계정이 없습니다.** DB에는 운영 API의 서비스 계정만 붙습니다.
+* 앱 런타임과 앱 사용자는 운영 API에 닿지 못합니다.
 * app에 나가는 계약(REST v1)은 바뀌지 않습니다.
 
 ## 2. 확인한 사실
 
 | 사실 | 출처 |
 | --- | --- |
-| Cloud Run Job의 stdout과 stderr는 Cloud Logging으로 가며, 실행한 사람의 터미널로 돌아오지 않습니다. | Cloud Run Jobs 동작, `internal/cli` 기존 Job들이 결과를 구조화 로그로 남김 |
-| Cloud SQL은 공개 IP(`ipv4_enabled = true`, `ENCRYPTED_ONLY`)이고 IAM 인증(`cloudsql.iam_authentication`)이 켜져 있습니다. server는 Cloud SQL Go connector로 IAM 연결을 씁니다(S121). | `deploy/terraform/env/sql.tf`, `internal/cli/cli.go` `openDatabase` |
-| 런타임 계정은 `myungli_app` 역할의 구성원으로만 표에 닿습니다(S137). | `db/migrations/00024_app_role.sql` |
-| 요청 로그(`accessLog`)는 method, route, status, latencyMs만 남기고 계정 id를 남기지 않습니다. 계정별로 찾을 수 없습니다. | `internal/httpapi/middleware.go` |
-| 앱 버전은 어디에도 저장하지 않습니다. 최근 접속 흔적은 `accounts.last_active_at`과 `devices.last_seen_at`(플랫폼 포함)뿐입니다. | `db/migrations/00002`, `00020` |
-| 권한 출처 DB 값은 `ad_free_pass`, `rewarded_ad`, `subscription`, `test_grant`이고 취소는 `revoked_at`으로 합니다. 광고 제거권 구간(`ad_free_pass`)은 구매 장부에서 다시 잇기(`rechainFromTx`)로 만들어집니다. | `00012`, `00022`, `internal/billing/ledger.go` |
-| 계약 `Insight.source`는 `rewarded_ad`, `ad_free_pass`, `subscription`이고, staging `test_grant`는 계약 밖이라 `ad_free_pass`로 보냅니다(S125). | `api/openapi.yaml`, `internal/httpapi/billing_handlers.go` |
-| 계정 삭제는 즉시 익명화이고 `accounts.status`는 `active`, `deleted`뿐입니다. 삭제 대기 상태, 삭제 요청 시각, 로그인 수단의 연결 해제 칸은 없습니다. | `db/migrations`, S105 |
-| 처리방침 처리 목적에 "문의 응대"와 "구매 복원과 환불 처리"는 있으나, "결제 오류 처리"와 운영자 콘텐츠 열람(정책 위반 확인, 법령 요청 대응)은 따로 적혀 있지 않습니다. | `docs/legal/ko/privacy.md` §1 |
+| Cloud Run에 IAP를 직접 켤 수 있습니다(로드밸런서 없음). gcloud `--iap`, Terraform `google_cloud_run_v2_service`의 `iap_enabled = true`. IAP는 `run.app` 주소를 포함한 모든 진입 경로에 적용됩니다. | Cloud Run 문서 "Configure IAP for Cloud Run" |
+| 켤 때 IAP 서비스 에이전트 `service-<프로젝트 번호>@gcp-sa-iap.iam.gserviceaccount.com`에 `roles/run.invoker`가 필요합니다. 사용자 접근은 `roles/iap.httpsResourceAccessor`이고 문서의 바인딩 예시는 서비스 단위(`gcloud iap web add-iam-policy-binding ... --resource-type=cloud-run --service=<서비스>`)입니다. | 같은 문서 |
+| 같은 서비스에 로드밸런서 IAP와 서비스 IAP를 함께 둘 수 없습니다. | 같은 문서 Known limitations |
+| IAP는 앱에 서명된 헤더 `x-goog-iap-jwt-assertion`을 넘깁니다. ES256, 공개키 `https://www.gstatic.com/iap/verify/public_key-jwk`(키 교체가 있어 캐시 갱신), `iss`는 `https://cloud.google.com/iap`, Cloud Run 직접 IAP의 `aud`는 `/projects/<프로젝트 번호>/locations/<리전>/services/<서비스 이름>`, 사용자는 `email`과 `sub` 클레임입니다. `x-goog-authenticated-user-email` 헤더 대신 이 JWT를 검증하라고 권합니다. | IAP 문서 "Securing your app with signed headers" |
+| 사람 계정으로 프로그램에서 IAP 뒤를 부르려면 데스크톱 OAuth 클라이언트로 받은 OAuth ID token을 `Authorization: Bearer`(앱이 Authorization을 쓰면 `Proxy-Authorization`)로 보냅니다. 그 클라이언트는 IAP 설정 `programmatic_clients`에 넣어야 하고(`gcloud iap settings set`), Google 관리 기본 클라이언트로는 안 됩니다. **이 방식이 Cloud Run 직접 IAP에서 사람 계정으로 되는지는 문서에 명시가 없습니다.** | IAP 문서 "Programmatic authentication" |
+| Cloud Run 요청 로그(플랫폼이 남기는 `httpRequest`)는 요청 URL을 query까지 남깁니다. server `accessLog`는 등록 패턴(route)만 남깁니다. 그래서 사유, 목적, 날짜, 거래 id를 URL에 두면 Cloud Logging에 90일 남습니다(S164). | Cloud Run 요청 로그 형식, `internal/httpapi/middleware.go` |
+| 요청 로그(`accessLog`)에는 계정 id가 없어 계정별로 찾을 수 없고, 앱 버전은 저장하지 않습니다. 최근 접속 흔적은 `accounts.last_active_at`과 `devices.last_seen_at`(플랫폼 포함)뿐입니다. | `internal/httpapi/middleware.go`, `db/migrations/00002`, `00020` |
+| 런타임 계정은 `myungli_app` 역할의 구성원으로만 표에 닿고, migrate가 `DB_RUNTIME_USER`로 구성원을 지정합니다(S137). | `db/migrations/00024_app_role.sql`, `internal/cli/cli.go` |
+| 권한 출처 DB 값은 `ad_free_pass`, `rewarded_ad`, `subscription`, `test_grant`이고 취소는 `revoked_at`입니다. 광고 제거권 구간은 구매 장부에서 다시 잇기로 만들어집니다. 계약 `Insight.source`는 셋이고 staging `test_grant`는 `ad_free_pass`로 보냅니다(S125). | `00012`, `00022`, `internal/billing/ledger.go`, `api/openapi.yaml` |
+| 계정 삭제는 즉시 익명화이고 `accounts.status`는 `active`, `deleted`뿐입니다(S105). | `db/migrations` |
 
 ## 3. 실행 방식
 
-**운영 명령은 Cloud Run Job이 아니라 운영자 컴퓨터에서 같은 server 바이너리로 실행합니다.** Issue 4번은 Job 방식을 적었지만, 7번(열람 본문이 Cloud Logging에 남지 않고 터미널로만 감)은 Job으로 지킬 수 없습니다. 조회 결과(가입일, 구매 내역 등)도 로그에 90일 남기지 않는 편이 맞아(D74, S164) 명령 전부를 같은 방식으로 둡니다.
+### 3.1 운영 API 서비스
 
-* **명령:** `server ops <하위 명령> ...`. 운영자는 저장소의 배포된 커밋에서 `go run ./cmd/server ops ...`로 실행합니다.
-* **연결:** 운영자 본인의 Google 계정으로 `gcloud auth application-default login` 한 뒤, Cloud SQL Go connector가 IAM 인증으로 붙습니다. DB 사용자는 운영자의 Cloud SQL IAM 사용자(메일 주소)입니다. 비밀번호나 Secret을 운영자 컴퓨터에 두지 않습니다.
-* **설정:** `ops`는 DB 연결 값(`CLOUD_SQL_INSTANCE`, `DATABASE_URL`)만 읽습니다. 서버 기동용 Secret을 요구하지 않습니다. 환경별 값은 로컬 값 대장(D98)에 `server/<환경>/ops.env`로 둡니다(인스턴스 이름과 DB 이름, 비밀 아님).
-* **실행자와 시각 식별:** 감사 기록의 실행자는 명령 인자가 아니라 DB가 인증한 세션 사용자(`session_user`)입니다. `ops_audit`의 `BEFORE INSERT` trigger(`ops_audit_stamp`)가 `at`을 언제나 `now()`로, `actor`를 `session_user`로 덮으므로 명령 인자나 운영자 컴퓨터 시계로 바꿀 수 없습니다. `SET ROLE`은 `current_user`만 바꾸고 `session_user`는 그대로라 역할 이름이 아니라 로그인한 사람이 남습니다. 부여 시작, 회수 시각, 기간 검사, 권한 상태 판정도 트랜잭션 안의 DB `now()` 기준입니다. 어드민 API가 붙으면 그 경로는 인증한 운영자 식별자를 넘기고, 그때 그 경로의 감사 INSERT 권한과 실행자 출처를 다시 정합니다(§6).
-* **출력:** 결과는 stdout(사람이 읽는 표)으로만 씁니다. 표에서 사용자 입력 글의 터미널 제어문자(ESC 등 C0, DEL, C1)와 양방향 제어문자(U+200E, U+200F, U+202A~U+202E, U+2066~U+2069)는 U+FFFD로 바꿉니다(JSON은 이스케이프됨). 로컬 실행이라 Cloud Logging에 남지 않습니다. `--json`으로 기계가 읽는 출력도 냅니다.
+* **별도 Cloud Run 서비스 `server-ops`**를 둡니다. 이미지는 server와 같고 명령만 `server ops-serve`입니다. IAP는 서비스 단위로 켜지므로, 앱이 쓰는 공개 서비스 `server`와 나눠야 운영 API만 막을 수 있습니다.
+  * `iap_enabled = true`, `ingress = INGRESS_TRAFFIC_ALL`(IAP가 앞에서 막음), `allUsers` invoker 없음, IAP 서비스 에이전트에만 `roles/run.invoker`.
+  * 최소 인스턴스 0, 요청을 처리하는 동안에만 CPU(D135 비용 원칙, S163).
+* **서비스 계정 `server-ops`**(새로 만듦). Cloud SQL IAM 서비스 계정 사용자로 DB에 붙고 `myungli_ops` 역할의 구성원입니다. `roles/cloudsql.client`, `roles/cloudsql.instanceUser`만 가집니다. 엔진, FCM, Secret(아래 하나 말고) 권한이 없습니다.
+* **앱 런타임과 분리:**
+  * `server serve`는 운영 경로를 등록하지 않고, `server ops-serve`는 앱 경로를 등록하지 않습니다(두 라우터를 따로 만들고 테스트로 확인).
+  * 런타임 서비스 계정 `server-runtime`은 `myungli_ops` 구성원이 아니어야 하고, `server-ops`는 `myungli_app` 구성원이 아니어야 합니다. migrate가 배포마다 확인하고 어긋나면 배포를 멈춥니다(#1381 점검 Medium 3).
+  * 앱 런타임에는 `server-ops` 호출 권한(IAP 접근, run.invoker)이 없습니다.
+* **사람 DB 계정은 만들지 않습니다.** 첫 판의 사람 IAM 사용자 자동 편입(`GrantOpsRole`)은 지웁니다. migrate는 `DB_OPS_USER`(ops 서비스 계정의 DB 사용자 이름, 비밀 아님, Terraform이 넘김)를 `myungli_ops` 구성원으로 지정하고, 그 밖의 `myungli_ops` 구성원이 있으면 실패합니다.
 
-### 3.1 prod 실행 권한 범위
+### 3.2 운영자 인증과 허용 목록
 
-* DB에 새 역할 `myungli_ops`(NOLOGIN)를 migration으로 만듭니다. 권한은 아래뿐입니다. 표 구조 변경, 삭제, 다른 표 쓰기는 못 합니다.
-  * `accounts`, `entitlement_grants`, `purchases`, `diaries`, `diary_days`, `schedules`의 `SELECT`.
-  * `auth_identities`, `devices`, `profiles`는 `db/queries/ops.sql`이 쓰는 칸만 칼럼 단위 `SELECT`. 제공자 subject, Apple 토큰, 알림 token과 그 해시, 출생 정보 해시, 알림 설정은 읽지 못합니다.
-  * `entitlement_grants`의 `INSERT`와 `revoked_at` 갱신(`UPDATE`), id sequence `USAGE`.
-  * `accounts`의 `updated_at` 갱신(`UPDATE`). 운영자 부여가 계정 행을 `FOR SHARE`로 잠그는 데 PostgreSQL이 그 표의 UPDATE 권한(한 칸 이상)을 요구하기 때문이고, 값은 바꾸지 않습니다.
-  * 감사 표 `ops_audit`의 `INSERT`와 `SELECT`.
-* **남는 위험과 다음 조건:** `myungli_ops` 구성원은 `diaries`, `schedules`, `profiles`를 `psql` 같은 직접 SQL로 읽을 수 있고, 이 열람은 감사 행을 남기지 않습니다. 지금 운영자는 프로젝트 소유자 한 명이라 받아들입니다. 프로젝트 소유자가 아닌 운영자를 등록하기 전에 콘텐츠 열람을 `SECURITY DEFINER` 함수(함수 안에서 감사 행을 함께 씀)로 옮기고 `myungli_ops`에는 그 함수의 `EXECUTE`만 줍니다.
-* **운영자 등록은 Cloud SQL IAM 사용자 추가 하나입니다.** 운영자 메일은 개인정보라 공개 저장소의 tfvars나 CI 로그(env는 CI가 저장소 tfvars로 apply)에 둘 수 없습니다. 프로젝트 관리자가 `gcloud sql users create <메일> --instance=<인스턴스> --type=cloud_iam_user`로 추가하고, 다음 `migrate up`(배포마다 도는 `server-migrate` Job)이 사람 IAM 사용자 전부를 `myungli_ops` 구성원으로 넣습니다.
-* **사람 IAM 사용자 판별:** Cloud SQL은 사람 IAM 사용자의 DB 이름을 메일 전체로, 서비스 계정은 `.gserviceaccount.com`을 뗀 `<이름>@<프로젝트>.iam`으로 둡니다(Cloud SQL 문서 "Add and manage IAM users"). 그래서 로그인 가능한 역할 중 이름에 `@`가 있고 `.iam`으로 끝나지 않는 것을 사람으로 봅니다. 런타임과 migrator 서비스 계정은 들어가지 않습니다.
-* **IAM 권한:** 연결에는 프로젝트 IAM `roles/cloudsql.client`(connector)와 `roles/cloudsql.instanceUser`(IAM 로그인)가 필요합니다. 프로젝트 소유자가 아닌 운영자에게는 runbook대로 두 역할을 줍니다.
-* **빼기:** `gcloud sql users delete <메일>`로 DB 사용자를 지우면 역할 구성원도 함께 사라집니다.
-* 지금 운영자는 사용자 한 명이고, staging과 prod 모두 같은 방식입니다.
+두 겹으로 막습니다.
+1. **IAP 접근 주체:** 운영자 Google 계정에 `server-ops` 서비스의 `roles/iap.httpsResourceAccessor`를 줍니다. 운영자 메일은 개인정보라 저장소 tfvars와 CI 로그에 둘 수 없으므로(env는 CI가 apply) runbook의 `gcloud iap web add-iam-policy-binding` 명령으로 사람이 줍니다. Terraform은 이 서비스의 IAP IAM 정책을 관리하지 않습니다(덮어쓰지 않게).
+2. **API 안의 허용 목록:** Secret Manager `OPS_OPERATORS`(쉼표로 나눈 메일, 운영자 메일은 여기에만)를 `server-ops`만 읽습니다. IAP 바인딩이 실수로 넓어져도(프로젝트 단위 부여 등) 목록 밖 계정은 API가 403으로 거절합니다. 값이 비어 있으면 모든 요청을 거절합니다.
 
-## 4. 명령
+요청마다:
+* `x-goog-iap-jwt-assertion`을 검증합니다(ES256, 공개키 캐시와 `kid`, `iss`, 위 `aud`, `exp`, `iat`). `aud`의 프로젝트 번호, 리전, 서비스 이름은 Terraform이 env로 넘깁니다. 헤더가 없거나 검증에 실패하면 401입니다. `x-goog-authenticated-user-email` 헤더는 쓰지 않습니다.
+* 실행자(`Actor`)는 검증한 JWT의 `email`이고, 감사 기록에는 `email`을 남깁니다. `sub`는 감사 `target`에 함께 남깁니다(메일이 바뀌어도 같은 사람을 찾게).
 
-공통 인자: `--account <uuid>`(대상), `--reason "<문자열>"`(필수, 앞뒤 공백을 뗀 뒤 1~500자). 사유에 `\n`, `\r`, U+0085, U+2028, U+2029, NUL, 잘못된 UTF-8이 있으면 거절합니다(감사 표와 터미널 출력이 깨지지 않게). 사유가 없으면 사용법 오류로 아무것도 하지 않습니다.
+### 3.3 API 모양
 
-### 4.1 계정 조회 `ops account show`
+* 경로는 `/ops/v1/...` 아래이고 **모두 `POST`와 JSON 본문**입니다. 사유, 목적, 날짜, 계정 id, 거래 id가 URL에 들어가지 않게 해서 Cloud Run 요청 로그에는 경로만 남깁니다(§2, S164).
+  * `POST /ops/v1/accounts:show` `{accountId | storeTransaction, reason}`
+  * `POST /ops/v1/grants` `{accountId, entitlement, days | until, reason}`
+  * `POST /ops/v1/grants:revoke` `{accountId, grantId, reason}`
+  * `POST /ops/v1/content:diary` `{accountId, date | id, purpose, reason}`, `content:schedule`, `content:profile`
+  * `POST /ops/v1/audit:list` `{accountId | since, limit, reason}`
+* 응답은 Service 결과 타입의 JSON(첫 판의 camelCase 태그 그대로)입니다. 오류는 `{"code": "...", "message": "..."}`와 상태 코드(400 입력, 401 인증, 403 허용 목록, 404 계정이나 프로필 없음, 409 회수 불가와 이미 끝남, 500)입니다. 응답에 `Cache-Control: no-store`.
+* 요청 본문 상한 64 KiB. 응답 본문과 요청 본문은 로그에 남기지 않습니다(`accessLog`는 route, status, latency만).
+* 운영 API 계약은 지금 server 안에 둡니다(어드민 웹이 생길 때 web과의 계약 파일로 올립니다).
 
-`--account` 또는 `--store-transaction <스토어 거래 id>`(구매 장부 `store_purchase_id`, 사용자가 받은 스토어 영수증 번호로 문의할 때) 중 하나로 찾습니다.
+### 3.4 CLI
 
-보이는 것:
-* 계정: 상태(`active`, `deleted`, 계정 삭제는 즉시 익명화라 삭제 대기 상태가 없음, S105), 가입 시각, 삭제 시각(`deleted_at`), 최근 활동(`last_active_at`)
-* 로그인 수단: 제공자 종류(`kakao`, `apple`)와 연결 시각. 제공자 subject와 토큰은 보이지 않습니다.
-* 기기: 플랫폼, 활성 여부, 등록 시각, 마지막 접속(`last_seen_at`). 알림 token은 보이지 않습니다.
-* 권한: 지금 상태(광고 제거, 근거 열람의 활성, 만료, 출처)와 부여 행 전부(행 id, 종류, 출처, 시작, 만료, 취소 시각)
-* 구매 장부: 상품, 스토어, 스토어 거래 id, 구매 시각, 환불 시각, 환경(`production`, `sandbox`), 합치기로 옮겨 온 구매인지
+* `server ops <하위 명령>`은 이제 DB에 붙지 않고 운영 API를 부르는 클라이언트입니다. 인자, 출력(표와 `--json`, 터미널 제어문자 치환), 종료 코드는 첫 판 그대로입니다.
+* 인증: 데스크톱 OAuth 클라이언트로 브라우저 로그인(루프백 리디렉션) 한 번 뒤 받은 refresh token으로 ID token을 얻어 `Authorization: Bearer`로 보냅니다. 클라이언트 id와 secret, refresh token은 로컬 값(D98) `server/<환경>/ops-oauth.json`(600)에만 둡니다. 운영 API 주소도 같은 파일에 둡니다.
+* **먼저 확인할 것(spike):** Cloud Run 직접 IAP에서 사람 계정의 프로그램 접근이 되는지 문서에 없습니다(§2). 구현 전에 staging에 빈 IAP 서비스로 확인합니다. 안 되면 CLI는 미루고 운영 API는 브라우저(어드민 웹, 그 전에는 IAP 뒤 최소 HTML 폼)로만 부르는 안을 지휘에 올립니다.
 
-보이지 않는 것: 호칭, 출생 정보, 일기와 일정 본문(열람 명령 몫), 메일 주소(저장하지 않음).
+## 4. 기능
 
-**최근 접속 기록(Issue 6번):** 기존 기록 중 계정으로 찾을 수 있는 것은 `last_active_at`과 기기별 `last_seen_at`, 플랫폼입니다. 요청 로그는 계정 id를 남기지 않아 계정별로 찾을 수 없고, 앱 버전은 저장하지 않으므로 보이지 않습니다. 둘을 보려면 새로 수집해야 하므로 이번에는 넣지 않고 지휘에 보고합니다.
+공통: `accountId`(대상), `reason`(필수, 앞뒤 공백을 뗀 뒤 1~500자). 사유에 `\n`, `\r`, U+0085, U+2028, U+2029, NUL, 잘못된 UTF-8, **`@`**가 있으면 거절합니다. 사유는 2년 보관되므로 이름이나 메일 같은 개인정보를 쓰지 않고 문의 번호나 Issue 번호만 적습니다(runbook에 명시, #1381 점검 Medium 4).
 
-### 4.2 권한 부여 `ops grant`
+### 4.1 계정 조회 `accounts:show`
 
-`--entitlement ad_free|insight`, 기간은 `--days <1~366>` 또는 `--until <RFC 3339 시각>` 중 하나.
+`accountId` 또는 `storeTransaction` 중 하나. `storeTransaction`은 1~128자, `[A-Za-z0-9._-]`만 허용합니다(#1381 점검 Medium 4).
 
-* `ad_free`는 광고 제거권 기간처럼 광고 제거와 근거 열람 두 행을 줍니다(D60, test_grant와 같은 묶음). `insight`는 근거 열람 한 행입니다.
-* DB 출처는 새 값 `operator`, `source_ref`는 그 감사 기록 id입니다.
-* 시작은 지금, 만료는 지정한 값입니다. 이미 지난 시각이거나 1년을 넘으면 거절합니다.
-* 지운 계정에는 주지 않습니다.
+보이는 것(첫 판과 같음):
+* 계정: 상태(`active`, `deleted`), 가입 시각, 삭제 시각, 최근 활동
+* 로그인 수단: 제공자 종류와 연결 시각(subject와 토큰 없음)
+* 기기: 플랫폼, 활성 여부, 등록 시각, 마지막 접속(token 없음)
+* 권한: 지금 상태와 부여 행 전부
+* 구매 장부: 상품, 스토어, 스토어 거래 id, 구매 시각, 환불 시각, 환경, 합치기로 옮겨 온 구매인지
 
-**계약:** app에 나가는 `Insight.source`에 새 값을 더하지 않습니다(D138). S125처럼 `operator`의 `ad_free` 묶음은 `ad_free_pass`로, `insight` 단독은 `rewarded_ad`로 보냅니다. app이 보이는 뜻(광고 제거권 기간, 광고 보상으로 연 열람)과 같고, 운영자가 줬다는 사실은 DB 출처와 감사 기록에만 남습니다.
+보이지 않는 것: 호칭, 출생 정보, 일기와 일정 본문, 메일 주소(저장하지 않음). 최근 접속은 위 두 시각뿐입니다(요청 로그에는 계정 id가 없음, D145 ⑤ 보충).
 
-### 4.3 권한 회수 `ops revoke`
+### 4.2 권한 부여 `grants`
 
-`--grant <부여 행 id>`. 그 행의 `revoked_at`을 지금으로 찍습니다.
+`entitlement` `ad_free|insight`, 기간은 `days`(1~366) 또는 `until`(RFC 3339) 중 하나. 첫 판과 같습니다: `ad_free`는 두 행, 출처 `operator`, `source_ref`는 감사 기록 id, 지운 계정 거절, 계약은 S125처럼 `ad_free_pass`/`rewarded_ad`로 보냄. 기간 기준 시각은 트랜잭션 안 DB `now()`입니다.
 
-* 거둘 수 있는 출처는 `operator`와 `rewarded_ad`입니다. `ad_free` 묶음으로 준 두 행은 한 번에 거둡니다.
-* `ad_free_pass`(구매에서 생긴 구간)는 거두지 않습니다. 구매 구간은 장부에서 다시 이어지므로 행만 취소하면 다음 동기화와 어긋납니다. 환불은 스토어에서 처리하면 webhook과 동기화가 장부와 구간을 고칩니다. 명령은 이 안내를 오류 메시지로 냅니다.
-* 이미 취소됐거나 만료된 행은 아무것도 바꾸지 않고 알립니다.
+### 4.3 권한 회수 `grants:revoke`
 
-### 4.4 콘텐츠 열람 `ops content diary|schedule|profile`
+`grantId`. 거둘 수 있는 출처는 `operator`, `rewarded_ad`(묶음은 함께)이고 `ad_free_pass`는 거절합니다(스토어 환불로). 첫 판과 같습니다.
 
-필수: `--purpose inquiry|incident|policy|legal`, `--reason`.
+### 4.4 콘텐츠 열람 `content:diary|schedule|profile`
 
-| 값 | 뜻 |
-| --- | --- |
-| `inquiry` | 이용자 문의와 오류 처리 |
-| `incident` | 서비스 장애와 데이터 사고 대응 |
-| `policy` | 이용약관과 운영 정책 위반 확인과 조치 |
-| `legal` | 부정 이용 방지와 법령에 따른 요청 대응 |
-
-대상은 좁혀서만 엽니다.
-* `diary`: `--date YYYY-MM-DD`(그날 일기 전부, 하루 최대 10편) 또는 `--id <일기 id>`. 본문, 날짜, 작성과 수정 시각, 그날 기록한 태그.
-* `schedule`: `--date` 또는 `--id`. 제목, 날짜, 시간, 메모.
-* `profile`: 호칭, 출생 정보(계산 오류 문의 확인용).
-
-계정 전체를 내보내는 명령, 날짜 범위 인자는 두지 않습니다. 목적별로 언제 열어도 되는지는 이 문서와 runbook에 적지 않습니다(D145 ⑤⑥, 비공개 내부 관리계획).
+`purpose` `inquiry|incident|policy|legal` 필수. 일기와 일정은 `date` 또는 `id`, 프로필은 계정 하나. 계정 전체 내보내기와 날짜 범위는 없습니다. 목적별로 언제 열어도 되는지는 이 문서와 runbook에 적지 않습니다(D145 ⑤⑥). 첫 판과 같습니다.
 
 ## 5. 감사 기록
 
 ### 5.1 표 `ops_audit`
 
+첫 판의 칸을 그대로 쓰되 실행자와 경로가 바뀝니다.
+
 | 칸 | 뜻 |
 | --- | --- |
 | `id` uuid | 기록 id. 부여 행의 `source_ref`로도 씀 |
-| `at` timestamptz | 실행 시각. trigger가 DB `now()`(트랜잭션 시작 시각)로 정함 |
-| `actor` text | 실행자. trigger가 `session_user`로 정함 |
-| `channel` text | `cli`. `admin_api`는 표의 CHECK에는 있지만 어드민 API 전까지 trigger가 거절함 |
+| `at` timestamptz | 실행 시각. `BEFORE INSERT` trigger가 DB `now()`로 정함 |
+| `actor` text | 실행자. 운영 API가 검증한 IAP JWT의 `email` |
+| `channel` text | `ops_api` 하나(CHECK). CLI와 어드민 웹 모두 이 API를 거침 |
 | `action` text | `account_show`, `grant`, `revoke`, `content_view`, `audit_list` |
-| `account_id` uuid | 대상 계정(조회로 찾지 못하면 NULL) |
-| `purpose` text | 열람 목적(`content_view`만 필수, DB CHECK) |
-| `reason` text | 사유(필수) |
-| `target` jsonb | 무엇을: 조회 키(스토어 거래 id로 찾았으면 그 값), 권한 종류와 기간, 행 id, 열람 종류와 날짜나 항목 id |
-| `before`, `after` jsonb | 바뀐 행의 전후 값(`grant`, `revoke`). 조회와 열람은 NULL |
-
-본문, 호칭, 출생 정보는 기록에 넣지 않습니다. 열람 기록의 `target`에는 항상 `accountId`와 연 항목 id, 개수만 남깁니다. 스토어 거래 id가 여러 계정에 걸려 모호한 조회는 `target`에 후보 계정 id 목록을 남깁니다.
+| `account_id` uuid | 대상 계정(못 찾으면 NULL) |
+| `purpose` text | 열람 목적(`content_view`만 필수) |
+| `reason` text | 사유 |
+| `target` jsonb | 무엇을. 열람은 `accountId`, 연 항목 id, 개수만. 실행자의 IAP `sub` |
+| `before`, `after` jsonb | 부여와 회수의 전후 값 |
 
 ### 5.2 기록 규칙
 
-* **조회와 열람도 기록합니다.** 개인정보 처리 시스템 접속 기록은 조회를 포함하므로(안전성 확보조치 기준) 모든 명령이 기록합니다.
-* **기록이 먼저:** 변경 명령은 변경과 기록을 한 트랜잭션에 씁니다. 조회와 열람 명령은 기록을 커밋한 뒤에만 결과를 출력합니다. 기록에 실패하면 아무것도 보이지 않습니다.
-* **거절은 기록하지 않음:** 부여와 회수가 거절되면(DB 시각 기준 기간 검사 실패, 회수 불가 출처 등) 트랜잭션이 되돌아가 감사 행이 없습니다. 인자 해석과 사유 검사 같은 사용법 오류는 DB에 붙기 전에 끝납니다.
-* **어드민 API 전까지 cli만:** trigger가 `channel`이 `cli`가 아닌 행을 거절합니다. psql로 `admin_api`를 넣어 실행자를 임의로 남기는 경로가 없습니다. 어드민 API를 만들 때 그 경로의 실행자 결정 방식과 INSERT 권한을 다시 정합니다.
-* **고칠 수 없음:** `myungli_ops`는 `ops_audit`에 `INSERT`와 `SELECT`만 있습니다. `myungli_app`은 retention 때문에 `DELETE`가 필요하므로(app 역할의 `UPDATE`와 `INSERT`는 거둠), 표의 trigger가 `UPDATE`를 언제나 거절하고 `DELETE`는 `at`이 2년보다 오래된 행만 허용합니다. 표 주인(migrator)만 trigger를 끌 수 있습니다.
-* **보관:** 2년. `job retention`이 2년 지난 행을 지웁니다(접속 기록 보관 기준). 정리 쿼리는 clock과 DB `now()` 기준 2년을 함께 만족하는 행만 고릅니다(trigger의 DB 시계와 어긋나도 거절당하지 않게). 운영자 부여 권한 행(`operator`)도 끝난 지 2년이 지나면 함께 지웁니다.
-* **합치기:** 계정 합치기는 구매 구간만 옮깁니다(보상 구간과 같이 운영자 부여 행은 옮기지 않음). 필요하면 합친 계정에 다시 줍니다. 계정 삭제(익명화) 때도 지우지 않습니다. 계정 id만 있고 개인정보 본문이 없기 때문입니다. 지휘의 수집, 보관 대장(D87)에 반영을 요청합니다.
-* **기록 보기:** `ops audit list --account <uuid>` 또는 `--since <날짜>`. 이 조회 자체도 기록합니다(`action` `audit_list`).
+* **실행자 신뢰 경계:** 사람 DB 계정이 없으므로 `ops_audit`에 행을 넣을 수 있는 것은 `server-ops` 서비스 계정(`myungli_ops`)뿐입니다. 실행자 값은 그 서비스가 IAP JWT를 검증해 넣습니다. trigger는 `at`을 `now()`로 덮고 `channel`이 `ops_api`가 아니면 거절합니다. `actor`는 덮지 않습니다(`session_user`는 서비스 계정이라 사람을 가리키지 않음).
+* **조회와 열람도 기록, 기록이 먼저, 실패하면 결과 없음, 거절은 기록하지 않음:** 첫 판과 같습니다.
+* **고칠 수 없음:** `myungli_ops`는 `ops_audit`에 INSERT와 SELECT만, `myungli_app`은 retention용 DELETE만(UPDATE, INSERT 없음). trigger가 UPDATE와 TRUNCATE를 언제나, DELETE는 2년 안의 행을 거절합니다.
+* **`migrate down`이 감사 기록을 지우지 않음:** 00029의 Down은 `ops_audit`과 그 trigger를 남기고 역할 권한만 거둡니다. Up은 이미 있는 표를 그대로 씁니다(#1381 점검 Low 5).
+* **보관 2년, 합치기와 계정 삭제:** 첫 판과 같습니다.
 
-## 6. 구조와 재사용
+## 6. 권한 범위 (`myungli_ops`)
+
+구성원은 `server-ops` 서비스 계정 하나입니다.
+* `accounts`, `entitlement_grants`, `purchases`, `diaries`, `diary_days`, `schedules`의 SELECT, `auth_identities`, `devices`, `profiles`는 쿼리가 쓰는 칸만 SELECT(subject, 토큰, 알림 token과 해시, 출생 정보 해시, 알림 설정 제외).
+* `entitlement_grants` INSERT와 `revoked_at` UPDATE, sequence USAGE.
+* `accounts.updated_at` UPDATE: 부여가 계정 행을 `FOR SHARE`로 잠그는 데 PostgreSQL이 UPDATE 권한을 요구해서입니다. 사람이 쓸 수 없으므로 점검 Low 7의 위험(사람이 임의 갱신)은 없어집니다.
+* `ops_audit` INSERT와 SELECT.
+
+**SECURITY DEFINER로 옮기지 않는 이유:** 점검 High와 Low 1, 3은 사람이 이 역할로 직접 SQL을 쓸 수 있다는 전제였습니다. 이제 구성원이 운영 API 서비스 계정 하나라, 그 계정의 쓰기 범위(권한 행 넣기와 회수)는 런타임 계정이 이미 가진 범위(결제 동기화가 권한 행을 쓰고 고침)보다 넓지 않습니다. 서비스 계정 탈취는 런타임 탈취와 같은 등급의 위험으로 보고, 출처와 회수 대상 검사는 Service 코드와 테스트가 맡습니다.
+
+## 7. 구조
 
 ```
-internal/ops/            핵심 함수(어드민 API가 그대로 씀)
-  ops.go                 Service와 DB 시각 출처, Actor{ID, Channel}
-  account.go             AccountSummary
-  grant.go               Grant, Revoke
-  content.go             ViewDiary, ViewSchedule, ViewProfile
-  auditlist.go           AuditList
-  audit.go               감사 기록 쓰기(트랜잭션 안), 목적과 사유 검사
-  opsdb/                 sqlc 쿼리
-internal/cli/ops.go      인자 해석, session_user로 Actor 만들기, 표와 JSON 출력
+internal/ops/               핵심 함수(첫 판 그대로, Actor.Channel은 ops_api)
+internal/opsapi/            운영 API: 라우터, IAP JWT 검증, 허용 목록, 요청과 응답 JSON
+  iap.go                    서명 헤더 검증(공개키 캐시), Identity{Email, Subject}
+  router.go                 /ops/v1/* 등록(ops-serve 전용)
+  handlers.go               요청 해석과 검증, Service 호출, 오류 매핑
+internal/cli/ops.go         CLI: 인자 해석, OAuth ID token, API 호출, 표와 JSON 출력
+internal/cli/opsserve.go    server ops-serve: 설정, DB(myungli_ops), opsapi 라우터
+deploy/terraform/env/       server-ops 서비스, 서비스 계정, DB 사용자, IAP 에이전트 invoker, OPS_OPERATORS Secret 틀
 ```
 
-* Service 함수는 모두 `Actor`와 사유를 받고 안에서 감사 기록을 씁니다. 기록 없이 데이터를 돌려주는 공개 함수는 없습니다.
-* 권한 부여와 회수는 `internal/billing`에 출처 `operator`와 행 단위 회수 함수를 더해 씁니다. 권한 판정(`Status`)과 계약 변환(`contractSource`)은 billing과 httpapi에 있는 그대로 고칩니다.
-* HTTP 경로는 열지 않습니다.
+* `ops-serve`는 `CLOUD_SQL_INSTANCE`가 없으면 기동하지 않습니다(배포 환경, #1381 점검 Info 8). local은 `DATABASE_URL`로 띄우고 IAP 검증을 개발용 고정 신원으로 바꾸는 설정은 local에서만 허용합니다(staging과 prod는 거절).
+* 앱 서버 라우터와 운영 라우터는 서로의 경로를 갖지 않음을 테스트로 고정합니다.
 
-## 7. 오류 처리
+## 8. 오류 처리
 
-* 인자 오류(사유 없음, 목적 값 틀림, 대상 둘 다 또는 하나도 없음, 기간 범위 밖): 종료 코드 2, 데이터를 바꾸거나 보이지 않고 감사 기록도 남기지 않습니다. 인자 해석 단계의 오류는 DB에 붙기 전에, 기간 범위처럼 DB 시각이 필요한 검사는 Service가 트랜잭션을 되돌려 끝냅니다.
-* 계정 없음: 종료 코드 1, 감사 기록은 남깁니다(무엇을 찾았는지 남기기 위해, `account_id` NULL).
-* 프로필 없음(계정은 있고 프로필 행만 없음): 종료 코드 1, "프로필이 없습니다"로 계정 없음과 구분하고 감사 기록은 남깁니다.
-* 권한 오류(DB 역할 없음): 종료 코드 1, 연결 사용자를 보여 주고 runbook의 권한 절로 안내합니다.
+* 입력 오류(사유, 목적, 대상 둘 다 또는 없음, 기간 범위, 거래 id 형식): 400, 감사 없음.
+* IAP 헤더 없음이나 검증 실패: 401. 허용 목록 밖: 403. 둘 다 감사 없음(데이터에 닿지 않음), 로그에는 사유 코드만.
+* 계정 없음, 프로필 없음: 404, 감사 있음.
+* 회수 불가, 이미 끝남, 지운 계정 부여: 409, 감사 없음.
+* CLI는 상태 코드를 첫 판의 종료 코드로 바꿉니다(400은 2, 나머지 실패는 1).
 
-## 8. 테스트
+## 9. 테스트
 
-* `internal/ops`: testcontainers DB로 명령마다 결과와 감사 행(칸, 전후 값), 기록 실패 때 결과 없음, 사유와 목적 검사, `ad_free_pass` 회수 거절, 지운 계정 부여 거절, 거절한 부여와 회수는 감사 행을 남기지 않음.
-* 역할 권한: `myungli_ops` 구성원 연결로 허용된 쓰기만 되고, `ops_audit` 갱신과 삭제가 `myungli_app`, `myungli_ops` 모두 거절되는지, `myungli_app`의 `ops_audit` INSERT가 거절되는지, 민감 칸(`auth_identities.subject`, `devices.fcm_token`, `profiles.birth_hash` 등)을 `myungli_ops`가 읽지 못하는지.
-* 감사 trigger: 다른 `actor`와 과거 `at`으로 넣어도 `cli` 행에는 `session_user`와 `now()`가 남는지.
-* 계약: `operator` 출처가 `ad_free_pass`, `rewarded_ad`로 나가는지(`billing_handlers` 테스트), `contractgate`가 변경 없음으로 통과.
-* `internal/cli`: 인자 해석과 출력 형식, 본문이 stderr나 로그로 새지 않는지(로거 출력에 본문이 없음).
-* `retention`: 2년 지난 감사 행 정리.
+* 첫 판의 `internal/ops`, billing, retention, 역할 권한, 감사 trigger 테스트를 새 실행자와 경로(`ops_api`)에 맞게 유지합니다. 사람 IAM 사용자 편입 테스트는 지우고, `DB_OPS_USER` 지정과 "그 밖의 구성원이 있으면 실패", 런타임이 `myungli_ops` 구성원이면 실패, ops가 `myungli_app` 구성원이면 실패를 더합니다.
+* `migrate down` 뒤 `ops_audit`의 행이 남고 다시 up이 성공하는지.
+* `internal/opsapi`: 테스트용 ES256 키로 서명한 JWT로 정상, 서명 틀림, `aud` 틀림, `iss` 틀림, 만료, 헤더 없음, 허용 목록 밖, 허용 목록 비어 있음. 공개키 교체(kid 바뀜) 때 다시 받기.
+* 경로 분리: `serve` 라우터에 `/ops/` 경로가 없고, `ops-serve` 라우터에 앱 경로가 없음.
+* 로그: 요청과 응답 본문, 사유, 목적, 메일이 로거 출력에 없음.
+* 사유의 `@` 거절, 거래 id 형식 제한.
+* CLI: 테스트 서버(httptest)로 요청 본문, 헤더, 상태 코드에서 종료 코드로의 변환, 출력 형식.
+* Terraform: `terraform validate`와 plan에서 `server-ops`에 `allUsers` invoker가 없고 `iap_enabled`가 참인지.
 
-## 9. 문서와 보고
+## 10. 외부 준비(사용자)
 
-* runbook `server/docs/runbook/ops.md`: 준비(gcloud 로그인, 로컬 값), 명령별 사용법과 예시. 목적별 운영 기준은 적지 않습니다.
-* 결정 행 S170(이 설계의 요점), Terraform README의 운영자 추가 절, `docs/local-values.md` server 행(`ops.env`).
-* 지휘 보고(#1376으로 올렸습니다):
-  * 처리방침 처리 목적에 "결제 오류 처리"와 운영자 콘텐츠 열람(정책 위반 확인, 법령 요청 대응)이 따로 없음(writing, 법적 문서 몫, Issue 8번과 함께).
-  * 요청 로그에는 계정 id가 없어 계정별 접속 기록과 앱 버전은 보이지 않음. 필요하면 새 수집 결정이 필요함.
-  * 감사 기록 2년 보관을 수집, 보관 대장에 반영.
+* 데스크톱 OAuth 클라이언트(staging, prod 각각)를 만들고 IAP `programmatic_clients`에 넣기. 클라이언트 id와 secret은 로컬 값.
+* 운영자 계정의 IAP 접근 부여(runbook 명령).
+* Secret `OPS_OPERATORS` 값 넣기.
+* staging spike(§3.4)는 server가 준비한 빈 서비스로 사용자와 함께 확인합니다.
+
+## 11. 문서와 보고
+
+* runbook `server/docs/runbook/ops.md`: 준비(OAuth 로그인, 로컬 값), 운영자 등록과 빼기(IAP 바인딩, `OPS_OPERATORS`), 명령 사용법. 목적별 운영 기준과 내부 통제 세부는 적지 않습니다.
+* 결정 행 S170을 이 개정으로 고칩니다(처음 안을 대체, 대체된 원문은 `decisions-history.md`).
+* #1321에 구현 전 큰 갈래(서비스 분리, 인증 두 겹, POST 본문, CLI spike)를 남기고 지휘의 보안 검토를 받은 뒤 구현합니다.
