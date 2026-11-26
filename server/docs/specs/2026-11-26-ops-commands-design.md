@@ -68,7 +68,7 @@
   * `POST /ops/v1/grants:revoke` `{accountId, grantId, reason}`
   * `POST /ops/v1/content:diary` `{accountId, date | id, purpose, reason}`, `content:schedule`, `content:profile`
   * `POST /ops/v1/audit:list` `{accountId | since, limit, reason}`
-* 응답은 Service 결과 타입의 JSON(첫 판의 camelCase 태그 그대로)입니다. 오류는 `{"code": "...", "message": "..."}`와 상태 코드(400 입력, 401 인증, 403 허용 목록과 CSRF 검사, 404 계정이나 프로필 없음, 405 POST 밖, 409 회수 불가, 이미 끝남, 지운 계정 부여, 모호한 거래 조회, 503 IAP 공개키를 구할 수 없음, 500)입니다. 응답에 `Cache-Control: no-store`.
+* 응답은 Service 결과 타입의 JSON(첫 판의 camelCase 태그 그대로)입니다. 오류는 `{"code": "...", "message": "..."}`와 상태 코드(400 입력, 401 인증, 403 허용 목록과 CSRF 검사, 404 계정이나 프로필 없음, 405 POST 밖, 409 회수 불가, 이미 끝남, 지운 계정 부여, 모호한 거래 조회, 413 본문 64 KiB 초과(`invalid_input`, 인증과 허용 목록 뒤 본문을 읽을 때), 503 IAP 공개키를 구할 수 없음, 500)입니다. 응답에 `Cache-Control: no-store`.
 * 요청 본문 상한 64 KiB. 응답 본문과 요청 본문은 로그에 남기지 않습니다(`accessLog`는 route, status, latency만).
 * 운영 API 계약은 지금 server 안에 둡니다(어드민 웹이 생길 때 web과의 계약 파일로 올립니다).
 
@@ -132,7 +132,7 @@
 
 * **실행자 신뢰 경계:** 사람 DB 계정이 없으므로 `ops_audit`에 행을 넣을 수 있는 것은 `server-ops` 서비스 계정(`myungli_ops`)뿐입니다. 실행자 값은 그 서비스가 IAP JWT를 검증해 넣습니다. trigger는 `at`을 `now()`로 덮고 `channel`이 `ops_api`가 아니면 거절합니다. `actor`는 덮지 않습니다(`session_user`는 서비스 계정이라 사람을 가리키지 않음).
 * **조회와 열람도 기록, 기록이 먼저, 실패하면 결과 없음, 거절은 기록하지 않음:** 첫 판과 같습니다.
-* **고칠 수 없음:** `myungli_ops`는 `ops_audit`에 INSERT와 SELECT만, `myungli_app`은 retention용 DELETE만(UPDATE, INSERT 없음). trigger가 UPDATE와 TRUNCATE를 언제나, DELETE는 2년 안의 행을 거절합니다.
+* **고칠 수 없음:** `myungli_ops`는 `ops_audit`에 INSERT와 SELECT만, `myungli_app`은 retention용 DELETE와 그 조건이 쓰는 `at` 칸 SELECT만(UPDATE, INSERT, 다른 칸 SELECT 없음, 00024 기본 권한이 준 표 단위 SELECT를 거둠). trigger가 UPDATE와 TRUNCATE를 언제나, DELETE는 2년 안의 행을 거절합니다.
 * **`migrate down`이 감사 기록을 지우지 않음:** 00029의 Down은 `ops_audit`과 그 trigger를 남기고 역할 권한만 거둡니다. Up은 이미 있는 표를 그대로 씁니다(#1381 점검 Low 5).
 * **보관 2년, 합치기와 계정 삭제:** 첫 판과 같습니다.
 
@@ -166,7 +166,8 @@ deploy/terraform/env/       server-ops 서비스, 서비스 계정, DB 사용자
 
 * 입력 오류(사유, 목적, 대상 둘 다 또는 없음, 기간 범위, 거래 id 형식): 400, 감사 없음.
 * IAP 헤더 없음이나 검증 실패: 401. 허용 목록 밖: 403. 둘 다 감사 없음(데이터에 닿지 않음), 로그에는 사유 코드만.
-* 계정 없음, 프로필 없음: 404, 감사 있음.
+* 조회와 열람의 계정 없음, 프로필 없음: 404, 감사 있음.
+* 부여 대상 계정 없음, 회수할 부여 행 없음: 404, 감사 없음.
 * 회수 불가, 이미 끝남, 지운 계정 부여: 409, 감사 없음.
 * IAP 공개키를 구할 수 없음(받은 적이 없거나 마지막으로 받은 지 24시간이 넘음): 503, 감사 없음.
 * CLI는 상태 코드를 첫 판의 종료 코드로 바꿉니다(400은 2, 나머지 실패는 1).

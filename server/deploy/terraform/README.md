@@ -42,7 +42,7 @@ bootstrap state의 원본은 그 프로젝트의 state bucket `<프로젝트>-tf
 printf '%s' "<값>" | gcloud secrets versions add JWT_SIGNING_KEY --project <프로젝트> --data-file=-
 ```
 
-Secret 목록: `JWT_SIGNING_KEY`, `TOKEN_ENCRYPTION_KEY`, `KAKAO_ADMIN_KEY`, `APPLE_PRIVATE_KEY`, `REVENUECAT_API_KEY`, `REVENUECAT_WEBHOOK_AUTH`, `RESEND_API_KEY`(문의 메일, S134), `LEGAL_BUSINESS_INFO`(법적 문서 사업자 정보, 아래 절, S157), `OPS_OPERATORS`(운영 API 허용 목록, 아래 "운영 API", S170), staging만 `TEST_LOGIN_SECRET`. `RESEND_API_KEY`는 값을 넣은 뒤 env tfvars의 `support_mail_enabled`를 `true`로 바꿔야 server에 붙습니다(그 전에는 문의 접수만 503). 키 교체 때는 tfvars에 이전 키 id를 넣으면 `JWT_PREVIOUS_KEY`·`TOKEN_PREVIOUS_KEY` 틀이 생깁니다. staging은 `billing_enabled = false`인 동안 `REVENUECAT_API_KEY`, `REVENUECAT_WEBHOOK_AUTH` 값이 없어도 server를 배포합니다(결제만 꺼짐, S123). 값을 넣고 env tfvars의 결제 설정 둘을 채운 뒤 `true`로 바꿉니다.
+Secret 목록: `JWT_SIGNING_KEY`, `TOKEN_ENCRYPTION_KEY`, `KAKAO_ADMIN_KEY`, `APPLE_PRIVATE_KEY`, `REVENUECAT_API_KEY`, `REVENUECAT_WEBHOOK_AUTH`, `RESEND_API_KEY`(문의 메일, S134), `LEGAL_BUSINESS_INFO`(법적 문서 사업자 정보, 아래 절, S157), `OPS_OPERATORS`(운영 API 허용 목록, 아래 "운영 API", S170), staging만 `TEST_LOGIN_SECRET`. `RESEND_API_KEY`는 값을 넣은 뒤 env tfvars의 `support_mail_enabled`를 `true`로 바꿔야 server에 붙습니다(그 전에는 문의 접수만 503). 키 교체 때는 tfvars에 이전 키 id를 넣으면 `JWT_PREVIOUS_KEY`, `TOKEN_PREVIOUS_KEY` 틀이 생깁니다. staging은 `billing_enabled = false`인 동안 `REVENUECAT_API_KEY`, `REVENUECAT_WEBHOOK_AUTH` 값이 없어도 server를 배포합니다(결제만 꺼짐, S123). 값을 넣고 env tfvars의 결제 설정 둘을 채운 뒤 `true`로 바꿉니다.
 
 ### 운영 API (`server-ops`, S170)
 

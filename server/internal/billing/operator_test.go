@@ -93,6 +93,16 @@ func TestGrantOperator_InsightOnly(t *testing.T) {
 	assert.True(t, status.Insight.Active)
 }
 
+func TestGrantOperator_MissingAccount(t *testing.T) {
+	pool := dbtest.New(t)
+	accountID := uuid.New()
+
+	_, err := grantOperator(t, pool, accountID, billing.OperatorAdFree)
+
+	require.ErrorIs(t, err, billing.ErrAccountMissing)
+	assert.NotErrorIs(t, err, billing.ErrAccountNotActive)
+}
+
 func TestGrantOperator_RejectsInactiveAccount(t *testing.T) {
 	pool := dbtest.New(t)
 	var accountID uuid.UUID

@@ -1,5 +1,5 @@
 # 환경 하나에 server를 배포합니다(deploy-server.yml이 부름, spec §7.1).
-# 순서: 엔진 이미지 확인 → Terraform apply → 설정·Secret 확인 → server-ops 계정 검사 → 이미지 → migrate → seed → server → server-ops → Job → Scheduler → 부하 생성기(부하 환경만) → Firebase Hosting
+# 순서: 엔진 이미지 확인 → Terraform apply → 설정, Secret 확인 → server-ops 계정 검사 → 이미지 → migrate → seed → server → server-ops → Job → Scheduler → 부하 생성기(부하 환경만) → Firebase Hosting
 # → 판 맞춤 확인 → 조합 확인(D147, S169). 엔진이 뒤처졌으면 조합 확인을 건너뛰고 engine_behind를 내어, 부르는 쪽이 엔진을 배포한 뒤 확인합니다.
 # env와 Secret 연결은 Terraform이 두지 않고, 준비를 확인한 뒤 이미지와 함께 여기서 붙입니다(S121).
 name: deploy-server-env

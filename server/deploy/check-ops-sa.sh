@@ -6,15 +6,23 @@
 #
 # ① server-ops 계정의 IAM 정책: deployer의 roles/iam.serviceAccountUser 말고 다른 바인딩이 있으면 실패합니다.
 #    (Terraform이 google_service_account_iam_policy로 이 정책 전체를 정하므로, 다른 바인딩은 Terraform 밖에서 생긴 것입니다.)
-# ② 프로젝트 IAM 정책: 아래 다섯 역할을 가진 주체가 있으면 실패합니다. 프로젝트 단위 부여는 프로젝트의 모든 서비스 계정을
+# ② 프로젝트 IAM 정책: 아래 역할을 가진 주체가 있으면 실패합니다. 프로젝트 단위 부여는 프로젝트의 모든 서비스 계정을
 #    빌려 쓰게(키 관리 역할은 키를 만들어 그 계정으로 로그인하게) 하므로 server-ops도 포함됩니다.
 #      roles/iam.serviceAccountUser, roles/iam.serviceAccountTokenCreator, roles/iam.workloadIdentityUser,
 #      roles/iam.serviceAccountKeyAdmin(예외 없음),
 #      roles/editor(예외 없음, iam.serviceAccountKeys.create와 iam.serviceAccounts.actAs를 포함)
+#    아래 셋은 빌려 쓰기 권한을 스스로 줄 수 있거나 DB를 직접 열 수 있는 관리 역할입니다.
+#      roles/iam.serviceAccountAdmin(서비스 계정 IAM 정책을 바꿔 server-ops 빌려 쓰기를 스스로 줌),
+#      roles/resourcemanager.projectIamAdmin(프로젝트 IAM 정책을 바꿔 위 역할을 스스로 줌),
+#      roles/cloudsql.admin(cloudsqlsuperuser 사용자를 만들어 myungli_ops 없이 표를 읽음, migrate 검사에 걸리지 않음)
 #    roles/owner는 넣지 않습니다. 소유자(사람)만 가지며 owner는 IAM 정책 자체를 바꿀 수 있어 이 검사로 막을 수 없습니다(runbook "남는 위험").
-#    예외: deployer의 프로젝트 단위 roles/iam.serviceAccountUser 하나. bootstrap deployer_roles가 주는 것이고,
-#    모든 Cloud Run 서비스와 Job을 각자의 계정으로 배포하는 actAs에 필요합니다. 서비스 계정 단위로 좁히는 것은
-#    bootstrap 변경(사용자 apply)이라 #1321에 제안으로 남깁니다.
+#    예외(deployer만): 프로젝트 단위 roles/iam.serviceAccountUser, roles/iam.serviceAccountAdmin,
+#    roles/resourcemanager.projectIamAdmin, roles/cloudsql.admin. 모두 bootstrap deployer_roles가 주는 것입니다.
+#    serviceAccountUser는 모든 Cloud Run 서비스와 Job을 각자의 계정으로 배포하는 actAs에, serviceAccountAdmin은 env가
+#    서비스 계정과 그 IAM 정책(server-ops 포함)을 만드는 데, projectIamAdmin은 env의 프로젝트 IAM 부여에, cloudsql.admin은
+#    Cloud SQL 인스턴스, DB, IAM 사용자를 만드는 데 씁니다. deployer가 이것으로 할 수 있는 일은 브랜치 보호, PR 리뷰,
+#    prod 승인이 막습니다(runbook "남는 위험"). 서비스 계정 단위로 좁히는 것은 bootstrap 변경(사용자 apply)이라 #1321에 제안으로 남깁니다.
+#    검사 범위는 프로젝트 IAM 정책뿐입니다. 폴더와 조직 단위에서 상속되는 부여는 보지 않습니다(runbook 5, 6절).
 # ③ server-ops 계정의 사용자 관리 키: 하나라도 있으면 실패합니다. 키가 있으면 IAM 정책과 상관없이 그 계정으로 로그인할 수 있습니다.
 #    출력에는 키 개수만 적고 키 id는 적지 않습니다.
 #
@@ -98,9 +106,12 @@ sa_violations="$(jq -r --arg deployer "$deployer" "$jq_mask"'
 # shellcheck disable=SC2016
 project_violations="$(jq -r --arg deployer "$deployer" "$jq_mask"'
   ["roles/iam.serviceAccountUser", "roles/iam.serviceAccountTokenCreator", "roles/iam.workloadIdentityUser",
-   "roles/iam.serviceAccountKeyAdmin", "roles/editor"] as $watched
+   "roles/iam.serviceAccountKeyAdmin", "roles/editor",
+   "roles/iam.serviceAccountAdmin", "roles/resourcemanager.projectIamAdmin", "roles/cloudsql.admin"] as $watched
+  | ["roles/iam.serviceAccountUser", "roles/iam.serviceAccountAdmin",
+     "roles/resourcemanager.projectIamAdmin", "roles/cloudsql.admin"] as $deployer_allowed
   | [.bindings[]? | select(.role as $r | $watched | index($r)) | .role as $role | .members[]?
-    | select(($role == "roles/iam.serviceAccountUser" and . == $deployer) | not)
+    | select(((. == $deployer) and ($deployer_allowed | index($role))) | not)
     | "\($role) \(mask)"] | .[]' <<< "$project_json")"
 
 user_key_count="$(jq 'length' <<< "$keys_json")"
@@ -117,7 +128,7 @@ report() {
     while IFS= read -r line; do echo "* $line"; done <<< "$sa_violations"
   fi
   if [ -n "$project_violations" ]; then
-    echo "프로젝트 IAM 정책에 모든 서비스 계정을 빌려 쓰게 하는 부여가 있습니다:"
+    echo "프로젝트 IAM 정책에 서비스 계정을 빌려 쓰게 하거나 그 권한을 스스로 줄 수 있거나 DB를 직접 여는 부여가 있습니다:"
     while IFS= read -r line; do echo "* $line"; done <<< "$project_violations"
   fi
   if [ "$user_key_count" -ne 0 ]; then

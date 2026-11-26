@@ -462,6 +462,13 @@ func TestHandlers_GrantStatusMapping(t *testing.T) {
 		rec := env.post(t, "/ops/v1/grants", jsonBody(t, map[string]any{"accountId": deleted, "entitlement": "ad_free", "days": 3, "reason": secretReason}))
 		assert.Equal(t, http.StatusConflict, rec.Code)
 		assert.Equal(t, "conflict", decodeError(t, rec).Code)
+		assert.Zero(t, env.auditCount(t), "지운 계정 부여는 감사 행을 남기지 않습니다")
+	})
+	t.Run("없는 계정 부여는 404", func(t *testing.T) {
+		rec := env.post(t, "/ops/v1/grants", jsonBody(t, map[string]any{"accountId": uuid.New(), "entitlement": "ad_free", "days": 3, "reason": secretReason}))
+		assert.Equal(t, http.StatusNotFound, rec.Code)
+		assert.Equal(t, "not_found", decodeError(t, rec).Code)
+		assert.Zero(t, env.auditCount(t), "없는 계정 부여는 감사 행을 남기지 않습니다")
 	})
 }
 

@@ -533,7 +533,7 @@ func LoadSupport(getenv func(string) string) (SupportConfig, error) {
 type OpsConfig struct {
 	// Audience는 IAP 서명 헤더의 aud(/projects/<번호>/locations/<리전>/services/server-ops)입니다.
 	Audience string
-	// Operators는 운영자 허용 목록 원문(OPS_OPERATORS, Secret)입니다. 해석은 opsapi.ParseAllowlist가 합니다.
+	// Operators는 운영자 허용 목록 원문(OPS_OPERATORS, Secret)입니다. 해석은 운영 API 서버가 합니다.
 	Operators string
 	// DevIdentity는 local 전용 고정 신원(OPS_DEV_IDENTITY)입니다. 있으면 IAP 검증을 대신합니다.
 	DevIdentity *OpsDevIdentity

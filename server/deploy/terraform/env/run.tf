@@ -140,8 +140,11 @@ resource "google_cloud_run_v2_service" "server_ops" {
   template {
     service_account = google_service_account.ops.email
 
+    # 운영 호출은 사람 몇 명이 드물게 부르므로 인스턴스 둘이면 충분합니다. 상한을 두어 잘못 반복된 호출이나
+    # 키를 가진 쪽의 과도한 요청이 인스턴스를 늘려 DB 연결과 비용을 키우지 않게 합니다.
     scaling {
       min_instance_count = 0
+      max_instance_count = 2
     }
 
     # vpc_access를 두지 않습니다. server가 VPC를 쓰는 까닭은 internal ingress 엔진 호출(network.tf)인데 운영 API는 엔진을 부르지 않고,

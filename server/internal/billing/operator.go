@@ -27,7 +27,10 @@ const (
 )
 
 var (
-	// ErrAccountNotActive는 권한을 줄 계정이 없거나 active가 아니라는 뜻입니다.
+	// ErrAccountMissing은 권한을 줄 계정 행이 없다는 뜻입니다. ops가 이 패키지를 쓰므로(순환 방지)
+	// 여기에 두고, ops가 자기 ErrAccountNotFound로 바꿉니다.
+	ErrAccountMissing = errors.New("계정을 찾을 수 없습니다")
+	// ErrAccountNotActive는 권한을 줄 계정이 있지만 active가 아니라는 뜻입니다(지운 계정, 지우는 중인 계정).
 	ErrAccountNotActive = errors.New("활성 계정이 아닙니다")
 	// ErrGrantNotFound는 그 계정에 해당 권한 행이 없다는 뜻입니다.
 	ErrGrantNotFound = errors.New("권한 행을 찾을 수 없습니다")
@@ -55,7 +58,7 @@ var operatorEntitlements = map[OperatorKind][]Entitlement{
 }
 
 // GrantOperatorTx는 계정에 kind에 맞는 권한 행을 출처 operator로 적고, 적은 행을 돌려줍니다.
-// 한 번의 부여는 같은 sourceRef를 공유하며, 계정이 active가 아니면 ErrAccountNotActive입니다.
+// 한 번의 부여는 같은 sourceRef를 공유하며, 계정이 없으면 ErrAccountMissing, active가 아니면 ErrAccountNotActive입니다.
 func GrantOperatorTx(ctx context.Context, tx pgx.Tx, accountID uuid.UUID, kind OperatorKind, sourceRef string, startsAt, expiresAt time.Time) ([]GrantRow, error) {
 	entitlements, ok := operatorEntitlements[kind]
 	if !ok {
@@ -157,14 +160,17 @@ func toGrantRow(row billingdb.EntitlementGrant) GrantRow {
 	}
 }
 
-// requireActiveAccount는 계정 행을 FOR SHARE로 잡고, 없거나 active가 아니면 ErrAccountNotActive를 돌려줍니다.
+// requireActiveAccount는 계정 행을 FOR SHARE로 잡고, 없으면 ErrAccountMissing, active가 아니면 ErrAccountNotActive를 돌려줍니다.
 func requireActiveAccount(ctx context.Context, q *billingdb.Queries, accountID uuid.UUID) error {
 	status, err := q.LockAccountStatus(ctx, accountID)
-	if errors.Is(err, pgx.ErrNoRows) || (err == nil && status != "active") {
-		return ErrAccountNotActive
+	if errors.Is(err, pgx.ErrNoRows) {
+		return ErrAccountMissing
 	}
 	if err != nil {
 		return fmt.Errorf("계정 확인: %w", err)
+	}
+	if status != "active" {
+		return ErrAccountNotActive
 	}
 	return nil
 }

@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -18,11 +19,35 @@ import (
 
 const opsEmpty = "-"
 
-// writeOpsJSON은 결과를 들여쓴 JSON으로 씁니다.
+// writeOpsJSON은 결과를 들여쓴 JSON으로 씁니다. Go encoder는 C0 제어문자만 \uXXXX로 이스케이프하고
+// DEL, C1 제어문자(U+0080~U+009F), 양방향(bidi) 제어문자는 그대로 내므로, escapeJSONTerminal로 그 글자를
+// \uXXXX로 바꿔 터미널에 그대로 찍어도 안전하게 합니다. 바꾼 뒤에도 JSON 값은 같습니다.
 func writeOpsJSON(w io.Writer, v any) error {
-	encoder := json.NewEncoder(w)
+	var buf bytes.Buffer
+	encoder := json.NewEncoder(&buf)
 	encoder.SetIndent("", "  ")
-	return encoder.Encode(v)
+	if err := encoder.Encode(v); err != nil {
+		return err
+	}
+	_, err := w.Write(escapeJSONTerminal(buf.Bytes()))
+	return err
+}
+
+// escapeJSONTerminal은 encoder가 낸 JSON에서 터미널 제어문자(isTerminalControl)와 bidi 제어문자를 \uXXXX로 바꿉니다.
+// encoder가 문자열 안의 \n, \t와 C0 제어문자를 이미 이스케이프하므로 남은 \n은 들여쓰기 줄바꿈뿐이고 그대로 둡니다.
+// 바꾸는 글자는 모두 ASCII 밖이거나 DEL이라 JSON 구조 글자가 아니므로 문자열 값 안에만 있고,
+// 모두 BMP 글자라 \uXXXX 하나로 같은 값이 됩니다. encoder가 잘못된 UTF-8을 U+FFFD로 바꾸므로 입력은 올바른 UTF-8입니다.
+func escapeJSONTerminal(encoded []byte) []byte {
+	var out bytes.Buffer
+	out.Grow(len(encoded))
+	for _, r := range string(encoded) {
+		if r != '\n' && r != '\t' && (isTerminalControl(r) || isBidiControl(r)) {
+			fmt.Fprintf(&out, `\u%04x`, r)
+			continue
+		}
+		out.WriteRune(r)
+	}
+	return out.Bytes()
 }
 
 // newOpsTable은 표 출력기를 만듭니다. 쓴 뒤 Flush를 불러야 합니다.
@@ -38,7 +63,7 @@ func cell(s string) string {
 // sanitizeTerminal은 사용자 입력 글에서 터미널 제어문자(\n, \t 외 C0 제어문자와 DEL, C1 U+0080~U+009F)와
 // 양방향(bidi) 제어문자(U+061C, U+200E, U+200F, U+202A~U+202E, U+2066~U+2069)를 U+FFFD로 바꿉니다.
 // 사람이 읽는 출력에서 ESC 시퀀스로 터미널을 조작하거나 글자 방향을 뒤집어 다른 내용처럼 보이게 하지 못하게 합니다.
-// JSON은 이스케이프되므로 그대로 둡니다.
+// JSON 출력은 이 함수 대신 escapeJSONTerminal로 같은 글자를 \uXXXX로 이스케이프합니다(값은 그대로).
 func sanitizeTerminal(s string) string {
 	return strings.Map(func(r rune) rune {
 		if isTerminalControl(r) || isBidiControl(r) {

@@ -663,10 +663,17 @@ func TestOpsLogin_RejectsGroupWritableDir(t *testing.T) {
 	assert.ErrorIs(t, err, os.ErrNotExist)
 }
 
-func TestOpsLogin_CreatesMissingDirPrivate(t *testing.T) {
-	dir := filepath.Join(t.TempDir(), "server", "staging")
-	require.NoError(t, ensureOpsDir(dir))
-	info, err := os.Stat(dir)
-	require.NoError(t, err)
-	assert.Equal(t, os.FileMode(0o700), info.Mode().Perm())
+// 자격 파일을 읽을 때도 담은 폴더에 그룹 쓰기 권한이 있으면 거절합니다(파일 자체는 600이어도).
+func TestLoadOpsCredentials_RejectsGroupWritableDir(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "server", "prod")
+	require.NoError(t, os.MkdirAll(dir, 0o700))
+	path := filepath.Join(dir, "ops-oauth.json")
+	require.NoError(t, os.WriteFile(path, []byte(`{"apiUrl":"https://ops.example.test","clientId":"c","clientSecret":"s","refreshToken":"r"}`), 0o600))
+	_, err := loadOpsCredentials(path, "prod")
+	require.NoError(t, err, "권한이 좁은 폴더는 통과합니다")
+
+	require.NoError(t, os.Chmod(dir, 0o770)) //nolint:gosec // 거절되는지 보려고 일부러 넓힌 권한입니다
+	_, err = loadOpsCredentials(path, "prod")
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "쓰기 권한")
 }

@@ -81,6 +81,11 @@ REVOKE UPDATE ON ops_audit FROM myungli_app;
 -- 앱 런타임은 감사 행을 쓰지 않습니다. 감사 행은 server-ops(myungli_ops)만 씁니다.
 -- retention용 DELETE는 남깁니다.
 REVOKE INSERT ON ops_audit FROM myungli_app;
+-- 앱 런타임은 감사 행의 사유, 대상, 전후 값을 읽지 않습니다. 00024의 기본 권한이 준 표 단위 SELECT를 거두고,
+-- retention의 DELETE ... WHERE at < ...가 조건에 쓰는 at 칸만 읽게 합니다(DELETE의 WHERE는 그 칸의 SELECT 권한이 필요).
+-- 표 단위 REVOKE는 칸 권한도 함께 거두므로 다시 적용해도 같은 상태가 됩니다.
+REVOKE SELECT ON ops_audit FROM myungli_app;
+GRANT SELECT (at) ON ops_audit TO myungli_app;
 
 -- +goose StatementBegin
 DO $$
@@ -126,6 +131,8 @@ REVOKE USAGE ON SCHEMA public FROM myungli_ops;
 -- 감사 기록은 보관 의무가 있어 ops_audit 표, 함수, trigger, 인덱스를 지우지 않습니다. myungli_ops 권한만 거둡니다.
 -- (INSERT와 SELECT 권한은 위 REVOKE와 아래에서 거둡니다. 다시 up하면 표를 새로 만들지 않고 그대로 씁니다.)
 REVOKE INSERT, SELECT ON ops_audit FROM myungli_ops;
+-- myungli_app의 ops_audit 권한(DELETE와 at 칸 SELECT만)도 Up이 정한 그대로 둡니다. 표가 남으므로
+-- 00024 기본 권한(SELECT, INSERT, UPDATE)으로 되돌리면 앱 런타임이 남은 감사 기록을 읽고 쓸 수 있게 됩니다.
 
 DELETE FROM entitlement_grants WHERE source = 'operator';
 ALTER TABLE entitlement_grants DROP CONSTRAINT entitlement_grants_source_check;

@@ -221,8 +221,7 @@ func randomOpsState() (string, error) {
 	return base64.RawURLEncoding.EncodeToString(buf), nil
 }
 
-// ensureOpsDir는 로컬 값 폴더를 확인합니다. 없으면 0700으로 만들고, 있는데 그룹이나 기타 사용자에게 쓰기 권한이 있으면 거절합니다.
-// 다른 사용자가 자격 파일을 바꿔치기하지 못하게 하려는 것입니다.
+// ensureOpsDir는 로컬 값 폴더를 확인합니다. 없으면 0700으로 만들고, 있으면 checkOpsDirInfo로 검사합니다.
 func ensureOpsDir(dir string) error {
 	info, err := os.Stat(dir)
 	if errors.Is(err, fs.ErrNotExist) {
@@ -234,6 +233,25 @@ func ensureOpsDir(dir string) error {
 	if err != nil {
 		return fmt.Errorf("%s 폴더 정보를 읽지 못했습니다: %w", dir, err)
 	}
+	return checkOpsDirInfo(dir, info)
+}
+
+// checkExistingOpsDir는 로컬 값 폴더를 만들지 않고 검사만 합니다. 폴더가 없으면 통과시키고(파일 없음 안내는 호출한 쪽이 함),
+// 있으면 checkOpsDirInfo로 검사합니다.
+func checkExistingOpsDir(dir string) error {
+	info, err := os.Stat(dir)
+	if errors.Is(err, fs.ErrNotExist) {
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("%s 폴더 정보를 읽지 못했습니다: %w", dir, err)
+	}
+	return checkOpsDirInfo(dir, info)
+}
+
+// checkOpsDirInfo는 폴더가 맞는지, 그룹이나 기타 사용자에게 쓰기 권한이 없는지 확인합니다.
+// 다른 사용자가 자격 파일을 바꿔치기하지 못하게 하려는 것입니다.
+func checkOpsDirInfo(dir string, info fs.FileInfo) error {
 	if !info.IsDir() {
 		return fmt.Errorf("%s가 폴더가 아닙니다", dir)
 	}

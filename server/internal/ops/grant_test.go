@@ -101,9 +101,20 @@ func TestGrant_RejectsUnknownKindAndBadInput(t *testing.T) {
 	assert.Empty(t, auditRows(t, pool))
 }
 
-func TestGrant_InactiveAccountRejectedNoAudit(t *testing.T) {
+func TestGrant_MissingAccountNotFoundNoAudit(t *testing.T) {
 	svc, pool := newTestService(t)
 	_, err := svc.Grant(context.Background(), testActor, GrantRequest{AccountID: uuid.New(), Kind: billing.OperatorAdFree, ExpiresAt: testNow.Add(time.Hour), Reason: "r"})
+	assert.ErrorIs(t, err, ErrAccountNotFound)
+	assert.NotErrorIs(t, err, billing.ErrAccountNotActive)
+	assert.Empty(t, auditRows(t, pool))
+}
+
+func TestGrant_DeletedAccountRejectedNoAudit(t *testing.T) {
+	svc, pool := newTestService(t)
+	id := insertAccount(t, pool)
+	_, err := pool.Exec(context.Background(), `UPDATE accounts SET status = 'deleted', deleted_at = now() WHERE id = $1`, id)
+	require.NoError(t, err)
+	_, err = svc.Grant(context.Background(), testActor, GrantRequest{AccountID: id, Kind: billing.OperatorAdFree, ExpiresAt: testNow.Add(time.Hour), Reason: "r"})
 	assert.ErrorIs(t, err, billing.ErrAccountNotActive)
 	assert.Empty(t, auditRows(t, pool))
 }

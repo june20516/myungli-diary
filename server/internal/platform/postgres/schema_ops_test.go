@@ -132,6 +132,39 @@ func TestOpsAudit_AppRoleCannotInsert(t *testing.T) {
 	requirePgError(t, err, insufficientPrivilege, "")
 }
 
+// 앱 런타임(myungli_app)은 감사 행의 at 칸만 읽고, retention의 DELETE(조건 at < ...)는 그대로 됩니다.
+func TestOpsAudit_AppRoleReadsOnlyAt(t *testing.T) {
+	ctx := context.Background()
+	pool := dbtest.New(t)
+	oldID := uuid.Must(uuid.NewV7())
+	insertOldOpsAudit(t, pool, oldID, "2 years 1 day")
+
+	err := asRole(t, pool, "myungli_app", `SELECT reason FROM ops_audit`)
+	requirePgError(t, err, insufficientPrivilege, "")
+	err = asRole(t, pool, "myungli_app", `SELECT * FROM ops_audit`)
+	requirePgError(t, err, insufficientPrivilege, "")
+	if err := asRole(t, pool, "myungli_app", `SELECT at FROM ops_audit`); err != nil {
+		t.Errorf("myungli_app at 칸 SELECT: %v", err)
+	}
+
+	// retentiondb.DeleteOpsAuditBefore와 같은 조건입니다.
+	tx, err := pool.Begin(ctx)
+	if err != nil {
+		t.Fatalf("트랜잭션 시작: %v", err)
+	}
+	defer func() { _ = tx.Rollback(ctx) }()
+	if _, err := tx.Exec(ctx, `SET LOCAL ROLE myungli_app`); err != nil {
+		t.Fatalf("SET ROLE: %v", err)
+	}
+	tag, err := tx.Exec(ctx, `DELETE FROM ops_audit WHERE at < now() - interval '1 year' AND at < now() - interval '2 years'`)
+	if err != nil {
+		t.Fatalf("myungli_app retention DELETE: %v", err)
+	}
+	if tag.RowsAffected() != 1 {
+		t.Errorf("지운 행 = %d, want 1", tag.RowsAffected())
+	}
+}
+
 // 목적은 content_view에만 있고, content_view에는 반드시 있습니다.
 func TestOpsAudit_PurposeRequiredOnlyForView(t *testing.T) {
 	ctx := context.Background()
@@ -192,6 +225,7 @@ func TestMigrate_OpsDownUp(t *testing.T) {
 	if err != nil || canRead || canUpdateAccounts {
 		t.Errorf("되돌린 뒤 myungli_ops 권한 diaries SELECT = %v, accounts.updated_at UPDATE = %v (err %v), want 모두 false", canRead, canUpdateAccounts, err)
 	}
+	requireAppAuditPrivileges(t, pool)
 
 	if err := postgres.Migrate(ctx, pool, "up"); err != nil {
 		t.Fatalf("다시 up: %v", err)
@@ -199,13 +233,25 @@ func TestMigrate_OpsDownUp(t *testing.T) {
 	if err := pool.QueryRow(ctx, `SELECT has_table_privilege('myungli_ops', 'diaries', 'SELECT')`).Scan(&canRead); err != nil || !canRead {
 		t.Errorf("다시 up 뒤 myungli_ops diaries SELECT = %v (err %v), want true", canRead, err)
 	}
-	// retention은 myungli_app 역할로 돌므로 감사 행 DELETE는 되고 UPDATE와 INSERT는 안 되어야 합니다.
-	var appCanDelete, appCanUpdate, appCanInsert bool
-	err = pool.QueryRow(ctx, `SELECT has_table_privilege('myungli_app', 'ops_audit', 'DELETE'),
+	// retention은 myungli_app 역할로 돌므로 감사 행 DELETE와 at 칸 SELECT는 되고, 표 단위 SELECT(다른 칸),
+	// UPDATE, INSERT는 안 되어야 합니다. 되돌린 뒤와 다시 up한 뒤 모두 같아야 합니다(Down이 앱 권한을 넓히지 않음).
+	requireAppAuditPrivileges(t, pool)
+}
+
+// requireAppAuditPrivileges는 myungli_app의 ops_audit 권한이 DELETE와 at 칸 SELECT뿐인지 확인합니다.
+func requireAppAuditPrivileges(t *testing.T, pool *pgxpool.Pool) {
+	t.Helper()
+	var canDelete, canUpdate, canInsert, canSelectTable, canSelectAt, canSelectReason bool
+	err := pool.QueryRow(context.Background(), `SELECT has_table_privilege('myungli_app', 'ops_audit', 'DELETE'),
 		has_table_privilege('myungli_app', 'ops_audit', 'UPDATE'),
-		has_table_privilege('myungli_app', 'ops_audit', 'INSERT')`).Scan(&appCanDelete, &appCanUpdate, &appCanInsert)
-	if err != nil || !appCanDelete || appCanUpdate || appCanInsert {
-		t.Errorf("myungli_app ops_audit DELETE = %v, UPDATE = %v, INSERT = %v (err %v), want true, false, false", appCanDelete, appCanUpdate, appCanInsert, err)
+		has_table_privilege('myungli_app', 'ops_audit', 'INSERT'),
+		has_table_privilege('myungli_app', 'ops_audit', 'SELECT'),
+		has_column_privilege('myungli_app', 'ops_audit', 'at', 'SELECT'),
+		has_column_privilege('myungli_app', 'ops_audit', 'reason', 'SELECT')`).
+		Scan(&canDelete, &canUpdate, &canInsert, &canSelectTable, &canSelectAt, &canSelectReason)
+	if err != nil || !canDelete || canUpdate || canInsert || canSelectTable || !canSelectAt || canSelectReason {
+		t.Errorf("myungli_app ops_audit DELETE = %v, UPDATE = %v, INSERT = %v, 표 SELECT = %v, at SELECT = %v, reason SELECT = %v (err %v), "+
+			"want true, false, false, false, true, false", canDelete, canUpdate, canInsert, canSelectTable, canSelectAt, canSelectReason, err)
 	}
 }
 

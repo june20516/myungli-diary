@@ -106,10 +106,14 @@ type opsCredentials struct {
 	RefreshToken string `json:"refreshToken"`
 }
 
-// loadOpsCredentials는 로컬 값 파일을 읽습니다. 그룹이나 기타 사용자에게 권한이 있으면 거절합니다.
+// loadOpsCredentials는 로컬 값 파일을 읽습니다. 파일에 그룹이나 기타 사용자 권한이 있거나,
+// 담은 폴더에 그룹이나 기타 사용자 쓰기 권한이 있으면(login의 ensureOpsDir와 같은 검사, 만들지는 않음) 거절합니다.
 // 오류 문구에는 파일 경로만 넣고 내용은 넣지 않습니다.
 func loadOpsCredentials(path, env string) (opsCredentials, error) {
 	relogin := fmt.Sprintf("server ops login --env %s --api-url <운영 API 주소>를 실행하세요", env)
+	if err := checkExistingOpsDir(filepath.Dir(path)); err != nil {
+		return opsCredentials{}, err
+	}
 	file, err := os.Open(path) //nolint:gosec // 경로는 로컬 값 폴더와 고정 파일 이름으로 만듭니다.
 	if errors.Is(err, fs.ErrNotExist) {
 		return opsCredentials{}, fmt.Errorf("%s가 없습니다. 먼저 %s", path, relogin)

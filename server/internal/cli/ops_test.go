@@ -140,6 +140,25 @@ func TestOps_TextStripsTerminalControlCharacters(t *testing.T) {
 	assert.Contains(t, out, `\u001b[31m`)
 }
 
+// JSON 출력도 C1, DEL, bidi 제어문자를 그대로 내지 않고 \uXXXX로 이스케이프하며, 해석하면 원래 글이 됩니다.
+func TestOps_JSONEscapesC1AndBidiControls(t *testing.T) {
+	body := "앞\u0085가\u202e나\u007f다\u2066뒤\n둘째 줄"
+	view := ops.DiaryView{Entries: []ops.DiaryEntry{{ID: uuid.New(), Date: profile.LocalDate{Year: 2026, Month: 11, Day: 20}, Body: body, CreatedAt: opsAt, UpdatedAt: opsAt}}}
+
+	out := renderOps(t, func(w io.Writer) error { return writeOpsJSON(w, view) })
+	for _, raw := range []string{"\u0085", "\u202e", "\u007f", "\u2066"} {
+		assert.NotContains(t, out, raw, "출력 바이트에 제어문자가 그대로 있으면 안 됩니다")
+	}
+	for _, escaped := range []string{`\u0085`, `\u202e`, `\u007f`, `\u2066`, `\n`} {
+		assert.Contains(t, out, escaped)
+	}
+
+	var decoded ops.DiaryView
+	require.NoError(t, json.Unmarshal([]byte(out), &decoded))
+	require.Len(t, decoded.Entries, 1)
+	assert.Equal(t, body, decoded.Entries[0].Body)
+}
+
 func TestOps_TextStripsControlCharactersInProfileAndAudit(t *testing.T) {
 	honorific := "수아\x1b[2J"
 	out := renderOps(t, func(w io.Writer) error {

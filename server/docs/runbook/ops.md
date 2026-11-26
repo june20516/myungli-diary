@@ -39,13 +39,15 @@ gcloud services identity create --service=iap.googleapis.com --project=<프로�
    gcloud iap settings get --project=<프로젝트>   # programmatic_clients에 데스크톱 클라이언트 id가 있는지 봅니다
    ```
 
-④ **운영자에게 IAP 접근 주기.** 아래 2절 "운영자 등록"의 1번입니다. 서비스가 있어야 하므로 env apply(첫 `deploy-server`)가 `server-ops`를 만든 뒤에 합니다.
+④ **첫 배포.** `deploy-server`를 그 환경으로 돌립니다. env apply가 `server-ops` 서비스를 만들지만, 아직 `OPS_OPERATORS` 값이 없으므로 `server-ops` 갱신(이미지와 env)은 건너뛰고 요약에 적습니다. 배포는 `server-ops` 계정 검사(`server/deploy/check-ops-sa.sh`)를 먼저 하고, 실패하면 멈춥니다(아래 5절).
 
-⑤ **허용 목록 Secret `OPS_OPERATORS` 값 넣기.** 2절 "운영자 등록"의 2번입니다. 값이 없으면 `deploy-server`는 `server-ops` 갱신만 건너뛰고 요약에 적습니다.
+⑤ **운영자에게 IAP 접근 주기.** 아래 2절 "운영자 등록"의 1번입니다. ④가 만든 `server-ops` 서비스에 줍니다.
 
-⑥ **배포.** `deploy-server`를 그 환경으로 돌립니다. 배포는 `server-ops` 계정 검사(`server/deploy/check-ops-sa.sh`)를 먼저 하고, 실패하면 멈춥니다(아래 5절).
+⑥ **허용 목록 Secret `OPS_OPERATORS` 값 넣기.** 2절 "운영자 등록"의 2번입니다.
 
-⑦ **로그인.** 운영자 컴퓨터에서 한 번 합니다. 브라우저가 열리고, 운영자 Google 계정으로 로그인하면 `ops-oauth.json`(600, 운영 API 주소, 클라이언트 id와 secret, refresh token)이 생깁니다. 이 파일은 비밀(L2)이라 내용을 출력하거나 옮기지 않습니다.
+⑦ **다시 배포.** `deploy-server`를 다시 돌려 `server-ops`를 새 이미지와 `OPS_OPERATORS` 값으로 갱신합니다.
+
+⑧ **로그인.** 운영자 컴퓨터에서 한 번 합니다. 브라우저가 열리고, 운영자 Google 계정으로 로그인하면 `ops-oauth.json`(600, 운영 API 주소, 클라이언트 id와 secret, refresh token)이 생깁니다. 이 파일은 비밀(L2)이라 내용을 출력하거나 옮기지 않습니다.
 
 ```sh
 cd server
@@ -78,7 +80,7 @@ go run ./cmd/server ops audit list --env prod --since 2026-12-01 --reason "등�
    ```
 
 3. `deploy-server`를 다시 돌려 `server-ops` 새 revision이 새 값을 읽게 합니다.
-4. 운영자가 1절 ⑦로 로그인하고 확인합니다.
+4. 운영자가 1절 ⑧로 로그인하고 확인합니다.
 
 **운영자 빼기**
 
@@ -124,7 +126,7 @@ server ops grant --env prod --account 00000000-0000-0000-0000-000000000000 --ent
 
 * `--entitlement`: `ad_free`(광고 제거와 근거 열람 두 행) 또는 `insight`(근거 열람 한 행).
 * 기간은 `--days <1~366>` 또는 `--until <RFC 3339>` 중 하나입니다. 만료는 지금보다 뒤이고 지금부터 366일 이내여야 합니다. "지금"과 부여 시작 시각은 운영자 컴퓨터 시계가 아니라 DB 시각입니다.
-* 지운 계정에는 주지 않습니다(409).
+* 지운 계정에는 주지 않습니다(409). 없는 계정은 404입니다. 둘 다 감사 행을 남기지 않습니다.
 
 ### 권한 회수
 
@@ -166,8 +168,10 @@ server ops audit list --env prod --since 2026-11-01 --limit 200 --reason "Issue 
 | 400 | `invalid_input` | 사유, 목적, 대상, 기간, 거래 id 형식이 틀림. 데이터를 바꾸거나 보이지 않고 감사 행도 없음 | 2 |
 | 401 | `unauthenticated` | IAP 서명 헤더가 없거나 검증 실패 | 1 |
 | 403 | `forbidden` | 허용 목록 밖, 또는 브라우저 요청 차단(헤더, `Origin`, `Sec-Fetch-Site`) | 1 |
-| 404 | `not_found`, `profile_not_found` | 계정, 부여 행, 프로필이 없음(계정 없음과 프로필 없음은 감사 행이 남음) | 1 |
+| 404 | `not_found`, `profile_not_found` | 계정, 부여 행, 프로필이 없음. 조회와 열람의 계정 없음, 프로필 없음은 감사 행이 남고, 부여 대상 계정 없음과 회수할 부여 행 없음은 감사 행이 없음 | 1 |
+| 405 | `invalid_input` | `POST` 밖 메서드(응답 헤더 `Allow: POST`) | 1 |
 | 409 | `conflict` | 회수 불가, 이미 끝남, 지운 계정 부여, 여러 계정에 걸친 거래 id | 1 |
+| 413 | `invalid_input` | 요청 본문이 64 KiB를 넘음(인증과 허용 목록을 통과한 뒤 본문을 읽을 때 판정, 감사 행 없음) | 1 |
 | 503 | `unavailable` | IAP 공개키를 구할 수 없음. 잠시 뒤 다시 | 1 |
 | 500 | `internal` | 내부 오류(원문은 응답과 로그에 없음) | 1 |
 
@@ -179,16 +183,20 @@ CLI 자체의 사용법 오류(인자 빠짐, 형식 틀림)도 종료 코드 2�
 
 * `server-ops` 계정의 IAM 정책에 deployer의 `roles/iam.serviceAccountUser` 말고 다른 바인딩
 * `server-ops` 계정의 사용자 관리 키
-* 프로젝트 단위 `roles/iam.serviceAccountUser`, `roles/iam.serviceAccountTokenCreator`, `roles/iam.workloadIdentityUser`, `roles/iam.serviceAccountKeyAdmin`, `roles/editor`(예외는 deployer의 프로젝트 단위 `roles/iam.serviceAccountUser` 하나)
+* 프로젝트 단위 `roles/iam.serviceAccountUser`, `roles/iam.serviceAccountTokenCreator`, `roles/iam.workloadIdentityUser`, `roles/iam.serviceAccountKeyAdmin`, `roles/editor`
+* 프로젝트 단위 `roles/iam.serviceAccountAdmin`(서비스 계정 정책을 바꿔 빌려 쓰기를 스스로 줌), `roles/resourcemanager.projectIamAdmin`(프로젝트 정책을 바꿔 위 역할을 스스로 줌), `roles/cloudsql.admin`(`cloudsqlsuperuser` 사용자를 만들어 표를 바로 읽음)
+* 예외는 deployer의 프로젝트 단위 `roles/iam.serviceAccountUser`, `roles/iam.serviceAccountAdmin`, `roles/resourcemanager.projectIamAdmin`, `roles/cloudsql.admin`입니다(bootstrap `deployer_roles`가 주고 배포에 필요함, 6절). `roles/owner`는 보지 않습니다(6절).
 
-**흔한 원인: Firebase나 GCP가 기본 계정에 넓은 역할을 붙임.** Firebase는 자동 계정 `firebase-adminsdk-fbsvc@<프로젝트>.iam.gserviceaccount.com`에 프로젝트 단위 `roles/iam.serviceAccountTokenCreator`를 줍니다. 2026-11-26에 staging, prod, load 모두 이 상태였고, 프로젝트 단위 부여를 떼고 그 계정 자기 자신에게만 다시 주었습니다(커스텀 토큰 서명은 그대로 됨). load의 기본 Compute 계정(`<프로젝트 번호>-compute@developer.gserviceaccount.com`)이 가지던 프로젝트 `roles/editor`도 거두었습니다(load의 서비스, Job, Scheduler는 모두 전용 계정을 씀). Firebase 기능을 새로 켜거나 콘솔에서 무엇을 연결하면 다시 붙을 수 있습니다. 그때는 아래처럼 고치고 `deploy-server`를 다시 돌립니다.
+검사는 프로젝트 IAM 정책만 읽습니다. 폴더나 조직 단위에서 상속되는 부여는 보지 않습니다(6절).
+
+**흔한 원인: Firebase 자동 계정(`firebase-adminsdk-fbsvc`)과 기본 Compute 계정.** Firebase는 자동 계정 `firebase-adminsdk-fbsvc@<프로젝트>.iam.gserviceaccount.com`에 프로젝트 단위 `roles/iam.serviceAccountTokenCreator`를 줍니다. 기본 Compute 계정(`<프로젝트 번호>-compute@developer.gserviceaccount.com`)은 프로젝트 `roles/editor`를 가질 수 있습니다. Firebase 기능을 새로 켜거나 콘솔에서 무엇을 연결하면 붙을 수 있습니다. Firebase 계정은 프로젝트 단위 부여를 떼고 그 계정 자기 자신에게만 다시 줍니다(커스텀 토큰 서명은 그대로 됨). 기본 Compute 계정의 editor는 쓰는 곳이 없음을 확인한 뒤 거둡니다(서비스, Job, Scheduler는 모두 전용 계정을 씀). 아래처럼 고치고 `deploy-server`를 다시 돌립니다.
 
 ```sh
 project=<프로젝트>
 sa="firebase-adminsdk-fbsvc@${project}.iam.gserviceaccount.com"
 # 1. 무엇이 붙었는지 봅니다(감시 역할만).
 gcloud projects get-iam-policy "$project" --flatten='bindings[].members' \
-  --filter='bindings.role:(roles/iam.serviceAccountUser roles/iam.serviceAccountTokenCreator roles/iam.workloadIdentityUser roles/iam.serviceAccountKeyAdmin roles/editor)' \
+  --filter='bindings.role:(roles/iam.serviceAccountUser roles/iam.serviceAccountTokenCreator roles/iam.workloadIdentityUser roles/iam.serviceAccountKeyAdmin roles/editor roles/iam.serviceAccountAdmin roles/resourcemanager.projectIamAdmin roles/cloudsql.admin)' \
   --format='table(bindings.role, bindings.members)'
 # 2. Firebase 계정: 자기 자신에게 먼저 주고 프로젝트 단위 부여를 뗍니다(순서를 지켜 서명이 끊기지 않게).
 gcloud iam service-accounts add-iam-policy-binding "$sa" --project "$project" \
@@ -238,9 +246,13 @@ rm "$TMPDIR/policy.yaml"
 
 `etag` 충돌이 나면 처음부터 다시 읽습니다. 확인은 Logs Explorer에서 `protoPayload.serviceName="iamcredentials.googleapis.com"`, `protoPayload.serviceName="iap.googleapis.com"`로 봅니다.
 
-**deployer는 `server-ops` 계정을 쓸 수 있습니다.** bootstrap이 deployer에 프로젝트 단위 `roles/iam.serviceAccountUser`(모든 서비스와 Job을 각자의 계정으로 배포하는 actAs)를 주므로, 배포 브랜치(staging은 `staging`, prod는 `main`)의 코드가 `server-ops` 계정으로 실행될 수 있습니다. deployer는 그 밖에도 `run.admin`, `cloudsql.admin`, `secretmanager.admin`, `resourcemanager.projectIamAdmin`을 가져 배포 코드가 운영 경로를 바꿀 수 있습니다. 이것을 막는 것은 브랜치 보호, PR 리뷰, prod 배포 승인(environment `prod`)입니다. deployer의 `serviceAccountUser`를 서비스 계정 단위 부여로 좁히는 bootstrap 변경은 #1321에 제안으로 남깁니다.
+**폴더와 조직 단위 부여는 배포 검사 밖입니다.** 배포 검사(5절)는 프로젝트 IAM 정책만 읽으므로, 폴더나 조직에서 상속된 빌려 쓰기, IAM 관리, Cloud SQL 관리 역할은 잡지 못합니다. 프로젝트가 조직이나 폴더 아래에 있으면 그 정책을 따로 확인합니다(`gcloud projects get-ancestors-iam-policy <프로젝트>`).
 
-**사람 DB 계정이 다시 생기면 배포가 멈춥니다.** migrate가 배포마다 `myungli_ops` 구성원이 `DB_OPS_USER` 하나인지, 런타임이 `myungli_ops`에, `server-ops`가 `myungli_app`에 속하지 않는지 확인합니다(S170 개정 ③). `gcloud sql users create`로 사람 사용자를 만들고 `myungli_ops`에 넣으면 다음 배포의 migrate가 실패합니다.
+**deployer는 `server-ops` 계정을 쓸 수 있습니다.** bootstrap이 deployer에 프로젝트 단위 `roles/iam.serviceAccountUser`(모든 서비스와 Job을 각자의 계정으로 배포하는 actAs)를 주므로, 배포 브랜치(staging은 `staging`, prod는 `main`)의 코드가 `server-ops` 계정으로 실행될 수 있습니다. deployer는 그 밖에도 `run.admin`, `cloudsql.admin`, `secretmanager.admin`, `iam.serviceAccountAdmin`, `resourcemanager.projectIamAdmin`을 가져 배포 코드가 운영 경로를 바꿀 수 있습니다(배포 검사는 이 중 `cloudsql.admin`, `iam.serviceAccountAdmin`, `resourcemanager.projectIamAdmin`을 deployer에게만 허용합니다). 이것을 막는 것은 브랜치 보호, PR 리뷰, prod 배포 승인(environment `prod`)입니다. deployer의 `serviceAccountUser`를 서비스 계정 단위 부여로 좁히는 bootstrap 변경은 #1321에 제안으로 남깁니다.
+
+**사람 DB 계정을 `myungli_ops`에 넣으면 배포가 멈춥니다.** migrate가 배포마다 `myungli_ops` 구성원이 `DB_OPS_USER` 하나인지, 런타임이 `myungli_ops`에, `server-ops`가 `myungli_app`에 속하지 않는지 확인합니다(S170 개정 ③). `gcloud sql users create`로 사람 사용자를 만들고 `myungli_ops`에 넣으면 다음 배포의 migrate가 실패합니다.
+
+**`cloudsqlsuperuser` 사용자는 migrate 검사에 걸리지 않습니다.** `roles/cloudsql.admin`을 가진 주체(owner, deployer)가 `gcloud sql users create`로 사용자를 만들면 그 사용자는 `cloudsqlsuperuser`에 속해 `myungli_ops` 없이 표를 읽을 수 있고, `myungli_ops`에 넣지 않으면 migrate 검사도 통과합니다. 이 경로는 막지 못하고 기록으로만 봅니다. 사용자 생성(`cloudsql.users.create`)은 관리 활동이 아니라 데이터 접근(`cloudsql.googleapis.com` `DATA_WRITE`) 감사 로그라 지금 설정(위 표, 켜지 않음)에서는 남지 않습니다(Cloud SQL 문서 "Cloud SQL audit logging"). 인스턴스에 승인된 네트워크가 없어(`sql.tf`) 그 사용자는 Cloud SQL connector나 Auth Proxy로 붙어야 하고, 그 연결(`cloudsql.instances.connect`)과 승인된 네트워크 추가(`cloudsql.instances.update`)는 관리 활동이라 항상 남습니다. 서비스 계정 밖 주체의 연결 기록을 봅니다.
 
 ## 7. 감사 기록
 

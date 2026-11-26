@@ -76,6 +76,12 @@ run_case "프로젝트 단위 serviceAccountKeyAdmin은 deployer도 예외 아�
 run_case "프로젝트 단위 editor" 1 sa-ok.json project-editor.json keys-none.json \
   "roles/editor serviceAccount:123456789-compute@developer.gserviceaccount.com" \
   "roles/editor user:(가림)"
+run_case "deployer의 관리 역할 셋은 예외(owner 사람도 통과)" 0 sa-ok.json project-deployer-admin-roles.json keys-none.json "검사 통과"
+run_case "관리 역할 셋을 deployer 밖 주체가 가짐" 1 sa-ok.json project-admin-roles-other.json keys-none.json \
+  "roles/cloudsql.admin serviceAccount:server-runtime@test-project.iam.gserviceaccount.com" \
+  "roles/resourcemanager.projectIamAdmin user:(가림)" \
+  "roles/iam.serviceAccountAdmin group:(가림)" \
+  "roles/cloudsql.admin user:(가림)"
 run_case "사용자 관리 키 없음" 0 sa-ok.json project-ok.json keys-none.json "사용자 관리 키가 없습니다"
 run_case "사용자 관리 키 있음" 1 sa-ok.json project-ok.json keys-user.json "사용자 관리 키가 2개 있습니다"
 # 입력이 JSON이 아니면 jq 부재 같은 다른 원인과 구분되도록 고정 문구와 종료 코드 1을 함께 봅니다.

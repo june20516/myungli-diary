@@ -68,6 +68,7 @@ type revokeTarget struct {
 
 // Grant는 계정에 운영자 권한을 줍니다. 권한 행과 감사 행이 한 트랜잭션이고,
 // 권한 행의 source_ref는 감사 행 id입니다. 거절되면 아무것도 남지 않습니다.
+// 계정이 없으면 ErrAccountNotFound, 있지만 active가 아니면 billing.ErrAccountNotActive입니다.
 func (s *Service) Grant(ctx context.Context, actor Actor, req GrantRequest) (GrantResult, error) {
 	if err := validateActor(actor); err != nil {
 		return GrantResult{}, err
@@ -100,6 +101,10 @@ func (s *Service) Grant(ctx context.Context, actor Actor, req GrantRequest) (Gra
 			return ErrGrantPeriod
 		}
 		rows, err := billing.GrantOperatorTx(ctx, tx, req.AccountID, req.Kind, auditID.String(), now, expiresAt)
+		if errors.Is(err, billing.ErrAccountMissing) {
+			// 없는 계정은 조회, 열람과 같은 ErrAccountNotFound(404)로 알립니다. 부여는 감사 행을 남기지 않습니다.
+			return ErrAccountNotFound
+		}
 		if err != nil {
 			return err
 		}
