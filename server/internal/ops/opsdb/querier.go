@@ -12,8 +12,20 @@ import (
 )
 
 type Querier interface {
+	// 그날 지웠거나 본문을 비운 일기의 개수입니다.
+	CountOpsDeletedDiariesByDate(ctx context.Context, arg CountOpsDeletedDiariesByDateParams) (int64, error)
+	// id로 연 일기가 지웠거나 본문을 비운 것이면 1입니다.
+	CountOpsDeletedDiariesByID(ctx context.Context, arg CountOpsDeletedDiariesByIDParams) (int64, error)
+	// 그날 지웠거나 본문을 비운 일정의 개수입니다.
+	CountOpsDeletedSchedulesByDate(ctx context.Context, arg CountOpsDeletedSchedulesByDateParams) (int64, error)
+	// id로 연 일정이 지웠거나 본문을 비운 것이면 1입니다.
+	CountOpsDeletedSchedulesByID(ctx context.Context, arg CountOpsDeletedSchedulesByIDParams) (int64, error)
 	// 지원 조회용 계정 한 건입니다.
 	GetOpsAccount(ctx context.Context, id uuid.UUID) (GetOpsAccountRow, error)
+	// 그날 기록(날짜 기록)의 태그입니다. 날짜 기록이 없으면 행이 없습니다.
+	GetOpsDiaryDayTags(ctx context.Context, arg GetOpsDiaryDayTagsParams) ([]string, error)
+	// 계산 오류 문의 확인용 프로필입니다. 알림 설정, 출생 정보 해시, 익명화 시각은 읽지 않습니다.
+	GetOpsProfile(ctx context.Context, accountID uuid.UUID) (GetOpsProfileRow, error)
 	// 운영 명령(#1321)의 감사 기록 쿼리입니다.
 	// 운영 행위 한 건을 남깁니다. purpose는 content_view일 때만 값이 있습니다.
 	InsertOpsAudit(ctx context.Context, arg InsertOpsAuditParams) error
@@ -23,10 +35,18 @@ type Querier interface {
 	ListOpsAudit(ctx context.Context, arg ListOpsAuditParams) ([]OpsAudit, error)
 	// 기기입니다. 알림 token은 읽지 않습니다.
 	ListOpsDevices(ctx context.Context, accountID uuid.UUID) ([]ListOpsDevicesRow, error)
+	// 그날 살아 있는 일기입니다. 지웠거나 본문을 비운 일기는 읽지 않습니다. 쓴 순서입니다.
+	ListOpsDiariesByDate(ctx context.Context, arg ListOpsDiariesByDateParams) ([]ListOpsDiariesByDateRow, error)
+	// id로 연 살아 있는 일기입니다. 다른 계정의 id는 찾지 못합니다.
+	ListOpsDiariesByID(ctx context.Context, arg ListOpsDiariesByIDParams) ([]ListOpsDiariesByIDRow, error)
 	// 로그인 수단입니다. 제공자 subject와 Apple 토큰은 읽지 않습니다.
 	ListOpsIdentities(ctx context.Context, accountID uuid.UUID) ([]ListOpsIdentitiesRow, error)
 	// 구매 장부입니다. original_account_id가 account_id와 다르면 합치기로 옮겨 온 구매입니다.
 	ListOpsPurchases(ctx context.Context, accountID uuid.UUID) ([]ListOpsPurchasesRow, error)
+	// 그날 살아 있는 일정입니다. 지웠거나 본문을 비운 일정은 읽지 않습니다.
+	ListOpsSchedulesByDate(ctx context.Context, arg ListOpsSchedulesByDateParams) ([]ListOpsSchedulesByDateRow, error)
+	// id로 연 살아 있는 일정입니다. 다른 계정의 id는 찾지 못합니다.
+	ListOpsSchedulesByID(ctx context.Context, arg ListOpsSchedulesByIDParams) ([]ListOpsSchedulesByIDRow, error)
 }
 
 var _ Querier = (*Queries)(nil)

@@ -13,6 +13,86 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countOpsDeletedDiariesByDate = `-- name: CountOpsDeletedDiariesByDate :one
+SELECT count(*)
+FROM diaries
+WHERE account_id = $1 AND date = $2
+  AND (deleted_at IS NOT NULL OR content_purged_at IS NOT NULL)
+`
+
+type CountOpsDeletedDiariesByDateParams struct {
+	AccountID uuid.UUID
+	Date      pgtype.Date
+}
+
+// 그날 지웠거나 본문을 비운 일기의 개수입니다.
+func (q *Queries) CountOpsDeletedDiariesByDate(ctx context.Context, arg CountOpsDeletedDiariesByDateParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countOpsDeletedDiariesByDate, arg.AccountID, arg.Date)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countOpsDeletedDiariesByID = `-- name: CountOpsDeletedDiariesByID :one
+SELECT count(*)
+FROM diaries
+WHERE account_id = $1 AND id = $2
+  AND (deleted_at IS NOT NULL OR content_purged_at IS NOT NULL)
+`
+
+type CountOpsDeletedDiariesByIDParams struct {
+	AccountID uuid.UUID
+	ID        uuid.UUID
+}
+
+// id로 연 일기가 지웠거나 본문을 비운 것이면 1입니다.
+func (q *Queries) CountOpsDeletedDiariesByID(ctx context.Context, arg CountOpsDeletedDiariesByIDParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countOpsDeletedDiariesByID, arg.AccountID, arg.ID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countOpsDeletedSchedulesByDate = `-- name: CountOpsDeletedSchedulesByDate :one
+SELECT count(*)
+FROM schedules
+WHERE account_id = $1 AND date = $2
+  AND (deleted_at IS NOT NULL OR content_purged_at IS NOT NULL)
+`
+
+type CountOpsDeletedSchedulesByDateParams struct {
+	AccountID uuid.UUID
+	Date      pgtype.Date
+}
+
+// 그날 지웠거나 본문을 비운 일정의 개수입니다.
+func (q *Queries) CountOpsDeletedSchedulesByDate(ctx context.Context, arg CountOpsDeletedSchedulesByDateParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countOpsDeletedSchedulesByDate, arg.AccountID, arg.Date)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countOpsDeletedSchedulesByID = `-- name: CountOpsDeletedSchedulesByID :one
+SELECT count(*)
+FROM schedules
+WHERE account_id = $1 AND id = $2
+  AND (deleted_at IS NOT NULL OR content_purged_at IS NOT NULL)
+`
+
+type CountOpsDeletedSchedulesByIDParams struct {
+	AccountID uuid.UUID
+	ID        uuid.UUID
+}
+
+// id로 연 일정이 지웠거나 본문을 비운 것이면 1입니다.
+func (q *Queries) CountOpsDeletedSchedulesByID(ctx context.Context, arg CountOpsDeletedSchedulesByIDParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countOpsDeletedSchedulesByID, arg.AccountID, arg.ID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const getOpsAccount = `-- name: GetOpsAccount :one
 SELECT id, status, created_at, deleted_at, last_active_at
 FROM accounts
@@ -37,6 +117,75 @@ func (q *Queries) GetOpsAccount(ctx context.Context, id uuid.UUID) (GetOpsAccoun
 		&i.CreatedAt,
 		&i.DeletedAt,
 		&i.LastActiveAt,
+	)
+	return i, err
+}
+
+const getOpsDiaryDayTags = `-- name: GetOpsDiaryDayTags :one
+SELECT all_tags
+FROM diary_days
+WHERE account_id = $1 AND date = $2
+`
+
+type GetOpsDiaryDayTagsParams struct {
+	AccountID uuid.UUID
+	Date      pgtype.Date
+}
+
+// 그날 기록(날짜 기록)의 태그입니다. 날짜 기록이 없으면 행이 없습니다.
+func (q *Queries) GetOpsDiaryDayTags(ctx context.Context, arg GetOpsDiaryDayTagsParams) ([]string, error) {
+	row := q.db.QueryRow(ctx, getOpsDiaryDayTags, arg.AccountID, arg.Date)
+	var all_tags []string
+	err := row.Scan(&all_tags)
+	return all_tags, err
+}
+
+const getOpsProfile = `-- name: GetOpsProfile :one
+SELECT honorific, language, current_timezone, calendar, is_leap_month,
+       birth_year, birth_month, birth_day, birth_time_status, birth_time,
+       gender, birth_timezone, birth_place_status, birth_city_id, longitude
+FROM profiles
+WHERE account_id = $1
+`
+
+type GetOpsProfileRow struct {
+	Honorific        pgtype.Text
+	Language         string
+	CurrentTimezone  string
+	Calendar         pgtype.Text
+	IsLeapMonth      pgtype.Bool
+	BirthYear        pgtype.Int2
+	BirthMonth       pgtype.Int2
+	BirthDay         pgtype.Int2
+	BirthTimeStatus  pgtype.Text
+	BirthTime        pgtype.Time
+	Gender           pgtype.Text
+	BirthTimezone    pgtype.Text
+	BirthPlaceStatus pgtype.Text
+	BirthCityID      pgtype.Text
+	Longitude        pgtype.Float8
+}
+
+// 계산 오류 문의 확인용 프로필입니다. 알림 설정, 출생 정보 해시, 익명화 시각은 읽지 않습니다.
+func (q *Queries) GetOpsProfile(ctx context.Context, accountID uuid.UUID) (GetOpsProfileRow, error) {
+	row := q.db.QueryRow(ctx, getOpsProfile, accountID)
+	var i GetOpsProfileRow
+	err := row.Scan(
+		&i.Honorific,
+		&i.Language,
+		&i.CurrentTimezone,
+		&i.Calendar,
+		&i.IsLeapMonth,
+		&i.BirthYear,
+		&i.BirthMonth,
+		&i.BirthDay,
+		&i.BirthTimeStatus,
+		&i.BirthTime,
+		&i.Gender,
+		&i.BirthTimezone,
+		&i.BirthPlaceStatus,
+		&i.BirthCityID,
+		&i.Longitude,
 	)
 	return i, err
 }
@@ -196,6 +345,101 @@ func (q *Queries) ListOpsDevices(ctx context.Context, accountID uuid.UUID) ([]Li
 	return items, nil
 }
 
+const listOpsDiariesByDate = `-- name: ListOpsDiariesByDate :many
+SELECT id, date, body, created_at, updated_at
+FROM diaries
+WHERE account_id = $1 AND date = $2
+  AND deleted_at IS NULL AND content_purged_at IS NULL
+ORDER BY created_at, id
+`
+
+type ListOpsDiariesByDateParams struct {
+	AccountID uuid.UUID
+	Date      pgtype.Date
+}
+
+type ListOpsDiariesByDateRow struct {
+	ID        uuid.UUID
+	Date      pgtype.Date
+	Body      string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+// 그날 살아 있는 일기입니다. 지웠거나 본문을 비운 일기는 읽지 않습니다. 쓴 순서입니다.
+func (q *Queries) ListOpsDiariesByDate(ctx context.Context, arg ListOpsDiariesByDateParams) ([]ListOpsDiariesByDateRow, error) {
+	rows, err := q.db.Query(ctx, listOpsDiariesByDate, arg.AccountID, arg.Date)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListOpsDiariesByDateRow
+	for rows.Next() {
+		var i ListOpsDiariesByDateRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Date,
+			&i.Body,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listOpsDiariesByID = `-- name: ListOpsDiariesByID :many
+SELECT id, date, body, created_at, updated_at
+FROM diaries
+WHERE account_id = $1 AND id = $2
+  AND deleted_at IS NULL AND content_purged_at IS NULL
+`
+
+type ListOpsDiariesByIDParams struct {
+	AccountID uuid.UUID
+	ID        uuid.UUID
+}
+
+type ListOpsDiariesByIDRow struct {
+	ID        uuid.UUID
+	Date      pgtype.Date
+	Body      string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+// id로 연 살아 있는 일기입니다. 다른 계정의 id는 찾지 못합니다.
+func (q *Queries) ListOpsDiariesByID(ctx context.Context, arg ListOpsDiariesByIDParams) ([]ListOpsDiariesByIDRow, error) {
+	rows, err := q.db.Query(ctx, listOpsDiariesByID, arg.AccountID, arg.ID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListOpsDiariesByIDRow
+	for rows.Next() {
+		var i ListOpsDiariesByIDRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Date,
+			&i.Body,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listOpsIdentities = `-- name: ListOpsIdentities :many
 SELECT provider, created_at
 FROM auth_identities
@@ -264,6 +508,105 @@ func (q *Queries) ListOpsPurchases(ctx context.Context, accountID uuid.UUID) ([]
 			&i.RefundedAt,
 			&i.Production,
 			&i.OriginalAccountID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listOpsSchedulesByDate = `-- name: ListOpsSchedulesByDate :many
+SELECT id, date, all_day, time, title, memo
+FROM schedules
+WHERE account_id = $1 AND date = $2
+  AND deleted_at IS NULL AND content_purged_at IS NULL
+ORDER BY all_day DESC, time, created_at, id
+`
+
+type ListOpsSchedulesByDateParams struct {
+	AccountID uuid.UUID
+	Date      pgtype.Date
+}
+
+type ListOpsSchedulesByDateRow struct {
+	ID     uuid.UUID
+	Date   pgtype.Date
+	AllDay bool
+	Time   pgtype.Time
+	Title  string
+	Memo   pgtype.Text
+}
+
+// 그날 살아 있는 일정입니다. 지웠거나 본문을 비운 일정은 읽지 않습니다.
+func (q *Queries) ListOpsSchedulesByDate(ctx context.Context, arg ListOpsSchedulesByDateParams) ([]ListOpsSchedulesByDateRow, error) {
+	rows, err := q.db.Query(ctx, listOpsSchedulesByDate, arg.AccountID, arg.Date)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListOpsSchedulesByDateRow
+	for rows.Next() {
+		var i ListOpsSchedulesByDateRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Date,
+			&i.AllDay,
+			&i.Time,
+			&i.Title,
+			&i.Memo,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listOpsSchedulesByID = `-- name: ListOpsSchedulesByID :many
+SELECT id, date, all_day, time, title, memo
+FROM schedules
+WHERE account_id = $1 AND id = $2
+  AND deleted_at IS NULL AND content_purged_at IS NULL
+`
+
+type ListOpsSchedulesByIDParams struct {
+	AccountID uuid.UUID
+	ID        uuid.UUID
+}
+
+type ListOpsSchedulesByIDRow struct {
+	ID     uuid.UUID
+	Date   pgtype.Date
+	AllDay bool
+	Time   pgtype.Time
+	Title  string
+	Memo   pgtype.Text
+}
+
+// id로 연 살아 있는 일정입니다. 다른 계정의 id는 찾지 못합니다.
+func (q *Queries) ListOpsSchedulesByID(ctx context.Context, arg ListOpsSchedulesByIDParams) ([]ListOpsSchedulesByIDRow, error) {
+	rows, err := q.db.Query(ctx, listOpsSchedulesByID, arg.AccountID, arg.ID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListOpsSchedulesByIDRow
+	for rows.Next() {
+		var i ListOpsSchedulesByIDRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Date,
+			&i.AllDay,
+			&i.Time,
+			&i.Title,
+			&i.Memo,
 		); err != nil {
 			return nil, err
 		}

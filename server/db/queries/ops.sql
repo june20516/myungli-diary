@@ -47,3 +47,75 @@ WHERE (sqlc.narg('account_id')::uuid IS NULL OR account_id = sqlc.narg('account_
   AND (sqlc.narg('since')::timestamptz IS NULL OR at >= sqlc.narg('since')::timestamptz)
 ORDER BY at DESC, id DESC
 LIMIT @row_limit;
+
+-- name: ListOpsDiariesByDate :many
+-- 그날 살아 있는 일기입니다. 지웠거나 본문을 비운 일기는 읽지 않습니다. 쓴 순서입니다.
+SELECT id, date, body, created_at, updated_at
+FROM diaries
+WHERE account_id = @account_id AND date = @date
+  AND deleted_at IS NULL AND content_purged_at IS NULL
+ORDER BY created_at, id;
+
+-- name: CountOpsDeletedDiariesByDate :one
+-- 그날 지웠거나 본문을 비운 일기의 개수입니다.
+SELECT count(*)
+FROM diaries
+WHERE account_id = @account_id AND date = @date
+  AND (deleted_at IS NOT NULL OR content_purged_at IS NOT NULL);
+
+-- name: ListOpsDiariesByID :many
+-- id로 연 살아 있는 일기입니다. 다른 계정의 id는 찾지 못합니다.
+SELECT id, date, body, created_at, updated_at
+FROM diaries
+WHERE account_id = @account_id AND id = @id
+  AND deleted_at IS NULL AND content_purged_at IS NULL;
+
+-- name: CountOpsDeletedDiariesByID :one
+-- id로 연 일기가 지웠거나 본문을 비운 것이면 1입니다.
+SELECT count(*)
+FROM diaries
+WHERE account_id = @account_id AND id = @id
+  AND (deleted_at IS NOT NULL OR content_purged_at IS NOT NULL);
+
+-- name: GetOpsDiaryDayTags :one
+-- 그날 기록(날짜 기록)의 태그입니다. 날짜 기록이 없으면 행이 없습니다.
+SELECT all_tags
+FROM diary_days
+WHERE account_id = @account_id AND date = @date;
+
+-- name: ListOpsSchedulesByDate :many
+-- 그날 살아 있는 일정입니다. 지웠거나 본문을 비운 일정은 읽지 않습니다.
+SELECT id, date, all_day, time, title, memo
+FROM schedules
+WHERE account_id = @account_id AND date = @date
+  AND deleted_at IS NULL AND content_purged_at IS NULL
+ORDER BY all_day DESC, time, created_at, id;
+
+-- name: CountOpsDeletedSchedulesByDate :one
+-- 그날 지웠거나 본문을 비운 일정의 개수입니다.
+SELECT count(*)
+FROM schedules
+WHERE account_id = @account_id AND date = @date
+  AND (deleted_at IS NOT NULL OR content_purged_at IS NOT NULL);
+
+-- name: ListOpsSchedulesByID :many
+-- id로 연 살아 있는 일정입니다. 다른 계정의 id는 찾지 못합니다.
+SELECT id, date, all_day, time, title, memo
+FROM schedules
+WHERE account_id = @account_id AND id = @id
+  AND deleted_at IS NULL AND content_purged_at IS NULL;
+
+-- name: CountOpsDeletedSchedulesByID :one
+-- id로 연 일정이 지웠거나 본문을 비운 것이면 1입니다.
+SELECT count(*)
+FROM schedules
+WHERE account_id = @account_id AND id = @id
+  AND (deleted_at IS NOT NULL OR content_purged_at IS NOT NULL);
+
+-- name: GetOpsProfile :one
+-- 계산 오류 문의 확인용 프로필입니다. 알림 설정, 출생 정보 해시, 익명화 시각은 읽지 않습니다.
+SELECT honorific, language, current_timezone, calendar, is_leap_month,
+       birth_year, birth_month, birth_day, birth_time_status, birth_time,
+       gender, birth_timezone, birth_place_status, birth_city_id, longitude
+FROM profiles
+WHERE account_id = @account_id;

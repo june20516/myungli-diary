@@ -49,7 +49,7 @@ type RevokeResult struct {
 	Before, After []billing.GrantRow
 }
 
-// grantTarget은 부여 감사 행의 target입니다. 만료는 RFC 3339 UTC 문자열입니다.
+// grantTarget은 부여 감사 행의 target입니다. 만료는 UTC 시각(time.Time)이고 JSON에서는 RFC 3339로 직렬화됩니다.
 type grantTarget struct {
 	Kind      billing.OperatorKind `json:"kind"`
 	ExpiresAt time.Time            `json:"expiresAt"`
