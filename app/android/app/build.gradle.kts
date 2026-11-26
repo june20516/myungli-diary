@@ -29,7 +29,8 @@ val dartDefines: Map<String, String> =
 fun envValue(key: String): String = dartDefines[key]?.trim().orEmpty()
 
 // release 업로드 키(결정 A94). 저장소 밖 보관 폴더(D98, docs/local-values.md K1)에서 읽습니다.
-// 파일이 없으면 release도 debug 키로 서명합니다(로컬 확인용, Play에 올릴 수 없음).
+// 파일이 없으면 release 빌드는 실패합니다(app-Q1-9). debug 키로 서명한 release가 debug 지문을
+// 등록한 환경의 App Link를 받지 않게 하려는 것이고, debug 빌드에는 영향이 없습니다.
 val localValuesDir =
     System.getenv("MYUNGLI_LOCAL_DIR")?.takeIf { it.isNotBlank() }
         ?: "${System.getProperty("user.home")}/.config/myungli"
@@ -96,14 +97,22 @@ android {
 
     buildTypes {
         release {
-            signingConfig =
-                if (uploadKey != null) {
-                    signingConfigs.getByName("upload")
-                } else {
-                    logger.warn("업로드 키가 없어 release를 debug 키로 서명합니다: $uploadKeyFile")
-                    signingConfigs.getByName("debug")
-                }
+            signingConfig = signingConfigs.findByName("upload")
         }
+    }
+}
+
+// 설정 단계가 아니라 release 산출물을 만드는 작업이 실제로 불릴 때만 멈춥니다(debug 빌드, 분석은 그대로).
+gradle.taskGraph.whenReady {
+    val buildsRelease =
+        allTasks.any { task ->
+            task.project == project &&
+                (task.name == "assembleRelease" || task.name == "bundleRelease")
+        }
+    if (uploadKey == null && buildsRelease) {
+        throw GradleException(
+            "업로드 키가 없어 release를 만들지 않습니다: $uploadKeyFile (README \"staging 빌드\", app-Q1-9)",
+        )
     }
 }
 
