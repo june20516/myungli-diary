@@ -65,8 +65,6 @@ func NewService(pool *pgxpool.Pool, clk clock.Clock) *Service {
 }
 
 // inTx는 fn을 트랜잭션 하나 안에서 실행합니다. 감사 행과 데이터 접근이 함께 커밋되거나 함께 취소됩니다.
-//
-//nolint:unused // 공개 기능 함수가 뒤 task에서 이 도우미를 씁니다.
 func (s *Service) inTx(ctx context.Context, fn func(pgx.Tx) error) error {
 	return postgres.InTx(ctx, s.pool, fn)
 }

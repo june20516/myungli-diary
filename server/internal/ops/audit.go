@@ -40,10 +40,10 @@ func ParsePurpose(s string) (Purpose, error) {
 	}
 }
 
-// ValidateReason은 사유의 앞뒤 공백을 떼고 1~500자(rune)이며 줄바꿈이 없는지 검사해 정리한 사유를 돌려줍니다.
+// ValidateReason은 사유의 앞뒤 공백을 떼고 1~500자(rune)인지 검사해 정리한 사유를 돌려줍니다.
+// 줄을 깨는 문자(\n, \r, U+0085, U+2028, U+2029)와 NUL, 잘못된 UTF-8이 있으면 ErrReason입니다. 탭은 허용합니다.
 func ValidateReason(s string) (string, error) {
 	reason := strings.TrimSpace(s)
-	// 줄을 깨는 문자(U+0085, U+2028, U+2029)와 NUL, 잘못된 UTF-8도 거절합니다. 탭은 허용합니다.
 	if reason == "" || !utf8.ValidString(reason) || utf8.RuneCountInString(reason) > maxReasonRunes ||
 		strings.ContainsAny(reason, "\r\n\x00\u0085\u2028\u2029") {
 		return "", ErrReason

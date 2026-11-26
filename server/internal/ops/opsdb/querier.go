@@ -6,12 +6,27 @@ package opsdb
 
 import (
 	"context"
+
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Querier interface {
+	// 지원 조회용 계정 한 건입니다.
+	GetOpsAccount(ctx context.Context, id uuid.UUID) (GetOpsAccountRow, error)
 	// 운영 명령(#1321)의 감사 기록 쿼리입니다.
 	// 운영 행위 한 건을 남깁니다. purpose는 content_view일 때만 값이 있습니다.
 	InsertOpsAudit(ctx context.Context, arg InsertOpsAuditParams) error
+	// 스토어 거래 id를 가진 구매의 계정입니다. 둘 이상이면 호출한 쪽이 모호함으로 다룹니다.
+	ListOpsAccountsByStoreTransaction(ctx context.Context, storePurchaseID pgtype.Text) ([]uuid.UUID, error)
+	// 감사 기록입니다. 최근 기록이 먼저입니다.
+	ListOpsAudit(ctx context.Context, arg ListOpsAuditParams) ([]OpsAudit, error)
+	// 기기입니다. 알림 token은 읽지 않습니다.
+	ListOpsDevices(ctx context.Context, accountID uuid.UUID) ([]ListOpsDevicesRow, error)
+	// 로그인 수단입니다. 제공자 subject와 Apple 토큰은 읽지 않습니다.
+	ListOpsIdentities(ctx context.Context, accountID uuid.UUID) ([]ListOpsIdentitiesRow, error)
+	// 구매 장부입니다. original_account_id가 account_id와 다르면 합치기로 옮겨 온 구매입니다.
+	ListOpsPurchases(ctx context.Context, accountID uuid.UUID) ([]ListOpsPurchasesRow, error)
 }
 
 var _ Querier = (*Queries)(nil)

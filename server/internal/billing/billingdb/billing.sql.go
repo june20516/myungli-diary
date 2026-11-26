@@ -458,7 +458,7 @@ func (q *Queries) ListAccountPurchases(ctx context.Context, accountID uuid.UUID)
 
 const listLiveGrants = `-- name: ListLiveGrants :many
 
-SELECT entitlement, source, starts_at, expires_at
+SELECT id, entitlement, source, starts_at, expires_at
 FROM entitlement_grants
 WHERE account_id = $1
   AND revoked_at IS NULL
@@ -472,6 +472,7 @@ type ListLiveGrantsParams struct {
 }
 
 type ListLiveGrantsRow struct {
+	ID          int64
 	Entitlement string
 	Source      string
 	StartsAt    time.Time
@@ -491,6 +492,7 @@ func (q *Queries) ListLiveGrants(ctx context.Context, arg ListLiveGrantsParams) 
 	for rows.Next() {
 		var i ListLiveGrantsRow
 		if err := rows.Scan(
+			&i.ID,
 			&i.Entitlement,
 			&i.Source,
 			&i.StartsAt,

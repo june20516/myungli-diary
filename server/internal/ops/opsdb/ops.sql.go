@@ -13,6 +13,34 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const getOpsAccount = `-- name: GetOpsAccount :one
+SELECT id, status, created_at, deleted_at, last_active_at
+FROM accounts
+WHERE id = $1
+`
+
+type GetOpsAccountRow struct {
+	ID           uuid.UUID
+	Status       string
+	CreatedAt    time.Time
+	DeletedAt    *time.Time
+	LastActiveAt time.Time
+}
+
+// 지원 조회용 계정 한 건입니다.
+func (q *Queries) GetOpsAccount(ctx context.Context, id uuid.UUID) (GetOpsAccountRow, error) {
+	row := q.db.QueryRow(ctx, getOpsAccount, id)
+	var i GetOpsAccountRow
+	err := row.Scan(
+		&i.ID,
+		&i.Status,
+		&i.CreatedAt,
+		&i.DeletedAt,
+		&i.LastActiveAt,
+	)
+	return i, err
+}
+
 const insertOpsAudit = `-- name: InsertOpsAudit :exec
 
 INSERT INTO ops_audit (id, at, actor, channel, action, account_id, purpose, reason, target, before, after)
@@ -50,4 +78,199 @@ func (q *Queries) InsertOpsAudit(ctx context.Context, arg InsertOpsAuditParams) 
 		arg.After,
 	)
 	return err
+}
+
+const listOpsAccountsByStoreTransaction = `-- name: ListOpsAccountsByStoreTransaction :many
+SELECT DISTINCT account_id
+FROM purchases
+WHERE store_purchase_id = $1
+ORDER BY account_id
+`
+
+// 스토어 거래 id를 가진 구매의 계정입니다. 둘 이상이면 호출한 쪽이 모호함으로 다룹니다.
+func (q *Queries) ListOpsAccountsByStoreTransaction(ctx context.Context, storePurchaseID pgtype.Text) ([]uuid.UUID, error) {
+	rows, err := q.db.Query(ctx, listOpsAccountsByStoreTransaction, storePurchaseID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var account_id uuid.UUID
+		if err := rows.Scan(&account_id); err != nil {
+			return nil, err
+		}
+		items = append(items, account_id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listOpsAudit = `-- name: ListOpsAudit :many
+SELECT id, at, actor, channel, action, account_id, purpose, reason, target, before, after
+FROM ops_audit
+WHERE ($1::uuid IS NULL OR account_id = $1::uuid)
+  AND ($2::timestamptz IS NULL OR at >= $2::timestamptz)
+ORDER BY at DESC, id DESC
+LIMIT $3
+`
+
+type ListOpsAuditParams struct {
+	AccountID uuid.NullUUID
+	Since     *time.Time
+	RowLimit  int32
+}
+
+// 감사 기록입니다. 최근 기록이 먼저입니다.
+func (q *Queries) ListOpsAudit(ctx context.Context, arg ListOpsAuditParams) ([]OpsAudit, error) {
+	rows, err := q.db.Query(ctx, listOpsAudit, arg.AccountID, arg.Since, arg.RowLimit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []OpsAudit
+	for rows.Next() {
+		var i OpsAudit
+		if err := rows.Scan(
+			&i.ID,
+			&i.At,
+			&i.Actor,
+			&i.Channel,
+			&i.Action,
+			&i.AccountID,
+			&i.Purpose,
+			&i.Reason,
+			&i.Target,
+			&i.Before,
+			&i.After,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listOpsDevices = `-- name: ListOpsDevices :many
+SELECT platform, active, created_at, last_seen_at
+FROM devices
+WHERE account_id = $1
+ORDER BY created_at, id
+`
+
+type ListOpsDevicesRow struct {
+	Platform   string
+	Active     bool
+	CreatedAt  time.Time
+	LastSeenAt time.Time
+}
+
+// 기기입니다. 알림 token은 읽지 않습니다.
+func (q *Queries) ListOpsDevices(ctx context.Context, accountID uuid.UUID) ([]ListOpsDevicesRow, error) {
+	rows, err := q.db.Query(ctx, listOpsDevices, accountID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListOpsDevicesRow
+	for rows.Next() {
+		var i ListOpsDevicesRow
+		if err := rows.Scan(
+			&i.Platform,
+			&i.Active,
+			&i.CreatedAt,
+			&i.LastSeenAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listOpsIdentities = `-- name: ListOpsIdentities :many
+SELECT provider, created_at
+FROM auth_identities
+WHERE account_id = $1
+ORDER BY created_at, id
+`
+
+type ListOpsIdentitiesRow struct {
+	Provider  string
+	CreatedAt time.Time
+}
+
+// 로그인 수단입니다. 제공자 subject와 Apple 토큰은 읽지 않습니다.
+func (q *Queries) ListOpsIdentities(ctx context.Context, accountID uuid.UUID) ([]ListOpsIdentitiesRow, error) {
+	rows, err := q.db.Query(ctx, listOpsIdentities, accountID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListOpsIdentitiesRow
+	for rows.Next() {
+		var i ListOpsIdentitiesRow
+		if err := rows.Scan(&i.Provider, &i.CreatedAt); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listOpsPurchases = `-- name: ListOpsPurchases :many
+SELECT product_id, store, store_purchase_id, purchased_at, refunded_at, production, original_account_id
+FROM purchases
+WHERE account_id = $1
+ORDER BY purchased_at DESC, id
+`
+
+type ListOpsPurchasesRow struct {
+	ProductID         string
+	Store             string
+	StorePurchaseID   pgtype.Text
+	PurchasedAt       time.Time
+	RefundedAt        *time.Time
+	Production        bool
+	OriginalAccountID uuid.UUID
+}
+
+// 구매 장부입니다. original_account_id가 account_id와 다르면 합치기로 옮겨 온 구매입니다.
+func (q *Queries) ListOpsPurchases(ctx context.Context, accountID uuid.UUID) ([]ListOpsPurchasesRow, error) {
+	rows, err := q.db.Query(ctx, listOpsPurchases, accountID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListOpsPurchasesRow
+	for rows.Next() {
+		var i ListOpsPurchasesRow
+		if err := rows.Scan(
+			&i.ProductID,
+			&i.Store,
+			&i.StorePurchaseID,
+			&i.PurchasedAt,
+			&i.RefundedAt,
+			&i.Production,
+			&i.OriginalAccountID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
