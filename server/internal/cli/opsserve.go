@@ -98,7 +98,7 @@ func runOpsServe(ctx context.Context, args []string, getenv func(string) string,
 // 공개키 주소는 고정 값이고 환경 변수로 바꿀 수 없습니다.
 func newOpsAuthenticator(cfg config.OpsConfig) (opsapi.Authenticator, error) {
 	if cfg.DevIdentity != nil {
-		return fixedIdentity{identity: *cfg.DevIdentity}, nil
+		return fixedIdentity{identity: opsapi.Identity{Email: cfg.DevIdentity.Email, Subject: cfg.DevIdentity.Subject}}, nil
 	}
 	keys, err := opsapi.NewHTTPKeySource(&http.Client{Timeout: iapKeyHTTPTimeout}, opsapi.IAPPublicKeyURL, clock.System{})
 	if err != nil {

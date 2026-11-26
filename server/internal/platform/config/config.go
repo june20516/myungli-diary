@@ -12,7 +12,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/june20516/myungli-diary/server/internal/opsapi"
 	"github.com/june20516/myungli-diary/server/legal"
 )
 
@@ -537,7 +536,12 @@ type OpsConfig struct {
 	// Operators는 운영자 허용 목록 원문(OPS_OPERATORS, Secret)입니다. 해석은 opsapi.ParseAllowlist가 합니다.
 	Operators string
 	// DevIdentity는 local 전용 고정 신원(OPS_DEV_IDENTITY)입니다. 있으면 IAP 검증을 대신합니다.
-	DevIdentity *opsapi.Identity
+	DevIdentity *OpsDevIdentity
+}
+
+// OpsDevIdentity는 local 개발용 고정 운영자 신원입니다. Email은 소문자로 정규화한 값입니다.
+type OpsDevIdentity struct {
+	Email, Subject string
 }
 
 // LoadOps는 getenv로 운영 API 서버 설정을 읽습니다. 값은 앞뒤 공백을 지운 뒤 씁니다.
@@ -575,11 +579,11 @@ func LoadOps(getenv func(string) string) (OpsConfig, error) {
 }
 
 // parseDevIdentity는 `email,sub`를 읽습니다. 쉼표는 정확히 하나이고 둘 다 비어 있지 않아야 합니다. 오류에는 값을 담지 않습니다.
-func parseDevIdentity(raw string) (opsapi.Identity, error) {
+func parseDevIdentity(raw string) (OpsDevIdentity, error) {
 	email, subject, ok := strings.Cut(raw, ",")
 	email, subject = strings.TrimSpace(email), strings.TrimSpace(subject)
 	if !ok || email == "" || subject == "" || strings.Contains(subject, ",") {
-		return opsapi.Identity{}, errors.New("OPS_DEV_IDENTITY는 `email,sub` 형식이어야 합니다")
+		return OpsDevIdentity{}, errors.New("OPS_DEV_IDENTITY는 `email,sub` 형식이어야 합니다")
 	}
-	return opsapi.Identity{Email: strings.ToLower(email), Subject: subject}, nil
+	return OpsDevIdentity{Email: strings.ToLower(email), Subject: subject}, nil
 }
