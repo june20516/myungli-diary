@@ -1,5 +1,5 @@
 import { experimental_AstroContainer as AstroContainer } from "astro/container";
-import { parse } from "node-html-parser";
+import { parse, type HTMLElement } from "node-html-parser";
 import { describe, expect, test } from "vitest";
 import StoreSlot from "../src/components/StoreSlot.astro";
 import { LANGS } from "../src/config/lang.ts";
@@ -27,9 +27,9 @@ describe("StoreSlot", () => {
     const copy = loadCopy(lang);
     expect(root.querySelectorAll(".soon")).toHaveLength(0);
     const links = root.querySelectorAll("a.badge");
-    expect(links.map((link) => link.getAttribute("href"))).toEqual([STORES.apple, STORES.google]);
-    expect(links.map((link) => link.getAttribute("aria-label"))).toEqual([copy.text("web-landing.store.apple"), copy.text("web-landing.store.google")]);
-    const sources = links.map((link) => link.querySelector("img")?.getAttribute("src") ?? "");
+    expect(links.map((link: HTMLElement) => link.getAttribute("href"))).toEqual([STORES.apple, STORES.google]);
+    expect(links.map((link: HTMLElement) => link.getAttribute("aria-label"))).toEqual([copy.text("web-landing.store.apple"), copy.text("web-landing.store.google")]);
+    const sources = links.map((link: HTMLElement) => link.querySelector("img")?.getAttribute("src") ?? "");
     expect(sources[0]).toMatch(new RegExp(`apple-${lang}.*\\.svg`));
     expect(sources[1]).toMatch(new RegExp(`google-${lang}.*\\.png`));
     for (const link of links) expect(link.querySelector("img")?.getAttribute("height")).toBe("48");
