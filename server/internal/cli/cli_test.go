@@ -190,6 +190,19 @@ func TestRunMigrate_OpsUser(t *testing.T) {
 		t.Errorf("두 번째 migrate up 종료 코드 = %d, stderr = %q", code, stderr)
 	}
 
+	// 예상 밖의 로그인 role(사람 DB 계정)이 있으면 배포를 멈추고, 로그에는 이름 없이 개수만 남깁니다.
+	human := createLoginRole(t, pool, "human_cli_")
+	code, _, stderr = runCLIWithEnv(t, env, "migrate", "up")
+	if code == 0 {
+		t.Error("예상 밖 로그인 role이 있는데 migrate up이 성공했습니다")
+	}
+	if !strings.Contains(stderr, "로그인 가능한 DB role") || strings.Contains(stderr, human) {
+		t.Errorf("로그인 role 실패 로그 = %q, want 이름 없는 실패", stderr)
+	}
+	if _, err := pool.Exec(context.Background(), "DROP ROLE "+pgx.Identifier{human}.Sanitize()); err != nil {
+		t.Fatalf("역할 지우기: %v", err)
+	}
+
 	// 없는 사용자는 배포를 멈춥니다(오류에 이름이 없어야 합니다).
 	missing := "no_such_user_" + strings.ReplaceAll(uuid.NewString()[:8], "-", "")
 	for key, other := range map[string]string{"DB_RUNTIME_USER": "DB_OPS_USER", "DB_OPS_USER": "DB_RUNTIME_USER"} {

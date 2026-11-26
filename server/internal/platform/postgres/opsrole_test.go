@@ -306,3 +306,99 @@ func TestOpsRole_Privileges(t *testing.T) {
 		}
 	}
 }
+
+// 로그인 가능한 role은 지정한 사용자, 현재 접속 사용자, Cloud SQL 기본 postgres, Cloud SQL 시스템 role만 있어야 합니다.
+// 밖의 로그인 role(사람 계정 등)은 개수만 담은 ErrUnexpectedLoginRole이고, 로그인 불가 role과 시스템 이름은 통과입니다.
+func TestCheckLoginRoles(t *testing.T) {
+	ctx := context.Background()
+	dbtest.LockCluster(t)
+	pool := dbtest.New(t)
+	suffix := uuid.NewString()[:8]
+	runtimeUser, opsUser := "rt-"+suffix, "ops-"+suffix
+	createRole(t, pool, runtimeUser, "LOGIN")
+	createRole(t, pool, opsUser, "LOGIN")
+	createRole(t, pool, "nologin-"+suffix, "NOLOGIN")
+
+	if err := postgres.CheckLoginRoles(ctx, pool, runtimeUser, opsUser); err != nil {
+		t.Fatalf("정상 구성(로그인 불가 role 포함): %v", err)
+	}
+
+	// Cloud SQL 기본 사용자와 시스템 role은 이름이 정확히 같으면 통과합니다. 역할은 cluster 전체라 없을 때만 만들고 지웁니다.
+	for _, name := range []string{"postgres", "cloudsqladmin", "cloudsqlagent", "cloudsqlimportexport", "cloudsqlreplica"} {
+		var exists bool
+		if err := pool.QueryRow(ctx, `SELECT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = $1)`, name).Scan(&exists); err != nil {
+			t.Fatalf("%s 확인: %v", name, err)
+		}
+		if !exists {
+			createRole(t, pool, name, "LOGIN")
+		}
+	}
+	if err := postgres.CheckLoginRoles(ctx, pool, runtimeUser, opsUser); err != nil {
+		t.Errorf("Cloud SQL 기본, 시스템 role: %v", err)
+	}
+
+	// 시스템 role과 비슷한 이름(접두만 같음)과 사람 계정 같은 이름은 밖입니다.
+	lookalike, human := "cloudsqlagent-"+suffix, "human-"+suffix
+	createRole(t, pool, lookalike, "LOGIN")
+	createRole(t, pool, human, "LOGIN")
+	err := postgres.CheckLoginRoles(ctx, pool, runtimeUser, opsUser)
+	if !errors.Is(err, postgres.ErrUnexpectedLoginRole) {
+		t.Fatalf("예상 밖 로그인 role: err = %v, want ErrUnexpectedLoginRole", err)
+	}
+	if !strings.Contains(err.Error(), "2") {
+		t.Errorf("오류에 개수가 없습니다: %v", err)
+	}
+	for _, name := range []string{lookalike, human, suffix} {
+		if strings.Contains(err.Error(), name) {
+			t.Errorf("오류 문구에 role 이름이 들어갔습니다: %v", err)
+		}
+	}
+
+	// 로그인을 거두면 다시 통과합니다.
+	for _, name := range []string{lookalike, human} {
+		if _, err := pool.Exec(ctx, "ALTER ROLE "+pgx.Identifier{name}.Sanitize()+" NOLOGIN"); err != nil {
+			t.Fatalf("NOLOGIN: %v", err)
+		}
+	}
+	if err := postgres.CheckLoginRoles(ctx, pool, runtimeUser, opsUser); err != nil {
+		t.Errorf("로그인을 거둔 뒤: %v", err)
+	}
+}
+
+// 운영 API 서버는 기동 때 자기 DB 사용자(superuser 아님, myungli_ops 구성원)로 로그인 role 검사와 역할 분리 검사를 돌립니다.
+// 그 사용자가 pg_roles, pg_auth_members를 읽고 pg_has_role을 부를 수 있는지 SET ROLE로 확인합니다.
+func TestRoleChecks_RunAsOpsUser(t *testing.T) {
+	ctx := context.Background()
+	dbtest.LockCluster(t)
+	pool := dbtest.New(t)
+	clearOpsMembers(t, pool)
+	suffix := uuid.NewString()[:8]
+	runtimeUser, opsUser := "rt-"+suffix, "ops-"+suffix
+	createRole(t, pool, runtimeUser, "LOGIN")
+	createRole(t, pool, opsUser, "LOGIN")
+	t.Cleanup(func() {
+		_, _ = pool.Exec(context.Background(), "REVOKE "+postgres.AppRole+" FROM "+pgx.Identifier{runtimeUser}.Sanitize())
+	})
+	grant(t, pool, postgres.OpsRole, opsUser)
+	grant(t, pool, postgres.AppRole, runtimeUser)
+
+	// 시험 cluster의 관리 사용자가 migrator 자리입니다.
+	var migrator string
+	if err := pool.QueryRow(ctx, `SELECT current_user`).Scan(&migrator); err != nil {
+		t.Fatalf("current_user: %v", err)
+	}
+	tx, err := pool.Begin(ctx)
+	if err != nil {
+		t.Fatalf("트랜잭션 시작: %v", err)
+	}
+	defer func() { _ = tx.Rollback(ctx) }()
+	if _, err := tx.Exec(ctx, "SET LOCAL ROLE "+pgx.Identifier{opsUser}.Sanitize()); err != nil {
+		t.Fatalf("SET ROLE: %v", err)
+	}
+	if err := postgres.CheckLoginRoles(ctx, tx, migrator, runtimeUser, opsUser); err != nil {
+		t.Errorf("ops 사용자로 로그인 role 검사: %v", err)
+	}
+	if err := postgres.CheckRoleSeparation(ctx, tx, runtimeUser, opsUser); err != nil {
+		t.Errorf("ops 사용자로 역할 분리 검사: %v", err)
+	}
+}

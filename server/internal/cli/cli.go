@@ -181,6 +181,12 @@ func runMigrate(ctx context.Context, args []string, getenv func(string) string, 
 		logger.ErrorContext(ctx, "런타임과 운영 API DB 사용자 역할 분리 확인 실패", "error", err)
 		return &loggedError{err: err}
 	}
+	// 사람 DB 계정(gcloud sql users create로 만든 cloudsqlsuperuser 사용자 등)이 생겼으면 배포를 멈춥니다(S170).
+	// migrator는 현재 접속 사용자라 검사가 따로 넣습니다. 오류에는 개수만 있습니다.
+	if err := postgres.CheckLoginRoles(ctx, pool, runtimeUser, opsUser); err != nil {
+		logger.ErrorContext(ctx, "로그인 가능한 DB role 확인 실패", "error", err)
+		return &loggedError{err: err}
+	}
 	logger.InfoContext(ctx, "DB 사용자를 권한 묶음 구성원으로 두었습니다", "app_role", postgres.AppRole, "ops_role", postgres.OpsRole)
 	return nil
 }
