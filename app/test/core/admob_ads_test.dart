@@ -29,6 +29,7 @@ class _Api implements AdMobApi {
   final List<String> calls = [];
   bool canRequest = true;
   int initializeFailures = 0;
+  bool consentUpdateFails = false;
   AdMobLoadFailure? failWith;
 
   /// 있으면 배너 요청이 이것이 끝날 때까지 답하지 않습니다.
@@ -41,6 +42,12 @@ class _Api implements AdMobApi {
       initializeFailures--;
       throw StateError('init');
     }
+  }
+
+  @override
+  Future<void> requestConsentUpdate() async {
+    calls.add('consent');
+    if (consentUpdateFails) throw StateError('UMP 1');
   }
 
   @override
@@ -143,10 +150,32 @@ void main() {
       expect(await adapter.loadBanner(width: 360), isNotNull);
       expect(await adapter.loadRewarded(userId: 'acc-1'), isNotNull);
       expect(api.calls, [
+        'consent',
         'initialize',
         'banner ca-app-pub-3940256099942544/9214589741 360',
         'rewarded ca-app-pub-3940256099942544/5224354917 acc-1',
       ]);
+    });
+
+    test('실행마다 첫 불러오기 전에 동의 정보를 한 번 갱신합니다(#1345)', () async {
+      final adapter = ads();
+      await adapter.loadBanner(width: 360);
+      await adapter.loadBanner(width: 360);
+      await adapter.loadRewarded(userId: 'a');
+      expect(api.calls.where((c) => c == 'consent'), hasLength(1));
+      expect(api.calls.first, 'consent');
+    });
+
+    test('동의 정보 갱신이 실패해도 이전 동의 상태로 판단해 불러옵니다', () async {
+      api.consentUpdateFails = true;
+      final adapter = ads();
+      expect(await adapter.loadBanner(width: 360), isNotNull);
+      await adapter.loadBanner(width: 360);
+      expect(
+        api.calls.where((c) => c == 'consent'),
+        hasLength(1),
+        reason: '실패해도 그 실행에서 다시 갱신하지 않습니다',
+      );
     });
 
     test('초기화가 실패하면 UnexpectedError이고 다음 호출에서 다시 초기화합니다', () async {
@@ -164,7 +193,10 @@ void main() {
       api.canRequest = false;
       expect(await ads().loadBanner(width: 360), isNull);
       expect(await ads().loadRewarded(userId: 'a'), isNull);
-      expect(api.calls.where((c) => !c.startsWith('initialize')), isEmpty);
+      expect(
+        api.calls.where((c) => c != 'initialize' && c != 'consent'),
+        isEmpty,
+      );
     });
 
     test('불러오기 실패: 광고 없음은 null, 네트워크는 OfflineError', () async {

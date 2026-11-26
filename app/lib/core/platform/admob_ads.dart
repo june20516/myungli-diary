@@ -56,7 +56,9 @@ AppError? adMobLoadError(int code, {required TargetPlatform platform}) {
 
 /// 배너 요청이 이 시간 안에 답하지 않으면 실패로 봅니다(#1345).
 ///
-/// prod 기기에서 SDK가 성공도 실패도 알리지 않아 배너가 불러오는 중에 멈춘 것을 봤습니다.
+/// prod 기기에서 SDK가 성공도 실패도 알리지 않아 배너가 불러오는 중에 멈춘 것을 봤습니다. 그
+/// 원인(실행마다 동의 정보를 갱신하지 않음)은 [AdMobAds]가 고쳤고, 다른 이유로 같은 멈춤이 나도
+/// 배너가 다시 시도하고 기록이 남도록 둡니다.
 const adMobBannerTimeout = Duration(seconds: 30);
 
 /// 시간 제한으로 끝난 배너 불러오기. SDK 오류와 겹치지 않게 앱 도메인을 씁니다.
@@ -101,6 +103,9 @@ abstract interface class AdMobApi {
   /// SDK를 초기화합니다.
   Future<void> initialize();
 
+  /// 동의(UMP) 정보를 새로 받습니다. 동의 창은 띄우지 않습니다. 실패하면 던집니다.
+  Future<void> requestConsentUpdate();
+
   /// 동의(UMP) 상태가 광고 요청을 허락하는지.
   Future<bool> canRequestAds();
 
@@ -144,6 +149,17 @@ final class SdkAdMobApi implements AdMobApi {
 
   @override
   Future<void> initialize() => gma.MobileAds.instance.initialize();
+
+  @override
+  Future<void> requestConsentUpdate() {
+    final done = Completer<void>();
+    gma.ConsentInformation.instance.requestConsentInfoUpdate(
+      gma.ConsentRequestParameters(),
+      done.complete,
+      (error) => done.completeError(StateError('UMP ${error.errorCode}')),
+    );
+    return done.future;
+  }
 
   @override
   Future<bool> canRequestAds() =>
@@ -270,6 +286,11 @@ final class _SdkRewarded implements RewardedAdHandle {
 
 /// 광고의 실제 구현(AdMob, #686).
 ///
+/// 실행마다 처음 부를 때 동의(UMP) 정보를 한 번 새로 받습니다. Google은 실행마다 갱신하라고
+/// 하고, 갱신하지 않은 실행에서는 SDK가 광고 요청을 보내지 않고 성공도 실패도 알리지 않았습니다
+/// (#1345). 갱신이 실패하면 그 실행에서는 다시 하지 않고 이전 실행의 동의 상태로 판단합니다.
+/// 동의 창은 진입 흐름이 이 기기에서 처음 광고 전에 한 번 띄웁니다(`AdConsent.gather`).
+///
 /// SDK는 처음 부를 때 한 번 초기화하고, 실패하면 다음 호출에서 다시 초기화합니다. 동의
 /// 상태(UMP)가 광고 요청을 허락하지 않거나 지원하지 않는 플랫폼이면 불러오지 않고 null입니다.
 /// 불러오기 실패는 [adMobLoadError] 규칙으로 null이나 [AppError]가 됩니다. 배너가
@@ -300,6 +321,7 @@ final class AdMobAds implements Ads {
   final Duration bannerTimeout;
 
   Future<void>? _initialized;
+  Future<void>? _consentUpdated;
 
   @override
   Future<BannerAdHandle?> loadBanner({required int width}) => _load(
@@ -325,6 +347,14 @@ final class AdMobAds implements Ads {
     (unitId) => api.loadRewarded(unitId: unitId, userId: userId),
   );
 
+  Future<void> _updateConsent() async {
+    try {
+      await api.requestConsentUpdate();
+    } on Object {
+      // 갱신 실패는 이전 실행의 동의 상태로 판단합니다(아래 canRequestAds).
+    }
+  }
+
   Future<T?> _load<T>(
     AdMobFormat format,
     Future<T?> Function(String unitId) load,
@@ -335,6 +365,7 @@ final class AdMobAds implements Ads {
       useTestAds: useTestAds,
     );
     if (unitId == null) return null;
+    await (_consentUpdated ??= _updateConsent());
     try {
       await (_initialized ??= api.initialize());
     } on Object catch (error) {
