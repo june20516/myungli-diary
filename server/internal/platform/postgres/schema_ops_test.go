@@ -143,4 +143,11 @@ func TestMigrate_OpsDownUp(t *testing.T) {
 	if err := pool.QueryRow(ctx, `SELECT has_table_privilege('myungli_ops', 'diaries', 'SELECT')`).Scan(&canRead); err != nil || !canRead {
 		t.Errorf("다시 up 뒤 myungli_ops diaries SELECT = %v (err %v), want true", canRead, err)
 	}
+	// retention은 myungli_app 역할로 돌므로 감사 행 DELETE는 되고 UPDATE는 안 되어야 합니다.
+	var appCanDelete, appCanUpdate bool
+	err = pool.QueryRow(ctx, `SELECT has_table_privilege('myungli_app', 'ops_audit', 'DELETE'),
+		has_table_privilege('myungli_app', 'ops_audit', 'UPDATE')`).Scan(&appCanDelete, &appCanUpdate)
+	if err != nil || !appCanDelete || appCanUpdate {
+		t.Errorf("myungli_app ops_audit DELETE = %v, UPDATE = %v (err %v), want true, false", appCanDelete, appCanUpdate, err)
+	}
 }

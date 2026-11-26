@@ -44,6 +44,7 @@ const (
 	TestGrantYears = 1
 	// OpsAuditYears는 운영 감사 기록(ops_audit)과 운영자 부여 권한 행의 보관 기간입니다.
 	// ops_audit trigger가 같은 2년을 강제하므로 줄이면 안 됩니다.
+	// 정리 쿼리(db/queries/retention.sql)와 trigger(migration 00029)의 SQL 리터럴 interval '2 years'와 함께 바꿔야 합니다.
 	OpsAuditYears = 2
 	// BillingYears는 결제 기록(webhook 수신, 구매 장부, 결제 구간)의 보관 기간입니다.
 	// 결제 동기화가 이보다 오래된 구매를 다시 적지 않도록 billing과 같은 값을 씁니다.
