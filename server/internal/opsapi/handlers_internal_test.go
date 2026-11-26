@@ -11,11 +11,13 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/june20516/myungli-diary/server/internal/ops"
+	"github.com/june20516/myungli-diary/server/internal/platform/clock/clocktest"
 )
 
 // serveFake는 가짜 command를 commandHandler에 넣어 한 번 호출합니다.
@@ -62,4 +64,19 @@ func TestContentPaths_AreCommands(t *testing.T) {
 	for path := range contentPaths {
 		assert.Contains(t, registered, path)
 	}
+}
+
+// 창이 지난 키는 다음 호출 때 지워져 map이 커지지 않습니다.
+func TestRateLimiter_DropsEmptyKeys(t *testing.T) {
+	clk := clocktest.New(time.Date(2026, 11, 26, 3, 0, 0, 0, time.UTC))
+	limiter := newRateLimiter(clk, 2, time.Minute)
+	assert.True(t, limiter.allow("a"))
+	assert.True(t, limiter.allow("a"))
+	assert.False(t, limiter.allow("a"), "상한을 넘으면 거절")
+	assert.Len(t, limiter.hits["a"], 2, "거절한 요청은 세지 않음")
+
+	clk.Advance(time.Minute)
+	assert.True(t, limiter.allow("b"))
+	assert.NotContains(t, limiter.hits, "a", "창이 빈 키는 지움")
+	assert.Len(t, limiter.hits, 1)
 }

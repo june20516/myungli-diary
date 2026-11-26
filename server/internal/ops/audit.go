@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"regexp"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -74,10 +75,15 @@ func ValidateReason(s string) (string, error) {
 // maxReasonDigitRun은 사유에 이어 쓸 수 있는 숫자 개수의 상한입니다. 이보다 많으면(7자리 이상) 전화번호 형태로 봅니다.
 const maxReasonDigitRun = 6
 
-// hasLongDigitRun은 숫자, 하이픈, 공백, 괄호, +로만 이어진 구간에 숫자가 7개 이상 있는지 알려 줍니다(010-1234-5678,
-// (02) 123 4567, +82 10 ...). 숫자는 전각 숫자도 셉니다. #, 점, 글자는 구간을 끊으므로 "문의 #1234 #5678"과
-// "2026.11.26"은 통과하고, "2026-11-26"처럼 하이픈으로 이은 날짜는 8자리 숫자열이라 거절합니다.
+// dotDatePattern은 사유에서 숫자열로 세지 않는 점 날짜(2026.11.26, 2026.1.5)입니다.
+var dotDatePattern = regexp.MustCompile(`[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}`)
+
+// hasLongDigitRun은 숫자와 그 사이를 잇는 문자(공백류 전부, -, ., /, _, 괄호, +)로만 이어진 구간에 숫자가 7개 이상 있는지
+// 알려 줍니다(010-1234-5678, 010.1234.5678, (02) 123 4567, +82 10 ...). 숫자는 전각 숫자도 셉니다.
+// #과 글자는 구간을 끊으므로 "문의 #1234 #5678"은 통과합니다. 앞뒤에 숫자가 붙지 않은 점 날짜(2026.11.26)만 예외로
+// 구간을 끊고, 하이픈으로 이은 날짜(2026-11-26)는 8자리 숫자열이라 거절합니다.
 func hasLongDigitRun(s string) bool {
+	s = maskDotDates(s)
 	digits := 0
 	for _, r := range s {
 		switch {
@@ -86,12 +92,39 @@ func hasLongDigitRun(s string) bool {
 			if digits > maxReasonDigitRun {
 				return true
 			}
-		case r == '-' || r == ' ' || r == '(' || r == ')' || r == '+':
+		case isDigitJoiner(r):
 		default:
 			digits = 0
 		}
 	}
 	return false
+}
+
+// isDigitJoiner는 숫자 사이에 있어도 숫자열을 끊지 않는 문자입니다.
+func isDigitJoiner(r rune) bool {
+	return unicode.IsSpace(r) || strings.ContainsRune("-./_()+", r)
+}
+
+// maskDotDates는 앞뒤가 숫자가 아닌 점 날짜를 #으로 바꿔 숫자열을 끊습니다. 앞뒤에 숫자가 붙은 경우(12026.11.26)는 날짜로 보지 않습니다.
+func maskDotDates(s string) string {
+	matches := dotDatePattern.FindAllStringIndex(s, -1)
+	if len(matches) == 0 {
+		return s
+	}
+	var b strings.Builder
+	last := 0
+	for _, m := range matches {
+		before, _ := utf8.DecodeLastRuneInString(s[:m[0]])
+		after, _ := utf8.DecodeRuneInString(s[m[1]:])
+		if unicode.IsDigit(before) || unicode.IsDigit(after) {
+			continue
+		}
+		b.WriteString(s[last:m[0]])
+		b.WriteByte('#')
+		last = m[1]
+	}
+	b.WriteString(s[last:])
+	return b.String()
 }
 
 // Action은 감사 표에 남기는 운영 행위입니다.

@@ -159,8 +159,10 @@ var cloudSQLSystemRoles = []string{
 
 // CheckLoginRoles는 로그인 가능한 role(rolcanlogin) 전체를 열거해 예상 집합 밖이 있으면 ErrUnexpectedLoginRole을 돌려줍니다.
 // 예상 집합은 expected(migrator, 런타임, 운영 API DB 사용자), 현재 접속 사용자(current_user), Cloud SQL 기본 postgres,
-// Cloud SQL 시스템 role입니다. `gcloud sql users create`로 만든 사용자는 cloudsqlsuperuser가 되어 감사 없이 표를 읽으므로
-// 그런 사용자가 생기면 migrate와 운영 API 기동을 멈춥니다. 오류에는 개수만 담아 그대로 로그에 남겨도 됩니다.
+// Cloud SQL 시스템 role입니다. 오류에는 이름 없이 개수를 cloudsql 접두 여부로 나눠 담습니다(runbook 6절의 진단 절차).
+// `gcloud sql users create`로 만든 사용자는 cloudsqlsuperuser가 되어 감사 없이 표를 읽으므로
+// 그런 사용자가 생기면 migrate와 운영 API 기동을 멈춥니다. 오류에는 이름이 없어 그대로 로그에 남겨도 됩니다.
+// 한계: 기본 사용자 postgres는 이름으로 허용하므로, cloudsql.admin을 가진 주체가 그 비밀번호를 정해 접속하는 경로는 잡지 못합니다.
 // pg_roles는 모든 role이 읽을 수 있는 카탈로그 view라 superuser가 아닌 운영 API 사용자로도 돌릴 수 있습니다.
 func CheckLoginRoles(ctx context.Context, pool RowQuerier, expected ...string) error {
 	allowed := make([]string, 0, len(expected)+len(cloudSQLSystemRoles)+1)
@@ -172,15 +174,18 @@ func CheckLoginRoles(ctx context.Context, pool RowQuerier, expected ...string) e
 	allowed = append(allowed, cloudSQLDefaultUser)
 	allowed = append(allowed, cloudSQLSystemRoles...)
 
-	var unexpected int
+	// cloudsql 접두는 진단용 분류에만 씁니다(문서에 없는 Cloud SQL 시스템 role인지, 사람 계정인지 가늠). 허용하지 않습니다.
+	var systemLike, others int
 	err := pool.QueryRow(ctx, `
-		SELECT count(*) FROM pg_roles
-		WHERE rolcanlogin AND rolname <> current_user AND NOT (rolname = ANY($1::text[]))`, allowed).Scan(&unexpected)
+		SELECT count(*) FILTER (WHERE starts_with(rolname, 'cloudsql')),
+		       count(*) FILTER (WHERE NOT starts_with(rolname, 'cloudsql'))
+		FROM pg_roles
+		WHERE rolcanlogin AND rolname <> current_user AND NOT (rolname = ANY($1::text[]))`, allowed).Scan(&systemLike, &others)
 	if err != nil {
 		return fmt.Errorf("로그인 role 확인: %w", withoutRoleName(err))
 	}
-	if unexpected > 0 {
-		return fmt.Errorf("%w: %d개", ErrUnexpectedLoginRole, unexpected)
+	if total := systemLike + others; total > 0 {
+		return fmt.Errorf("%w: %d개(cloudsql로 시작하는 이름 %d개, 그 밖 %d개)", ErrUnexpectedLoginRole, total, systemLike, others)
 	}
 	return nil
 }

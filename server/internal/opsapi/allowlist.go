@@ -64,13 +64,26 @@ const OperatorsTTL = time.Minute
 // maxOperatorsFileBytes는 운영자 목록 파일의 크기 상한입니다(Secret Manager 값 상한과 같은 64 KiB).
 const maxOperatorsFileBytes = 64 << 10
 
+// operatorsReadTimeout은 운영자 목록 파일 한 번 읽기의 상한입니다. Cloud Run은 볼륨의 secret을 읽을 때 Secret Manager에서
+// 값을 가져오므로 읽기가 느려질 수 있습니다. 상한을 넘으면 기다리던 요청을 503으로 돌려보냅니다(fail-closed).
+const operatorsReadTimeout = 5 * time.Second
+
 // FileOperators는 운영자 목록 파일(Secret OPS_OPERATORS의 Cloud Run 볼륨 마운트, 버전 latest)을 TTL마다 다시 읽습니다.
 // Cloud Run은 볼륨의 secret을 읽을 때마다 Secret Manager의 latest 값을 가져오므로, 새 버전을 넣으면
 // 재배포 없이 다음 읽기에 반영됩니다(https://docs.cloud.google.com/run/docs/configuring/services/secrets).
 // 읽기에 실패하면 캐시를 버리고 오류를 돌려주며, 실패는 캐시하지 않아 다음 요청이 다시 읽습니다.
+//
+// 잠금은 둘입니다. mu는 캐시 상태만 짧게 지키고 파일 읽기 동안 잡지 않습니다. refreshMu는 다시 읽기를 한 번에 하나로 묶어,
+// TTL이 지난 순간 몰린 요청이 파일을 여러 번 읽지 않게 합니다(singleflight와 같은 효과). 캐시가 유효한 요청은 refreshMu를 기다리지 않습니다.
+// TTL이 지난 뒤의 요청은 새 목록을 기다려야 하므로(옛 목록으로 통과시키지 않음) 읽기 상한 operatorsReadTimeout까지 기다립니다.
 type FileOperators struct {
 	path  string
 	clock clock.Clock
+	// read와 readTimeout은 시험이 바꿉니다.
+	read        func(path string) (string, error)
+	readTimeout time.Duration
+
+	refreshMu sync.Mutex
 
 	mu       sync.Mutex
 	cached   Allowlist
@@ -80,25 +93,65 @@ type FileOperators struct {
 
 // NewFileOperators는 path의 운영자 목록을 TTL(OperatorsTTL)마다 다시 읽는 원천을 만듭니다.
 func NewFileOperators(path string, clk clock.Clock) *FileOperators {
-	return &FileOperators{path: path, clock: clk}
+	return &FileOperators{path: path, clock: clk, read: readOperatorsFile, readTimeout: operatorsReadTimeout}
 }
 
 // Operators는 TTL 안이면 캐시한 목록을, 아니면 파일을 다시 읽은 목록을 돌려줍니다.
 // 시계가 뒤로 가면(loadedAt보다 이른 시각) TTL이 지난 것으로 보고 다시 읽습니다.
-func (f *FileOperators) Operators(context.Context) (Allowlist, error) {
+func (f *FileOperators) Operators(ctx context.Context) (Allowlist, error) {
+	if list, ok := f.fresh(); ok {
+		return list, nil
+	}
+	f.refreshMu.Lock()
+	defer f.refreshMu.Unlock()
+	// 기다리는 동안 다른 요청이 다시 읽었으면 그 결과를 씁니다.
+	if list, ok := f.fresh(); ok {
+		return list, nil
+	}
+	raw, err := f.readWithTimeout(ctx)
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	now := f.clock.Now()
-	if f.valid && !now.Before(f.loadedAt) && now.Sub(f.loadedAt) < OperatorsTTL {
-		return f.cached, nil
-	}
-	raw, err := readOperatorsFile(f.path)
 	if err != nil {
 		f.cached, f.valid = Allowlist{}, false
 		return Allowlist{}, err
 	}
-	f.cached, f.loadedAt, f.valid = ParseAllowlist(raw), now, true
+	f.cached, f.loadedAt, f.valid = ParseAllowlist(raw), f.clock.Now(), true
 	return f.cached, nil
+}
+
+// fresh는 TTL 안의 캐시가 있으면 그것을 돌려줍니다.
+func (f *FileOperators) fresh() (Allowlist, bool) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	now := f.clock.Now()
+	if f.valid && !now.Before(f.loadedAt) && now.Sub(f.loadedAt) < OperatorsTTL {
+		return f.cached, true
+	}
+	return Allowlist{}, false
+}
+
+// readWithTimeout은 파일 읽기를 readTimeout 또는 ctx 취소까지만 기다립니다. 넘으면 ErrOperatorsUnavailable이고,
+// 끝나지 않은 읽기는 버퍼 있는 채널에 결과를 남기고 끝나므로 goroutine이 묶이지 않습니다.
+func (f *FileOperators) readWithTimeout(ctx context.Context) (string, error) {
+	type result struct {
+		raw string
+		err error
+	}
+	done := make(chan result, 1)
+	go func() {
+		raw, err := f.read(f.path)
+		done <- result{raw: raw, err: err}
+	}()
+	timer := time.NewTimer(f.readTimeout)
+	defer timer.Stop()
+	select {
+	case r := <-done:
+		return r.raw, r.err
+	case <-timer.C:
+		return "", ErrOperatorsUnavailable
+	case <-ctx.Done():
+		return "", ErrOperatorsUnavailable
+	}
 }
 
 // readOperatorsFile은 목록 파일을 64 KiB까지 읽습니다. 넘거나 읽지 못하면 ErrOperatorsUnavailable입니다.

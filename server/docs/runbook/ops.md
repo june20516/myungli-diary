@@ -47,6 +47,14 @@ gcloud services identity create --service=iap.googleapis.com --project=<프로�
 
 ⑦ **다시 배포.** `deploy-server`를 다시 돌려 `server-ops`를 새 이미지와 `OPS_OPERATORS` Secret 볼륨(버전 `latest`, 경로 `OPS_OPERATORS_FILE`)으로 갱신합니다. 이 뒤로는 목록을 바꿀 때 다시 배포하지 않아도 됩니다(2절).
 
+   **배포 확인(PR 검증 항목, staging 첫 배포에서 한 번):** `deploy-server` 실행의 migrate Job 로그에 "DB 사용자를 권한 묶음 구성원으로 두었습니다"가 있고 "로그인 가능한 DB role 확인 실패"나 "역할 분리 확인 실패"가 없는지 봅니다. 이어 `server-ops` 새 revision이 Ready이고 그 로그에 "운영 API 서버 시작"이 있으며 "DB 역할 확인 실패", "운영자 목록 읽기 실패"가 없는지 봅니다. 실패했으면 6절 "예상 밖 로그인 사용자"의 진단 절차를 따릅니다. 확인 결과는 #1321에 적습니다.
+
+   ```sh
+   gcloud run services describe server-ops --region asia-northeast3 --project <프로젝트> --format='value(status.conditions[0].type, status.conditions[0].status)'
+   gcloud logging read 'resource.type="cloud_run_revision" AND resource.labels.service_name="server-ops"' --project <프로젝트> --freshness=1h --limit=50 --format='value(jsonPayload.message)'
+   gcloud logging read 'resource.type="cloud_run_job" AND resource.labels.job_name="server-migrate"' --project <프로젝트> --freshness=1h --limit=50 --format='value(jsonPayload.message)'
+   ```
+
 ⑧ **로그인.** 운영자 컴퓨터에서 한 번 합니다. 브라우저가 열리고, 운영자 Google 계정으로 로그인하면 `ops-oauth.json`(600, 운영 API 주소, 클라이언트 id와 secret, refresh token)이 생깁니다. 이 파일은 비밀(L2)이라 내용을 출력하거나 옮기지 않습니다.
 
 ```sh
@@ -101,16 +109,18 @@ go run ./cmd/server ops audit list --env prod --since 2026-12-01 --reason "등�
    gcloud iap web get-iam-policy --region=asia-northeast3 --resource-type=cloud-run --service=server-ops --project=<프로젝트>
    ```
 
+**staging에서 한 번 확인할 것(빼기 반영):** 테스트 운영자(본인의 다른 Google 계정 등)를 1절 ⑧까지 등록해 둔 뒤, IAP 바인딩은 그대로 두고 그 메일을 뺀 `OPS_OPERATORS` 새 버전만 넣습니다. 1분 뒤 테스트 운영자로 `server ops account show`를 부르면 403(`운영 권한이 없습니다`)이어야 하고, 남은 운영자로 `server ops audit list --env staging --since <오늘> --reason "빼기 반영 확인"`을 부르면 테스트 운영자의 `denied` 행(`target`의 `route`)이 보여야 합니다. 1분이 지나도 통과하면 Cloud Run 볼륨 반영이 늦는 것이니 #1321에 적습니다. 확인 뒤 결과(걸린 시간)를 spec §2 표에 더합니다. 끝나면 테스트 운영자의 IAP 바인딩도 거둡니다.
+
 빠진 운영자의 컴퓨터에 남은 `ops-oauth.json`은 IAP와 허용 목록에서 막히지만, 본인에게 지우라고 알리고 Google 계정의 연결된 앱 페이지에서 그 앱의 접근을 삭제하게 합니다(6절 "로컬 자격 파일"). 빠진 뒤의 호출은 허용 목록에서 막히면 `ops_audit`에 `denied` 행으로 남습니다.
 
 ## 3. 명령
 
 모든 명령에 `--env staging|prod`(먼저 그 환경으로 로그인)와 `--reason "<사유>"`가 필수입니다. 아래는 `go run ./cmd/server`(`server/`에서)를 `server`로 줄여 씁니다. `--json`은 기계가 읽는 출력입니다.
 
-**사유 규칙:** 앞뒤 공백을 뗀 뒤 1~500자이고, 줄바꿈(`\n`, `\r`, U+0085, U+2028, U+2029), NUL, 잘못된 UTF-8, `@`, 7자리 이상 숫자열은 안 됩니다. 숫자열은 숫자와 그 사이의 하이픈, 공백, 괄호, `+`를 이어서 세므로 전화번호 형태도 걸립니다. 사유는 2년 보관되므로 **이름, 메일, 전화번호 같은 개인정보를 쓰지 않고 문의 번호나 Issue 번호만** 적습니다.
+**사유 규칙:** 앞뒤 공백을 뗀 뒤 1~500자이고, 줄바꿈(`\n`, `\r`, U+0085, U+2028, U+2029), NUL, 잘못된 UTF-8, `@`, 7자리 이상 숫자열은 안 됩니다. 숫자열은 숫자와 그 사이를 잇는 문자(공백, 탭, NBSP 같은 공백류 전부, `-`, `.`, `/`, `_`, 괄호, `+`)를 이어서 세므로 전화번호 형태도 걸립니다. 앞뒤에 숫자가 붙지 않은 점 날짜(`2026.11.26`, `2026.1.5`)만 숫자열로 세지 않습니다. 사유는 2년 보관되므로 **이름, 메일, 전화번호 같은 개인정보를 쓰지 않고 문의 번호나 Issue 번호만** 적습니다.
 
-* 받는 예: `문의 #1234`, `Issue #1321 환불 확인`, `문의 #1203 결제 반영 확인`, `2026.11.26 장애`(점으로 쓴 날짜)
-* 거절하는 예: `연락처 010-1234-5678`, `(02) 123 4567`, `회원번호 1234567`, `2026-11-26 장애`(하이픈으로 이은 날짜는 8자리 숫자열), `문의 a@b`
+* 받는 예: `문의 #1234`, `Issue #1321 환불 확인`, `문의 #1203 결제 반영 확인`, `2026.11.26 장애`(점으로 쓴 날짜), `문의 #1234 #5678`
+* 거절하는 예: `연락처 010-1234-5678`, `010.1234.5678`, `010/1234/5678`, `(02) 123 4567`, `회원번호 1234567`, `2026-11-26 장애`(하이픈으로 이은 날짜는 8자리 숫자열), `1321 1234`(공백으로 이은 번호 둘), `문의 a@b`
 
 ### 계정 조회
 
@@ -269,12 +279,21 @@ gcloud projects get-ancestors-iam-policy <프로젝트> --format='table(id, type
 
 **deployer는 `server-ops` 계정을 쓸 수 있습니다.** bootstrap이 deployer에 프로젝트 단위 `roles/iam.serviceAccountUser`(모든 서비스와 Job을 각자의 계정으로 배포하는 actAs)를 주므로, 배포 브랜치(staging은 `staging`, prod는 `main`)의 코드가 `server-ops` 계정으로 실행될 수 있습니다. deployer는 그 밖에도 `run.admin`, `cloudsql.admin`, `secretmanager.admin`, `iam.serviceAccountAdmin`, `resourcemanager.projectIamAdmin`을 가져 배포 코드가 운영 경로를 바꿀 수 있습니다(배포 검사는 이 중 `cloudsql.admin`, `iam.serviceAccountAdmin`, `resourcemanager.projectIamAdmin`을 deployer에게만 허용합니다). 이것을 막는 것은 브랜치 보호, PR 리뷰, prod 배포 승인(environment `prod`)입니다. deployer의 `serviceAccountUser`를 서비스 계정 단위 부여로 좁히는 bootstrap 변경은 #1321에 제안으로 남깁니다.
 
-**사람 DB 계정이 생기면 배포와 운영 API 기동이 멈춥니다.** migrate가 배포마다, `server-ops`가 인스턴스를 띄울 때마다 두 가지를 확인합니다(S170 개정 ③, ⑨).
+**예상 밖 로그인 사용자가 생기면 배포와 운영 API 기동이 멈춥니다.** migrate가 배포마다, `server-ops`가 인스턴스를 띄울 때마다 두 가지를 확인합니다(S170 개정 ③, ⑨). 사람 DB 계정을 모두 막는 것은 아닙니다(아래 기본 `postgres` 경로).
 
 * 역할 분리: `myungli_ops` 구성원이 `DB_OPS_USER` 하나인지, 런타임이 `myungli_ops`에, `server-ops`가 `myungli_app`에 속하지 않는지
 * 로그인 가능한 role 전체: migrator, `DB_RUNTIME_USER`, `DB_OPS_USER`, Cloud SQL 기본 `postgres`, Cloud SQL 시스템 role(이름이 정확히 같은 것만) 밖의 로그인 role이 없는지
 
-`gcloud sql users create`로 만든 사용자(`cloudsqlsuperuser`에 속해 `myungli_ops` 없이 표를 읽음)는 `myungli_ops`에 넣지 않아도 다음 migrate가 실패하고, 이미 떠 있는 `server-ops` 인스턴스는 그대로지만 새 인스턴스는 뜨지 않습니다. 오류에는 개수만 나옵니다. 어떤 사용자인지는 `gcloud sql users list --instance <인스턴스> --project <프로젝트>`로 봅니다(시스템 role은 이 목록에 없습니다). 만든 사람과 경위를 확인한 뒤 `gcloud sql users delete`로 지우고 다시 배포합니다. 다만 검사는 배포와 기동 시점에만 하므로 그 사이에 만든 사용자의 접근은 막지 못합니다. 사용자 생성(`cloudsql.users.create`)은 관리 활동이 아니라 데이터 접근(`cloudsql.googleapis.com` `DATA_WRITE`) 감사 로그라 지금 설정(위 표, 켜지 않음)에서는 남지 않습니다(Cloud SQL 문서 "Cloud SQL audit logging"). 인스턴스에 승인된 네트워크가 없어(`sql.tf`) 그 사용자는 Cloud SQL connector나 Auth Proxy로 붙어야 하고, 그 연결(`cloudsql.instances.connect`)과 승인된 네트워크 추가(`cloudsql.instances.update`)는 관리 활동이라 항상 남습니다. 서비스 계정 밖 주체의 연결 기록을 봅니다.
+`gcloud sql users create`로 만든 사용자(`cloudsqlsuperuser`에 속해 `myungli_ops` 없이 표를 읽음)는 `myungli_ops`에 넣지 않아도 다음 migrate가 실패하고, 이미 떠 있는 `server-ops` 인스턴스는 그대로지만 새 인스턴스는 뜨지 않습니다. 오류에는 이름 없이 분류된 개수만 나옵니다(`예상 밖의 로그인 가능한 DB role이 있습니다: N개(cloudsql로 시작하는 이름 A개, 그 밖 B개)`).
+
+진단 절차:
+
+1. **cloudsql로 시작하는 이름(A)이 있으면** 문서에 없는 Cloud SQL 시스템 role일 수 있습니다. Cloud SQL 공식 문서 "About PostgreSQL users and roles"(https://docs.cloud.google.com/sql/docs/postgres/users)의 System roles, System users 목록을 다시 확인하고, 거기에 있으면 `server/internal/platform/postgres/opsrole.go`의 `cloudSQLSystemRoles`에 출처(문서와 확인 날짜)와 함께 이름을 더하는 PR을 만들어 배포합니다. 문서에 없으면 접두만 같은 사용자 계정으로 보고 2번으로 갑니다. 접두로 통째로 허용하지 않습니다.
+2. **그 밖(B)이면** 사람 계정으로 봅니다. `gcloud sql users list --instance <인스턴스> --project <프로젝트>`로 찾습니다(시스템 role은 이 목록에 없습니다). 만든 사람과 경위를 확인한 뒤 `gcloud sql users delete`로 지우고 다시 배포합니다.
+
+다만 검사는 배포와 기동 시점에만 하므로 그 사이에 만든 사용자의 접근은 막지 못합니다. 사용자 생성(`cloudsql.users.create`)은 관리 활동이 아니라 데이터 접근(`cloudsql.googleapis.com` `DATA_WRITE`) 감사 로그라 지금 설정(위 표, 켜지 않음)에서는 남지 않습니다(Cloud SQL 문서 "Cloud SQL audit logging"). 인스턴스에 승인된 네트워크가 없어(`sql.tf`) 그 사용자는 Cloud SQL connector나 Auth Proxy로 붙어야 하고, 그 연결(`cloudsql.instances.connect`)과 승인된 네트워크 추가(`cloudsql.instances.update`)는 관리 활동이라 항상 남습니다. 서비스 계정 밖 주체의 연결 기록을 봅니다.
+
+**기본 `postgres` 비밀번호를 정해 접속하는 경로는 검사 밖입니다.** `roles/cloudsql.admin`을 가진 주체(owner, deployer)가 `gcloud sql users set-password postgres`로 기본 사용자의 비밀번호를 정하면 Auth Proxy로 붙어 `cloudsqlsuperuser` 권한으로 표를 읽을 수 있습니다. `postgres`는 Cloud SQL이 두는 기본 사용자라 로그인 role 검사가 이름으로 허용하므로 이 경로를 잡지 못하고, 비밀번호 변경(`cloudsql.users.update`)도 데이터 접근 로그(기본 꺼짐)라 남지 않습니다. connector 연결(`cloudsql.instances.connect`) 관리 활동 로그로만 봅니다. 서비스 계정 밖 주체의 연결이 있으면 누가 왜 붙었는지 확인합니다.
 
 **로컬 자격 파일은 평문입니다.** `ops-oauth.json`에는 refresh token과 데스크톱 클라이언트 secret이 평문으로 있습니다. CLI는 파일 권한 600, 소유자, 폴더 권한을 검사하지만 암호화하지 않으므로(macOS Keychain은 쓰지 않음, 지휘 2차 감사 L4) 운영자 컴퓨터의 디스크 암호화(macOS FileVault)를 전제로 합니다. 노트북을 잃어버리면 `gcloud`가 아니라 아래로 토큰을 무효로 합니다.
 
@@ -287,7 +306,7 @@ gcloud projects get-ancestors-iam-policy <프로젝트> --format='table(id, type
 ## 7. 감사 기록
 
 * 표 `ops_audit`에 언제(`at`, DB 시각), 누가(`actor`, 운영 API가 검증한 IAP 메일, `actor_sub`, IAP `sub`), 어떤 경로로(`channel` `ops_api`), 무엇을(`action` `account_show`, `grant`, `revoke`, `content_view`, `audit_list`, `denied`와 `target`), 왜(`reason`, 열람은 `purpose`) 했는지, 부여와 회수는 전후 값(`before`, `after`)이 남습니다.
-* `denied`는 IAP 검증은 통과했지만 허용 목록 밖이라 403으로 거절한 요청입니다. 실행자 메일, `sub`, 경로(`target`의 `route`)만 남고 대상 계정, 목적, 전후 값은 없으며, 본문을 읽지 않으므로 사유는 고정 문구 "허용 목록 밖 운영자의 요청(자동 기록)"입니다. 기록에 실패해도 응답은 403 그대로이고 로그에는 kind만 남습니다. 계정 조건으로는 보이지 않으므로 `server ops audit list --since <날짜>`로 봅니다.
+* `denied`는 IAP 검증은 통과했지만 허용 목록 밖이라 403으로 거절한 요청입니다. 실행자 메일, `sub`, 경로(`target`의 `route`)만 남고 대상 계정, 목적, 전후 값은 없으며, 본문을 읽지 않으므로 사유는 고정 문구 "허용 목록 밖 운영자의 요청(자동 기록)"입니다. 기록에 실패해도 응답은 403 그대로이고 로그에는 kind만 남습니다. 계정 조건으로는 보이지 않으므로 `server ops audit list --since <날짜>`로 봅니다. `denied`가 한 계정에서 몰리면 그 계정의 IAP 바인딩(2절 "운영자 빼기" 1번)부터 거둡니다.
 * 열람 기록에는 본문이 아니라 계정 id와 연 항목 id, 개수만 남습니다.
 * 조회와 열람도 기록합니다. 기록에 실패하면 결과가 오지 않습니다. 입력 오류, 인증 실패(401), 브라우저 요청 차단(CSRF 403), 열람 상한(429), 거절된 부여와 회수는 감사 행을 남기지 않습니다(신원이 없거나 형식 문제).
 * `at`은 trigger가 DB `now()`로 정하고, `channel`은 `ops_api` 말고는 trigger가 거절합니다. 실행자는 CLI가 보내지 않고 서버가 IAP 서명 헤더에서 정합니다.

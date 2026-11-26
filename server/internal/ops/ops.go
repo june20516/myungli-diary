@@ -18,9 +18,9 @@ import (
 
 // 호출자가 errors.Is로 구분하는 사용법 오류입니다.
 var (
-	// ErrReason은 사유가 비었거나 500자를 넘거나 개행, @, 7자리 이상 숫자열(전화번호 형태 포함)을 포함할 때입니다.
+	// ErrReason은 사유가 비었거나 500자를 넘거나 개행, @, 7자리 이상 숫자열(전화번호 형태 포함, 점 날짜 제외)을 포함할 때입니다.
 	ErrReason = errors.New("사유는 앞뒤 공백을 뗀 뒤 1~500자이고 줄바꿈, @, 7자리 이상 숫자열(전화번호 형태 포함)을 포함할 수 없습니다. " +
-		"개인정보 대신 문의 번호나 Issue 번호를 적으세요(예: 문의 #1234, Issue #1321)")
+		"개인정보 대신 문의 번호나 Issue 번호를 적으세요(예: 문의 #1234, Issue #1321). 날짜는 2026.11.26처럼 점으로 씁니다")
 	// ErrPurpose는 목적이 inquiry, incident, policy, legal이 아닐 때입니다.
 	ErrPurpose = errors.New("목적은 inquiry, incident, policy, legal 중 하나여야 합니다")
 	// ErrActor는 실행자 메일이나 sub가 비었을 때입니다.

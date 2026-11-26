@@ -23,8 +23,8 @@ var contentPaths = map[string]bool{
 }
 
 // rateLimiter는 키(운영자 sub)마다 지난 window 동안 허용한 시각을 기억해 limit건을 넘으면 거절합니다(sliding window).
-// 거절한 요청은 세지 않습니다. 운영자는 몇 명이라 키마다 시각 목록을 두어도 메모리가 작고,
-// 창이 빈 키는 지웁니다.
+// 거절한 요청은 세지 않습니다. 호출마다 모든 키의 지난 시각을 버리고 창이 빈 키는 지웁니다.
+// 키는 허용 목록을 통과한 운영자뿐이라 몇 개이고, 모두 훑어도 비용이 작습니다.
 type rateLimiter struct {
 	clock  clock.Clock
 	limit  int
@@ -43,17 +43,28 @@ func (l *rateLimiter) allow(key string) bool {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	now := l.clock.Now()
-	cutoff := now.Add(-l.window)
-	kept := l.hits[key][:0]
-	for _, at := range l.hits[key] {
-		if at.After(cutoff) {
-			kept = append(kept, at)
-		}
-	}
+	l.prune(now.Add(-l.window))
+	kept := l.hits[key]
 	if len(kept) >= l.limit {
-		l.hits[key] = kept
 		return false
 	}
 	l.hits[key] = append(kept, now)
 	return true
+}
+
+// prune은 cutoff 이전 시각을 버리고, 남은 시각이 없는 키를 지웁니다. 호출자가 mu를 쥡니다.
+func (l *rateLimiter) prune(cutoff time.Time) {
+	for key, times := range l.hits {
+		kept := times[:0]
+		for _, at := range times {
+			if at.After(cutoff) {
+				kept = append(kept, at)
+			}
+		}
+		if len(kept) == 0 {
+			delete(l.hits, key)
+			continue
+		}
+		l.hits[key] = kept
+	}
 }

@@ -345,8 +345,9 @@ func TestCheckLoginRoles(t *testing.T) {
 	if !errors.Is(err, postgres.ErrUnexpectedLoginRole) {
 		t.Fatalf("예상 밖 로그인 role: err = %v, want ErrUnexpectedLoginRole", err)
 	}
-	if !strings.Contains(err.Error(), "2") {
-		t.Errorf("오류에 개수가 없습니다: %v", err)
+	// 이름 없이 분류된 개수만 담습니다. cloudsql 접두는 분류에만 쓰고 허용하지 않습니다.
+	if want := "2개(cloudsql로 시작하는 이름 1개, 그 밖 1개)"; !strings.Contains(err.Error(), want) {
+		t.Errorf("오류 = %v, want %q 포함", err, want)
 	}
 	for _, name := range []string{lookalike, human, suffix} {
 		if strings.Contains(err.Error(), name) {
