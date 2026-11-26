@@ -971,7 +971,7 @@ class AppLocalizationsKo extends AppLocalizations {
     int minutes,
     int dstMinutes,
   ) {
-    return '출생 시각은 서머타임 $dstMinutes분을 먼저 빼고, $longitude 기준으로 $minutes분을 더 빼서 계산합니다. 진태양시는 쓰지 않습니다. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.';
+    return '출생 시각은 서머타임 $dstMinutes분을 먼저 빼고, $longitude 기준으로 $minutes분을 빼서 계산합니다. 진태양시는 쓰지 않습니다. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.';
   }
 
   @override
@@ -985,7 +985,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String calcBasisLongitudeBodyDstNone(String longitude, int dstMinutes) {
-    return '출생 시각은 서머타임 $dstMinutes분만 빼고 계산합니다. $longitude 기준이라 경도 보정은 따로 하지 않습니다. 진태양시는 쓰지 않습니다. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.';
+    return '출생 시각은 서머타임 $dstMinutes분만 빼고, $longitude 기준이라 경도는 따로 보정하지 않습니다. 진태양시는 쓰지 않습니다. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.';
   }
 
   @override

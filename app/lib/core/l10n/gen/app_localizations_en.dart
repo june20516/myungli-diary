@@ -240,7 +240,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get evidenceSheetLockReward =>
-      'Watch one ad to the end to see all the basis and interpretation for the next 2 hours.';
+      'Watch one ad to the end to see the full basis and interpretation for the next 2 hours.';
 
   @override
   String get evidenceSheetLockCta => 'Watch ad to unlock';
@@ -341,7 +341,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String datePickerLeapMonthValue(int month) {
-    return 'Leap month $month';
+    return 'Leap $month';
   }
 
   @override
@@ -436,7 +436,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String onboardTimeHourConfirm(String branch, String start, String end) {
-    return 'You were born in the $branch hour, from $start to $end.';
+    return 'Born in the $branch hour, from $start to $end.';
   }
 
   @override
@@ -686,7 +686,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'No diary entries yet. Why not start with today?';
 
   @override
-  String get diaryListPickDateCta => 'Write in diary';
+  String get diaryListPickDateCta => 'Write in your diary';
 
   @override
   String get diaryViewDeleteConfirm =>
@@ -815,7 +815,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todayEventSummaryDone => 'All of today\'s events are done';
 
   @override
-  String get todayGuideCta => 'Write in diary';
+  String get todayGuideCta => 'Write in your diary';
 
   @override
   String get todayGuideCtaWritten => 'Write a new entry';
@@ -1052,7 +1052,7 @@ class AppLocalizationsEn extends AppLocalizations {
       other: '$minutes minutes',
       one: '$minutes minute',
     );
-    return 'We remove the $dstMinutes-minute daylight saving offset from your birth time, then subtract $_temp0 based on $longitude. We don\'t use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps.';
+    return 'We subtract $dstMinutes minutes for daylight saving and $_temp0 based on $longitude. We don\'t use true solar time. If you were born near an hour boundary, your hour pillar may differ from other saju apps.';
   }
 
   @override
@@ -1067,12 +1067,12 @@ class AppLocalizationsEn extends AppLocalizations {
       other: '$minutes minutes',
       one: '$minutes minute',
     );
-    return 'We remove the $dstMinutes-minute daylight saving offset from your birth time, then add $_temp0 based on $longitude. We don\'t use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps.';
+    return 'We subtract $dstMinutes minutes for daylight saving and add $_temp0 based on $longitude. We don\'t use true solar time. If you were born near an hour boundary, your hour pillar may differ from other saju apps.';
   }
 
   @override
   String calcBasisLongitudeBodyDstNone(String longitude, int dstMinutes) {
-    return 'We remove the $dstMinutes-minute daylight saving offset from your birth time. Based on $longitude, there\'s no further adjustment. We don\'t use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps.';
+    return 'We only subtract $dstMinutes minutes for daylight saving, with no adjustment for $longitude. We don\'t use true solar time. If you were born near an hour boundary, your hour pillar may differ from other saju apps.';
   }
 
   @override
@@ -1090,7 +1090,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get legalBarTitle => 'Terms & policies';
+  String get legalBarTitle => 'Terms and policies';
 
   @override
   String get loginBarTitle => 'Sign in';
@@ -1159,7 +1159,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String diaryListPickDateConfirm(String date) {
-    return 'Write a $date entry';
+    return 'Write an entry for $date';
   }
 
   @override
@@ -1285,7 +1285,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountMergeOverlapNotice =>
-      'Entries from the same day also all move to this account.';
+      'Entries from the same day are also moved to this account.';
 
   @override
   String get accountMergeTitleBody =>
