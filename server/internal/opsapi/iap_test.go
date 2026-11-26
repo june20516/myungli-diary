@@ -564,6 +564,29 @@ func TestConstructors_RejectInvalidArguments(t *testing.T) {
 	}
 }
 
+func TestHTTPKeySource_URLScheme(t *testing.T) {
+	tests := []struct {
+		url string
+		ok  bool
+	}{
+		{"https://www.gstatic.com/iap/verify/public_key-jwk", true},
+		{"http://127.0.0.1:8080/jwk", true},
+		{"http://localhost:8080/jwk", true},
+		{"http://www.gstatic.com/iap/verify/public_key-jwk", false},
+		{"http://127.0.0.1.evil.example/jwk", false},
+		{"ftp://127.0.0.1/jwk", false},
+		{"https:///jwk", false},
+		{"", false},
+		{"%zz", false},
+	}
+	for _, tt := range tests {
+		_, err := opsapi.NewHTTPKeySource(http.DefaultClient, tt.url, clocktest.New(testNow))
+		if (err == nil) != tt.ok {
+			t.Errorf("url %q: err = %v, want ok=%v", tt.url, err, tt.ok)
+		}
+	}
+}
+
 func TestVerifier_SubjectTrimmed(t *testing.T) {
 	key := newKey(t)
 	claims := validClaims()

@@ -55,7 +55,16 @@ func commandHandler(deps Deps, run command) http.Handler {
 			writeError(w, apiErr)
 			return
 		}
-		writeJSON(w, http.StatusOK, result)
+		payload, err := json.Marshal(result)
+		if err != nil {
+			deps.Logger.ErrorContext(r.Context(), "ops 응답 직렬화 실패", "kind", errorKind(err))
+			writeError(w, newAPIError(http.StatusInternalServerError, codeInternal, internalMessage))
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Cache-Control", "no-store")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(append(payload, '\n'))
 	})
 }
 

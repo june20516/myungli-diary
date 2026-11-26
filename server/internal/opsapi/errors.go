@@ -80,7 +80,7 @@ func classify(err error) (*apiError, bool) {
 			fmt.Sprintf("%s: %s", ambiguous.Error(), strings.Join(ids, ", "))), true
 	}
 	for _, input := range []error{
-		ops.ErrReason, ops.ErrPurpose, ops.ErrActor, ops.ErrAccountKey, ops.ErrStoreTransaction,
+		ops.ErrReason, ops.ErrPurpose, ops.ErrAccountKey, ops.ErrStoreTransaction,
 		ops.ErrAuditFilter, ops.ErrGrantPeriod, ops.ErrGrantKind, ops.ErrContentTarget,
 	} {
 		if errors.Is(err, input) {
@@ -105,6 +105,9 @@ func classify(err error) (*apiError, bool) {
 
 // errorKind는 500 로그에 남길 오류 종류입니다. 원문 대신 SQLSTATE나 타입 이름만 씁니다.
 func errorKind(err error) string {
+	if errors.Is(err, ops.ErrActor) {
+		return "actor"
+	}
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) {
 		return "sqlstate:" + pgErr.Code

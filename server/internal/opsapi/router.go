@@ -1,6 +1,7 @@
 package opsapi
 
 import (
+	"errors"
 	"log/slog"
 	"net/http"
 
@@ -20,7 +21,11 @@ type Deps struct {
 // 처리 순서는 본문 상한(64 KiB), 접근 로그, 메서드(POST만), IAP 검증(401, 키 없음 503),
 // CSRF 검사(403), 허용 목록(403), 핸들러입니다. 거절은 감사 행을 남기지 않습니다.
 // 메서드를 mux 패턴에 넣지 않고 직접 검사하는 것은 405와 404도 JSON으로 답하려는 것입니다.
-func NewHandler(deps Deps) http.Handler {
+// Service, Verifier, Logger 중 비어 있는 것이 있으면 기동 때 잡도록 오류를 돌려줍니다.
+func NewHandler(deps Deps) (http.Handler, error) {
+	if deps.Service == nil || deps.Verifier == nil || deps.Logger == nil {
+		return nil, errors.New("opsapi: Service, Verifier, Logger가 모두 필요합니다")
+	}
 	mux := http.NewServeMux()
 	for path, command := range commands() {
 		inner := commandHandler(deps, command)
@@ -30,5 +35,5 @@ func NewHandler(deps Deps) http.Handler {
 	mux.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
 		writeError(w, newAPIError(http.StatusNotFound, codeNotFound, "없는 경로입니다"))
 	})
-	return limitBody(accessLog(deps.Logger, mux))
+	return limitBody(accessLog(deps.Logger, mux)), nil
 }

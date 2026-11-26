@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"sync"
 	"time"
@@ -175,11 +176,30 @@ type httpKeySource struct {
 //   - 받기에 실패하면 1분 동안은 네트워크 없이 같은 결과를 돌려줍니다.
 //   - 모르는 kid로 다시 받는 일도 같은 최소 간격(1분)을 따릅니다.
 //   - 사용할 수 있는 키가 없으면 ErrKeysUnavailable입니다.
-func NewHTTPKeySource(client *http.Client, url string, clk clock.Clock) (KeySource, error) {
+func NewHTTPKeySource(client *http.Client, rawURL string, clk clock.Clock) (KeySource, error) {
 	if client == nil {
 		return nil, errors.New("opsapi: HTTP client가 필요합니다")
 	}
-	return &httpKeySource{client: client, url: url, clock: clk}, nil
+	if err := checkKeyURL(rawURL); err != nil {
+		return nil, err
+	}
+	return &httpKeySource{client: client, url: rawURL, clock: clk}, nil
+}
+
+// checkKeyURL은 공개키 주소가 https인지 검사합니다. 시험 서버를 위해 127.0.0.1과 localhost만 http를 허용합니다.
+func checkKeyURL(rawURL string) error {
+	parsed, err := url.Parse(rawURL)
+	if err != nil {
+		return fmt.Errorf("opsapi: 공개키 주소를 읽을 수 없습니다: %w", err)
+	}
+	host := parsed.Hostname()
+	if parsed.Scheme == "https" && host != "" {
+		return nil
+	}
+	if parsed.Scheme == "http" && (host == "127.0.0.1" || host == "localhost") {
+		return nil
+	}
+	return errors.New("opsapi: 공개키 주소는 https여야 합니다(시험용 127.0.0.1과 localhost만 http 허용)")
 }
 
 func (s *httpKeySource) Keys(ctx context.Context) (map[string]*ecdsa.PublicKey, error) {
@@ -275,11 +295,11 @@ type jwkSet struct {
 }
 
 func (s *httpKeySource) fetch(ctx context.Context) (map[string]*ecdsa.PublicKey, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, s.url, nil) //nolint:gosec // 주소는 생성자가 받은 고정 IAP 공개키 URL입니다.
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, s.url, nil) //nolint:gosec // 주소는 생성자(checkKeyURL)가 https나 로컬 시험 주소만 받은 값이고 요청 값이 아닙니다.
 	if err != nil {
 		return nil, err
 	}
-	resp, err := s.client.Do(req) //nolint:gosec // 위와 같은 고정 주소입니다.
+	resp, err := s.client.Do(req) //nolint:gosec // 위와 같이 검사한 주소입니다.
 	if err != nil {
 		return nil, err
 	}

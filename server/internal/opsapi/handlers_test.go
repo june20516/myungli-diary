@@ -56,7 +56,9 @@ func newEnv(t *testing.T, options ...envOption) *opsEnv {
 	for _, option := range options {
 		option(&deps)
 	}
-	return &opsEnv{handler: opsapi.NewHandler(deps), pool: pool, key: key, logs: logs}
+	handler, err := opsapi.NewHandler(deps)
+	require.NoError(t, err)
+	return &opsEnv{handler: handler, pool: pool, key: key, logs: logs}
 }
 
 // request는 한 번의 호출을 기술합니다. 기본값은 허용된 운영자의 올바른 호출입니다.
@@ -313,6 +315,7 @@ func TestHandlers_InputErrors(t *testing.T) {
 		{"프로필 목적", "/ops/v1/content:profile", map[string]any{"accountId": id, "purpose": "curiosity", "reason": secretReason}},
 		{"감사 조건 없음", "/ops/v1/audit:list", map[string]any{"reason": secretReason}},
 		{"since 형식", "/ops/v1/audit:list", map[string]any{"since": "2026-11-20T00:00:00Z", "reason": secretReason}},
+		{"limit 음수", "/ops/v1/audit:list", map[string]any{"accountId": id, "limit": -1, "reason": secretReason}},
 		{"limit 범위", "/ops/v1/audit:list", map[string]any{"accountId": id, "limit": 1001, "reason": secretReason}},
 	}
 	for _, tt := range tests {
@@ -445,11 +448,13 @@ func TestHandlers_GrantStatusMapping(t *testing.T) {
 		rec := env.post(t, "/ops/v1/grants:revoke", jsonBody(t, map[string]any{"accountId": account, "grantId": grantID, "reason": secretReason}))
 		assert.Equal(t, http.StatusConflict, rec.Code)
 		assert.Equal(t, "conflict", decodeError(t, rec).Code)
+		assert.Zero(t, env.auditCount(t), "회수 불가는 감사 행을 남기지 않습니다")
 	})
 	t.Run("없는 권한 행은 404", func(t *testing.T) {
 		rec := env.post(t, "/ops/v1/grants:revoke", jsonBody(t, map[string]any{"accountId": account, "grantId": 999999, "reason": secretReason}))
 		assert.Equal(t, http.StatusNotFound, rec.Code)
 		assert.Equal(t, "not_found", decodeError(t, rec).Code)
+		assert.Zero(t, env.auditCount(t), "권한 행 없음은 감사 행을 남기지 않습니다")
 	})
 	t.Run("지운 계정 부여는 409", func(t *testing.T) {
 		deleted := env.insertAccount(t)
@@ -557,7 +562,7 @@ func TestHandlers_LogsHaveNoSensitiveValues(t *testing.T) {
 			require.NoError(t, err)
 		}
 		assert.ElementsMatch(t, []string{"time", "level", "msg", "method", "route", "status", "latencyMs"}, mapKeys(line))
-		assert.Equal(t, "/ops/v1/accounts:show"[:8], line["route"].(string)[:8], "route는 등록 패턴입니다")
+		assert.Contains(t, []any{"/ops/v1/accounts:show", "/ops/v1/content:diary", "unmatched"}, line["route"], "route는 등록 패턴입니다")
 	}
 }
 
@@ -567,4 +572,27 @@ func mapKeys(m map[string]any) []string {
 		keys = append(keys, key)
 	}
 	return keys
+}
+
+func TestNewHandler_RejectsMissingDeps(t *testing.T) {
+	key := newKey(t)
+	full := opsapi.Deps{
+		Service:  &ops.Service{},
+		Verifier: newVerifier(t, key),
+		Logger:   slog.New(slog.NewJSONHandler(io.Discard, nil)),
+	}
+	for name, mutate := range map[string]func(*opsapi.Deps){
+		"Service":  func(d *opsapi.Deps) { d.Service = nil },
+		"Verifier": func(d *opsapi.Deps) { d.Verifier = nil },
+		"Logger":   func(d *opsapi.Deps) { d.Logger = nil },
+	} {
+		deps := full
+		mutate(&deps)
+		handler, err := opsapi.NewHandler(deps)
+		assert.Error(t, err, name)
+		assert.Nil(t, handler, name)
+	}
+	handler, err := opsapi.NewHandler(full)
+	assert.NoError(t, err)
+	assert.NotNil(t, handler)
 }
