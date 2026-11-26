@@ -1325,8 +1325,10 @@
     "screens": [
       "web-landing"
     ],
-    "decisions": [],
-    "status": "draft",
-    "note": "web 토큰 CSS(web/packages/tokens/tokens.css, 토큰 1.11.0)를 복사해 읽는 정적 페이지 세 안(a.html 오늘의 바탕, b.html 펼친 공책, c.html 하루의 흐름)과 비교판(index.html, 데스크톱 1280과 모바일 390, 언어 ko en ja, 출시 전후, 라이트 다크, 슬롯 id 표시). 화면 사진은 스토어 스크린샷 빌드 11 금빛 판의 화면 판을 잘라 폭 600 webp로. 글은 스토어 등록정보와 스크린샷 원고를 빌린 자리 문구. Pretendard는 시안 글자만 남긴 부분 집합. 스토어 배지는 공식 파일 자리 상자만(흉내 그림 없음). 비공개 페이지 \"랜딩 시안 비교 (#1330)\". 사용자 답 대기"
+    "decisions": [
+      "V137"
+    ],
+    "status": "chosen",
+    "note": "web 토큰 CSS(web/packages/tokens/tokens.css, 토큰 1.11.0)를 복사해 읽는 정적 페이지 세 안(a.html 오늘의 바탕, b.html 펼친 공책, c.html 하루의 흐름)과 비교판(index.html, 데스크톱 1280과 모바일 390, 언어 ko en ja, 출시 전후, 라이트 다크, 슬롯 id 표시). 화면 사진은 스토어 스크린샷 빌드 11 금빛 판의 화면 판을 잘라 폭 600 webp로. 글은 처음에 스토어 원고를 빌린 자리 문구였고, 고른 뒤 writing 원고(#1349)로 바꿈(C안 화면별 글만 스크린샷 원고 그대로). Pretendard는 시안 글자만 남긴 부분 집합. 스토어 배지는 공식 파일 자리 상자만(흉내 그림 없음). 비공개 페이지 \"랜딩 시안 비교 (#1330)\". 사용자 답(2026-11-26): A안. 구현 명세 web/README.md"
   }
 ]

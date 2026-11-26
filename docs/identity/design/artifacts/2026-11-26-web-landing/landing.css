@@ -16,7 +16,7 @@ body {
   font-family: var(--type-body-ui-font-family); font-size: 16px; line-height: 1.55; font-synthesis: none;
 }
 :root:lang(ko) body { word-break: keep-all; overflow-wrap: break-word; }
-:root:lang(ja) h1, :root:lang(ja) .caption { word-break: auto-phrase; }
+:root:lang(ja) body { word-break: auto-phrase; }
 img { display: block; max-width: 100%; }
 a { color: inherit; }
 :focus-visible { outline: 2px solid var(--color-action-primary); outline-offset: 3px; border-radius: var(--radius-xs); }
@@ -48,7 +48,7 @@ a { color: inherit; }
   padding: var(--space-8) var(--space-20); border-radius: var(--radius-full);
   background: var(--color-chip-bg); border: var(--border-width-hairline) solid var(--color-badge-ordinary-border);
   font-size: var(--type-label-lg-font-size); font-weight: var(--type-label-lg-font-weight);
-  letter-spacing: var(--type-label-lg-letter-spacing); color: var(--color-text-primary);
+  letter-spacing: var(--type-label-lg-letter-spacing); color: var(--color-text-primary); text-wrap: balance;
 }
 .soon::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--color-badge-good-bg); flex: none; }
 .badges { display: flex; flex-wrap: wrap; gap: var(--space-16); }
