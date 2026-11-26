@@ -260,29 +260,28 @@ func TestRevokeGroup_ExpiredOperatorBundleAlreadyEnded(t *testing.T) {
 	require.ErrorIs(t, err, billing.ErrGrantAlreadyEnded)
 }
 
-// 같은 source_ref 문자열이어도 다른 계정의 묶음은 건드리지 않습니다.
-// (entitlement, source, source_ref) 유일 제약 때문에 권한 종류를 달리해 같은 문자열을 둡니다.
+// 같은 source_ref 문자열의 operator 행이 다른 계정에 있어도 회수는 그 계정 행을 건드리지 않습니다.
+// 유일 제약 (entitlement, source, source_ref) 때문에 owner에는 insight 한 행, 다른 계정에는 ad_free 행을 둡니다.
+// 묶음 조회나 회수 쿼리에서 account_id 조건이 빠지면 before/after에 다른 계정 행이 섞여 실패합니다.
 func TestRevokeGroup_SameSourceRefOtherAccountUntouched(t *testing.T) {
 	pool := dbtest.New(t)
 	owner, other := newAccount(t, pool), newAccount(t, pool)
 	ownerRows, err := grantOperator(t, pool, owner, billing.OperatorInsight)
 	require.NoError(t, err)
+	require.Len(t, ownerRows, 1)
+	require.Equal(t, "ref-1", ownerRows[0].SourceRef)
 	insertGrant(t, pool, other, grant(billing.AdFree, billing.SourceOperator, "ref-1", now, now.Add(time.Hour)))
 
-	_, after, err := revokeGroup(t, pool, owner, ownerRows[0].ID)
+	before, after, err := revokeGroup(t, pool, owner, ownerRows[0].ID)
 	require.NoError(t, err)
 
+	require.Len(t, before, 1)
 	require.Len(t, after, 1)
-	assert.Equal(t, owner.String(), accountOf(t, pool, after[0].ID))
+	assert.Equal(t, ownerRows[0].ID, before[0].ID)
+	assert.Equal(t, ownerRows[0].ID, after[0].ID)
+	assert.Equal(t, "ref-1", after[0].SourceRef)
 	otherRows := listGrants(t, pool, other)
 	require.Len(t, otherRows, 1)
 	assert.Equal(t, "ref-1", otherRows[0].SourceRef)
 	assert.Nil(t, otherRows[0].RevokedAt)
-}
-
-func accountOf(t *testing.T, pool *pgxpool.Pool, grantID int64) string {
-	t.Helper()
-	var id uuid.UUID
-	require.NoError(t, pool.QueryRow(context.Background(), "SELECT account_id FROM entitlement_grants WHERE id = $1", grantID).Scan(&id))
-	return id.String()
 }
