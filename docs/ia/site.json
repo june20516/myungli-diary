@@ -81,6 +81,44 @@
         "D145",
         "D146"
       ]
+    },
+    {
+      "id": "web-not-found",
+      "title": "없는 주소",
+      "tab": null,
+      "presentation": "system",
+      "auth": "any",
+      "purpose": "랜딩 사이트(myungli-diary.app)에서 없는 주소를 열었을 때의 404 페이지입니다(#1358). 브라우저 언어(Accept-Language)에 맞는 언어로 내고, 맞는 언어가 없으면 en입니다. 페이지를 찾을 수 없다는 제목, 안내 한 문장, 랜딩으로 가는 링크 하나만 둡니다",
+      "depths": [],
+      "states": [],
+      "components": [],
+      "exits": [],
+      "decisions": [
+        "D144",
+        "D146"
+      ],
+      "slots": [
+        {
+          "id": "web-not-found.meta.title",
+          "source": "content",
+          "role": "404 페이지의 브라우저 탭 제목"
+        },
+        {
+          "id": "web-not-found.title",
+          "source": "content",
+          "role": "페이지를 찾을 수 없다는 제목 한 줄"
+        },
+        {
+          "id": "web-not-found.body",
+          "source": "content",
+          "role": "주소가 없거나 바뀌었다는 안내 한 문장"
+        },
+        {
+          "id": "web-not-found.home",
+          "source": "content",
+          "role": "랜딩 첫 화면으로 가는 링크 이름"
+        }
+      ]
     }
   ]
 }
