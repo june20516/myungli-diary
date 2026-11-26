@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 
 	"github.com/google/uuid"
@@ -59,14 +60,38 @@ func ValidateStoreTransaction(s string) (string, error) {
 }
 
 // ValidateReason은 사유의 앞뒤 공백을 떼고 1~500자(rune)인지 검사해 정리한 사유를 돌려줍니다.
-// 줄을 깨는 문자(\n, \r, U+0085, U+2028, U+2029)와 NUL, 잘못된 UTF-8, 메일 주소가 새기 쉬운 @가 있으면 ErrReason입니다. 탭은 허용합니다.
+// 줄을 깨는 문자(\n, \r, U+0085, U+2028, U+2029)와 NUL, 잘못된 UTF-8, 메일 주소가 새기 쉬운 @,
+// 전화번호나 회원번호처럼 보이는 숫자열(hasLongDigitRun)이 있으면 ErrReason입니다. 탭은 허용합니다.
 func ValidateReason(s string) (string, error) {
 	reason := strings.TrimSpace(s)
 	if reason == "" || !utf8.ValidString(reason) || utf8.RuneCountInString(reason) > maxReasonRunes ||
-		strings.ContainsAny(reason, "\r\n\x00\u0085\u2028\u2029@") {
+		strings.ContainsAny(reason, "\r\n\x00\u0085\u2028\u2029@") || hasLongDigitRun(reason) {
 		return "", ErrReason
 	}
 	return reason, nil
+}
+
+// maxReasonDigitRun은 사유에 이어 쓸 수 있는 숫자 개수의 상한입니다. 이보다 많으면(7자리 이상) 전화번호 형태로 봅니다.
+const maxReasonDigitRun = 6
+
+// hasLongDigitRun은 숫자, 하이픈, 공백, 괄호, +로만 이어진 구간에 숫자가 7개 이상 있는지 알려 줍니다(010-1234-5678,
+// (02) 123 4567, +82 10 ...). 숫자는 전각 숫자도 셉니다. #, 점, 글자는 구간을 끊으므로 "문의 #1234 #5678"과
+// "2026.11.26"은 통과하고, "2026-11-26"처럼 하이픈으로 이은 날짜는 8자리 숫자열이라 거절합니다.
+func hasLongDigitRun(s string) bool {
+	digits := 0
+	for _, r := range s {
+		switch {
+		case unicode.IsDigit(r):
+			digits++
+			if digits > maxReasonDigitRun {
+				return true
+			}
+		case r == '-' || r == ' ' || r == '(' || r == ')' || r == '+':
+		default:
+			digits = 0
+		}
+	}
+	return false
 }
 
 // Action은 감사 표에 남기는 운영 행위입니다.
