@@ -91,6 +91,29 @@ class _CountingAds implements Ads {
       null;
 }
 
+/// 정한 횟수만큼 광고 없음(null)을 돌려준 뒤 광고를 주는 대역.
+class _FlakyAds implements Ads {
+  new({required this.failuresLeft});
+
+  int failuresLeft;
+  final List<Duration> requestedAt = [];
+  Duration Function() now = () => Duration.zero;
+
+  @override
+  Future<BannerAdHandle?> loadBanner({required int width}) async {
+    requestedAt.add(now());
+    if (failuresLeft > 0) {
+      failuresLeft--;
+      return null;
+    }
+    return _CountingBanner(() {});
+  }
+
+  @override
+  Future<RewardedAdHandle?> loadRewarded({required String userId}) async =>
+      null;
+}
+
 class _CountingBanner implements BannerAdHandle {
   new(this._onDispose);
 
@@ -887,6 +910,60 @@ void main() {
       await tester.pumpWidget(build(adFree: false));
       await tester.pumpAndSettle();
       expect(ads.loaded, 2);
+    });
+
+    testWidgets('실패하면 간격을 늘려 다시 시도하고, 광고가 오면 나타납니다(#1345)', (tester) async {
+      final ads = _FlakyAds(failuresLeft: 5);
+      var elapsed = Duration.zero;
+      ads.now = () => elapsed;
+      await tester.pumpWidget(
+        _app(
+          const AdBanner(adFree: false, consentGiven: true),
+          overrideAds: ads,
+        ),
+      );
+      await tester.pumpAndSettle();
+      // 30초, 1분, 2분, 5분, 5분(마지막 값에서 멈춤) 뒤 다시 시도합니다.
+      for (final wait in const [
+        Duration(seconds: 30),
+        Duration(minutes: 1),
+        Duration(minutes: 2),
+        Duration(minutes: 5),
+        Duration(minutes: 5),
+      ]) {
+        await tester.pump(wait - const Duration(seconds: 1));
+        elapsed += wait - const Duration(seconds: 1);
+        final before = ads.requestedAt.length;
+        await tester.pump(const Duration(seconds: 1));
+        elapsed += const Duration(seconds: 1);
+        expect(ads.requestedAt, hasLength(before + 1), reason: '$wait 뒤');
+      }
+      await tester.pumpAndSettle();
+      expect(tester.getSize(find.byType(AdBanner)).height, greaterThan(0));
+      // 광고가 왔으면 더 요청하지 않습니다.
+      await tester.pump(const Duration(minutes: 10));
+      expect(ads.requestedAt, hasLength(6));
+    });
+
+    testWidgets('광고 제거로 꺼지면 다시 시도를 멈추고, 켜지면 처음 간격부터 셉니다', (tester) async {
+      final ads = _FlakyAds(failuresLeft: 3);
+      Widget build({required bool adFree}) =>
+          _app(AdBanner(adFree: adFree, consentGiven: true), overrideAds: ads);
+      await tester.pumpWidget(build(adFree: false));
+      await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 30));
+      expect(ads.requestedAt, hasLength(2));
+
+      await tester.pumpWidget(build(adFree: true));
+      await tester.pumpAndSettle();
+      await tester.pump(const Duration(minutes: 10));
+      expect(ads.requestedAt, hasLength(2), reason: '꺼진 동안 요청 없음');
+
+      await tester.pumpWidget(build(adFree: false));
+      await tester.pumpAndSettle();
+      expect(ads.requestedAt, hasLength(3), reason: '켜지면 바로 요청');
+      await tester.pump(const Duration(seconds: 30));
+      expect(ads.requestedAt, hasLength(4), reason: '첫 간격 30초부터');
     });
 
     testWidgets('광고 네트워크의 접근성 노드가 보입니다', (tester) async {
