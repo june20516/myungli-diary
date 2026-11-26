@@ -49,19 +49,23 @@ type Command func(ctx context.Context, args []string, getenv func(string) string
 
 // commands는 하위 명령 테이블입니다.
 var commands = map[string]Command{
-	"serve":   runServe,
-	"migrate": runMigrate,
-	"seed":    runSeed,
-	"job":     runJob,
+	"serve":     runServe,
+	"ops-serve": runOpsServe,
+	"migrate":   runMigrate,
+	"seed":      runSeed,
+	"job":       runJob,
+	"ops":       runOps,
 }
 
 const usageText = `usage: server <command>
 
 commands:
-  serve                                 HTTP 서버를 시작합니다
-  migrate up|down|status                DB 마이그레이션을 실행합니다
-  seed                                  시드 데이터를 넣습니다
-  job precompute|notify|retention|smoke 배치 작업을 실행합니다`
+  serve                                   HTTP 서버를 시작합니다
+  ops-serve                               IAP 뒤의 운영 API 서버를 시작합니다
+  migrate up|down|status                  DB 마이그레이션을 실행합니다
+  seed                                    시드 데이터를 넣습니다
+  job precompute|notify|retention|smoke   배치 작업을 실행합니다
+  ops login|account|grant|revoke|content|audit  운영 API를 부르는 운영 명령을 실행합니다(runbook)`
 
 // Run은 하위 명령을 실행하고 종료 코드를 반환합니다.
 // 0은 성공, 1은 실행 오류, 2는 사용법 오류입니다.
@@ -79,7 +83,11 @@ func Run(ctx context.Context, args []string, getenv func(string) string, stdout,
 		return exitUsage
 	}
 
-	err := command(ctx, args[1:], getenv, stdout, stderr)
+	return exitCode(args[0], command(ctx, args[1:], getenv, stdout, stderr), stderr)
+}
+
+// exitCode는 하위 명령의 오류를 종료 코드로 바꾸고, 필요하면 stderr에 한 줄로 씁니다.
+func exitCode(name string, err error, stderr io.Writer) int {
 	if err == nil {
 		return exitOK
 	}
@@ -95,7 +103,7 @@ func Run(ctx context.Context, args []string, getenv func(string) string, stdout,
 		_, _ = fmt.Fprintln(stderr, usageErr)
 		return exitUsage
 	}
-	_, _ = fmt.Fprintf(stderr, "%s: %v\n", args[0], err)
+	_, _ = fmt.Fprintf(stderr, "%s: %v\n", name, err)
 	return exitError
 }
 
@@ -134,19 +142,52 @@ func runMigrate(ctx context.Context, args []string, getenv func(string) string, 
 	}
 	logger.InfoContext(ctx, "migration 완료", "direction", direction)
 	// 배포 환경은 migration을 server-migrator로 적용하고, 런타임 DB 사용자(DB_RUNTIME_USER)를 읽기와 쓰기 권한 묶음의
-	// 구성원으로 둡니다(S137). 환경마다 사용자 이름이 달라 migration 파일이 아니라 여기서 합니다. local과 테스트는 비워 둡니다.
-	if runtimeUser := strings.TrimSpace(getenv("DB_RUNTIME_USER")); direction == "up" && runtimeUser != "" {
-		if err := postgres.GrantAppRole(ctx, pool, runtimeUser); err != nil {
-			logger.ErrorContext(ctx, "런타임 DB 사용자 권한 지정 실패", "error", err)
-			return &loggedError{err: err}
-		}
-		// 런타임이 DDL 권한을 다시 갖지 않았는지 배포마다 확인합니다. 속해 있으면 배포를 멈춥니다(README의 staging 절차).
-		if err := postgres.CheckRuntimeNotSuperuser(ctx, pool, runtimeUser); err != nil {
-			logger.ErrorContext(ctx, "런타임 DB 사용자 권한 확인 실패", "error", err)
-			return &loggedError{err: err}
-		}
-		logger.InfoContext(ctx, "런타임 DB 사용자를 권한 묶음 구성원으로 두었습니다", "role", postgres.AppRole)
+	// 구성원으로, 운영 API DB 사용자(DB_OPS_USER)를 운영자 역할의 구성원으로 둡니다(S137, #1321).
+	// 환경마다 사용자 이름이 달라 migration 파일이 아니라 여기서 합니다. local과 테스트는 둘 다 비워 둡니다.
+	runtimeUser := strings.TrimSpace(getenv("DB_RUNTIME_USER"))
+	opsUser := strings.TrimSpace(getenv("DB_OPS_USER"))
+	if direction != "up" {
+		return nil
 	}
+	if (runtimeUser == "") != (opsUser == "") {
+		// 이름은 로그에 남기지 않습니다. 어느 쪽이 빠졌는지만 알립니다.
+		err := errors.New("DB_RUNTIME_USER와 DB_OPS_USER는 함께 지정해야 합니다")
+		logger.ErrorContext(ctx, "DB 사용자 설정 오류", "error", err, "runtime_user_set", runtimeUser != "", "ops_user_set", opsUser != "")
+		return &loggedError{err: err}
+	}
+	if runtimeUser == "" {
+		if cfg.Env == "staging" || cfg.Env == "prod" {
+			err := errors.New("배포 환경에는 DB_RUNTIME_USER와 DB_OPS_USER가 필요합니다")
+			logger.ErrorContext(ctx, "DB 사용자 설정 오류", "error", err)
+			return &loggedError{err: err}
+		}
+		return nil
+	}
+	if err := postgres.GrantAppRole(ctx, pool, runtimeUser); err != nil {
+		logger.ErrorContext(ctx, "런타임 DB 사용자 권한 지정 실패", "error", err)
+		return &loggedError{err: err}
+	}
+	if err := postgres.GrantOpsUser(ctx, pool, opsUser); err != nil {
+		logger.ErrorContext(ctx, "운영 API DB 사용자 권한 지정 실패", "error", err)
+		return &loggedError{err: err}
+	}
+	// 런타임이 DDL 권한을 다시 갖지 않았는지, 두 사용자의 권한이 섞이지 않았는지 배포마다 확인합니다.
+	// 어긋나면 배포를 멈춥니다(README의 staging 절차). 오류에는 사용자 이름이 없습니다.
+	if err := postgres.CheckRuntimeNotSuperuser(ctx, pool, runtimeUser); err != nil {
+		logger.ErrorContext(ctx, "런타임 DB 사용자 권한 확인 실패", "error", err)
+		return &loggedError{err: err}
+	}
+	if err := postgres.CheckRoleSeparation(ctx, pool, runtimeUser, opsUser); err != nil {
+		logger.ErrorContext(ctx, "런타임과 운영 API DB 사용자 역할 분리 확인 실패", "error", err)
+		return &loggedError{err: err}
+	}
+	// 사람 DB 계정(gcloud sql users create로 만든 cloudsqlsuperuser 사용자 등)이 생겼으면 배포를 멈춥니다(S170).
+	// migrator는 현재 접속 사용자라 검사가 따로 넣습니다. 오류에는 개수만 있습니다.
+	if err := postgres.CheckLoginRoles(ctx, pool, runtimeUser, opsUser); err != nil {
+		logger.ErrorContext(ctx, "로그인 가능한 DB role 확인 실패", "error", err)
+		return &loggedError{err: err}
+	}
+	logger.InfoContext(ctx, "DB 사용자를 권한 묶음 구성원으로 두었습니다", "app_role", postgres.AppRole, "ops_role", postgres.OpsRole)
 	return nil
 }
 

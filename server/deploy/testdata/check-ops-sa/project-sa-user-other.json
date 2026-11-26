@@ -1,0 +1,3 @@
+{"bindings":[
+ {"role":"roles/iam.serviceAccountUser","members":["serviceAccount:deployer@test-project.iam.gserviceaccount.com","user:someone@example.com","group:ops-team@example.com"]}
+],"etag":"BwX","version":1}

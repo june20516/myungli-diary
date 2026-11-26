@@ -30,6 +30,11 @@ type Querier interface {
 	DeleteMonthCacheOtherVersions(ctx context.Context, current string) (int64, error)
 	// 알림 기록은 하루 한 번 판정에만 쓰므로 30일 뒤 지웁니다(S129).
 	DeleteNotificationLogClaimedBefore(ctx context.Context, cutoff time.Time) (int64, error)
+	// 운영자가 부여한 권한 행은 끝나거나 회수된 뒤 2년이 지나면 지웁니다. 회수한 행은 회수 시각으로 셉니다.
+	DeleteOperatorGrantsEndedBefore(ctx context.Context, before time.Time) (int64, error)
+	// 운영 감사 기록은 2년이 지나면 지웁니다. ops_audit trigger(00029)가 DB 시각 기준 2년 안의 행 삭제를 예외로 막으므로,
+	// 같은 경계를 한 번 더 걸어 앱 시계가 DB보다 앞서도 job 전체가 실패하지 않게 합니다.
+	DeleteOpsAuditBefore(ctx context.Context, before time.Time) (int64, error)
 	// 결제 구간은 끝난 시각이 기준보다 앞일 때 지웁니다. 끝난 구간은 rechain이 건너뛰므로 최근 구간에 영향이 없습니다.
 	DeletePaidGrantsEndedBefore(ctx context.Context, cutoff time.Time) (int64, error)
 	DeletePreviewUsageBefore(ctx context.Context, cutoff time.Time) (int64, error)

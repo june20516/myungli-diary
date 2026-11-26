@@ -13,6 +13,8 @@ locals {
     "fcm.googleapis.com",
     "iam.googleapis.com",
     "iamcredentials.googleapis.com",
+    # Cloud Run 직접 IAP(server-ops, #1321). Cloud Run IAP 문서 "Before you begin"이 켜라고 합니다.
+    "iap.googleapis.com",
     "monitoring.googleapis.com",
     "run.googleapis.com",
     "secretmanager.googleapis.com",
@@ -30,11 +32,16 @@ locals {
     "roles/firebasehosting.admin",
     "roles/iam.serviceAccountAdmin",
     "roles/iam.serviceAccountUser",
+    # check-ops-sa.sh가 server-ops의 사용자 관리 키 목록(iam.serviceAccountKeys.list)을 읽는 데 씁니다(#1321).
+    # serviceAccountAdmin에는 이 권한이 없고, 이 역할은 계정과 키 메타데이터 읽기만 줍니다(IAM 역할 문서 "View Service Accounts").
+    "roles/iam.serviceAccountViewer",
     # 알림 정책과 uptime check는 env가 만들고, 받는 곳(channel)은 bootstrap이 만든 것을 읽기만 합니다(S133).
     "roles/monitoring.alertPolicyEditor",
     "roles/monitoring.notificationChannelViewer",
     "roles/monitoring.uptimeCheckConfigEditor",
     "roles/resourcemanager.projectIamAdmin",
+    # run.admin은 server-ops의 iap_enabled 설정도 맡습니다. Cloud Run IAP 문서의 서비스 IAP 켜기 필요 역할은 run.admin,
+    # iam.serviceAccountUser, Artifact Registry 읽기이고 IAP 역할은 사람 접근 설정에만 필요합니다(#1321).
     "roles/run.admin",
     "roles/secretmanager.admin",
     "roles/serviceusage.serviceUsageConsumer",

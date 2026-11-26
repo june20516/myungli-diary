@@ -51,7 +51,7 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 병합된 일의 경과는 적지 않습니다(PR 본문, 결정 행, git에 있음). 여기에는 진행 중인 일(브랜치, 열린 PR, 막힌 것)만 두고 병합하면 지웁니다(`docs/workflow.md` §3 마무리).
 
 * 기준 문서: spec [`docs/specs/2026-10-11-server-mvp-design.md`](docs/specs/2026-10-11-server-mvp-design.md), 결정 [`docs/decisions.md`](docs/decisions.md)(대체된 결정의 원문은 [`docs/decisions-history.md`](docs/decisions-history.md)). 구현 단계 P1~P9의 계획은 `docs/plans/`에 있습니다.
-* **진행 중:** 없음.
+* **진행 중:** `server/1321-ops-commands`(#1321 운영 명령, S170) PR 검토 중. 병합하면 이 줄을 지웁니다.
 * 엔진 서비스의 컨테이너 이미지는 core가 `core/`만으로 빌드되게 맞춥니다(D33, D56). 엔진 쪽 요구(포트, 헬스 체크 등)는 요청함으로 주고받습니다.
 
 ## 다음 할 일
@@ -65,3 +65,4 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 8. L1(#782, #817): 1회차 [`docs/load/2026-11-05-limit-1/`](docs/load/2026-11-05-limit-1/README.md), 2회차 [`2026-11-09-limit-2/`](docs/load/2026-11-09-limit-2/README.md), 3회차 [`2026-11-09-limit-3/`](docs/load/2026-11-09-limit-3/README.md), 4회차 [`2026-11-09-limit-4/`](docs/load/2026-11-09-limit-4/README.md). S147로 요청당 query 5.9→3.9건, S148로 트랜잭션 약 45% 감소. 한계는 cold, warm 모두 초당 80세션(160에서 멈춤)이고, SQL CPU는 statement나 트랜잭션 수를 따르지 않아 왕복 줄이기는 멈춥니다. 다음 수단은 SQL tier이며 #903(12월 15일까지 tier와 예산 점검)에서 정한 뒤 5회차.
 9. 받은 요청 #794(staging 전용 연결 테스트 경로, E2E account_test): 지휘 순서는 L1 1회차 뒤이고 Q1 점검 대상입니다.
 10. app 질문이 오면 답합니다.
+11. 운영 API(`server-ops`)와 클라이언트 `server ops`(S170, #1321 운영 명령 요청)는 [`docs/runbook/ops.md`](docs/runbook/ops.md)를 따릅니다. 환경 준비(IAP 서비스 에이전트, OAuth 클라이언트, IAP 설정)는 그 runbook의 "준비", 운영자 등록은 "운영자 등록과 빼기"(IAP 접근 부여, `OPS_OPERATORS` 값)입니다. 사람 DB 계정은 만들지 않습니다.

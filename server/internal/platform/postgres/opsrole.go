@@ -1,0 +1,191 @@
+package postgres
+
+import (
+	"context"
+	"errors"
+	"fmt"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
+)
+
+// OpsRole은 운영 API 서비스(server-ops)가 쓰는 권한 묶음입니다(migration 00029, #1321).
+const OpsRole = "myungli_ops"
+
+// 역할 분리 검사가 돌려주는 오류입니다. 오류 문구에는 역할 이름을 넣지 않습니다(로그에 남겨도 되게).
+var (
+	// ErrRuntimeInOpsRole은 런타임 DB 사용자가 OpsRole 구성원이라는 뜻입니다.
+	ErrRuntimeInOpsRole = errors.New("런타임 DB 사용자가 운영자 역할 구성원입니다")
+	// ErrOpsInAppRole은 운영 API DB 사용자가 AppRole 구성원이라는 뜻입니다.
+	ErrOpsInAppRole = errors.New("운영 API DB 사용자가 앱 역할 구성원입니다")
+	// ErrUnexpectedOpsMember는 OpsRole에 지정한 운영 API DB 사용자 밖의 직접 구성원이 있다는 뜻입니다.
+	ErrUnexpectedOpsMember = errors.New("운영자 역할에 지정하지 않은 구성원이 있습니다")
+)
+
+// GrantOpsUser는 DB 사용자 member를 OpsRole의 구성원으로 둡니다. 이미 구성원이면 바뀌는 것이 없습니다.
+// migration을 적용한 계정(OpsRole을 만든 계정)으로 부릅니다. member는 이미 있어야 합니다(Cloud SQL IAM 서비스 계정 사용자는 Terraform이 만듦).
+func GrantOpsUser(ctx context.Context, pool *pgxpool.Pool, member string) error {
+	if member == "" {
+		return errors.New("권한을 줄 DB 사용자 이름이 비어 있습니다")
+	}
+	statement := "GRANT " + pgx.Identifier{OpsRole}.Sanitize() + " TO " + pgx.Identifier{member}.Sanitize()
+	if _, err := pool.Exec(ctx, statement); err != nil {
+		return fmt.Errorf("%s 구성원 지정: %w", OpsRole, withoutRoleName(err))
+	}
+	return nil
+}
+
+// withoutRoleName은 PostgreSQL 오류를 SQLSTATE 코드만 남긴 오류로 바꿉니다. 오류 문구에는 역할 이름이 들어가 로그에 남기면 안 됩니다.
+func withoutRoleName(err error) error {
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) {
+		return fmt.Errorf("SQLSTATE %s", pgErr.Code)
+	}
+	return err
+}
+
+// RowQuerier는 행 하나를 읽는 연결입니다. *pgxpool.Pool과 pgx.Tx가 모두 만족합니다.
+// 역할 검사는 읽기만 하므로 pool과 (시험에서 SET ROLE을 건) 트랜잭션 모두에서 돌릴 수 있게 이 형을 받습니다.
+type RowQuerier interface {
+	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
+}
+
+// ErrOpsHasSuperuser는 운영 API DB 사용자가 superuser(또는 cloudsqlsuperuser 구성원)라는 뜻입니다.
+var ErrOpsHasSuperuser = errors.New("운영 API DB 사용자가 superuser입니다")
+
+// CheckRoleSeparation은 런타임과 운영 API의 DB 사용자가 서로의 권한을 갖지 않는지 확인합니다.
+//   - runtimeUser가 OpsRole의 권한을 쓸 수 있으면 ErrRuntimeInOpsRole
+//   - opsUser가 AppRole의 권한을 쓸 수 있으면 ErrOpsInAppRole
+//   - opsUser가 superuser이면 ErrOpsHasSuperuser
+//   - OpsRole의 직접 구성원 중 권한을 쓸 수 있는 사용자가 opsUser 밖에 있으면 ErrUnexpectedOpsMember(사람 계정이 몰래 들어오는 것을 막음)
+//
+// PostgreSQL 16부터 CREATEROLE을 가진 사용자가 역할을 만들면 만든 사용자가 ADMIN OPTION만 있고 INHERIT와 SET이 없는
+// 구성원으로 자동 등록됩니다(Cloud SQL migrator가 이 경우). 이 행은 권한을 쓸 수 없으므로 "권한을 쓸 수 있다"를
+// 상속(USAGE) 또는 SET ROLE 가능(SET)으로 판정하고, ADMIN 전용 행은 세지 않습니다.
+// 오류에 역할 이름을 담지 않으므로 호출자는 그대로 로그에 남겨도 됩니다.
+func CheckRoleSeparation(ctx context.Context, pool RowQuerier, runtimeUser, opsUser string) error {
+	superuser, err := isSuperuser(ctx, pool, opsUser)
+	if err != nil {
+		return err
+	}
+	if superuser {
+		return ErrOpsHasSuperuser
+	}
+
+	runtimeInOps, err := canUseRole(ctx, pool, runtimeUser, OpsRole)
+	if err != nil {
+		return err
+	}
+	if runtimeInOps {
+		return ErrRuntimeInOpsRole
+	}
+	opsInApp, err := canUseRole(ctx, pool, opsUser, AppRole)
+	if err != nil {
+		return err
+	}
+	if opsInApp {
+		return ErrOpsInAppRole
+	}
+	var others int
+	err = pool.QueryRow(ctx, `
+		SELECT count(*) FROM pg_auth_members m
+		JOIN pg_roles member ON member.oid = m.member
+		WHERE m.roleid = $1::regrole AND (m.inherit_option OR m.set_option) AND member.rolname <> $2`,
+		pgx.Identifier{OpsRole}.Sanitize(), opsUser).Scan(&others)
+	if err != nil {
+		return fmt.Errorf("%s 구성원 확인: %w", OpsRole, withoutRoleName(err))
+	}
+	if others > 0 {
+		return fmt.Errorf("%w: %d명", ErrUnexpectedOpsMember, others)
+	}
+	return nil
+}
+
+// canUseRole은 member가 role의 권한을 쓸 수 있는지(상속 또는 SET ROLE) 묻습니다. ADMIN 전용 구성원은 false입니다.
+// 한계: 홉마다 INHERIT와 SET이 갈린 중첩 경로(예 A에서 B는 inherit f, set t이고 B에서 ops는 inherit t, set f)는
+// USAGE와 SET이 모두 거짓이라 잡지 못합니다. 이 검사는 배포 안전장치이고 그런 구성은 만들지 않는다는 전제입니다.
+func canUseRole(ctx context.Context, pool RowQuerier, member, role string) (bool, error) {
+	var usable bool
+	err := pool.QueryRow(ctx, `SELECT pg_has_role($1, $2, 'USAGE') OR pg_has_role($1, $2, 'SET')`, member, role).Scan(&usable)
+	if err != nil {
+		return false, fmt.Errorf("%s 소속 확인: %w", role, withoutRoleName(err))
+	}
+	return usable, nil
+}
+
+// isSuperuser는 member가 superuser이거나 cloudsqlsuperuser의 권한을 쓸 수 있는지(ADMIN 전용 구성원 제외) 묻습니다.
+func isSuperuser(ctx context.Context, pool RowQuerier, member string) (bool, error) {
+	var superuser bool
+	err := pool.QueryRow(ctx, `
+		SELECT COALESCE((SELECT rolsuper FROM pg_roles WHERE rolname = $1), false)
+		    OR CASE WHEN EXISTS (SELECT 1 FROM pg_roles WHERE rolname = $2)
+		            THEN pg_has_role($1, $2, 'USAGE') OR pg_has_role($1, $2, 'SET') ELSE false END`, member, cloudSQLSuperuser).Scan(&superuser)
+	if err != nil {
+		return false, fmt.Errorf("superuser 확인: %w", withoutRoleName(err))
+	}
+	return superuser, nil
+}
+
+// ErrUnexpectedLoginRole은 예상한 사용자 밖의 로그인 가능한 role이 있다는 뜻입니다(사람 DB 계정 금지, S170).
+// 오류에는 role 이름 대신 개수만 담습니다.
+var ErrUnexpectedLoginRole = errors.New("예상 밖의 로그인 가능한 DB role이 있습니다")
+
+// cloudSQLDefaultUser는 Cloud SQL for PostgreSQL이 인스턴스를 만들 때 두는 기본 관리 사용자입니다.
+const cloudSQLDefaultUser = "postgres"
+
+// cloudSQLSystemRoles는 Cloud SQL for PostgreSQL이 스스로 만들고 관리하는 시스템 role과 시스템 사용자입니다.
+// 출처: Cloud SQL for PostgreSQL "About PostgreSQL users and roles"(https://docs.cloud.google.com/sql/docs/postgres/users,
+// 2026-11-26 확인)의 System roles, System users 목록. 문서가 로그인 가능 여부를 role마다 밝히지 않아 두 목록을 모두 둡니다.
+// 이름이 정확히 같을 때만 허용합니다. 접두(cloudsql)로 통째로 허용하면 사용자가 비슷한 이름의 사람 계정을 만들어 피할 수 있습니다.
+var cloudSQLSystemRoles = []string{
+	// System roles
+	"cloudsqliamgroup",
+	"cloudsqlinactiveuser",
+	"cloudsqliamgroupserviceaccount",
+	"cloudsqliamgroupuser",
+	"cloudsqliamserviceaccount",
+	"cloudsqliamuser",
+	cloudSQLSuperuser,
+	// System users
+	"cloudsqladmin",
+	"cloudsqlagent",
+	"cloudsqlconnpooladmin",
+	"cloudsqlimportexport",
+	"cloudsqllogical",
+	"cloudsqlobservability",
+	"cloudsqlreplica",
+}
+
+// CheckLoginRoles는 로그인 가능한 role(rolcanlogin) 전체를 열거해 예상 집합 밖이 있으면 ErrUnexpectedLoginRole을 돌려줍니다.
+// 예상 집합은 expected(migrator, 런타임, 운영 API DB 사용자), 현재 접속 사용자(current_user), Cloud SQL 기본 postgres,
+// Cloud SQL 시스템 role입니다. 오류에는 이름 없이 개수를 cloudsql 접두 여부로 나눠 담습니다(runbook 6절의 진단 절차).
+// `gcloud sql users create`로 만든 사용자는 cloudsqlsuperuser가 되어 감사 없이 표를 읽으므로
+// 그런 사용자가 생기면 migrate와 운영 API 기동을 멈춥니다. 오류에는 이름이 없어 그대로 로그에 남겨도 됩니다.
+// 한계: 기본 사용자 postgres는 이름으로 허용하므로, cloudsql.admin을 가진 주체가 그 비밀번호를 정해 접속하는 경로는 잡지 못합니다.
+// pg_roles는 모든 role이 읽을 수 있는 카탈로그 view라 superuser가 아닌 운영 API 사용자로도 돌릴 수 있습니다.
+func CheckLoginRoles(ctx context.Context, pool RowQuerier, expected ...string) error {
+	allowed := make([]string, 0, len(expected)+len(cloudSQLSystemRoles)+1)
+	for _, name := range expected {
+		if name != "" {
+			allowed = append(allowed, name)
+		}
+	}
+	allowed = append(allowed, cloudSQLDefaultUser)
+	allowed = append(allowed, cloudSQLSystemRoles...)
+
+	// cloudsql 접두는 진단용 분류에만 씁니다(문서에 없는 Cloud SQL 시스템 role인지, 사람 계정인지 가늠). 허용하지 않습니다.
+	var systemLike, others int
+	err := pool.QueryRow(ctx, `
+		SELECT count(*) FILTER (WHERE starts_with(rolname, 'cloudsql')),
+		       count(*) FILTER (WHERE NOT starts_with(rolname, 'cloudsql'))
+		FROM pg_roles
+		WHERE rolcanlogin AND rolname <> current_user AND NOT (rolname = ANY($1::text[]))`, allowed).Scan(&systemLike, &others)
+	if err != nil {
+		return fmt.Errorf("로그인 role 확인: %w", withoutRoleName(err))
+	}
+	if total := systemLike + others; total > 0 {
+		return fmt.Errorf("%w: %d개(cloudsql로 시작하는 이름 %d개, 그 밖 %d개)", ErrUnexpectedLoginRole, total, systemLike, others)
+	}
+	return nil
+}

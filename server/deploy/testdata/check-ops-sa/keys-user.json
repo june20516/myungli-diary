@@ -1,0 +1,4 @@
+[
+  {"keyAlgorithm":"KEY_ALG_RSA_2048","keyOrigin":"GOOGLE_PROVIDED","keyType":"USER_MANAGED","name":"projects/test-project/serviceAccounts/server-ops@test-project.iam.gserviceaccount.com/keys/0123456789abcdef0123456789abcdef01234567","validAfterTime":"2026-11-01T00:00:00Z","validBeforeTime":"9999-12-31T23:59:59Z"},
+  {"keyAlgorithm":"KEY_ALG_RSA_2048","keyOrigin":"GOOGLE_PROVIDED","keyType":"USER_MANAGED","name":"projects/test-project/serviceAccounts/server-ops@test-project.iam.gserviceaccount.com/keys/fedcba9876543210fedcba9876543210fedcba98","validAfterTime":"2026-11-02T00:00:00Z","validBeforeTime":"9999-12-31T23:59:59Z"}
+]

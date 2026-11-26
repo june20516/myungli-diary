@@ -157,6 +157,12 @@ jobs:
           # 생성기 Job 이미지(L1-2b)의 진입점과 빌드입니다.
           sh -n load/run.sh
           docker build -q -t load-k6-check load > /dev/null
+      # 배포 workflow가 server-ops 갱신 전에 돌리는 계정 검사(#1321)를 고정 JSON으로 시험합니다. gcloud를 부르지 않습니다.
+      - name: 배포 스크립트 검사 (check-ops-sa)
+        if: env.OWN == 'true'
+        run: |
+          shellcheck deploy/check-ops-sa.sh deploy/check-ops-sa_test.sh
+          bash deploy/check-ops-sa_test.sh
       - name: 이미지 빌드
         if: env.OWN == 'true'
         run: docker build --build-arg GO_VERSION="$(go list -m -f '{{.GoVersion}}')" .

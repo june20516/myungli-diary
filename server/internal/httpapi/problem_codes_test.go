@@ -118,6 +118,7 @@ func TestProblemCodes_AllCodesListsEveryDeclaredCode(t *testing.T) {
 // 잡는 범위는 위 두 가지뿐입니다. 상수·변수 경유, problem.Code{...} 합성 리터럴, 대입(x.Code = "...")으로
 // 만드는 우회는 못 잡습니다. 테스트 파일과 생성 코드(gen)는 보지 않습니다. FieldError.Code의 keyword("required" 등)는
 // 등록된 code가 아니고 code 자리 규칙에도 걸리지 않으므로 허용됩니다.
+// 운영 API(opsapi, #1321)는 앱 REST v1이 아닌 별도 API라 자기 오류 code(`{"code","message"}`)를 따로 두므로 보지 않습니다.
 func TestProblemCodes_NoLiteralCodesOutsideRegistry(t *testing.T) {
 	registered := make(map[string]bool)
 	for _, c := range problem.AllCodes() {
@@ -135,7 +136,7 @@ func TestProblemCodes_NoLiteralCodesOutsideRegistry(t *testing.T) {
 		}
 		rel = filepath.ToSlash(rel)
 		if d.IsDir() {
-			if rel == "httpapi/gen" {
+			if rel == "httpapi/gen" || rel == "opsapi" {
 				return filepath.SkipDir
 			}
 			return nil

@@ -170,3 +170,58 @@ func TestStore_Status_SameExpiry_LaterRowSourceWins(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, billing.SourceAdFreePass, status.Insight.Source, "만료가 같으면 나중에 만든 행")
 }
+
+func TestStatusAt(t *testing.T) {
+	hour := time.Hour
+	at := func(d time.Duration) time.Time { return now.Add(d) }
+	revoked := at(-hour)
+
+	tests := []struct {
+		name   string
+		grants []billing.GrantRow
+		want   billing.Status
+	}{
+		{"행 없음", nil, billing.Status{}},
+		{
+			"유효한 행은 활성",
+			[]billing.GrantRow{{ID: 1, Entitlement: billing.AdFree, Source: billing.SourceOperator, StartsAt: at(-hour), ExpiresAt: at(hour)}},
+			billing.Status{AdFree: billing.State{Active: true, ExpiresAt: ptr(at(hour)), Source: billing.SourceOperator}},
+		},
+		{
+			"취소된 행과 만료된 행은 무시",
+			[]billing.GrantRow{
+				{ID: 1, Entitlement: billing.Insight, Source: billing.SourceOperator, StartsAt: at(-2 * hour), ExpiresAt: at(hour), RevokedAt: &revoked},
+				{ID: 2, Entitlement: billing.Insight, Source: billing.SourceRewardedAd, StartsAt: at(-3 * hour), ExpiresAt: at(-hour)},
+			},
+			billing.Status{},
+		},
+		{
+			"시작 전 행만 있으면 비활성",
+			[]billing.GrantRow{{ID: 1, Entitlement: billing.AdFree, Source: billing.SourceAdFreePass, StartsAt: at(hour), ExpiresAt: at(2 * hour)}},
+			billing.Status{},
+		},
+		{
+			"가장 늦은 만료 행의 출처",
+			[]billing.GrantRow{
+				{ID: 1, Entitlement: billing.AdFree, Source: billing.SourceRewardedAd, StartsAt: at(-hour), ExpiresAt: at(hour)},
+				{ID: 2, Entitlement: billing.AdFree, Source: billing.SourceOperator, StartsAt: at(-hour), ExpiresAt: at(3 * hour)},
+			},
+			billing.Status{AdFree: billing.State{Active: true, ExpiresAt: ptr(at(3 * hour)), Source: billing.SourceOperator}},
+		},
+		{
+			"만료가 같으면 id가 큰 행",
+			[]billing.GrantRow{
+				{ID: 7, Entitlement: billing.AdFree, Source: billing.SourceOperator, StartsAt: at(-hour), ExpiresAt: at(hour)},
+				{ID: 3, Entitlement: billing.AdFree, Source: billing.SourceRewardedAd, StartsAt: at(-hour), ExpiresAt: at(hour)},
+			},
+			billing.Status{AdFree: billing.State{Active: true, ExpiresAt: ptr(at(hour)), Source: billing.SourceOperator}},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, billing.StatusAt(tt.grants, now))
+		})
+	}
+}
+
+func ptr[T any](v T) *T { return &v }

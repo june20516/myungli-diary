@@ -1,0 +1,4 @@
+{"bindings":[
+ {"role":"roles/iam.serviceAccountUser","members":["serviceAccount:deployer@test-project.iam.gserviceaccount.com"]},
+ {"role":"roles/iam.workloadIdentityUser","members":["serviceAccount:deployer@test-project.iam.gserviceaccount.com","deleted:user:gone@example.com?uid=123"]}
+],"etag":"BwX","version":1}

@@ -703,3 +703,102 @@ func TestLoadLegalBusiness(t *testing.T) {
 		}
 	})
 }
+
+func TestLoadOps(t *testing.T) {
+	const audience = "/projects/1/locations/asia-northeast3/services/server-ops"
+	tests := []struct {
+		name    string
+		env     map[string]string
+		wantErr string // 비면 성공
+		wantDev string
+	}{
+		{name: "배포 환경", env: deployedOps(nil)},
+		{name: "배포 환경 audience 없음", env: deployedOps(map[string]string{"APP_ENV": "prod", "IAP_AUDIENCE": ""}), wantErr: "IAP_AUDIENCE"},
+		{name: "배포 환경 운영자 파일 없음", env: deployedOps(map[string]string{"OPS_OPERATORS_FILE": ""}), wantErr: "OPS_OPERATORS_FILE"},
+		{name: "배포 환경에 운영자 환경 변수", env: deployedOps(map[string]string{"OPS_OPERATORS": "a@x.com"}), wantErr: "OPS_OPERATORS"},
+		{name: "배포 환경 DB 사용자 하나 빠짐", env: deployedOps(map[string]string{"DB_MIGRATOR_USER": ""}), wantErr: "DB_MIGRATOR_USER"},
+		{name: "local 운영자 파일과 환경 변수 둘 다", env: map[string]string{"OPS_DEV_IDENTITY": "d@x.com,sub-1", "OPS_OPERATORS": "a@x.com", "OPS_OPERATORS_FILE": "/x"}, wantErr: "OPS_OPERATORS_FILE"},
+		{name: "local DB 사용자 일부만", env: map[string]string{"OPS_DEV_IDENTITY": "d@x.com,sub-1", "DB_RUNTIME_USER": "rt"}, wantErr: "DB_RUNTIME_USER"},
+		{name: "Cloud Run(K_SERVICE)에서 고정 신원", env: map[string]string{"K_SERVICE": "server-ops", "OPS_DEV_IDENTITY": "d@x.com,sub-1"}, wantErr: "K_SERVICE"},
+		{name: "local 고정 신원", env: map[string]string{"OPS_DEV_IDENTITY": " Dev@X.com , sub-1 "}, wantDev: "dev@x.com"},
+		{name: "local 고정 신원도 없고 audience도 없음", env: map[string]string{}, wantErr: "IAP_AUDIENCE"},
+		{name: "local이 아닌데 고정 신원", env: map[string]string{"APP_ENV": "staging", "IAP_AUDIENCE": audience, "OPS_DEV_IDENTITY": "d@x.com,s"}, wantErr: "OPS_DEV_IDENTITY"},
+		{name: "쉼표 없음", env: map[string]string{"OPS_DEV_IDENTITY": "d@x.com"}, wantErr: "OPS_DEV_IDENTITY"},
+		{name: "sub 비어 있음", env: map[string]string{"OPS_DEV_IDENTITY": "d@x.com, "}, wantErr: "OPS_DEV_IDENTITY"},
+		{name: "메일 비어 있음", env: map[string]string{"OPS_DEV_IDENTITY": ",sub-9"}, wantErr: "OPS_DEV_IDENTITY"},
+		{name: "쉼표 둘", env: map[string]string{"OPS_DEV_IDENTITY": "d@x.com,s,t"}, wantErr: "OPS_DEV_IDENTITY"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cfg, err := LoadOps(fakeEnv(tt.env))
+			if tt.wantErr != "" {
+				if err == nil || !strings.Contains(err.Error(), tt.wantErr) {
+					t.Fatalf("LoadOps() error = %v, want %q 포함", err, tt.wantErr)
+				}
+				if v := tt.env["OPS_DEV_IDENTITY"]; v != "" && strings.Contains(err.Error(), v) {
+					t.Errorf("오류에 값이 들어 있습니다: %v", err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("LoadOps() error = %v", err)
+			}
+			if tt.wantDev == "" && cfg.DevIdentity != nil {
+				t.Errorf("DevIdentity = %+v, want nil", cfg.DevIdentity)
+			}
+			if tt.wantDev != "" && (cfg.DevIdentity == nil || cfg.DevIdentity.Email != tt.wantDev || cfg.DevIdentity.Subject != "sub-1") {
+				t.Errorf("DevIdentity = %+v, want email %q sub sub-1", cfg.DevIdentity, tt.wantDev)
+			}
+		})
+	}
+}
+
+// deployedOps는 staging의 올바른 운영 서버 설정에 override를 덮은 값입니다. 빈 문자열은 그 변수를 비웁니다.
+func deployedOps(override map[string]string) map[string]string {
+	env := map[string]string{
+		"APP_ENV":            "staging",
+		"IAP_AUDIENCE":       "/projects/1/locations/asia-northeast3/services/server-ops",
+		"OPS_OPERATORS_FILE": "/secrets/ops/operators",
+		"DB_MIGRATOR_USER":   "migrator",
+		"DB_RUNTIME_USER":    "runtime",
+		"DB_OPS_USER":        "ops",
+	}
+	for key, value := range override {
+		env[key] = value
+	}
+	return env
+}
+
+func TestLoadOps_FileAndDBUsers(t *testing.T) {
+	cfg, err := LoadOps(fakeEnv(deployedOps(map[string]string{"OPS_OPERATORS_FILE": " /secrets/ops/operators\n", "DB_OPS_USER": " ops "})))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.OperatorsFile != "/secrets/ops/operators" {
+		t.Errorf("OperatorsFile = %q", cfg.OperatorsFile)
+	}
+	want := OpsDBUsers{Migrator: "migrator", Runtime: "runtime", Ops: "ops"}
+	if cfg.DBUsers != want {
+		t.Errorf("DBUsers = %+v, want %+v", cfg.DBUsers, want)
+	}
+	if !cfg.DBUsers.Set() {
+		t.Error("DBUsers.Set() = false")
+	}
+	local, err := LoadOps(fakeEnv(map[string]string{"OPS_DEV_IDENTITY": "d@x.com,sub-1"}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if local.DBUsers.Set() {
+		t.Error("local에서 DB 사용자를 비우면 Set() = false여야 합니다")
+	}
+}
+
+func TestLoadOps_TrimsOperators(t *testing.T) {
+	cfg, err := LoadOps(fakeEnv(map[string]string{"IAP_AUDIENCE": "a", "OPS_OPERATORS": "  a@x.com,b@x.com\n"}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.Operators != "a@x.com,b@x.com" {
+		t.Errorf("Operators = %q", cfg.Operators)
+	}
+}

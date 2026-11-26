@@ -32,6 +32,8 @@ const (
 	SourceSubscription Source = "subscription"
 	// SourceTestGrant는 staging에서 결제 없이 준 광고 제거 기간입니다(S125). 쓰는 코드는 staging 빌드에만 있습니다.
 	SourceTestGrant Source = "test_grant"
+	// SourceOperator는 운영자가 ops 명령으로 준 권한입니다(#1321).
+	SourceOperator Source = "operator"
 )
 
 // Grant는 권한 한 건입니다. entitlement_grants의 한 행에 대응합니다.
@@ -45,14 +47,15 @@ type Grant struct {
 
 // State는 권한 하나의 현재 상태입니다. Active가 false면 ExpiresAt은 nil이고 Source는 비어 있습니다.
 type State struct {
-	Active    bool
-	ExpiresAt *time.Time
-	Source    Source
+	Active    bool       `json:"active"`
+	ExpiresAt *time.Time `json:"expiresAt"`
+	Source    Source     `json:"source"`
 }
 
 // Status는 계정의 권한 상태입니다.
 type Status struct {
-	AdFree, Insight State
+	AdFree  State `json:"adFree"`
+	Insight State `json:"insight"`
 }
 
 // Store는 권한 기록을 읽어 판정합니다.
@@ -69,32 +72,45 @@ func NewStore(pool *pgxpool.Pool, clk clock.Clock, catalog Catalog) *Store {
 }
 
 // Status는 계정의 권한 상태를 계산합니다(P7-15).
-// 권한이 유효한 조건은 취소되지 않았고 starts_at ≤ now < expires_at인 행이 하나라도 있는 것입니다.
-// ExpiresAt은 취소되지 않았고 아직 만료되지 않은 행 중 가장 늦은 만료이고, Source는 그 행의 출처입니다.
 func (s *Store) Status(ctx context.Context, accountID uuid.UUID) (Status, error) {
 	now := s.clk.Now()
 	rows, err := billingdb.New(s.pool).ListLiveGrants(ctx, billingdb.ListLiveGrantsParams{AccountID: accountID, Now: now})
 	if err != nil {
 		return Status{}, fmt.Errorf("권한 행 조회: %w", err)
 	}
-
-	started := map[Entitlement]bool{}
-	latest := map[Entitlement]billingdb.ListLiveGrantsRow{}
-	// 행은 (expires_at, id) 오름차순이라, 만료가 같으면 나중에 만든 행(id가 큰 행)이 이깁니다.
+	grants := make([]GrantRow, 0, len(rows))
 	for _, row := range rows {
-		entitlement := Entitlement(row.Entitlement)
-		if !row.StartsAt.After(now) {
-			started[entitlement] = true
+		grants = append(grants, GrantRow{
+			ID: row.ID, Entitlement: Entitlement(row.Entitlement), Source: Source(row.Source),
+			StartsAt: row.StartsAt, ExpiresAt: row.ExpiresAt,
+		})
+	}
+	return StatusAt(grants, now), nil
+}
+
+// StatusAt은 권한 행으로 now 시점의 권한 상태를 계산합니다(P7-15). 조회와 감사 기록을 한 트랜잭션에 두는 호출자도 씁니다.
+// 권한이 유효한 조건은 취소되지 않았고 starts_at ≤ now < expires_at인 행이 하나라도 있는 것입니다.
+// ExpiresAt은 취소되지 않았고 아직 만료되지 않은 행 중 가장 늦은 만료이고, Source는 그 행의 출처입니다.
+// 만료가 같으면 나중에 만든 행(id가 큰 행)이 이깁니다. grants의 순서와 취소, 만료된 행 포함 여부는 상관없습니다.
+func StatusAt(grants []GrantRow, now time.Time) Status {
+	started := map[Entitlement]bool{}
+	latest := map[Entitlement]GrantRow{}
+	for _, row := range grants {
+		if row.RevokedAt != nil || !row.ExpiresAt.After(now) {
+			continue
 		}
-		if current, ok := latest[entitlement]; !ok || !row.ExpiresAt.Before(current.ExpiresAt) {
-			latest[entitlement] = row
+		if !row.StartsAt.After(now) {
+			started[row.Entitlement] = true
+		}
+		current, ok := latest[row.Entitlement]
+		if !ok || row.ExpiresAt.After(current.ExpiresAt) || (row.ExpiresAt.Equal(current.ExpiresAt) && row.ID > current.ID) {
+			latest[row.Entitlement] = row
 		}
 	}
-
 	return Status{
 		AdFree:  stateOf(started[AdFree], latest[AdFree]),
 		Insight: stateOf(started[Insight], latest[Insight]),
-	}, nil
+	}
 }
 
 // Unlocked는 계정이 근거 열람(insight) 권한을 가졌는지 돌려줍니다. fortune.Insight를 만족합니다.
@@ -106,7 +122,7 @@ func (s *Store) Unlocked(ctx context.Context, accountID uuid.UUID) (bool, error)
 	return status.Insight.Active, nil
 }
 
-func stateOf(active bool, latest billingdb.ListLiveGrantsRow) State {
+func stateOf(active bool, latest GrantRow) State {
 	if !active {
 		return State{}
 	}
