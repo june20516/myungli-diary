@@ -65,7 +65,7 @@ commands:
   migrate up|down|status                  DB 마이그레이션을 실행합니다
   seed                                    시드 데이터를 넣습니다
   job precompute|notify|retention|smoke   배치 작업을 실행합니다
-  ops account|grant|revoke|content|audit  운영 명령을 실행합니다(runbook)`
+  ops login|account|grant|revoke|content|audit  운영 API를 부르는 운영 명령을 실행합니다(runbook)`
 
 // Run은 하위 명령을 실행하고 종료 코드를 반환합니다.
 // 0은 성공, 1은 실행 오류, 2는 사용법 오류입니다.
@@ -83,7 +83,11 @@ func Run(ctx context.Context, args []string, getenv func(string) string, stdout,
 		return exitUsage
 	}
 
-	err := command(ctx, args[1:], getenv, stdout, stderr)
+	return exitCode(args[0], command(ctx, args[1:], getenv, stdout, stderr), stderr)
+}
+
+// exitCode는 하위 명령의 오류를 종료 코드로 바꾸고, 필요하면 stderr에 한 줄로 씁니다.
+func exitCode(name string, err error, stderr io.Writer) int {
 	if err == nil {
 		return exitOK
 	}
@@ -99,7 +103,7 @@ func Run(ctx context.Context, args []string, getenv func(string) string, stdout,
 		_, _ = fmt.Fprintln(stderr, usageErr)
 		return exitUsage
 	}
-	_, _ = fmt.Fprintf(stderr, "%s: %v\n", args[0], err)
+	_, _ = fmt.Fprintf(stderr, "%s: %v\n", name, err)
 	return exitError
 }
 

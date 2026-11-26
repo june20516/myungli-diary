@@ -19,16 +19,7 @@ import (
 
 const opsReason = "문의 대응"
 
-// TestOps_NotYetAPIClient는 운영 API 클라이언트가 붙기 전(Task 7)까지 server ops가 DB에 붙지 않고 사용법 오류로 끝남을 확인합니다.
-func TestOps_NotYetAPIClient(t *testing.T) {
-	code, stdout, stderr := runCLIWithEnv(t, map[string]string{"DATABASE_URL": "postgres://invalid"},
-		"ops", "account", "show", "--account", uuid.NewString(), "--reason", opsReason)
-	assert.Equal(t, 2, code)
-	assert.Empty(t, stdout)
-	assert.Contains(t, stderr, "운영 API 클라이언트로 바뀌는 중입니다(#1321)")
-}
-
-// TestOps_UsageErrors는 인자 해석(parseOps) 표입니다. 운영 API 클라이언트로 바뀌는 Task 7이 같은 인자 해석을 다시 씁니다.
+// TestOps_UsageErrors는 인자 해석(parseOps) 표입니다. 각 사례 끝에 --env staging을 붙여 환경이 아닌 다른 원인으로 거절되는지 봅니다.
 func TestOps_UsageErrors(t *testing.T) {
 	account := uuid.NewString()
 	longReason := strings.Repeat("가", 501)
@@ -69,8 +60,9 @@ func TestOps_UsageErrors(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// 인자 해석은 DB나 네트워크에 붙지 않습니다. 첫 인자 "ops"는 떼고 넘깁니다.
-			_, err := parseOps(tt.args[1:])
+			// 인자 해석은 네트워크에 붙지 않습니다. 첫 인자 "ops"는 떼고 넘깁니다.
+			args := append(append([]string{}, tt.args[1:]...), "--env", "staging")
+			_, err := parseOps(args)
 			var usage *usageError
 			assert.ErrorAs(t, err, &usage)
 		})

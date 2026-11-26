@@ -69,6 +69,25 @@ func (e DiaryEntry) MarshalJSON() ([]byte, error) {
 	}{plain: plain(e), Date: formatDate(e.Date)})
 }
 
+// UnmarshalJSON은 "YYYY-MM-DD" 날짜 문자열을 읽습니다. 운영 CLI가 운영 API 응답을 같은 타입으로 받습니다.
+func (e *DiaryEntry) UnmarshalJSON(data []byte) error {
+	type plain DiaryEntry
+	var wire struct {
+		plain
+		Date string `json:"date"`
+	}
+	if err := json.Unmarshal(data, &wire); err != nil {
+		return err
+	}
+	date, err := parseDate(wire.Date)
+	if err != nil {
+		return err
+	}
+	*e = DiaryEntry(wire.plain)
+	e.Date = date
+	return nil
+}
+
 // ScheduleView는 일정 열람 결과입니다. DeletedCount는 지웠거나 본문을 비운 일정 개수입니다.
 type ScheduleView struct {
 	Entries      []ScheduleEntry `json:"entries"`
@@ -94,9 +113,37 @@ func (e ScheduleEntry) MarshalJSON() ([]byte, error) {
 	}{plain: plain(e), Date: formatDate(e.Date)})
 }
 
+// UnmarshalJSON은 "YYYY-MM-DD" 날짜 문자열을 읽습니다.
+func (e *ScheduleEntry) UnmarshalJSON(data []byte) error {
+	type plain ScheduleEntry
+	var wire struct {
+		plain
+		Date string `json:"date"`
+	}
+	if err := json.Unmarshal(data, &wire); err != nil {
+		return err
+	}
+	date, err := parseDate(wire.Date)
+	if err != nil {
+		return err
+	}
+	*e = ScheduleEntry(wire.plain)
+	e.Date = date
+	return nil
+}
+
 // formatDate는 날짜를 "YYYY-MM-DD"로 씁니다.
 func formatDate(d profile.LocalDate) string {
 	return fmt.Sprintf("%04d-%02d-%02d", d.Year, d.Month, d.Day)
+}
+
+// parseDate는 "YYYY-MM-DD"를 날짜로 읽습니다.
+func parseDate(text string) (profile.LocalDate, error) {
+	parsed, err := time.Parse(time.DateOnly, text)
+	if err != nil {
+		return profile.LocalDate{}, fmt.Errorf("날짜는 YYYY-MM-DD여야 합니다: %w", err)
+	}
+	return profile.LocalDate{Year: parsed.Year(), Month: int(parsed.Month()), Day: parsed.Day()}, nil
 }
 
 // ProfileView는 계산 오류 문의 확인용 프로필입니다. 값이 없는 칸은 nil입니다.
@@ -129,6 +176,28 @@ func (v ProfileView) MarshalJSON() ([]byte, error) {
 		plain
 		BirthDate *string `json:"birthDate"`
 	}{plain: plain(v), BirthDate: birthDate})
+}
+
+// UnmarshalJSON은 "YYYY-MM-DD" 출생 날짜 문자열을 읽습니다. null이면 nil입니다.
+func (v *ProfileView) UnmarshalJSON(data []byte) error {
+	type plain ProfileView
+	var wire struct {
+		plain
+		BirthDate *string `json:"birthDate"`
+	}
+	if err := json.Unmarshal(data, &wire); err != nil {
+		return err
+	}
+	*v = ProfileView(wire.plain)
+	v.BirthDate = nil
+	if wire.BirthDate != nil {
+		date, err := parseDate(*wire.BirthDate)
+		if err != nil {
+			return err
+		}
+		v.BirthDate = &date
+	}
+	return nil
 }
 
 // listTarget은 일기와 일정 열람 감사 행의 target입니다. 연 항목의 id와 개수만 남기고 본문은 남기지 않습니다.
