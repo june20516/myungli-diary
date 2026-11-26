@@ -22,6 +22,7 @@
 | 앱 버전은 어디에도 저장하지 않습니다. 최근 접속 흔적은 `accounts.last_active_at`과 `devices.last_seen_at`(플랫폼 포함)뿐입니다. | `db/migrations/00002`, `00020` |
 | 권한 출처 DB 값은 `ad_free_pass`, `rewarded_ad`, `subscription`, `test_grant`이고 취소는 `revoked_at`으로 합니다. 광고 제거권 구간(`ad_free_pass`)은 구매 장부에서 다시 잇기(`rechainFromTx`)로 만들어집니다. | `00012`, `00022`, `internal/billing/ledger.go` |
 | 계약 `Insight.source`는 `rewarded_ad`, `ad_free_pass`, `subscription`이고, staging `test_grant`는 계약 밖이라 `ad_free_pass`로 보냅니다(S125). | `api/openapi.yaml`, `internal/httpapi/billing_handlers.go` |
+| 계정 삭제는 즉시 익명화이고 `accounts.status`는 `active`, `deleted`뿐입니다. 삭제 대기 상태, 삭제 요청 시각, 로그인 수단의 연결 해제 칸은 없습니다. | `db/migrations`, S105 |
 | 처리방침 처리 목적에 "문의 응대"와 "구매 복원과 환불 처리"는 있으나, "결제 오류 처리"와 운영자 콘텐츠 열람(정책 위반 확인, 법령 요청 대응)은 따로 적혀 있지 않습니다. | `docs/legal/ko/privacy.md` §1 |
 
 ## 3. 실행 방식
@@ -32,7 +33,7 @@
 * **연결:** 운영자 본인의 Google 계정으로 `gcloud auth application-default login` 한 뒤, Cloud SQL Go connector가 IAM 인증으로 붙습니다. DB 사용자는 운영자의 Cloud SQL IAM 사용자(메일 주소)입니다. 비밀번호나 Secret을 운영자 컴퓨터에 두지 않습니다.
 * **설정:** `ops`는 DB 연결 값(`CLOUD_SQL_INSTANCE`, `DATABASE_URL`)만 읽습니다. 서버 기동용 Secret을 요구하지 않습니다. 환경별 값은 로컬 값 대장(D98)에 `server/<환경>/ops.env`로 둡니다(인스턴스 이름과 DB 이름, 비밀 아님).
 * **실행자 식별:** 감사 기록의 실행자는 명령 인자가 아니라 DB가 인증한 세션 사용자(`session_user`)입니다. IAM 인증이라 위조할 수 없습니다. 어드민 API가 붙으면 그 경로는 인증한 운영자 식별자를 넘깁니다(§6).
-* **출력:** 결과는 stdout(사람이 읽는 표)으로만 씁니다. 로컬 실행이라 Cloud Logging에 남지 않습니다. `--json`으로 기계가 읽는 출력도 냅니다.
+* **출력:** 결과는 stdout(사람이 읽는 표)으로만 씁니다. 표에서 사용자 입력 글의 터미널 제어문자(ESC 등 C0, DEL, C1)는 U+FFFD로 바꿉니다(JSON은 이스케이프됨). 로컬 실행이라 Cloud Logging에 남지 않습니다. `--json`으로 기계가 읽는 출력도 냅니다.
 
 ### 3.1 prod 실행 권한 범위
 
@@ -45,15 +46,15 @@
 
 ## 4. 명령
 
-공통 인자: `--account <uuid>`(대상), `--reason "<문자열>"`(필수, 1~500자, 줄바꿈 금지). 사유가 없으면 사용법 오류로 아무것도 하지 않습니다.
+공통 인자: `--account <uuid>`(대상), `--reason "<문자열>"`(필수, 앞뒤 공백을 뗀 뒤 1~500자). 사유에 `\n`, `\r`, U+0085, U+2028, U+2029, NUL, 잘못된 UTF-8이 있으면 거절합니다(감사 표와 터미널 출력이 깨지지 않게). 사유가 없으면 사용법 오류로 아무것도 하지 않습니다.
 
 ### 4.1 계정 조회 `ops account show`
 
 `--account` 또는 `--store-transaction <스토어 거래 id>`(구매 장부 `store_purchase_id`, 사용자가 받은 스토어 영수증 번호로 문의할 때) 중 하나로 찾습니다.
 
 보이는 것:
-* 계정: 상태(`active`, `pending_deletion`, `deleted`), 가입 시각, 삭제 요청 시각, 최근 활동(`last_active_at`)
-* 로그인 수단: 제공자 종류(`kakao`, `apple`), 연결 시각, 연결 해제 여부. 제공자 subject와 토큰은 보이지 않습니다.
+* 계정: 상태(`active`, `deleted`, 계정 삭제는 즉시 익명화라 삭제 대기 상태가 없음, S105), 가입 시각, 삭제 시각(`deleted_at`), 최근 활동(`last_active_at`)
+* 로그인 수단: 제공자 종류(`kakao`, `apple`)와 연결 시각. 제공자 subject와 토큰은 보이지 않습니다.
 * 기기: 플랫폼, 활성 여부, 등록 시각, 마지막 접속(`last_seen_at`). 알림 token은 보이지 않습니다.
 * 권한: 지금 상태(광고 제거, 근거 열람의 활성, 만료, 출처)와 부여 행 전부(행 id, 종류, 출처, 시작, 만료, 취소 시각)
 * 구매 장부: 상품, 스토어, 스토어 거래 id, 구매 시각, 환불 시각, 환경(`production`, `sandbox`), 합치기로 옮겨 온 구매인지
@@ -69,7 +70,7 @@
 * `ad_free`는 광고 제거권 기간처럼 광고 제거와 근거 열람 두 행을 줍니다(D60, test_grant와 같은 묶음). `insight`는 근거 열람 한 행입니다.
 * DB 출처는 새 값 `operator`, `source_ref`는 그 감사 기록 id입니다.
 * 시작은 지금, 만료는 지정한 값입니다. 이미 지난 시각이거나 1년을 넘으면 거절합니다.
-* 지운 계정과 삭제 대기 계정에는 주지 않습니다.
+* 지운 계정에는 주지 않습니다.
 
 **계약:** app에 나가는 `Insight.source`에 새 값을 더하지 않습니다(D138). S125처럼 `operator`의 `ad_free` 묶음은 `ad_free_pass`로, `insight` 단독은 `rewarded_ad`로 보냅니다. app이 보이는 뜻(광고 제거권 기간, 광고 보상으로 연 열람)과 같고, 운영자가 줬다는 사실은 DB 출처와 감사 기록에만 남습니다.
 
@@ -116,14 +117,15 @@
 | `target` jsonb | 무엇을: 조회 키(스토어 거래 id로 찾았으면 그 값), 권한 종류와 기간, 행 id, 열람 종류와 날짜나 항목 id |
 | `before`, `after` jsonb | 바뀐 행의 전후 값(`grant`, `revoke`). 조회와 열람은 NULL |
 
-본문, 호칭, 출생 정보는 기록에 넣지 않습니다. 열람 기록에는 연 항목 id와 개수만 남깁니다.
+본문, 호칭, 출생 정보는 기록에 넣지 않습니다. 열람 기록의 `target`에는 항상 `accountId`와 연 항목 id, 개수만 남깁니다. 스토어 거래 id가 여러 계정에 걸려 모호한 조회는 `target`에 후보 계정 id 목록을 남깁니다.
 
 ### 5.2 기록 규칙
 
 * **조회와 열람도 기록합니다.** 개인정보 처리 시스템 접속 기록은 조회를 포함하므로(안전성 확보조치 기준) 모든 명령이 기록합니다.
 * **기록이 먼저:** 변경 명령은 변경과 기록을 한 트랜잭션에 씁니다. 조회와 열람 명령은 기록을 커밋한 뒤에만 결과를 출력합니다. 기록에 실패하면 아무것도 보이지 않습니다.
+* **거절은 기록하지 않음:** 부여와 회수가 거절되면(검사 실패, 회수 불가 출처 등) 트랜잭션이 되돌아가 감사 행이 없습니다. 사용법 오류도 DB에 붙기 전에 끝납니다.
 * **고칠 수 없음:** `myungli_ops`는 `ops_audit`에 `INSERT`와 `SELECT`만 있습니다. `myungli_app`은 retention 때문에 `DELETE`가 필요하므로(app 역할의 `UPDATE`는 거둠), 표의 trigger가 `UPDATE`를 언제나 거절하고 `DELETE`는 `at`이 2년보다 오래된 행만 허용합니다. 표 주인(migrator)만 trigger를 끌 수 있습니다.
-* **보관:** 2년. `job retention`이 2년 지난 행을 지웁니다(접속 기록 보관 기준). 운영자 부여 권한 행(`operator`)도 끝난 지 2년이 지나면 함께 지웁니다.
+* **보관:** 2년. `job retention`이 2년 지난 행을 지웁니다(접속 기록 보관 기준). 정리 쿼리는 clock과 DB `now()` 기준 2년을 함께 만족하는 행만 고릅니다(trigger의 DB 시계와 어긋나도 거절당하지 않게). 운영자 부여 권한 행(`operator`)도 끝난 지 2년이 지나면 함께 지웁니다.
 * **합치기:** 계정 합치기는 구매 구간만 옮깁니다(보상 구간과 같이 운영자 부여 행은 옮기지 않음). 필요하면 합친 계정에 다시 줍니다. 계정 삭제(익명화) 때도 지우지 않습니다. 계정 id만 있고 개인정보 본문이 없기 때문입니다. 지휘의 수집, 보관 대장(D87)에 반영을 요청합니다.
 * **기록 보기:** `ops audit list --account <uuid>` 또는 `--since <날짜>`. 이 조회 자체도 기록합니다(`action` `audit_list`).
 
@@ -150,7 +152,7 @@ internal/cli/ops.go      인자 해석, session_user로 Actor 만들기, 표와 
 
 ## 8. 테스트
 
-* `internal/ops`: testcontainers DB로 명령마다 결과와 감사 행(칸, 전후 값), 기록 실패 때 결과 없음, 사유와 목적 검사, `ad_free_pass` 회수 거절, 지운 계정 부여 거절.
+* `internal/ops`: testcontainers DB로 명령마다 결과와 감사 행(칸, 전후 값), 기록 실패 때 결과 없음, 사유와 목적 검사, `ad_free_pass` 회수 거절, 지운 계정 부여 거절, 거절한 부여와 회수는 감사 행을 남기지 않음.
 * 역할 권한: `myungli_ops` 구성원 연결로 허용된 쓰기만 되고, `ops_audit` 갱신과 삭제가 `myungli_app`, `myungli_ops` 모두 거절되는지.
 * 계약: `operator` 출처가 `ad_free_pass`, `rewarded_ad`로 나가는지(`billing_handlers` 테스트), `contractgate`가 변경 없음으로 통과.
 * `internal/cli`: 인자 해석과 출력 형식, 본문이 stderr나 로그로 새지 않는지(로거 출력에 본문이 없음).

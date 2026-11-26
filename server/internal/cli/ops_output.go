@@ -92,7 +92,7 @@ func printAccountSummary(w io.Writer, summary ops.AccountSummary) error {
 	account := summary.Account
 	_, _ = fmt.Fprint(w, "[계정]\n")
 	table := newOpsTable(w)
-	_, _ = fmt.Fprintf(table, "ID\t%s\n상태\t%s\n가입\t%s\n삭제 요청\t%s\n최근 활동\t%s\n",
+	_, _ = fmt.Fprintf(table, "ID\t%s\n상태\t%s\n가입\t%s\n삭제\t%s\n최근 활동\t%s\n",
 		account.ID, cell(account.Status), formatTime(account.CreatedAt), formatTimePtr(account.DeletedAt), formatTime(account.LastActiveAt))
 	if err := table.Flush(); err != nil {
 		return err

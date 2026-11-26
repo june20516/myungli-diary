@@ -44,6 +44,10 @@ printf '%s' "<값>" | gcloud secrets versions add JWT_SIGNING_KEY --project <프
 
 Secret 목록: `JWT_SIGNING_KEY`, `TOKEN_ENCRYPTION_KEY`, `KAKAO_ADMIN_KEY`, `APPLE_PRIVATE_KEY`, `REVENUECAT_API_KEY`, `REVENUECAT_WEBHOOK_AUTH`, `RESEND_API_KEY`(문의 메일, S134), `LEGAL_BUSINESS_INFO`(법적 문서 사업자 정보, 아래 절, S157), staging만 `TEST_LOGIN_SECRET`. `RESEND_API_KEY`는 값을 넣은 뒤 env tfvars의 `support_mail_enabled`를 `true`로 바꿔야 server에 붙습니다(그 전에는 문의 접수만 503). 키 교체 때는 tfvars에 이전 키 id를 넣으면 `JWT_PREVIOUS_KEY`·`TOKEN_PREVIOUS_KEY` 틀이 생깁니다. staging은 `billing_enabled = false`인 동안 `REVENUECAT_API_KEY`, `REVENUECAT_WEBHOOK_AUTH` 값이 없어도 server를 배포합니다(결제만 꺼짐, S123). 값을 넣고 env tfvars의 결제 설정 둘을 채운 뒤 `true`로 바꿉니다.
 
+### 운영자 등록
+
+운영 명령(`server ops`, S170)을 쓰는 사람은 Cloud SQL IAM 사용자로 등록합니다. 메일 주소는 개인정보라 tfvars에 두지 않고(D74) 프로젝트 관리자가 환경마다 `gcloud sql users create <메일> --instance=myungli-pg --type=cloud_iam_user --project <프로젝트>`로 추가합니다. 소유자가 아니면 `roles/cloudsql.client`, `roles/cloudsql.instanceUser`를 주고, `server-migrate` Job을 실행하면 사람 IAM 사용자가 `myungli_ops` 구성원이 됩니다. 절차와 빼기, 연결 값 파일(`ops.env`, `docs/local-values.md` K20)은 [`server/docs/runbook/ops.md`](../../docs/runbook/ops.md)를 따릅니다.
+
 ### 법적 문서 사업자 정보
 
 이용약관과 처리방침 원문의 빈자리(`{{business.name}}` 등)를 server가 기동할 때 채우는 값입니다(D126 ②, S157). 공개 저장소에 적지 않으므로(D74) 환경마다 `$MYUNGLI_LOCAL_DIR/server/<환경>/legal-business.json`(폴더 700, 파일 600, `docs/local-values.md` K16)에 두고 Secret `LEGAL_BUSINESS_INFO`에 넣습니다. staging과 load는 가짜 값이어도 됩니다. 언어 셋과 다섯 값이 모두 있어야 하고, 하나라도 빠지면 server가 시작하지 않습니다.

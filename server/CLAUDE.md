@@ -65,3 +65,4 @@ CI는 `.github/workflows/server.yml`이고, `ci-gate`가 넘기는 `mode`로 범
 8. L1(#782, #817): 1회차 [`docs/load/2026-11-05-limit-1/`](docs/load/2026-11-05-limit-1/README.md), 2회차 [`2026-11-09-limit-2/`](docs/load/2026-11-09-limit-2/README.md), 3회차 [`2026-11-09-limit-3/`](docs/load/2026-11-09-limit-3/README.md), 4회차 [`2026-11-09-limit-4/`](docs/load/2026-11-09-limit-4/README.md). S147로 요청당 query 5.9→3.9건, S148로 트랜잭션 약 45% 감소. 한계는 cold, warm 모두 초당 80세션(160에서 멈춤)이고, SQL CPU는 statement나 트랜잭션 수를 따르지 않아 왕복 줄이기는 멈춥니다. 다음 수단은 SQL tier이며 #903(12월 15일까지 tier와 예산 점검)에서 정한 뒤 5회차.
 9. 받은 요청 #794(staging 전용 연결 테스트 경로, E2E account_test): 지휘 순서는 L1 1회차 뒤이고 Q1 점검 대상입니다.
 10. app 질문이 오면 답합니다.
+11. 운영 명령(`server ops`, S170, #1321 운영 명령 요청)은 [`docs/runbook/ops.md`](docs/runbook/ops.md)를 따릅니다. 운영자 등록은 그 runbook의 "운영자 등록과 빼기" 절차(Cloud SQL IAM 사용자 추가, `server-migrate` Job 실행)입니다.

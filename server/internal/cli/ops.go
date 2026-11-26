@@ -26,7 +26,7 @@ import (
 const opsUsageText = `usage: server ops <command>
 
 commands:
-  account show (--account <uuid> | --store-transaction <id>) --reason <s> [--json]
+  account show (--account <uuid> 또는 --store-transaction <id>) --reason <s> [--json]
   grant --account <uuid> --entitlement ad_free|insight (--days <1~366> | --until <RFC3339>) --reason <s> [--json]
   revoke --account <uuid> --grant <id> --reason <s> [--json]
   content diary|schedule --account <uuid> (--date YYYY-MM-DD | --id <uuid>) --purpose <p> --reason <s> [--json]
