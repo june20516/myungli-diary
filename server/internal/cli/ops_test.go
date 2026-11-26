@@ -366,7 +366,7 @@ func TestOps_NonOperatorRole_Exits1WithGuidance(t *testing.T) {
 
 	assert.Equal(t, 1, code)
 	assert.Empty(t, stdout)
-	assert.Equal(t, "ops: DB 사용자 "+name+"에 운영자 역할이 없습니다. runbook '운영자 등록'을 보세요\n", stderr)
+	assert.Equal(t, "ops: DB 사용자 "+name+"에 운영자 역할이 없습니다. runbook '운영자 등록과 빼기'를 보세요\n", stderr)
 }
 
 func TestOps_UntilOffsetIsStoredAsUTC(t *testing.T) {

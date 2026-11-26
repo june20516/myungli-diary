@@ -27,9 +27,9 @@ const opsUsageText = `usage: server ops <command>
 
 commands:
   account show (--account <uuid> 또는 --store-transaction <id>) --reason <s> [--json]
-  grant --account <uuid> --entitlement ad_free|insight (--days <1~366> | --until <RFC3339>) --reason <s> [--json]
+  grant --account <uuid> --entitlement ad_free|insight (--days <1~366> 또는 --until <RFC3339>) --reason <s> [--json]
   revoke --account <uuid> --grant <id> --reason <s> [--json]
-  content diary|schedule --account <uuid> (--date YYYY-MM-DD | --id <uuid>) --purpose <p> --reason <s> [--json]
+  content diary|schedule --account <uuid> (--date YYYY-MM-DD 또는 --id <uuid>) --purpose <p> --reason <s> [--json]
   content profile --account <uuid> --purpose <p> --reason <s> [--json]
   audit list (--account <uuid> 또는 --since YYYY-MM-DD, 둘 다 주면 AND) [--limit n] --reason <s> [--json]`
 
@@ -101,7 +101,7 @@ func classifyOpsError(err error, sessionUser string) error {
 	// 권한 오류의 PostgreSQL 원문에는 표 이름이 들어가므로 싸지 않고 안내만 냅니다.
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) && pgErr.Code == "42501" {
-		return fmt.Errorf("DB 사용자 %s에 운영자 역할이 없습니다. runbook '운영자 등록'을 보세요", sessionUser)
+		return fmt.Errorf("DB 사용자 %s에 운영자 역할이 없습니다. runbook '운영자 등록과 빼기'를 보세요", sessionUser)
 	}
 	return err
 }

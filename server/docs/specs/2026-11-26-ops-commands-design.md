@@ -160,9 +160,9 @@ internal/cli/ops.go      인자 해석, session_user로 Actor 만들기, 표와 
 
 ## 9. 문서와 보고
 
-* runbook `server/docs/runbooks/ops.md`: 준비(gcloud 로그인, 로컬 값), 명령별 사용법과 예시. 목적별 운영 기준은 적지 않습니다.
+* runbook `server/docs/runbook/ops.md`: 준비(gcloud 로그인, 로컬 값), 명령별 사용법과 예시. 목적별 운영 기준은 적지 않습니다.
 * 결정 행 S170(이 설계의 요점), Terraform README의 운영자 추가 절, `docs/local-values.md` server 행(`ops.env`).
-* 지휘 보고(#1321 완료 보고에 함께):
+* 지휘 보고(#1376으로 올렸습니다):
   * 처리방침 처리 목적에 "결제 오류 처리"와 운영자 콘텐츠 열람(정책 위반 확인, 법령 요청 대응)이 따로 없음(writing, 법적 문서 몫, Issue 8번과 함께).
   * 요청 로그에는 계정 id가 없어 계정별 접속 기록과 앱 버전은 보이지 않음. 필요하면 새 수집 결정이 필요함.
   * 감사 기록 2년 보관을 수집, 보관 대장에 반영.
