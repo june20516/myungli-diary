@@ -92,17 +92,20 @@ type ProfileView struct {
 
 // listTarget은 일기와 일정 열람 감사 행의 target입니다. 연 항목의 id와 개수만 남기고 본문은 남기지 않습니다.
 type listTarget struct {
-	Kind  string      `json:"kind"`
-	Date  string      `json:"date,omitempty"`
-	ID    *uuid.UUID  `json:"id,omitempty"`
-	IDs   []uuid.UUID `json:"ids"`
-	Count int         `json:"count"`
+	// AccountID는 계정이 없어도 어떤 id를 시도했는지 남기려고 항상 넣습니다.
+	AccountID uuid.UUID   `json:"accountId"`
+	Kind      string      `json:"kind"`
+	Date      string      `json:"date,omitempty"`
+	ID        *uuid.UUID  `json:"id,omitempty"`
+	IDs       []uuid.UUID `json:"ids"`
+	Count     int         `json:"count"`
 }
 
 // profileTarget은 프로필 열람 감사 행의 target입니다. 연 프로필 수만 남깁니다.
 type profileTarget struct {
-	Kind  string `json:"kind"`
-	Count int    `json:"count"`
+	AccountID uuid.UUID `json:"accountId"`
+	Kind      string    `json:"kind"`
+	Count     int       `json:"count"`
 }
 
 // viewInput은 검사를 마친 열람 요청입니다.
@@ -150,37 +153,34 @@ func (s *Service) ViewDiary(ctx context.Context, actor Actor, req ViewRequest) (
 	return view, nil
 }
 
+// loadDiaries는 날짜 또는 id로 좁힌 살아 있는 일기와 지운 일기 개수를 읽습니다.
 func loadDiaries(ctx context.Context, q *opsdb.Queries, target ContentTarget) ([]DiaryEntry, int, error) {
+	entries := []DiaryEntry{}
 	var (
-		entries []DiaryEntry
 		deleted int64
+		err     error
 	)
 	if target.Date != nil {
 		date := profile.PgDate(*target.Date)
-		rows, err := q.ListOpsDiariesByDate(ctx, opsdb.ListOpsDiariesByDateParams{AccountID: target.AccountID, Date: date})
-		if err != nil {
-			return nil, 0, fmt.Errorf("일기 조회: %w", err)
-		}
-		for _, row := range rows {
-			entries = append(entries, toDiaryEntry(row.ID, row.Date.Time, row.Body, row.CreatedAt, row.UpdatedAt))
-		}
-		if deleted, err = q.CountOpsDeletedDiariesByDate(ctx, opsdb.CountOpsDeletedDiariesByDateParams{AccountID: target.AccountID, Date: date}); err != nil {
-			return nil, 0, fmt.Errorf("지운 일기 수 조회: %w", err)
+		var rows []opsdb.ListOpsDiariesByDateRow
+		if rows, err = q.ListOpsDiariesByDate(ctx, opsdb.ListOpsDiariesByDateParams{AccountID: target.AccountID, Date: date}); err == nil {
+			for _, row := range rows {
+				entries = append(entries, toDiaryEntry(row.ID, row.Date.Time, row.Body, row.CreatedAt, row.UpdatedAt))
+			}
+			deleted, err = q.CountOpsDeletedDiariesByDate(ctx, opsdb.CountOpsDeletedDiariesByDateParams{AccountID: target.AccountID, Date: date})
 		}
 	} else {
-		rows, err := q.ListOpsDiariesByID(ctx, opsdb.ListOpsDiariesByIDParams{AccountID: target.AccountID, ID: *target.ID})
-		if err != nil {
-			return nil, 0, fmt.Errorf("일기 조회: %w", err)
-		}
-		for _, row := range rows {
-			entries = append(entries, toDiaryEntry(row.ID, row.Date.Time, row.Body, row.CreatedAt, row.UpdatedAt))
-		}
-		if deleted, err = q.CountOpsDeletedDiariesByID(ctx, opsdb.CountOpsDeletedDiariesByIDParams{AccountID: target.AccountID, ID: *target.ID}); err != nil {
-			return nil, 0, fmt.Errorf("지운 일기 수 조회: %w", err)
+		params := opsdb.ListOpsDiariesByIDParams{AccountID: target.AccountID, ID: *target.ID}
+		var rows []opsdb.ListOpsDiariesByIDRow
+		if rows, err = q.ListOpsDiariesByID(ctx, params); err == nil {
+			for _, row := range rows {
+				entries = append(entries, toDiaryEntry(row.ID, row.Date.Time, row.Body, row.CreatedAt, row.UpdatedAt))
+			}
+			deleted, err = q.CountOpsDeletedDiariesByID(ctx, opsdb.CountOpsDeletedDiariesByIDParams(params))
 		}
 	}
-	if entries == nil {
-		entries = []DiaryEntry{}
+	if err != nil {
+		return nil, 0, fmt.Errorf("일기 조회: %w", err)
 	}
 	return entries, int(deleted), nil
 }
@@ -219,32 +219,34 @@ func (s *Service) ViewSchedule(ctx context.Context, actor Actor, req ViewRequest
 	return view, nil
 }
 
+// loadSchedules는 날짜 또는 id로 좁힌 살아 있는 일정과 지운 일정 개수를 읽습니다.
 func loadSchedules(ctx context.Context, q *opsdb.Queries, target ContentTarget) ([]ScheduleEntry, int, error) {
 	entries := []ScheduleEntry{}
-	var deleted int64
+	var (
+		deleted int64
+		err     error
+	)
 	if target.Date != nil {
 		date := profile.PgDate(*target.Date)
-		rows, err := q.ListOpsSchedulesByDate(ctx, opsdb.ListOpsSchedulesByDateParams{AccountID: target.AccountID, Date: date})
-		if err != nil {
-			return nil, 0, fmt.Errorf("일정 조회: %w", err)
-		}
-		for _, row := range rows {
-			entries = append(entries, toScheduleEntry(row.ID, row.Date, row.AllDay, row.Time, row.Title, row.Memo))
-		}
-		if deleted, err = q.CountOpsDeletedSchedulesByDate(ctx, opsdb.CountOpsDeletedSchedulesByDateParams{AccountID: target.AccountID, Date: date}); err != nil {
-			return nil, 0, fmt.Errorf("지운 일정 수 조회: %w", err)
+		var rows []opsdb.ListOpsSchedulesByDateRow
+		if rows, err = q.ListOpsSchedulesByDate(ctx, opsdb.ListOpsSchedulesByDateParams{AccountID: target.AccountID, Date: date}); err == nil {
+			for _, row := range rows {
+				entries = append(entries, toScheduleEntry(row.ID, row.Date, row.AllDay, row.Time, row.Title, row.Memo))
+			}
+			deleted, err = q.CountOpsDeletedSchedulesByDate(ctx, opsdb.CountOpsDeletedSchedulesByDateParams{AccountID: target.AccountID, Date: date})
 		}
 	} else {
-		rows, err := q.ListOpsSchedulesByID(ctx, opsdb.ListOpsSchedulesByIDParams{AccountID: target.AccountID, ID: *target.ID})
-		if err != nil {
-			return nil, 0, fmt.Errorf("일정 조회: %w", err)
+		params := opsdb.ListOpsSchedulesByIDParams{AccountID: target.AccountID, ID: *target.ID}
+		var rows []opsdb.ListOpsSchedulesByIDRow
+		if rows, err = q.ListOpsSchedulesByID(ctx, params); err == nil {
+			for _, row := range rows {
+				entries = append(entries, toScheduleEntry(row.ID, row.Date, row.AllDay, row.Time, row.Title, row.Memo))
+			}
+			deleted, err = q.CountOpsDeletedSchedulesByID(ctx, opsdb.CountOpsDeletedSchedulesByIDParams(params))
 		}
-		for _, row := range rows {
-			entries = append(entries, toScheduleEntry(row.ID, row.Date, row.AllDay, row.Time, row.Title, row.Memo))
-		}
-		if deleted, err = q.CountOpsDeletedSchedulesByID(ctx, opsdb.CountOpsDeletedSchedulesByIDParams{AccountID: target.AccountID, ID: *target.ID}); err != nil {
-			return nil, 0, fmt.Errorf("지운 일정 수 조회: %w", err)
-		}
+	}
+	if err != nil {
+		return nil, 0, fmt.Errorf("일정 조회: %w", err)
 	}
 	return entries, int(deleted), nil
 }
@@ -276,7 +278,7 @@ func (s *Service) ViewProfile(ctx context.Context, actor Actor, accountID uuid.U
 	}
 	var view ProfileView
 	err = s.runView(ctx, actor, in, func(opened []uuid.UUID) any {
-		return profileTarget{Kind: kindProfile, Count: len(opened)}
+		return profileTarget{AccountID: accountID, Kind: kindProfile, Count: len(opened)}
 	}, func(q *opsdb.Queries) ([]uuid.UUID, bool, error) {
 		view = ProfileView{}
 		row, err := q.GetOpsProfile(ctx, accountID)
@@ -372,7 +374,7 @@ func validateContentTarget(t ContentTarget) error {
 // listTargetOf는 열람한 항목 id로 일기와 일정의 감사 target을 만드는 함수를 돌려줍니다.
 func listTargetOf(kind string, t ContentTarget) func([]uuid.UUID) any {
 	return func(opened []uuid.UUID) any {
-		target := listTarget{Kind: kind, ID: t.ID, IDs: opened, Count: len(opened)}
+		target := listTarget{AccountID: t.AccountID, Kind: kind, ID: t.ID, IDs: opened, Count: len(opened)}
 		if target.IDs == nil {
 			target.IDs = []uuid.UUID{}
 		}

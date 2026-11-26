@@ -159,7 +159,7 @@ func TestViewDiary_OtherAccountIDNotVisible(t *testing.T) {
 	require.Len(t, rows, 1)
 	require.NotNil(t, rows[0].AccountID)
 	assert.Equal(t, other, *rows[0].AccountID)
-	assert.JSONEq(t, fmt.Sprintf(`{"kind":"diary","id":%q,"ids":[],"count":0}`, id), rows[0].Target)
+	assert.JSONEq(t, fmt.Sprintf(`{"accountId":%q,"kind":"diary","id":%q,"ids":[],"count":0}`, other, id), rows[0].Target)
 }
 
 func TestViewDiary_ExcludesDeletedAndPurged(t *testing.T) {
@@ -211,7 +211,7 @@ func TestViewDiary_AuditHasIDsNotBody(t *testing.T) {
 	assert.Equal(t, "legal", *rows[0].Purpose)
 	require.NotNil(t, rows[0].AccountID)
 	assert.Equal(t, account, *rows[0].AccountID)
-	assert.JSONEq(t, fmt.Sprintf(`{"kind":"diary","date":"2026-11-20","ids":[%q,%q],"count":2}`, a, b), rows[0].Target)
+	assert.JSONEq(t, fmt.Sprintf(`{"accountId":%q,"kind":"diary","date":"2026-11-20","ids":[%q,%q],"count":2}`, account, a, b), rows[0].Target)
 
 	var leaked int
 	require.NoError(t, pool.QueryRow(context.Background(), `SELECT count(*) FROM ops_audit
@@ -222,7 +222,8 @@ func TestViewDiary_AuditHasIDsNotBody(t *testing.T) {
 func TestViewDiary_AccountNotFoundStillAudited(t *testing.T) {
 	svc, pool := newTestService(t)
 
-	got, err := svc.ViewDiary(context.Background(), testActor, byDate(uuid.New(), viewDate))
+	missing := uuid.New()
+	got, err := svc.ViewDiary(context.Background(), testActor, byDate(missing, viewDate))
 	require.ErrorIs(t, err, ErrAccountNotFound)
 	assert.Equal(t, DiaryView{}, got)
 
@@ -230,6 +231,7 @@ func TestViewDiary_AccountNotFoundStillAudited(t *testing.T) {
 	require.Len(t, rows, 1)
 	assert.Equal(t, "content_view", rows[0].Action)
 	assert.Nil(t, rows[0].AccountID)
+	assert.JSONEq(t, fmt.Sprintf(`{"accountId":%q,"kind":"diary","date":"2026-11-20","ids":[],"count":0}`, missing), rows[0].Target)
 }
 
 func TestViewDiary_AuditFailureReturnsNothing(t *testing.T) {
@@ -321,7 +323,7 @@ func TestViewSchedule_ByDate(t *testing.T) {
 
 	rows := viewAuditRows(t, pool)
 	require.Len(t, rows, 1)
-	assert.JSONEq(t, fmt.Sprintf(`{"kind":"schedule","date":"2026-11-20","ids":[%q,%q],"count":2}`, allDay, timed), rows[0].Target)
+	assert.JSONEq(t, fmt.Sprintf(`{"accountId":%q,"kind":"schedule","date":"2026-11-20","ids":[%q,%q],"count":2}`, account, allDay, timed), rows[0].Target)
 	assert.NotContains(t, rows[0].Target, "회의")
 	assert.NotContains(t, rows[0].Target, "비밀 메모")
 }
@@ -382,7 +384,7 @@ func TestViewProfile_Audited(t *testing.T) {
 	assert.Equal(t, "inquiry", *rows[0].Purpose)
 	require.NotNil(t, rows[0].AccountID)
 	assert.Equal(t, account, *rows[0].AccountID)
-	assert.JSONEq(t, `{"kind":"profile","count":1}`, rows[0].Target)
+	assert.JSONEq(t, fmt.Sprintf(`{"accountId":%q,"kind":"profile","count":1}`, account), rows[0].Target)
 	for _, secret := range []string{"비밀호칭", "1990", "seoul", "126.978"} {
 		assert.NotContains(t, rows[0].Target, secret)
 	}
@@ -390,16 +392,34 @@ func TestViewProfile_Audited(t *testing.T) {
 
 func TestViewProfile_MissingProfileOrAccount(t *testing.T) {
 	svc, pool := newTestService(t)
+	ctx := context.Background()
 	noProfile := insertAccount(t, pool)
 
-	_, err := svc.ViewProfile(context.Background(), testActor, noProfile, PurposeInquiry, "문의")
+	_, err := svc.ViewProfile(ctx, testActor, noProfile, PurposeInquiry, "문의")
 	require.ErrorIs(t, err, ErrAccountNotFound)
-	_, err = svc.ViewProfile(context.Background(), testActor, uuid.New(), PurposeInquiry, "문의")
-	require.ErrorIs(t, err, ErrAccountNotFound)
-
 	rows := viewAuditRows(t, pool)
+	require.Len(t, rows, 1)
+	require.NotNil(t, rows[0].AccountID, "계정은 있으므로 감사 행에 계정 id가 남습니다")
+	assert.Equal(t, noProfile, *rows[0].AccountID)
+	assert.JSONEq(t, fmt.Sprintf(`{"accountId":%q,"kind":"profile","count":0}`, noProfile), rows[0].Target)
+
+	missing := uuid.New()
+	_, err = svc.ViewProfile(ctx, testActor, missing, PurposeInquiry, "문의")
+	require.ErrorIs(t, err, ErrAccountNotFound)
+	rows = viewAuditRows(t, pool)
 	require.Len(t, rows, 2)
-	assert.JSONEq(t, `{"kind":"profile","count":0}`, rows[0].Target)
+	for _, row := range rows {
+		if row.AccountID == nil {
+			assert.JSONEq(t, fmt.Sprintf(`{"accountId":%q,"kind":"profile","count":0}`, missing), row.Target)
+		}
+	}
+	var nilRows int
+	for _, row := range rows {
+		if row.AccountID == nil {
+			nilRows++
+		}
+	}
+	assert.Equal(t, 1, nilRows, "계정 없음 행만 account_id가 NULL입니다")
 }
 
 // TestService_AllCommandsWorkAsOpsRole은 모든 명령이 myungli_ops 역할의 권한만으로 동작함을 확인합니다.
@@ -423,6 +443,10 @@ func TestService_AllCommandsWorkAsOpsRole(t *testing.T) {
 	require.NoError(t, err)
 	t.Cleanup(opsPool.Close)
 	svc := NewService(opsPool, clocktest.New(testNow))
+
+	var currentUser string
+	require.NoError(t, opsPool.QueryRow(ctx, "SELECT current_user").Scan(&currentUser))
+	require.Equal(t, "myungli_ops", currentUser, "superuser가 아닌 myungli_ops로 돌아야 합니다")
 
 	_, err = svc.AccountSummary(ctx, testActor, AccountKey{AccountID: account}, "문의")
 	require.NoError(t, err, "AccountSummary")
