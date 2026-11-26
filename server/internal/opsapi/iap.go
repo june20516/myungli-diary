@@ -275,11 +275,11 @@ type jwkSet struct {
 }
 
 func (s *httpKeySource) fetch(ctx context.Context) (map[string]*ecdsa.PublicKey, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, s.url, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, s.url, nil) //nolint:gosec // 주소는 생성자가 받은 고정 IAP 공개키 URL입니다.
 	if err != nil {
 		return nil, err
 	}
-	resp, err := s.client.Do(req)
+	resp, err := s.client.Do(req) //nolint:gosec // 위와 같은 고정 주소입니다.
 	if err != nil {
 		return nil, err
 	}
