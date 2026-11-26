@@ -31,27 +31,6 @@ func newServiceAt(pool *pgxpool.Pool, at time.Time) *Service {
 	return svc
 }
 
-// sessionUser는 테스트 연결의 session_user입니다. CLI 감사 행의 actor는 trigger가 이 값으로 정합니다.
-func sessionUser(t *testing.T, pool *pgxpool.Pool) string {
-	t.Helper()
-	var user string
-	require.NoError(t, pool.QueryRow(context.Background(), "SELECT session_user").Scan(&user))
-	return user
-}
-
-// 어드민 API 전까지 DB는 admin_api 경로의 감사 행을 거절하므로, 그 경로로 부른 조회는 결과 없이 실패합니다.
-func TestAccountSummary_AdminAPIRejectedByDB(t *testing.T) {
-	svc, pool := newTestService(t)
-	id := insertAccount(t, pool)
-
-	got, err := svc.AccountSummary(context.Background(), Actor{ID: "bran", Channel: ChannelAdminAPI}, AccountKey{AccountID: id}, "문의")
-	var pgErr *pgconn.PgError
-	require.ErrorAs(t, err, &pgErr)
-	assert.Equal(t, "P0001", pgErr.Code)
-	assert.Equal(t, AccountSummary{}, got)
-	assert.Empty(t, auditRows(t, pool))
-}
-
 func newTestService(t *testing.T) (*Service, *pgxpool.Pool) {
 	t.Helper()
 	pool := dbtest.New(t)
@@ -164,8 +143,8 @@ func TestAccountSummary_WritesAuditBeforeReturning(t *testing.T) {
 	rows := auditRows(t, pool)
 	require.Len(t, rows, 1)
 	assert.Equal(t, "account_show", rows[0].Action)
-	assert.Equal(t, sessionUser(t, pool), rows[0].Actor)
-	assert.Equal(t, "cli", rows[0].Channel)
+	assert.Equal(t, testActor.ID, rows[0].Actor)
+	assert.Equal(t, "ops_api", rows[0].Channel)
 	assert.Equal(t, "환불 문의", rows[0].Reason)
 	require.NotNil(t, rows[0].AccountID)
 	assert.Equal(t, id, *rows[0].AccountID)

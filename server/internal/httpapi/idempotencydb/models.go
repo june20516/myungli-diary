@@ -211,6 +211,7 @@ type OpsAudit struct {
 	ID        uuid.UUID
 	At        time.Time
 	Actor     string
+	ActorSub  string
 	Channel   string
 	Action    string
 	AccountID uuid.NullUUID

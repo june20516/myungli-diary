@@ -77,7 +77,8 @@ type Entry struct {
 
 // recordTx는 감사 행을 tx 안에서 씁니다. Before, After가 nil이면 NULL, Target이 nil이면 {}로 남깁니다.
 // 시각(at)은 넘기지 않습니다. trigger(00029 ops_audit_stamp)가 DB의 now()로 정하고,
-// e.Actor.ID 대신 DB가 인증한 session_user를 actor로 남깁니다. cli 밖의 channel은 trigger가 거절합니다.
+// channel은 ops_api 하나입니다(쿼리가 정함). actor는 DB가 덮지 않고 넘긴 값을 남깁니다.
+// 임시(Task 1): actor_sub에도 Actor.ID를 넣습니다. Actor가 메일과 sub를 따로 갖게 되면 Task 2가 바꿉니다.
 func recordTx(ctx context.Context, tx pgx.Tx, id uuid.UUID, e Entry) error {
 	target := e.Target
 	if isNil(target) {
@@ -97,14 +98,14 @@ func recordTx(ctx context.Context, tx pgx.Tx, id uuid.UUID, e Entry) error {
 	}
 
 	params := opsdb.InsertOpsAuditParams{
-		ID:      id,
-		Actor:   e.Actor.ID,
-		Channel: string(e.Actor.Channel),
-		Action:  string(e.Action),
-		Reason:  e.Reason,
-		Target:  targetJSON,
-		Before:  beforeJSON,
-		After:   afterJSON,
+		ID:       id,
+		Actor:    e.Actor.ID,
+		ActorSub: e.Actor.ID,
+		Action:   string(e.Action),
+		Reason:   e.Reason,
+		Target:   targetJSON,
+		Before:   beforeJSON,
+		After:    afterJSON,
 	}
 	if e.AccountID != nil {
 		params.AccountID = uuid.NullUUID{UUID: *e.AccountID, Valid: true}

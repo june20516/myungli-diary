@@ -158,7 +158,7 @@ func (s shared) databaseURL(database string) string {
 const clusterLockKey = 1321_0001
 
 // LockCluster는 cluster 공용 상태(로그인 역할과 구성원 관계)를 바꾸는 테스트 구간을 직렬화합니다.
-// 역할은 DB가 아니라 cluster에 속해, 사람 역할을 모두 훑는 GrantOpsRole 같은 코드는 다른 테스트가 만든 역할과 섞일 수 있습니다.
+// 역할은 DB가 아니라 cluster에 속해, myungli_ops 구성원 전체를 검사하는 CheckRoleSeparation 같은 코드는 다른 테스트가 만든 구성원과 섞일 수 있습니다.
 // advisory lock은 연결 하나가 쥐므로 전용 연결에서 잡고, 테스트가 끝나면 풉니다.
 func LockCluster(t testing.TB) {
 	t.Helper()

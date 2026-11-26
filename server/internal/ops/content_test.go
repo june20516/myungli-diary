@@ -473,11 +473,9 @@ func TestService_AllCommandsWorkAsOpsRole(t *testing.T) {
 	require.NoError(t, err, "AuditList")
 	assert.Len(t, records, 6)
 
-	// SET ROLE은 current_user만 바꾸므로 감사 행의 actor는 역할 이름이 아니라 로그인한 session_user입니다.
-	loginUser := sessionUser(t, opsPool)
-	require.NotEqual(t, "myungli_ops", loginUser)
+	// 감사 행의 actor는 DB가 덮지 않고 넘긴 실행자 값입니다.
 	for _, record := range records {
-		assert.Equal(t, loginUser, record.Actor)
+		assert.Equal(t, testActor.ID, record.Actor)
 	}
 }
 

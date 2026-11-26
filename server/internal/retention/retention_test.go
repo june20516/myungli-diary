@@ -492,8 +492,8 @@ func (f *fixture) insertOpsAudit(at time.Time) uuid.UUID {
 	f.t.Helper()
 	id := uuid.Must(uuid.NewV7())
 	// trigger(ops_audit_stamp)가 at을 now()로 덮으므로 끄고 넣습니다.
-	dbtest.ExecWithoutTriggers(f.t, f.pool, `INSERT INTO ops_audit (id, at, actor, channel, action, reason, target)
-		VALUES ($1, $2, 'op@example.com', 'cli', 'account_show', '문의 확인', '{}'::jsonb)`, id, at)
+	dbtest.ExecWithoutTriggers(f.t, f.pool, `INSERT INTO ops_audit (id, at, actor, actor_sub, channel, action, reason, target)
+		VALUES ($1, $2, 'op@example.com', 'sub-1', 'ops_api', 'account_show', '문의 확인', '{}'::jsonb)`, id, at)
 	return id
 }
 

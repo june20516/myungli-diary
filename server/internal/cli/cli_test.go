@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/june20516/myungli-diary/server/internal/content"
 	"github.com/june20516/myungli-diary/server/internal/platform/clock"
@@ -131,80 +132,109 @@ func TestRun_MigrateDownUp_AppliesToDatabase(t *testing.T) {
 	}
 }
 
-// DB_RUNTIME_USER가 있으면 migrate up 뒤 그 사용자를 읽기와 쓰기 권한 묶음(myungli_app)의 구성원으로 둡니다(S137).
-// 없는 사용자면 실패해 배포의 migrate 단계가 멈춥니다.
-func TestRun_MigrateUp_GrantsAppRoleToRuntimeUser(t *testing.T) {
-	ctx := context.Background()
-	pool := dbtest.New(t)
-	runtimeUser := "runtime_cli_" + strings.ReplaceAll(uuid.NewString()[:8], "-", "")
-	if _, err := pool.Exec(ctx, "CREATE ROLE "+pgx.Identifier{runtimeUser}.Sanitize()+" LOGIN"); err != nil {
+// createLoginRole은 테스트가 끝나면 지우는 로그인 역할을 만듭니다. 구성원 관계는 지우기 전에 거둡니다.
+func createLoginRole(t *testing.T, pool *pgxpool.Pool, prefix string) string {
+	t.Helper()
+	name := prefix + strings.ReplaceAll(uuid.NewString()[:8], "-", "")
+	quoted := pgx.Identifier{name}.Sanitize()
+	if _, err := pool.Exec(context.Background(), "CREATE ROLE "+quoted+" LOGIN"); err != nil {
 		t.Fatalf("역할 만들기: %v", err)
 	}
-	t.Cleanup(func() {
-		_, _ = pool.Exec(context.Background(), "DROP ROLE IF EXISTS "+pgx.Identifier{runtimeUser}.Sanitize())
-	})
-	env := map[string]string{"DATABASE_URL": pool.Config().ConnString(), "DB_RUNTIME_USER": runtimeUser}
+	t.Cleanup(func() { _, _ = pool.Exec(context.Background(), "DROP ROLE IF EXISTS "+quoted) })
+	return name
+}
 
-	if code, _, stderr := runCLIWithEnv(t, env, "migrate", "up"); code != 0 {
+func hasRoleMember(t *testing.T, pool *pgxpool.Pool, member, role string) bool {
+	t.Helper()
+	var isMember bool
+	if err := pool.QueryRow(context.Background(), `SELECT pg_has_role($1, $2, 'MEMBER')`, member, role).Scan(&isMember); err != nil {
+		t.Fatalf("%s 소속 확인: %v", member, err)
+	}
+	return isMember
+}
+
+// DB_RUNTIME_USER와 DB_OPS_USER가 있으면 migrate up 뒤 각각 읽기와 쓰기 권한 묶음(myungli_app, S137),
+// 운영자 권한 묶음(myungli_ops, #1321)의 구성원으로 둡니다. 없는 사용자면 실패해 배포의 migrate 단계가 멈춥니다.
+func TestRunMigrate_OpsUser(t *testing.T) {
+	dbtest.LockCluster(t)
+	pool := dbtest.New(t)
+	runtimeUser := createLoginRole(t, pool, "runtime_cli_")
+	opsUser := createLoginRole(t, pool, "ops_user_cli_")
+	t.Cleanup(func() {
+		_, _ = pool.Exec(context.Background(), "REVOKE "+postgres.OpsRole+" FROM "+pgx.Identifier{opsUser}.Sanitize())
+		_, _ = pool.Exec(context.Background(), "REVOKE "+postgres.AppRole+" FROM "+pgx.Identifier{runtimeUser}.Sanitize())
+	})
+	env := map[string]string{"DATABASE_URL": pool.Config().ConnString(), "DB_RUNTIME_USER": runtimeUser, "DB_OPS_USER": opsUser}
+
+	code, _, stderr := runCLIWithEnv(t, env, "migrate", "up")
+	if code != 0 {
 		t.Fatalf("migrate up 종료 코드 = %d, stderr = %q", code, stderr)
 	}
-	var member bool
-	err := pool.QueryRow(ctx, `SELECT pg_has_role($1, $2, 'MEMBER')`, runtimeUser, postgres.AppRole).Scan(&member)
-	if err != nil || !member {
-		t.Fatalf("%s가 %s 구성원이 아닙니다(err %v)", runtimeUser, postgres.AppRole, err)
+	if !hasRoleMember(t, pool, runtimeUser, postgres.AppRole) {
+		t.Errorf("런타임 사용자가 %s 구성원이 아닙니다", postgres.AppRole)
+	}
+	if !hasRoleMember(t, pool, opsUser, postgres.OpsRole) {
+		t.Errorf("운영 API 사용자가 %s 구성원이 아닙니다", postgres.OpsRole)
+	}
+	if hasRoleMember(t, pool, runtimeUser, postgres.OpsRole) || hasRoleMember(t, pool, opsUser, postgres.AppRole) {
+		t.Error("두 사용자의 권한이 섞였습니다")
+	}
+	for _, name := range []string{runtimeUser, opsUser} {
+		if strings.Contains(stderr, name) {
+			t.Errorf("로그에 DB 사용자 이름이 남았습니다: %q", stderr)
+		}
 	}
 
-	env["DB_RUNTIME_USER"] = "no_such_user_" + strings.ReplaceAll(uuid.NewString()[:8], "-", "")
-	if code, _, _ := runCLIWithEnv(t, env, "migrate", "up"); code == 0 {
-		t.Error("없는 런타임 사용자에 migrate up이 성공했습니다")
+	// 다시 돌려도 성공합니다.
+	if code, _, stderr := runCLIWithEnv(t, env, "migrate", "up"); code != 0 {
+		t.Errorf("두 번째 migrate up 종료 코드 = %d, stderr = %q", code, stderr)
+	}
+
+	// 없는 사용자는 배포를 멈춥니다(오류에 이름이 없어야 합니다).
+	missing := "no_such_user_" + strings.ReplaceAll(uuid.NewString()[:8], "-", "")
+	for key, other := range map[string]string{"DB_RUNTIME_USER": "DB_OPS_USER", "DB_OPS_USER": "DB_RUNTIME_USER"} {
+		bad := map[string]string{"DATABASE_URL": env["DATABASE_URL"], key: missing, other: env[other]}
+		code, _, stderr := runCLIWithEnv(t, bad, "migrate", "up")
+		if code == 0 {
+			t.Errorf("%s가 없는 사용자인데 migrate up이 성공했습니다", key)
+		}
+		if strings.Contains(stderr, missing) {
+			t.Errorf("%s 실패 로그에 사용자 이름이 남았습니다: %q", key, stderr)
+		}
 	}
 }
 
-// 배포 환경(staging, prod)의 migrate up은 사람 IAM 사용자를 운영자 역할(myungli_ops)에 넣고, local은 넣지 않습니다(#1321).
-func TestRunMigrate_GrantsOpsRoleOnlyInDeployedEnv(t *testing.T) {
-	ctx := context.Background()
-	// 운영자 대상은 cluster의 모든 사람 역할이라, 같은 cluster에서 역할을 만드는 다른 테스트와 겹치지 않게 합니다.
-	dbtest.LockCluster(t)
+// 둘 중 하나만 있으면 설정 오류이고, 어느 역할도 지정하지 않습니다.
+func TestRunMigrate_OpsUserRequiresBoth(t *testing.T) {
 	pool := dbtest.New(t)
-	operator := "op-cli-" + strings.ReplaceAll(uuid.NewString()[:8], "-", "") + "@example.com"
-	if _, err := pool.Exec(ctx, "CREATE ROLE "+pgx.Identifier{operator}.Sanitize()+" LOGIN"); err != nil {
-		t.Fatalf("역할 만들기: %v", err)
-	}
-	t.Cleanup(func() {
-		_, _ = pool.Exec(context.Background(), "REVOKE "+postgres.OpsRole+" FROM "+pgx.Identifier{operator}.Sanitize())
-		_, _ = pool.Exec(context.Background(), "DROP ROLE IF EXISTS "+pgx.Identifier{operator}.Sanitize())
-	})
-	isMember := func() bool {
-		var member bool
-		if err := pool.QueryRow(ctx, `SELECT pg_has_role($1, $2, 'MEMBER')`, operator, postgres.OpsRole).Scan(&member); err != nil {
-			t.Fatalf("소속 확인: %v", err)
+	user := createLoginRole(t, pool, "only_one_")
+	for _, key := range []string{"DB_RUNTIME_USER", "DB_OPS_USER"} {
+		env := map[string]string{"DATABASE_URL": pool.Config().ConnString(), key: user}
+		code, _, stderr := runCLIWithEnv(t, env, "migrate", "up")
+		if code == 0 {
+			t.Errorf("%s만 있는데 migrate up이 성공했습니다", key)
 		}
-		return member
+		if strings.Contains(stderr, user) {
+			t.Errorf("로그에 사용자 이름이 남았습니다: %q", stderr)
+		}
 	}
+	if hasRoleMember(t, pool, user, postgres.AppRole) || hasRoleMember(t, pool, user, postgres.OpsRole) {
+		t.Error("설정 오류인데 역할이 지정됐습니다")
+	}
+}
 
+// local과 테스트는 둘 다 비어도 되고, 배포 환경(staging, prod)은 둘 다 있어야 합니다.
+func TestRunMigrate_OpsUserOnlyRequiredInDeployedEnv(t *testing.T) {
+	pool := dbtest.New(t)
 	for _, appEnv := range []string{"", "local"} {
 		env := map[string]string{"DATABASE_URL": pool.Config().ConnString(), "APP_ENV": appEnv}
 		if code, _, stderr := runCLIWithEnv(t, env, "migrate", "up"); code != 0 {
-			t.Fatalf("APP_ENV=%q migrate up 종료 코드 = %d, stderr = %q", appEnv, code, stderr)
-		}
-		if isMember() {
-			t.Fatalf("APP_ENV=%q에서 운영자 역할이 지정됐습니다", appEnv)
+			t.Errorf("APP_ENV=%q migrate up 종료 코드 = %d, stderr = %q", appEnv, code, stderr)
 		}
 	}
-
 	env := map[string]string{"DATABASE_URL": pool.Config().ConnString(), "APP_ENV": "staging"}
-	code, _, stderr := runCLIWithEnv(t, env, "migrate", "up")
-	if code != 0 {
-		t.Fatalf("staging migrate up 종료 코드 = %d, stderr = %q", code, stderr)
-	}
-	if !isMember() {
-		t.Errorf("staging에서 %s가 %s 구성원이 아닙니다", operator, postgres.OpsRole)
-	}
-	if !strings.Contains(stderr, "운영자 역할 구성원 추가") {
-		t.Errorf("구성원 추가 로그가 없습니다: %q", stderr)
-	}
-	if strings.Contains(stderr, operator) {
-		t.Errorf("로그에 운영자 이름이 남았습니다: %q", stderr)
+	if code, _, _ := runCLIWithEnv(t, env, "migrate", "up"); code == 0 {
+		t.Error("staging에서 두 사용자 없이 migrate up이 성공했습니다")
 	}
 }
 

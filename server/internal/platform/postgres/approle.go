@@ -20,7 +20,7 @@ func GrantAppRole(ctx context.Context, pool *pgxpool.Pool, member string) error 
 	}
 	statement := "GRANT " + pgx.Identifier{AppRole}.Sanitize() + " TO " + pgx.Identifier{member}.Sanitize()
 	if _, err := pool.Exec(ctx, statement); err != nil {
-		return fmt.Errorf("%s 구성원 지정: %w", AppRole, err)
+		return fmt.Errorf("%s 구성원 지정: %w", AppRole, withoutRoleName(err))
 	}
 	return nil
 }

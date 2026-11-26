@@ -136,29 +136,46 @@ func runMigrate(ctx context.Context, args []string, getenv func(string) string, 
 	}
 	logger.InfoContext(ctx, "migration 완료", "direction", direction)
 	// 배포 환경은 migration을 server-migrator로 적용하고, 런타임 DB 사용자(DB_RUNTIME_USER)를 읽기와 쓰기 권한 묶음의
-	// 구성원으로 둡니다(S137). 환경마다 사용자 이름이 달라 migration 파일이 아니라 여기서 합니다. local과 테스트는 비워 둡니다.
-	if runtimeUser := strings.TrimSpace(getenv("DB_RUNTIME_USER")); direction == "up" && runtimeUser != "" {
-		if err := postgres.GrantAppRole(ctx, pool, runtimeUser); err != nil {
-			logger.ErrorContext(ctx, "런타임 DB 사용자 권한 지정 실패", "error", err)
-			return &loggedError{err: err}
-		}
-		// 런타임이 DDL 권한을 다시 갖지 않았는지 배포마다 확인합니다. 속해 있으면 배포를 멈춥니다(README의 staging 절차).
-		if err := postgres.CheckRuntimeNotSuperuser(ctx, pool, runtimeUser); err != nil {
-			logger.ErrorContext(ctx, "런타임 DB 사용자 권한 확인 실패", "error", err)
-			return &loggedError{err: err}
-		}
-		logger.InfoContext(ctx, "런타임 DB 사용자를 권한 묶음 구성원으로 두었습니다", "role", postgres.AppRole)
+	// 구성원으로, 운영 API DB 사용자(DB_OPS_USER)를 운영자 역할의 구성원으로 둡니다(S137, #1321).
+	// 환경마다 사용자 이름이 달라 migration 파일이 아니라 여기서 합니다. local과 테스트는 둘 다 비워 둡니다.
+	runtimeUser := strings.TrimSpace(getenv("DB_RUNTIME_USER"))
+	opsUser := strings.TrimSpace(getenv("DB_OPS_USER"))
+	if direction != "up" {
+		return nil
 	}
-	// 사람 운영자(IAM 사용자)를 운영자 역할의 구성원으로 둡니다(#1321). 운영자 이름은 로그에 남기지 않고 수만 남깁니다.
-	// local에는 사람 IAM 사용자가 없어 부르지 않습니다.
-	if direction == "up" && (cfg.Env == "staging" || cfg.Env == "prod") {
-		granted, err := postgres.GrantOpsRole(ctx, pool)
-		if err != nil {
-			logger.ErrorContext(ctx, "운영자 역할 지정 실패", "error", err)
+	if (runtimeUser == "") != (opsUser == "") {
+		// 이름은 로그에 남기지 않습니다. 어느 쪽이 빠졌는지만 알립니다.
+		err := errors.New("DB_RUNTIME_USER와 DB_OPS_USER는 함께 지정해야 합니다")
+		logger.ErrorContext(ctx, "DB 사용자 설정 오류", "error", err, "runtime_user_set", runtimeUser != "", "ops_user_set", opsUser != "")
+		return &loggedError{err: err}
+	}
+	if runtimeUser == "" {
+		if cfg.Env == "staging" || cfg.Env == "prod" {
+			err := errors.New("배포 환경에는 DB_RUNTIME_USER와 DB_OPS_USER가 필요합니다")
+			logger.ErrorContext(ctx, "DB 사용자 설정 오류", "error", err)
 			return &loggedError{err: err}
 		}
-		logger.InfoContext(ctx, "운영자 역할 구성원 추가", "count", len(granted))
+		return nil
 	}
+	if err := postgres.GrantAppRole(ctx, pool, runtimeUser); err != nil {
+		logger.ErrorContext(ctx, "런타임 DB 사용자 권한 지정 실패", "error", err)
+		return &loggedError{err: err}
+	}
+	if err := postgres.GrantOpsUser(ctx, pool, opsUser); err != nil {
+		logger.ErrorContext(ctx, "운영 API DB 사용자 권한 지정 실패", "error", err)
+		return &loggedError{err: err}
+	}
+	// 런타임이 DDL 권한을 다시 갖지 않았는지, 두 사용자의 권한이 섞이지 않았는지 배포마다 확인합니다.
+	// 어긋나면 배포를 멈춥니다(README의 staging 절차). 오류에는 사용자 이름이 없습니다.
+	if err := postgres.CheckRuntimeNotSuperuser(ctx, pool, runtimeUser); err != nil {
+		logger.ErrorContext(ctx, "런타임 DB 사용자 권한 확인 실패", "error", err)
+		return &loggedError{err: err}
+	}
+	if err := postgres.CheckRoleSeparation(ctx, pool, runtimeUser, opsUser); err != nil {
+		logger.ErrorContext(ctx, "런타임과 운영 API DB 사용자 역할 분리 확인 실패", "error", err)
+		return &loggedError{err: err}
+	}
+	logger.InfoContext(ctx, "DB 사용자를 권한 묶음 구성원으로 두었습니다", "app_role", postgres.AppRole, "ops_role", postgres.OpsRole)
 	return nil
 }
 

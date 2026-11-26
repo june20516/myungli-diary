@@ -316,7 +316,7 @@ func TestOps_AuditListJSON(t *testing.T) {
 	require.NoError(t, json.Unmarshal([]byte(stdout), &records), stdout)
 	require.Len(t, records, 1)
 	assert.Equal(t, "account_show", records[0].Action)
-	assert.Equal(t, "cli", records[0].Channel)
+	assert.Equal(t, "ops_api", records[0].Channel)
 
 	code, stdout, stderr = runCLIWithEnv(t, env, "ops", "audit", "list", "--since", "2020-01-01", "--reason", opsReason)
 	require.Equal(t, 0, code, "stderr = %q", stderr)
@@ -334,6 +334,8 @@ func opsRole(t *testing.T, pool *pgxpool.Pool, env map[string]string, member boo
 	require.NoError(t, err)
 	t.Cleanup(func() { _, _ = pool.Exec(context.Background(), "DROP ROLE IF EXISTS "+quoted) })
 	if member {
+		// 운영자 역할 구성원은 cluster 공용 상태라, 구성원 목록을 검사하는 테스트와 겹치지 않게 합니다.
+		dbtest.LockCluster(t)
 		_, err = pool.Exec(ctx, "GRANT "+pgx.Identifier{postgres.OpsRole}.Sanitize()+" TO "+quoted)
 		require.NoError(t, err)
 	}
@@ -354,7 +356,7 @@ func TestOps_ActorIsSessionUser(t *testing.T) {
 	var actor, channel string
 	require.NoError(t, pool.QueryRow(context.Background(), `SELECT actor, channel FROM ops_audit`).Scan(&actor, &channel))
 	assert.Equal(t, name, actor)
-	assert.Equal(t, "cli", channel)
+	assert.Equal(t, "ops_api", channel)
 }
 
 func TestOps_NonOperatorRole_Exits1WithGuidance(t *testing.T) {
@@ -391,8 +393,8 @@ func TestOps_AuditSinceIsUTCMidnightBoundary(t *testing.T) {
 	env, pool := opsEnv(t)
 	for _, at := range []string{"2026-10-31T23:59:59Z", "2026-11-01T00:00:00Z"} {
 		// trigger(ops_audit_stamp)가 at을 now()로 덮으므로 끄고 넣습니다.
-		dbtest.ExecWithoutTriggers(t, pool, `INSERT INTO ops_audit (id, at, actor, channel, action, reason, target)
-			VALUES (gen_random_uuid(), $1, 'seed', 'cli', 'account_show', $2, '{}')`, at, "경계 "+at)
+		dbtest.ExecWithoutTriggers(t, pool, `INSERT INTO ops_audit (id, at, actor, actor_sub, channel, action, reason, target)
+			VALUES (gen_random_uuid(), $1, 'seed', 'seed-sub', 'ops_api', 'account_show', $2, '{}')`, at, "경계 "+at)
 	}
 
 	code, stdout, stderr := runCLIWithEnv(t, env, "ops", "audit", "list", "--since", "2026-11-01", "--reason", opsReason, "--json")

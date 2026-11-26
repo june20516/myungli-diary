@@ -14,9 +14,9 @@ import (
 
 func seedAudit(t *testing.T, svc *Service, accountID uuid.UUID, at time.Time, reason string) {
 	t.Helper()
-	// trigger가 at과 actor를 덮어쓰므로 끄고 넣습니다.
-	dbtest.ExecWithoutTriggers(t, svc.pool, `INSERT INTO ops_audit (id, at, actor, channel, action, account_id, reason, target)
-		VALUES (gen_random_uuid(), $1, 'seed', 'cli', 'account_show', $2, $3, '{}')`, at, accountID, reason)
+	// trigger가 at을 덮어쓰므로 끄고 넣습니다.
+	dbtest.ExecWithoutTriggers(t, svc.pool, `INSERT INTO ops_audit (id, at, actor, actor_sub, channel, action, account_id, reason, target)
+		VALUES (gen_random_uuid(), $1, 'seed', 'seed-sub', 'ops_api', 'account_show', $2, $3, '{}')`, at, accountID, reason)
 }
 
 func TestAuditList_FiltersAndAuditsItself(t *testing.T) {

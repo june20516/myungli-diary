@@ -75,7 +75,7 @@ func TestRecordTx_WritesRow(t *testing.T) {
 	id := uuid.New()
 	var txNow time.Time
 
-	// 넘긴 실행자 ID는 cli channel이면 trigger가 session_user로 덮고, 시각은 트랜잭션의 now()입니다.
+	// 넘긴 실행자 ID가 그대로 남고, channel은 ops_api, 시각은 트랜잭션의 now()입니다.
 	err := pgx.BeginFunc(ctx, pool, func(tx pgx.Tx) error {
 		if err := tx.QueryRow(ctx, "SELECT now()").Scan(&txNow); err != nil {
 			return err
@@ -99,11 +99,8 @@ func TestRecordTx_WritesRow(t *testing.T) {
 	require.NoError(t, pool.QueryRow(ctx, `SELECT actor, channel, action, reason, target::text,
 		before IS NULL, after IS NULL, account_id IS NULL, purpose IS NULL, at FROM ops_audit WHERE id = $1`, id).
 		Scan(&actor, &channel, &action, &reason, &target, &beforeIsNull, &afterIsNull, &accountIsNull, &purposeIsNull, &gotAt))
-	var user string
-	require.NoError(t, pool.QueryRow(ctx, "SELECT session_user").Scan(&user))
-	assert.Equal(t, user, actor)
-	assert.NotEqual(t, "bran", actor)
-	assert.Equal(t, "cli", channel)
+	assert.Equal(t, "bran", actor)
+	assert.Equal(t, "ops_api", channel)
 	assert.Equal(t, "account_show", action)
 	assert.Equal(t, "문의 확인", reason)
 	assert.JSONEq(t, `{"date":"2026-11-01"}`, target)

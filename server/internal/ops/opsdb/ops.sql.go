@@ -192,14 +192,14 @@ func (q *Queries) GetOpsProfile(ctx context.Context, accountID uuid.UUID) (GetOp
 
 const insertOpsAudit = `-- name: InsertOpsAudit :exec
 
-INSERT INTO ops_audit (id, at, actor, channel, action, account_id, purpose, reason, target, before, after)
-VALUES ($1, now(), $2, $3, $4, $5, $6, $7, $8, $9, $10)
+INSERT INTO ops_audit (id, at, actor, actor_sub, channel, action, account_id, purpose, reason, target, before, after)
+VALUES ($1, now(), $2, $3, 'ops_api', $4, $5, $6, $7, $8, $9, $10)
 `
 
 type InsertOpsAuditParams struct {
 	ID        uuid.UUID
 	Actor     string
-	Channel   string
+	ActorSub  string
 	Action    string
 	AccountID uuid.NullUUID
 	Purpose   pgtype.Text
@@ -211,12 +211,12 @@ type InsertOpsAuditParams struct {
 
 // 운영 명령(#1321)의 감사 기록 쿼리입니다.
 // 운영 행위 한 건을 남깁니다. purpose는 content_view일 때만 값이 있습니다.
-// at은 trigger(00029 ops_audit_stamp)가 now()로, actor는 session_user로 덮어씁니다. cli 밖의 channel은 trigger가 거절합니다.
+// at은 trigger(00029 ops_audit_stamp)가 now()로 덮습니다. channel은 ops_api 하나이고 actor는 덮지 않습니다.
 func (q *Queries) InsertOpsAudit(ctx context.Context, arg InsertOpsAuditParams) error {
 	_, err := q.db.Exec(ctx, insertOpsAudit,
 		arg.ID,
 		arg.Actor,
-		arg.Channel,
+		arg.ActorSub,
 		arg.Action,
 		arg.AccountID,
 		arg.Purpose,
@@ -257,7 +257,7 @@ func (q *Queries) ListOpsAccountsByStoreTransaction(ctx context.Context, storePu
 }
 
 const listOpsAudit = `-- name: ListOpsAudit :many
-SELECT id, at, actor, channel, action, account_id, purpose, reason, target, before, after
+SELECT id, at, actor, actor_sub, channel, action, account_id, purpose, reason, target, before, after
 FROM ops_audit
 WHERE ($1::uuid IS NULL OR account_id = $1::uuid)
   AND ($2::timestamptz IS NULL OR at >= $2::timestamptz)
@@ -285,6 +285,7 @@ func (q *Queries) ListOpsAudit(ctx context.Context, arg ListOpsAuditParams) ([]O
 			&i.ID,
 			&i.At,
 			&i.Actor,
+			&i.ActorSub,
 			&i.Channel,
 			&i.Action,
 			&i.AccountID,

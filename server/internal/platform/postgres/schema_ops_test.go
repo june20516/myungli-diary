@@ -13,9 +13,9 @@ import (
 	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
 )
 
-// insertOpsAudit의 at과 actor는 trigger(ops_audit_stamp)가 덮어씁니다. 과거 행이 필요하면 insertOldOpsAudit을 씁니다.
-const insertOpsAudit = `INSERT INTO ops_audit (id, at, actor, channel, action, purpose, reason, target)
-	VALUES ($1, now() - $2::interval, 'op@example.com', 'cli', $3, $4, '사유', '{}')`
+// insertOpsAudit의 at은 trigger(ops_audit_stamp)가 now()로 덮습니다. 과거 행이 필요하면 insertOldOpsAudit을 씁니다.
+const insertOpsAudit = `INSERT INTO ops_audit (id, at, actor, actor_sub, channel, action, purpose, reason, target)
+	VALUES ($1, now() - $2::interval, 'op@example.com', 'sub-1', 'ops_api', $3, $4, '사유', '{}')`
 
 // insertOldOpsAudit은 trigger를 끄고 ago만큼 지난 감사 행을 넣습니다.
 func insertOldOpsAudit(t *testing.T, pool *pgxpool.Pool, id uuid.UUID, ago string) {
@@ -78,51 +78,57 @@ func TestOpsAudit_DeleteOnlyOlderThanTwoYears(t *testing.T) {
 	}
 }
 
-// 감사 행의 at은 언제나 DB now()이고 actor는 session_user입니다. 넣는 값으로 바꿀 수 없습니다.
-func TestOpsAudit_StampSetsAtAndActor(t *testing.T) {
+// 감사 행의 at은 언제나 DB now()입니다. 넣는 값으로 바꿀 수 없고, actor는 넣은 값 그대로입니다.
+func TestOpsAudit_StampSetsAtOnly(t *testing.T) {
 	ctx := context.Background()
 	pool := dbtest.New(t)
 	id := uuid.Must(uuid.NewV7())
-	if _, err := pool.Exec(ctx, `INSERT INTO ops_audit (id, at, actor, channel, action, reason, target)
-		VALUES ($1, now() - interval '3 years', 'someone-else@example.com', 'cli', 'grant', '사유', '{}')`, id); err != nil {
-		t.Fatalf("cli 행 INSERT: %v", err)
+	if _, err := pool.Exec(ctx, `INSERT INTO ops_audit (id, at, actor, actor_sub, channel, action, reason, target)
+		VALUES ($1, now() - interval '3 years', 'someone@example.com', 'sub-9', 'ops_api', 'grant', '사유', '{}')`, id); err != nil {
+		t.Fatalf("ops_api 행 INSERT: %v", err)
 	}
 
-	var sessionUser, actor string
+	var actor, actorSub string
 	var recent bool
-	if err := pool.QueryRow(ctx, `SELECT session_user`).Scan(&sessionUser); err != nil {
-		t.Fatalf("session_user: %v", err)
-	}
-	if err := pool.QueryRow(ctx, `SELECT actor, at > now() - interval '1 minute' FROM ops_audit WHERE id = $1`, id).Scan(&actor, &recent); err != nil {
+	if err := pool.QueryRow(ctx, `SELECT actor, actor_sub, at > now() - interval '1 minute' FROM ops_audit WHERE id = $1`, id).Scan(&actor, &actorSub, &recent); err != nil {
 		t.Fatalf("행 읽기: %v", err)
 	}
-	if actor != sessionUser || !recent {
-		t.Errorf("actor = %q, 최근 시각 = %v, want %q, true", actor, recent, sessionUser)
+	if actor != "someone@example.com" || actorSub != "sub-9" || !recent {
+		t.Errorf("actor = %q, actor_sub = %q, 최근 시각 = %v, want someone@example.com, sub-9, true", actor, actorSub, recent)
 	}
 }
 
-// 어드민 API 전까지 cli 밖의 channel은 trigger가 거절합니다. actor를 임의로 남기는 경로가 없습니다.
-func TestOpsAudit_StampRejectsAdminAPI(t *testing.T) {
+// ops_api 밖의 channel은 trigger나 CHECK가 거절합니다. 경로가 하나뿐이라는 것을 DB가 강제합니다.
+func TestOpsAudit_RejectsNonOpsAPIChannel(t *testing.T) {
 	ctx := context.Background()
 	pool := dbtest.New(t)
-	_, err := pool.Exec(ctx, `INSERT INTO ops_audit (id, at, actor, channel, action, reason, target)
-		VALUES (gen_random_uuid(), now(), 'admin-user', 'admin_api', 'grant', '사유', '{}')`)
+	const insert = `INSERT INTO ops_audit (id, at, actor, actor_sub, channel, action, reason, target)
+		VALUES (gen_random_uuid(), now(), 'op@example.com', 'sub-1', 'cli', 'grant', '사유', '{}')`
+	// 열 CHECK가 trigger보다 먼저 닿지 않으므로(BEFORE trigger가 먼저) trigger의 예외가 옵니다.
+	_, err := pool.Exec(ctx, insert)
 	requirePgError(t, err, raiseException, "")
 	var rows int
 	if err := pool.QueryRow(ctx, `SELECT count(*) FROM ops_audit`).Scan(&rows); err != nil || rows != 0 {
 		t.Errorf("감사 행 = %d (err %v), want 0", rows, err)
 	}
 	// myungli_ops로 SET ROLE해도 같습니다.
-	err = asRole(t, pool, postgres.OpsRole, `INSERT INTO ops_audit (id, at, actor, channel, action, reason, target)
-		VALUES (gen_random_uuid(), now(), 'admin-user', 'admin_api', 'grant', '사유', '{}')`)
+	err = asRole(t, pool, postgres.OpsRole, insert)
 	requirePgError(t, err, raiseException, "")
+}
+
+// 실행자 sub는 비울 수 없습니다.
+func TestOpsAudit_ActorSubRequired(t *testing.T) {
+	pool := dbtest.New(t)
+	_, err := pool.Exec(context.Background(), `INSERT INTO ops_audit (id, at, actor, actor_sub, channel, action, reason, target)
+		VALUES (gen_random_uuid(), now(), 'op@example.com', '', 'ops_api', 'grant', '사유', '{}')`)
+	requirePgError(t, err, checkViolation, "")
 }
 
 // 앱 런타임(myungli_app)은 감사 행을 쓸 수 없습니다. retention용 DELETE는 남습니다.
 func TestOpsAudit_AppRoleCannotInsert(t *testing.T) {
 	pool := dbtest.New(t)
-	err := asRole(t, pool, "myungli_app", `INSERT INTO ops_audit (id, at, actor, channel, action, reason, target)
-		VALUES (gen_random_uuid(), now(), 'x', 'cli', 'grant', '사유', '{}')`)
+	err := asRole(t, pool, "myungli_app", `INSERT INTO ops_audit (id, at, actor, actor_sub, channel, action, reason, target)
+		VALUES (gen_random_uuid(), now(), 'x', 'sub-1', 'ops_api', 'grant', '사유', '{}')`)
 	requirePgError(t, err, insufficientPrivilege, "")
 }
 
@@ -156,7 +162,7 @@ func TestEntitlementGrants_OperatorSourceAllowed(t *testing.T) {
 	}
 }
 
-// 00029를 되돌렸다가 다시 적용할 수 있고, 되돌리면 operator 행이 사라집니다.
+// 00029를 되돌렸다가 다시 적용할 수 있고, 되돌리면 operator 행이 사라지고 myungli_ops 권한이 거두어집니다.
 func TestMigrate_OpsDownUp(t *testing.T) {
 	ctx := context.Background()
 	pool := dbtest.New(t)
@@ -177,8 +183,8 @@ func TestMigrate_OpsDownUp(t *testing.T) {
 		t.Fatalf("되돌린 뒤 operator 행 = %d (err %v), want 0", operatorRows, err)
 	}
 	var tableExists bool
-	if err := pool.QueryRow(ctx, `SELECT to_regclass('ops_audit') IS NOT NULL`).Scan(&tableExists); err != nil || tableExists {
-		t.Errorf("되돌린 뒤 ops_audit 표 존재 = %v (err %v), want false", tableExists, err)
+	if err := pool.QueryRow(ctx, `SELECT to_regclass('ops_audit') IS NOT NULL`).Scan(&tableExists); err != nil || !tableExists {
+		t.Errorf("되돌린 뒤 ops_audit 표 존재 = %v (err %v), want true(감사 기록은 남음)", tableExists, err)
 	}
 	var canRead, canUpdateAccounts bool
 	err := pool.QueryRow(ctx, `SELECT has_table_privilege('myungli_ops', 'diaries', 'SELECT'),
@@ -200,5 +206,37 @@ func TestMigrate_OpsDownUp(t *testing.T) {
 		has_table_privilege('myungli_app', 'ops_audit', 'INSERT')`).Scan(&appCanDelete, &appCanUpdate, &appCanInsert)
 	if err != nil || !appCanDelete || appCanUpdate || appCanInsert {
 		t.Errorf("myungli_app ops_audit DELETE = %v, UPDATE = %v, INSERT = %v (err %v), want true, false, false", appCanDelete, appCanUpdate, appCanInsert, err)
+	}
+}
+
+// 00029를 되돌려도 감사 행은 남고, 다시 적용해도 성공합니다(보관 의무가 있는 기록을 지우지 않음).
+func TestMigrate_OpsDownKeepsAudit(t *testing.T) {
+	ctx := context.Background()
+	pool := dbtest.New(t)
+	id := uuid.Must(uuid.NewV7())
+	if _, err := pool.Exec(ctx, insertOpsAudit, id, "0 seconds", "grant", nil); err != nil {
+		t.Fatalf("감사 INSERT: %v", err)
+	}
+
+	if err := postgres.MigrateDownTo(ctx, pool, 28); err != nil {
+		t.Fatalf("MigrateDownTo(28): %v", err)
+	}
+	var rows int
+	if err := pool.QueryRow(ctx, `SELECT count(*) FROM ops_audit WHERE id = $1`, id).Scan(&rows); err != nil || rows != 1 {
+		t.Fatalf("되돌린 뒤 감사 행 = %d (err %v), want 1", rows, err)
+	}
+	var canInsert bool
+	if err := pool.QueryRow(ctx, `SELECT has_table_privilege('myungli_ops', 'ops_audit', 'INSERT')`).Scan(&canInsert); err != nil || canInsert {
+		t.Errorf("되돌린 뒤 myungli_ops ops_audit INSERT = %v (err %v), want false", canInsert, err)
+	}
+
+	if err := postgres.Migrate(ctx, pool, "up"); err != nil {
+		t.Fatalf("다시 up: %v", err)
+	}
+	if err := pool.QueryRow(ctx, `SELECT count(*) FROM ops_audit WHERE id = $1`, id).Scan(&rows); err != nil || rows != 1 {
+		t.Errorf("다시 up 뒤 감사 행 = %d (err %v), want 1", rows, err)
+	}
+	if err := pool.QueryRow(ctx, `SELECT has_table_privilege('myungli_ops', 'ops_audit', 'INSERT')`).Scan(&canInsert); err != nil || !canInsert {
+		t.Errorf("다시 up 뒤 myungli_ops ops_audit INSERT = %v (err %v), want true", canInsert, err)
 	}
 }

@@ -28,7 +28,7 @@ type Querier interface {
 	GetOpsProfile(ctx context.Context, accountID uuid.UUID) (GetOpsProfileRow, error)
 	// 운영 명령(#1321)의 감사 기록 쿼리입니다.
 	// 운영 행위 한 건을 남깁니다. purpose는 content_view일 때만 값이 있습니다.
-	// at은 trigger(00029 ops_audit_stamp)가 now()로, actor는 session_user로 덮어씁니다. cli 밖의 channel은 trigger가 거절합니다.
+	// at은 trigger(00029 ops_audit_stamp)가 now()로 덮습니다. channel은 ops_api 하나이고 actor는 덮지 않습니다.
 	InsertOpsAudit(ctx context.Context, arg InsertOpsAuditParams) error
 	// 스토어 거래 id를 가진 구매의 계정입니다. 둘 이상이면 호출한 쪽이 모호함으로 다룹니다.
 	ListOpsAccountsByStoreTransaction(ctx context.Context, storePurchaseID pgtype.Text) ([]uuid.UUID, error)

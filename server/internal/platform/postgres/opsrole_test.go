@@ -3,7 +3,7 @@ package postgres_test
 import (
 	"context"
 	"errors"
-	"slices"
+	"strings"
 	"testing"
 
 	"github.com/google/uuid"
@@ -39,43 +39,90 @@ func isOpsMember(t *testing.T, pool *pgxpool.Pool, name string) bool {
 	return member
 }
 
-// 사람 IAM 사용자(로그인 가능, 이름에 @, .iam으로 끝나지 않음)만 운영자 역할에 넣고, 이미 구성원이면 목록에 넣지 않습니다.
-func TestGrantOpsRole_OnlyHumanIAMUsers(t *testing.T) {
+// GrantOpsUser는 지정한 DB 사용자만 운영자 역할에 넣고, 다시 불러도 성공합니다. 빈 이름은 거절합니다.
+func TestGrantOpsUser(t *testing.T) {
 	ctx := context.Background()
 	dbtest.LockCluster(t)
 	pool := dbtest.New(t)
 	suffix := uuid.NewString()[:8]
-	human := "op-" + suffix + "@example.com"
-	service := "server-" + suffix + "@proj.iam"
-	noLogin := "nologin-" + suffix + "@example.com"
-	createRole(t, pool, human, "LOGIN")
-	createRole(t, pool, service, "LOGIN")
-	createRole(t, pool, noLogin, "NOLOGIN")
+	target := "ops-" + suffix
+	other := "other-" + suffix
+	createRole(t, pool, target, "LOGIN")
+	createRole(t, pool, other, "LOGIN")
 
-	// 다른 테스트가 같은 cluster에 만든 사람 역할이 섞일 수 있어, 이 테스트의 역할이 들어갔는지로 확인합니다.
-	granted, err := postgres.GrantOpsRole(ctx, pool)
-	if err != nil {
-		t.Fatalf("GrantOpsRole: %v", err)
+	for i := range 2 {
+		if err := postgres.GrantOpsUser(ctx, pool, target); err != nil {
+			t.Fatalf("%d번째 GrantOpsUser: %v", i+1, err)
+		}
 	}
-	if !slices.Contains(granted, human) {
-		t.Errorf("GrantOpsRole = %v, want %s 포함", granted, human)
+	if !isOpsMember(t, pool, target) {
+		t.Errorf("%s가 %s 구성원이 아닙니다", target, postgres.OpsRole)
 	}
-	if slices.Contains(granted, service) || slices.Contains(granted, noLogin) {
-		t.Errorf("GrantOpsRole = %v, 서비스 계정이나 로그인 불가 역할이 들어갔습니다", granted)
+	if isOpsMember(t, pool, other) {
+		t.Errorf("지정하지 않은 %s가 %s 구성원입니다", other, postgres.OpsRole)
 	}
-	if !isOpsMember(t, pool, human) {
-		t.Errorf("%s가 %s 구성원이 아닙니다", human, postgres.OpsRole)
+	if err := postgres.GrantOpsUser(ctx, pool, ""); err == nil {
+		t.Error("빈 이름에 GrantOpsUser가 성공했습니다")
 	}
-	if isOpsMember(t, pool, service) || isOpsMember(t, pool, noLogin) {
-		t.Errorf("서비스 계정이나 로그인 불가 역할이 %s 구성원입니다", postgres.OpsRole)
+}
+
+func grant(t *testing.T, pool *pgxpool.Pool, role, member string) {
+	t.Helper()
+	statement := "GRANT " + pgx.Identifier{role}.Sanitize() + " TO " + pgx.Identifier{member}.Sanitize()
+	if _, err := pool.Exec(context.Background(), statement); err != nil {
+		t.Fatalf("%s 구성원 지정: %v", role, err)
+	}
+}
+
+// 런타임이 ops 구성원, ops가 app 구성원, ops 밖의 다른 ops 구성원은 각각 오류이고 정상이면 nil입니다.
+func TestCheckRoleSeparation(t *testing.T) {
+	ctx := context.Background()
+	dbtest.LockCluster(t)
+	pool := dbtest.New(t)
+	suffix := uuid.NewString()[:8]
+	runtimeUser, opsUser, extra := "rt-"+suffix, "ops-"+suffix, "extra-"+suffix
+	for _, name := range []string{runtimeUser, opsUser, extra} {
+		createRole(t, pool, name, "LOGIN")
+	}
+	t.Cleanup(func() {
+		for _, name := range []string{runtimeUser, opsUser, extra} {
+			_, _ = pool.Exec(context.Background(), "REVOKE "+postgres.AppRole+" FROM "+pgx.Identifier{name}.Sanitize())
+		}
+	})
+	// 같은 cluster의 다른 DB에 남은 구성원이 섞이지 않도록, 이 테스트가 시작할 때 ops 구성원이 없어야 합니다.
+	var existing int
+	if err := pool.QueryRow(ctx, `SELECT count(*) FROM pg_auth_members WHERE roleid = $1::regrole`, postgres.OpsRole).Scan(&existing); err != nil || existing != 0 {
+		t.Skipf("cluster에 %s 구성원이 이미 %d명 있습니다(err %v)", postgres.OpsRole, existing, err)
 	}
 
-	again, err := postgres.GrantOpsRole(ctx, pool)
-	if err != nil {
-		t.Fatalf("두 번째 GrantOpsRole: %v", err)
+	grant(t, pool, postgres.OpsRole, opsUser)
+	grant(t, pool, postgres.AppRole, runtimeUser)
+	if err := postgres.CheckRoleSeparation(ctx, pool, runtimeUser, opsUser); err != nil {
+		t.Fatalf("정상 구성: %v", err)
 	}
-	if slices.Contains(again, human) {
-		t.Errorf("이미 구성원인 %s가 다시 목록에 들어갔습니다: %v", human, again)
+
+	grant(t, pool, postgres.OpsRole, extra)
+	err := postgres.CheckRoleSeparation(ctx, pool, runtimeUser, opsUser)
+	if !errors.Is(err, postgres.ErrUnexpectedOpsMember) {
+		t.Errorf("그 밖의 ops 구성원: err = %v, want ErrUnexpectedOpsMember", err)
+	} else if strings.Contains(err.Error(), extra) {
+		t.Errorf("오류 문구에 구성원 이름이 들어갔습니다: %v", err)
+	}
+	if _, err := pool.Exec(ctx, "REVOKE "+postgres.OpsRole+" FROM "+pgx.Identifier{extra}.Sanitize()); err != nil {
+		t.Fatalf("REVOKE: %v", err)
+	}
+
+	grant(t, pool, postgres.AppRole, opsUser)
+	if err := postgres.CheckRoleSeparation(ctx, pool, runtimeUser, opsUser); !errors.Is(err, postgres.ErrOpsInAppRole) {
+		t.Errorf("ops가 app 구성원: err = %v, want ErrOpsInAppRole", err)
+	}
+	if _, err := pool.Exec(ctx, "REVOKE "+postgres.AppRole+" FROM "+pgx.Identifier{opsUser}.Sanitize()); err != nil {
+		t.Fatalf("REVOKE: %v", err)
+	}
+
+	grant(t, pool, postgres.OpsRole, runtimeUser)
+	if err := postgres.CheckRoleSeparation(ctx, pool, runtimeUser, opsUser); !errors.Is(err, postgres.ErrRuntimeInOpsRole) {
+		t.Errorf("런타임이 ops 구성원: err = %v, want ErrRuntimeInOpsRole", err)
 	}
 }
 
@@ -138,7 +185,7 @@ func TestOpsRole_Privileges(t *testing.T) {
 		`SELECT 1 FROM accounts FOR SHARE`,
 		// 운영자 부여가 계정 행을 FOR SHARE로 잠그려면 accounts의 UPDATE 권한이 한 칸 필요합니다(migration 00029).
 		`UPDATE accounts SET updated_at = updated_at WHERE false`,
-		`INSERT INTO ops_audit (id, at, actor, channel, action, reason, target) VALUES (gen_random_uuid(), now(), 'op@example.com', 'cli', 'grant', '사유', '{}')`,
+		`INSERT INTO ops_audit (id, at, actor, actor_sub, channel, action, reason, target) VALUES (gen_random_uuid(), now(), 'op@example.com', 'sub-1', 'ops_api', 'grant', '사유', '{}')`,
 		`INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)
 			VALUES ('` + accountID.String() + `', 'insight', 'operator', 'ref-2', now(), now() + interval '1 day')`,
 		`UPDATE entitlement_grants SET revoked_at = now()`,
