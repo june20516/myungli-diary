@@ -124,17 +124,56 @@ def test_example_plural() -> None:
 
 def test_example_name_and_text() -> None:
     slot = make_slot(params={"date": ParamKind("text")})
-    assert example_text(make_entry("{name}, see {date}"), slot, GLOSSARY) == "Alex, see ‹date›"
+    assert example_text(make_entry("{name}, see {date}"), slot, GLOSSARY) == "Alex, see May 12"
+    assert example_text(make_entry("{date}の日記", lang="ja"), slot, GLOSSARY) == "5月12日の日記"
     assert example_text(make_entry("{name}さん", lang="ja"), slot, GLOSSARY) == "ゆきさん"
+
+
+def test_example_text_sample_by_key() -> None:
+    params = {"branch": ParamKind("text"), "start": ParamKind("text"), "end": ParamKind("text")}
+    slot = make_slot(params=params, key="onboardTimeHourConfirm")
+    entry = make_entry("The {branch} hour, from {start} to {end}.", key="onboardTimeHourConfirm")
+    assert example_text(entry, slot, GLOSSARY) == "The Horse hour, from 11:30 AM to 1:29 PM."
+    period = make_slot(params=params, key="purchaseMetaPeriod")
+    assert example_text(make_entry("{start} to {end}", key="purchaseMetaPeriod"), period, GLOSSARY) == (
+        "May 12, 2026 to June 12, 2026"
+    )
+
+
+def test_example_price_and_unknown_text_stay_marked() -> None:
+    slot = make_slot(params={"price": ParamKind("text"), "mystery": ParamKind("text")})
+    assert example_text(make_entry("{price} or {mystery}"), slot, GLOSSARY) == "‹price› or ‹mystery›"
+
+
+def test_example_empty_when_same_as_current() -> None:
+    assert example_text(make_entry("Get started"), make_slot(), GLOSSARY) == ""
+
+
+def test_repo_text_placeholders_have_samples() -> None:
+    from mlw.review.export import PRICE_PARAM, SAMPLE_TEXT
+
+    rules = load_rules(paths.RULES_DIR)
+    slots = load_slots(paths.SLOTS_DIR, rules)
+    missing = set()
+    for entry in load_content(paths.CONTENT_DIR):
+        slot = slots.get(entry.slot)
+        if entry.lang not in ("en", "ja") or slot is None:
+            continue
+        for name, kind in slot.keys.get(entry.key, {}).items():
+            in_text = "{" + name + "}" in entry.text or "{" + name + "," in entry.text
+            if kind.kind == "text" and in_text and name != PRICE_PARAM and entry.lang not in SAMPLE_TEXT.get(name, {}):
+                missing.add((name, entry.lang))
+    assert missing == set()
 
 
 def test_example_strips_tokens() -> None:
     entry = make_entry("[[Bigyeop|ten_god_group.bigyeop]] comes")
     assert example_text(entry, make_slot(), GLOSSARY) == "Bigyeop comes"
+    assert example_text(make_entry("[[Bigyeop]] comes"), make_slot(), GLOSSARY) == "Bigyeop comes"
 
 
 def test_example_keeps_unknown_placeholder() -> None:
-    assert example_text(make_entry("See {mystery}"), make_slot(), GLOSSARY) == "See {mystery}"
+    assert example_text(make_entry("{name} sees {mystery}"), make_slot(), GLOSSARY) == "Alex sees {mystery}"
 
 
 def test_glossary_by_category_keeps_order() -> None:
