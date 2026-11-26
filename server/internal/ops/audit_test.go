@@ -31,6 +31,7 @@ func TestValidateReason(t *testing.T) {
 		{"U+0085 포함", "a\u0085b", "", true},
 		{"U+2028 포함", "a\u2028b", "", true},
 		{"U+2029 포함", "a\u2029b", "", true},
+		{"@ 포함", "문의 a@b", "", true},
 		{"탭 허용", "a\tb", "a\tb", false},
 		{"앞뒤 공백 제거", " 환불 확인 ", "환불 확인", false},
 		{"500자", strings.Repeat("가", 500), strings.Repeat("가", 500), false},
@@ -61,12 +62,43 @@ func TestParsePurpose(t *testing.T) {
 }
 
 func TestValidateActor(t *testing.T) {
-	assert.NoError(t, validateActor(Actor{ID: "bran", Channel: ChannelCLI}))
-	assert.NoError(t, validateActor(Actor{ID: "bran", Channel: ChannelAdminAPI}))
-	assert.ErrorIs(t, validateActor(Actor{ID: "  ", Channel: ChannelCLI}), ErrActor)
-	assert.ErrorIs(t, validateActor(Actor{ID: "", Channel: ChannelCLI}), ErrActor)
-	assert.ErrorIs(t, validateActor(Actor{ID: "bran", Channel: "web"}), ErrActor)
-	assert.ErrorIs(t, validateActor(Actor{ID: "bran"}), ErrActor)
+	assert.NoError(t, validateActor(Actor{Email: "op@example.com", Subject: "sub-1"}))
+	assert.ErrorIs(t, validateActor(Actor{Email: "  ", Subject: "sub-1"}), ErrActor)
+	assert.ErrorIs(t, validateActor(Actor{Email: "", Subject: "sub-1"}), ErrActor)
+	assert.ErrorIs(t, validateActor(Actor{Email: "op@example.com", Subject: " "}), ErrActor)
+	assert.ErrorIs(t, validateActor(Actor{Email: "op@example.com"}), ErrActor)
+	assert.ErrorIs(t, validateActor(Actor{}), ErrActor)
+}
+
+func TestValidateStoreTransaction(t *testing.T) {
+	tests := []struct {
+		name    string
+		in      string
+		want    string
+		wantErr bool
+	}{
+		{"빈 값", "", "", true},
+		{"공백만", "   ", "", true},
+		{"129자", strings.Repeat("a", 129), "", true},
+		{"가운데 공백", "GPA 1234", "", true},
+		{"슬래시", "GPA/1234", "", true},
+		{"한글", "거래1234", "", true},
+		{"@ 포함", "a@b", "", true},
+		{"128자", strings.Repeat("a", 128), strings.Repeat("a", 128), false},
+		{"허용 문자", "GPA.1234-5678_9.0", "GPA.1234-5678_9.0", false},
+		{"앞뒤 공백 제거", " tx-1 ", "tx-1", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ValidateStoreTransaction(tt.in)
+			if tt.wantErr {
+				assert.ErrorIs(t, err, ErrStoreTransaction)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got)
+		})
+	}
 }
 
 func TestRecordTx_WritesRow(t *testing.T) {
@@ -81,7 +113,7 @@ func TestRecordTx_WritesRow(t *testing.T) {
 			return err
 		}
 		return recordTx(ctx, tx, id, Entry{
-			Actor:  Actor{ID: "bran", Channel: ChannelCLI},
+			Actor:  testActor,
 			Action: ActionAccountShow,
 			Reason: "문의 확인",
 			Target: map[string]any{"date": "2026-11-01"},
@@ -90,17 +122,18 @@ func TestRecordTx_WritesRow(t *testing.T) {
 	require.NoError(t, err)
 
 	var (
-		actor, channel, action, reason string
-		target                         string
-		beforeIsNull, afterIsNull      bool
-		accountIsNull, purposeIsNull   bool
-		gotAt                          time.Time
+		actor, actorSub, channel, action, reason string
+		target                                   string
+		beforeIsNull, afterIsNull                bool
+		accountIsNull, purposeIsNull             bool
+		gotAt                                    time.Time
 	)
-	require.NoError(t, pool.QueryRow(ctx, `SELECT actor, channel, action, reason, target::text,
+	require.NoError(t, pool.QueryRow(ctx, `SELECT actor, actor_sub, channel, action, reason, target::text,
 		before IS NULL, after IS NULL, account_id IS NULL, purpose IS NULL, at FROM ops_audit WHERE id = $1`, id).
-		Scan(&actor, &channel, &action, &reason, &target, &beforeIsNull, &afterIsNull, &accountIsNull, &purposeIsNull, &gotAt))
-	assert.Equal(t, "bran", actor)
-	assert.Equal(t, "ops_api", channel)
+		Scan(&actor, &actorSub, &channel, &action, &reason, &target, &beforeIsNull, &afterIsNull, &accountIsNull, &purposeIsNull, &gotAt))
+	assert.Equal(t, testActor.Email, actor)
+	assert.Equal(t, testActor.Subject, actorSub)
+	assert.Equal(t, ChannelOpsAPI, channel)
 	assert.Equal(t, "account_show", action)
 	assert.Equal(t, "문의 확인", reason)
 	assert.JSONEq(t, `{"date":"2026-11-01"}`, target)
@@ -120,7 +153,7 @@ func TestRecordTx_ContentViewWithPurposeAndNilTarget(t *testing.T) {
 
 	err := pgx.BeginFunc(ctx, pool, func(tx pgx.Tx) error {
 		return recordTx(ctx, tx, id, Entry{
-			Actor:     Actor{ID: "bran", Channel: ChannelCLI},
+			Actor:     testActor,
 			Action:    ActionContentView,
 			AccountID: &accountID,
 			Purpose:   &purpose,
@@ -147,7 +180,7 @@ func TestRecordTx_TypedNilIsNullOrEmpty(t *testing.T) {
 
 	err := pgx.BeginFunc(ctx, pool, func(tx pgx.Tx) error {
 		return recordTx(ctx, tx, id, Entry{
-			Actor:  Actor{ID: "bran", Channel: ChannelCLI},
+			Actor:  testActor,
 			Action: ActionAccountShow,
 			Reason: "문의",
 			Target: (*struct{})(nil),

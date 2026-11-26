@@ -475,7 +475,8 @@ func TestService_AllCommandsWorkAsOpsRole(t *testing.T) {
 
 	// 감사 행의 actor는 DB가 덮지 않고 넘긴 실행자 값입니다.
 	for _, record := range records {
-		assert.Equal(t, testActor.ID, record.Actor)
+		assert.Equal(t, testActor.Email, record.Actor)
+		assert.Equal(t, testActor.Subject, record.ActorSub)
 	}
 }
 

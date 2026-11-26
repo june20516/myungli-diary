@@ -35,6 +35,7 @@ type AuditRecord struct {
 	ID        uuid.UUID       `json:"id"`
 	At        time.Time       `json:"at"`
 	Actor     string          `json:"actor"`
+	ActorSub  string          `json:"actorSub"`
 	Channel   string          `json:"channel"`
 	Action    string          `json:"action"`
 	AccountID *uuid.UUID      `json:"accountId"`
@@ -99,7 +100,7 @@ func (s *Service) AuditList(ctx context.Context, actor Actor, filter AuditFilter
 
 func toAuditRecord(row opsdb.OpsAudit) AuditRecord {
 	record := AuditRecord{
-		ID: row.ID, At: row.At, Actor: row.Actor, Channel: row.Channel, Action: row.Action, Reason: row.Reason,
+		ID: row.ID, At: row.At, Actor: row.Actor, ActorSub: row.ActorSub, Channel: row.Channel, Action: row.Action, Reason: row.Reason,
 		Target: row.Target, Before: row.Before, After: row.After,
 	}
 	if row.AccountID.Valid {

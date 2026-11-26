@@ -1,6 +1,6 @@
 // Package ops는 운영 명령(#1321)의 Service입니다.
 // 모든 공개 함수는 Actor와 사유를 먼저 검사하고, 감사 행과 데이터 접근을 한 트랜잭션에서 합니다.
-// CLI와 출시 뒤 어드민 API가 같은 Service를 씁니다.
+// 운영 API(IAP 뒤)가 이 Service를 씁니다.
 package ops
 
 import (
@@ -22,39 +22,34 @@ var (
 	ErrReason = errors.New("사유는 앞뒤 공백을 뗀 뒤 1~500자이고 줄바꿈을 포함할 수 없습니다")
 	// ErrPurpose는 목적이 inquiry, incident, policy, legal이 아닐 때입니다.
 	ErrPurpose = errors.New("목적은 inquiry, incident, policy, legal 중 하나여야 합니다")
-	// ErrActor는 실행자 ID가 비었거나 채널을 모를 때입니다.
-	ErrActor = errors.New("실행자 ID가 비었거나 채널을 알 수 없습니다")
+	// ErrActor는 실행자 메일이나 sub가 비었을 때입니다.
+	ErrActor = errors.New("실행자 메일과 sub가 있어야 합니다")
+	// ErrStoreTransaction은 스토어 거래 id가 1~128자의 영문, 숫자, 점, 밑줄, 하이픈이 아닐 때입니다.
+	ErrStoreTransaction = errors.New("스토어 거래 id는 1~128자의 영문, 숫자, 점, 밑줄, 하이픈이어야 합니다")
 )
 
-// Channel은 운영 명령이 들어온 경로입니다.
-type Channel string
+// ChannelOpsAPI는 감사 행의 channel 값입니다. 운영 명령은 운영 API(IAP 뒤)로만 들어옵니다.
+// 감사 INSERT 쿼리(db/queries/ops.sql)의 리터럴과 DB CHECK가 같은 값입니다.
+const ChannelOpsAPI = "ops_api"
 
-// 운영 명령 경로입니다.
-const (
-	ChannelCLI Channel = "cli"
-	// ChannelAdminAPI는 출시 뒤 어드민 API 경로입니다. 지금은 DB trigger(00029 ops_audit_stamp)가 이 경로의 감사 행을 거절하므로
-	// 이 경로로 부르면 감사 쓰기에서 실패합니다. actor 결정 방식은 어드민 API를 만들 때 정합니다.
-	ChannelAdminAPI Channel = "admin_api"
-)
-
-// Actor는 운영 명령을 실행한 사람과 경로입니다.
+// Actor는 IAP가 검증한 운영자 Google 계정입니다.
+// Email은 사람이 읽는 표시, Subject는 바뀌지 않는 구분자(IAP sub)이며 감사 행에 둘 다 남습니다.
 type Actor struct {
-	ID      string
-	Channel Channel
+	Email   string
+	Subject string
 }
 
-// validateActor는 실행자 ID가 비어 있지 않고 채널이 알려진 값인지 검사합니다.
-// admin_api도 통과시키지만, 감사 행은 DB가 아직 cli만 받습니다(ChannelAdminAPI 주석).
+// validateActor는 Email과 Subject가 공백뿐이 아닌지 검사합니다.
 func validateActor(a Actor) error {
-	if strings.TrimSpace(a.ID) == "" {
+	if strings.TrimSpace(a.Email) == "" || strings.TrimSpace(a.Subject) == "" {
 		return ErrActor
 	}
-	switch a.Channel {
-	case ChannelCLI, ChannelAdminAPI:
-		return nil
-	default:
-		return ErrActor
-	}
+	return nil
+}
+
+// auditIdentity는 감사 행에 남길 정규화한 실행자 값입니다. Email은 앞뒤 공백을 떼고 소문자로 바꿉니다.
+func (a Actor) auditIdentity() (email, subject string) {
+	return strings.ToLower(strings.TrimSpace(a.Email)), strings.TrimSpace(a.Subject)
 }
 
 // Service는 운영 명령을 실행합니다.

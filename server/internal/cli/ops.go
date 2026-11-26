@@ -2,19 +2,15 @@ package cli
 
 import (
 	"context"
-	"errors"
 	"flag"
-	"fmt"
 	"io"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/june20516/myungli-diary/server/internal/billing"
 	"github.com/june20516/myungli-diary/server/internal/ops"
-	"github.com/june20516/myungli-diary/server/internal/platform/config"
 	"github.com/june20516/myungli-diary/server/internal/profile"
 )
 
@@ -42,66 +38,10 @@ const (
 // opsAction은 인자 해석을 마친 운영 명령 하나입니다. DB에 붙은 뒤에 실행합니다.
 type opsAction func(ctx context.Context, svc *ops.Service, actor ops.Actor, stdout io.Writer) error
 
-// runOps는 `server ops` 하위 명령을 실행합니다. 인자 오류는 DB에 붙기 전에 사용법 오류로 끝납니다.
-func runOps(ctx context.Context, args []string, getenv func(string) string, stdout, _ io.Writer) error {
-	action, err := parseOps(args)
-	if err != nil {
-		return err
-	}
-
-	cfg, err := config.Load(getenv)
-	if err != nil {
-		return err
-	}
-	if err := cfg.RequireDatabase(); err != nil {
-		return err
-	}
-	pool, closeDB, err := openDatabase(ctx, cfg)
-	if err != nil {
-		return fmt.Errorf("DB 연결 실패: %w", err)
-	}
-	defer closeDB()
-
-	// 실행자는 인자가 아니라 DB가 인증한 세션 사용자입니다. 감사 행의 actor는 trigger가 같은 session_user로 한 번 더 정합니다.
-	var sessionUser string
-	if err := pool.QueryRow(ctx, "SELECT session_user").Scan(&sessionUser); err != nil {
-		return fmt.Errorf("DB 세션 사용자 확인 실패: %w", err)
-	}
-	actor := ops.Actor{ID: sessionUser, Channel: ops.ChannelCLI}
-
-	return classifyOpsError(action(ctx, ops.NewService(pool), actor, stdout), sessionUser)
-}
-
-// classifyOpsError는 Service 오류를 종료 코드에 맞는 오류로 바꿉니다.
-// 입력 오류는 사용법 오류(종료 코드 2), 나머지는 일반 오류(종료 코드 1)입니다. 오류 문구에는 본문이 들어가지 않습니다.
-func classifyOpsError(err error, sessionUser string) error {
-	if err == nil {
-		return nil
-	}
-	for _, usage := range []error{
-		ops.ErrReason, ops.ErrPurpose, ops.ErrActor, ops.ErrAccountKey, ops.ErrAuditFilter,
-		ops.ErrGrantPeriod, ops.ErrGrantKind, ops.ErrContentTarget,
-	} {
-		if errors.Is(err, usage) {
-			return usageErrorf("ops: %v", err)
-		}
-	}
-
-	var ambiguous ops.AmbiguousTransactionError
-	if errors.As(err, &ambiguous) {
-		ids := make([]string, 0, len(ambiguous.AccountIDs))
-		for _, id := range ambiguous.AccountIDs {
-			ids = append(ids, id.String())
-		}
-		return fmt.Errorf("%w: %s (--account로 다시 조회하세요)", err, strings.Join(ids, ", "))
-	}
-
-	// 권한 오류의 PostgreSQL 원문에는 표 이름이 들어가므로 싸지 않고 안내만 냅니다.
-	var pgErr *pgconn.PgError
-	if errors.As(err, &pgErr) && pgErr.Code == "42501" {
-		return fmt.Errorf("DB 사용자 %s에 운영자 역할이 없습니다. runbook '운영자 등록과 빼기'를 보세요", sessionUser)
-	}
-	return err
+// runOps는 `server ops` 하위 명령입니다. 운영 명령은 운영 API(IAP 뒤)로 옮겨 가는 중이라(#1321, Task 7에서 클라이언트로 다시 만듭니다)
+// 그때까지 DB에 붙지 않고 사용법 오류만 냅니다. 인자 해석(parseOps)과 출력 함수는 Task 7이 그대로 이어 쓰므로 남겨 둡니다.
+func runOps(context.Context, []string, func(string) string, io.Writer, io.Writer) error {
+	return usageErrorf("ops: 운영 명령은 운영 API 클라이언트로 바뀌는 중입니다(#1321)")
 }
 
 // parseOps는 `ops` 뒤의 인자를 해석합니다. DB에 붙지 않습니다.

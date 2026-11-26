@@ -33,6 +33,7 @@ func TestAuditList_FiltersAndAuditsItself(t *testing.T) {
 	assert.Equal(t, "둘째", got[0].Reason, "최근 기록이 먼저")
 	assert.Equal(t, "첫째", got[1].Reason)
 	assert.Equal(t, "seed", got[0].Actor)
+	assert.Equal(t, "seed-sub", got[0].ActorSub)
 	assert.JSONEq(t, `{}`, string(got[0].Target))
 
 	rows := auditRows(t, pool)

@@ -21,7 +21,7 @@ import (
 
 var (
 	testNow   = time.Date(2026, 11, 26, 3, 0, 0, 0, time.UTC)
-	testActor = Actor{ID: "bran", Channel: ChannelCLI}
+	testActor = Actor{Email: "op@example.com", Subject: "sub-op-1"}
 )
 
 // newServiceAt은 지금 시각을 at으로 고정한 Service를 만듭니다. 감사 행의 at은 trigger가 DB now()로 정하므로 고정되지 않습니다.
@@ -53,17 +53,17 @@ func insertPurchase(t *testing.T, pool *pgxpool.Pool, accountID, originalID uuid
 }
 
 type auditRow struct {
-	Actor, Channel, Action, Reason, Target string
-	AccountID                              *uuid.UUID
+	Actor, ActorSub, Channel, Action, Reason, Target string
+	AccountID                                        *uuid.UUID
 }
 
 func auditRows(t *testing.T, pool *pgxpool.Pool) []auditRow {
 	t.Helper()
-	rows, err := pool.Query(context.Background(), `SELECT actor, channel, action, reason, target::text, account_id FROM ops_audit ORDER BY at, id`)
+	rows, err := pool.Query(context.Background(), `SELECT actor, actor_sub, channel, action, reason, target::text, account_id FROM ops_audit ORDER BY at, id`)
 	require.NoError(t, err)
 	got, err := pgx.CollectRows(rows, func(row pgx.CollectableRow) (auditRow, error) {
 		var r auditRow
-		err := row.Scan(&r.Actor, &r.Channel, &r.Action, &r.Reason, &r.Target, &r.AccountID)
+		err := row.Scan(&r.Actor, &r.ActorSub, &r.Channel, &r.Action, &r.Reason, &r.Target, &r.AccountID)
 		return r, err
 	})
 	require.NoError(t, err)
@@ -143,8 +143,9 @@ func TestAccountSummary_WritesAuditBeforeReturning(t *testing.T) {
 	rows := auditRows(t, pool)
 	require.Len(t, rows, 1)
 	assert.Equal(t, "account_show", rows[0].Action)
-	assert.Equal(t, testActor.ID, rows[0].Actor)
-	assert.Equal(t, "ops_api", rows[0].Channel)
+	assert.Equal(t, testActor.Email, rows[0].Actor)
+	assert.Equal(t, testActor.Subject, rows[0].ActorSub)
+	assert.Equal(t, ChannelOpsAPI, rows[0].Channel)
 	assert.Equal(t, "환불 문의", rows[0].Reason)
 	require.NotNil(t, rows[0].AccountID)
 	assert.Equal(t, id, *rows[0].AccountID)
@@ -223,7 +224,23 @@ func TestAccountSummary_ValidatesInputBeforeDB(t *testing.T) {
 	assert.ErrorIs(t, err, ErrAccountKey)
 	_, err = svc.AccountSummary(ctx, testActor, AccountKey{AccountID: id, StoreTransaction: "tx"}, "문의")
 	assert.ErrorIs(t, err, ErrAccountKey)
+	_, err = svc.AccountSummary(ctx, testActor, AccountKey{StoreTransaction: "GPA/1234"}, "문의")
+	assert.ErrorIs(t, err, ErrStoreTransaction)
+	_, err = svc.AccountSummary(ctx, testActor, AccountKey{StoreTransaction: strings.Repeat("a", 129)}, "문의")
+	assert.ErrorIs(t, err, ErrStoreTransaction)
 	assert.Empty(t, auditRows(t, pool))
+}
+
+func TestAccountSummary_NormalizesActorEmail(t *testing.T) {
+	svc, pool := newTestService(t)
+	id := insertAccount(t, pool)
+
+	_, err := svc.AccountSummary(context.Background(), Actor{Email: "  Op@Example.COM ", Subject: "sub-op-1"}, AccountKey{AccountID: id}, "문의")
+	require.NoError(t, err)
+
+	rows := auditRows(t, pool)
+	require.Len(t, rows, 1)
+	assert.Equal(t, "op@example.com", rows[0].Actor)
 }
 
 // TestAccountSummary_AuditFailureReturnsNothing은 감사 행을 쓸 수 없으면 조회 결과를 돌려주지 않음을 확인합니다.

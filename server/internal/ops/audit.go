@@ -39,12 +39,31 @@ func ParsePurpose(s string) (Purpose, error) {
 	}
 }
 
+// maxStoreTransactionLen은 스토어 거래 id의 최대 길이입니다.
+const maxStoreTransactionLen = 128
+
+// ValidateStoreTransaction은 스토어 거래 id의 앞뒤 공백을 떼고 1~128자의 [A-Za-z0-9._-]인지 검사해 돌려줍니다.
+func ValidateStoreTransaction(s string) (string, error) {
+	id := strings.TrimSpace(s)
+	if id == "" || len(id) > maxStoreTransactionLen {
+		return "", ErrStoreTransaction
+	}
+	for _, c := range id {
+		switch {
+		case c >= 'a' && c <= 'z', c >= 'A' && c <= 'Z', c >= '0' && c <= '9', c == '.', c == '_', c == '-':
+		default:
+			return "", ErrStoreTransaction
+		}
+	}
+	return id, nil
+}
+
 // ValidateReason은 사유의 앞뒤 공백을 떼고 1~500자(rune)인지 검사해 정리한 사유를 돌려줍니다.
-// 줄을 깨는 문자(\n, \r, U+0085, U+2028, U+2029)와 NUL, 잘못된 UTF-8이 있으면 ErrReason입니다. 탭은 허용합니다.
+// 줄을 깨는 문자(\n, \r, U+0085, U+2028, U+2029)와 NUL, 잘못된 UTF-8, 메일 주소가 새기 쉬운 @가 있으면 ErrReason입니다. 탭은 허용합니다.
 func ValidateReason(s string) (string, error) {
 	reason := strings.TrimSpace(s)
 	if reason == "" || !utf8.ValidString(reason) || utf8.RuneCountInString(reason) > maxReasonRunes ||
-		strings.ContainsAny(reason, "\r\n\x00\u0085\u2028\u2029") {
+		strings.ContainsAny(reason, "\r\n\x00\u0085\u2028\u2029@") {
 		return "", ErrReason
 	}
 	return reason, nil
@@ -77,8 +96,7 @@ type Entry struct {
 
 // recordTx는 감사 행을 tx 안에서 씁니다. Before, After가 nil이면 NULL, Target이 nil이면 {}로 남깁니다.
 // 시각(at)은 넘기지 않습니다. trigger(00029 ops_audit_stamp)가 DB의 now()로 정하고,
-// channel은 ops_api 하나입니다(쿼리가 정함). actor는 DB가 덮지 않고 넘긴 값을 남깁니다.
-// 임시(Task 1): actor_sub에도 Actor.ID를 넣습니다. Actor가 메일과 sub를 따로 갖게 되면 Task 2가 바꿉니다.
+// channel은 ChannelOpsAPI 하나입니다(쿼리가 정함). actor는 DB가 덮지 않고 넘긴 값(정규화한 메일)을 남기고, actor_sub에는 IAP sub를 남깁니다.
 func recordTx(ctx context.Context, tx pgx.Tx, id uuid.UUID, e Entry) error {
 	target := e.Target
 	if isNil(target) {
@@ -97,10 +115,11 @@ func recordTx(ctx context.Context, tx pgx.Tx, id uuid.UUID, e Entry) error {
 		return fmt.Errorf("감사 after 직렬화: %w", err)
 	}
 
+	email, subject := e.Actor.auditIdentity()
 	params := opsdb.InsertOpsAuditParams{
 		ID:       id,
-		Actor:    e.Actor.ID,
-		ActorSub: e.Actor.ID,
+		Actor:    email,
+		ActorSub: subject,
 		Action:   string(e.Action),
 		Reason:   e.Reason,
 		Target:   targetJSON,
