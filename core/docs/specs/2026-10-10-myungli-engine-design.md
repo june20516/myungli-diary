@@ -423,7 +423,7 @@ message ResponseMeta {
 ---
 
 ## 12. 버전 관리
-* `engine_version`: 엔진 패키지 버전입니다.
+* `engine_version`: 엔진 패키지 버전입니다(`pyproject.toml`의 `version`). 응답 표면(gRPC 메시지 정의, 메시지 키, 메시지 키별 매개변수, 근거 detail 키)이 바뀌면 올립니다. 표면 해시 기록(`tests/ENGINE_SURFACE_HASH`)이 어긋나면 테스트가 실패합니다(D147 ③, C45).
 * `ruleset_version`: 규칙·상수·근거 데이터가 바뀌어 출력이 달라질 때 올립니다(예: `2026.10.0`). 회귀 스냅샷(§13.7)이 실패하면 이 값을 올려야 테스트가 통과하게 합니다.
 * Go 서버는 일기 저장 시 태그와 함께 `ruleset_version`을 기록하고, 캐시 키에 넣습니다(D31).
 

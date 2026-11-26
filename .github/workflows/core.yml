@@ -1,7 +1,7 @@
 name: core
 
 on:
-  # PR과 main push에서는 ci-gate가 이 workflow를 호출한다(D44). 호출된 실행의 github.event_name은 호출한 쪽 이벤트다.
+  # PR과 staging·main push에서는 ci-gate가 이 workflow를 호출한다(D44). 호출된 실행의 github.event_name은 호출한 쪽 이벤트다.
   workflow_call:
     inputs:
       mode:
@@ -28,6 +28,7 @@ jobs:
     outputs:
       slow_markers: ${{ steps.detect.outputs.slow_markers }}
       full_properties: ${{ steps.detect.outputs.full_properties }}
+      image_scan: ${{ steps.detect.outputs.image_scan }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -39,18 +40,22 @@ jobs:
           PUSH_BEFORE: ${{ github.event.before }}
         run: |
           if [ "$EVENT" = "schedule" ] || [ "$EVENT" = "workflow_dispatch" ]; then
-            echo "slow_markers=slow" >> "$GITHUB_OUTPUT"
-            echo "full_properties=true" >> "$GITHUB_OUTPUT"
+            {
+              echo "slow_markers=slow"
+              echo "full_properties=true"
+              echo "image_scan=true"
+            } >> "$GITHUB_OUTPUT"
             exit 0
           fi
           echo "full_properties=false" >> "$GITHUB_OUTPUT"
           if [ "$EVENT" = "pull_request" ]; then
-            # checkout은 merge ref(refs/pull/N/merge)이고, 그 first parent가 검사 시점의 main이다(D81 ②).
+            # checkout은 merge ref(refs/pull/N/merge)이고, 그 first parent가 검사 시점의 PR 대상 브랜치다(D81 ②, D141).
             base=$(git rev-parse HEAD^1)
           elif [ "$EVENT" = "push" ] && [ -n "$PUSH_BEFORE" ] && ! echo "$PUSH_BEFORE" | grep -qE '^0+$'; then
             base="$PUSH_BEFORE"
           else
             echo "slow_markers=" >> "$GITHUB_OUTPUT"
+            echo "image_scan=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           changed=$(git -c core.quotePath=false diff --name-only "$base"...HEAD)
@@ -58,6 +63,12 @@ jobs:
           markers=$(echo "$changed" | python3 -I core/tools/slow_scope.py)
           echo "slow 묶음: ${markers:-없음}"
           echo "slow_markers=$markers" >> "$GITHUB_OUTPUT"
+          # 이미지 OS 패키지와 의존성을 바꾸는 입력이 바뀌었을 때만 이미지 스캔을 돌린다.
+          if echo "$changed" | grep -qE '^core/(Dockerfile|pyproject\.toml|uv\.lock)$'; then
+            echo "image_scan=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "image_scan=false" >> "$GITHUB_OUTPUT"
+          fi
 
   core-check:
     # slow 테스트는 아래 slow job에서만 돌린다.
@@ -116,6 +127,29 @@ jobs:
           fi
           docker stop engine
 
+  # 엔진 이미지의 OS 패키지와 Python 의존성 취약점 스캔(Q1 core-Q1-4). 새 취약점은 PR과 상관없이 생기므로
+  # 정기 실행(주 1회)에서 보고, PR에서는 이미지 입력이 바뀐 때만 본다. 고친 판이 있는 High 이상이면 실패한다.
+  # 스캐너는 GitHub Action을 거치지 않고 판과 digest를 고정한 컨테이너로 돌린다(Trivy Action 태그 탈취 사고,
+  # CVE-2026-33634 이후 판단). 이미지는 tar로 넘겨 docker socket을 스캐너에 열지 않는다.
+  core-image-scan:
+    needs: core-paths
+    if: needs.core-paths.outputs.image_scan == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: core
+    env:
+      GRYPE_IMAGE: anchore/grype:v0.122.1@sha256:661583704a253c0448ed63998b5ea2cd9d5a76ee71eedc4aed439b8ce3e93a1c
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - run: docker build -t myungli-engine:scan .
+      - run: docker save myungli-engine:scan -o "$RUNNER_TEMP/engine.tar"
+      - name: 취약점 스캔 (고친 판이 있는 High 이상이면 실패)
+        run: >-
+          docker run --rm -v "$RUNNER_TEMP":/scan:ro "$GRYPE_IMAGE"
+          docker-archive:/scan/engine.tar --only-fixed --fail-on high
+
   core-proto:
     if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
@@ -123,7 +157,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
-      # breaking 비교 기준은 merge ref의 first parent(검사 시점의 main)다(D81 ②).
+      # breaking 비교 기준은 merge ref의 first parent(검사 시점의 PR 대상 브랜치, 보통 staging)다(D81 ②, D141).
       # 기준 커밋에 지금의 proto 파일이 없으면 breaking 비교를 건너뛴다. 해당하는 경우:
       # * proto를 처음 들이는 PR
       # * 패키지 이름을 바꾸는 PR(D63, 출시 전 한 번만 허용). 병합 뒤에는 기준 커밋에 이 파일이 있으므로 비교가 다시 켜진다.
@@ -150,7 +184,7 @@ jobs:
           lint: true
           format: false
           breaking: ${{ github.event_name == 'pull_request' && steps.base_proto.outputs.exists == 'true' }}
-          # Actions 체크아웃에는 로컬 main 브랜치가 없으므로 기준 커밋을 저장소 URL로 직접 가리킨다.
+          # Actions 체크아웃에는 로컬 기준 브랜치가 없으므로 기준 커밋을 저장소 URL로 직접 가리킨다.
           breaking_against: "${{ github.event.repository.clone_url }}#format=git,commit=${{ steps.base_proto.outputs.sha }},subdir=proto"
           push: false
           archive: false
