@@ -35,13 +35,13 @@
       "subtitle": "Daily Readings for Your Chart"
     },
     "store.promotional-text": {
-      "promotionalText": "See today read for your own chart, then keep what happened beside it in your diary. Check smooth days and careful days ahead of time in the calendar."
+      "promotionalText": "See today's reading for your chart, then keep what happened beside it in your diary. Check smooth days and careful days ahead of time in the calendar."
     },
     "store.keywords": {
       "keywords": "saju,korean astrology,four pillars,bazi,horoscope,fortune,daily fortune,lunar calendar,journal"
     },
     "store.short-description": {
-      "shortDescription": "The same day is different for everyone. See each day read for your own chart."
+      "shortDescription": "The same day is different for everyone. See each day's reading for your chart."
     },
     "store.description": {
       "description": "Even on the same day, everyone's today is different.\n\nIf a zodiac-sign horoscope tells everyone the same thing, Myungli Diary sets the day's energy against your natal chart, built from the date and time you were born. The line it gives you is truly \"your own story.\"\n\n■ Open today\nFirst you meet the day's one-line reading and the character of the day. A badge tells you whether it's a Day in your favor or a Day of helpers, along with your lucky color, direction, number, and the best hours to focus. Tap any unfamiliar term to see what it means and why today reads that way.\n\n■ Write down your day\nStart each entry with a question that changes every day. Write several entries a day, or catch up on days that have passed. Saved entries get chart-energy tags, so you can gather and reread entries with the same tag. Keep your good days together with that day's reading.\n\n■ If you wonder why\nEvery sentence of a reading has its basis. Open the original passages from Gungtong Bogam, Jeokcheonsu, and Sammyeong Tonghoe along with what they mean.\n\n■ When something important is coming up\nCheck smooth days and careful days ahead of time in the calendar. Set big plans on auspicious days. Each date shows that day's fortune, plans, and diary in one place.\n\n■ When you wonder how to live as who you are\nLay out your whole chart in tables: natal chart and five elements, ten gods and hidden stems, 12 stages, shinsal, and your 10-year and yearly cycles. You can also read about your inborn nature and the energy that helps you.\n\n■ On good days\nPut today's luck on a single card and share it with friends.\n\n\n*The lunar calendar follows the Korea Astronomy and Space Science Institute. See the app for calculation details."
@@ -72,15 +72,15 @@
       "shortDescription": "同じ日でも、一人ひとりの今日は違います。あなたの命式で毎日の干支を読み解きます。"
     },
     "store.description": {
-      "description": "同じ日でも、一人ひとりの今日は違います。\n\n干支ひとつで見る占いが誰にでも同じ言葉をかけるなら、命理日記は生まれた日と時間から立てたあなたの命式に、その日の干支を重ねて読みます。命理日記があなたに届ける一文は、本当の「わたしの物語」です。\n\n■ 今日を開いたら\nその日の総合運の一文と、日の性格にまず出会います。用神の日か、貴人の日かをバッジでお知らせし、ラッキーカラーと方角、数字、集中しやすい時間も一緒に載せています。知らない命理の用語はタップしてみてください。意味と、今日そう読んだ理由が続けて開きます。\n\n■ 一日を記録したら\n日ごとに変わる問いひとつから日記を始めます。一日に何編書いても、過ぎた日を後から書いてもかまいません。保存した日記には命式の気のタグが付き、同じタグの記録をまとめて読み返せます。良かった一日は、その日の運勢と一緒に残しておきましょう。\n\n■ なぜそう読んだのか気になったら\n解説の一文一文に判定の根拠があります。窮通宝鑑、滴天髄、三命通会の原文とその意味を一緒に開いて読めます。\n\n■ 大切な予定があるなら\nカレンダーで、うまく運ぶ日と気をつける日を前もって確かめられます。大切な約束は吉日に決めましょう。日付ごとに、その日の吉凶と予定、日記をひとつの場所で見られます。\n\n■ 自分らしく生きるにはと迷ったとき\n命式と五行の分布、通変星と蔵干、十二運、神殺、大運と歳運まで、あなたの命式を表で広げて見られます。生まれ持った性向の解説と、自分を助ける気も一緒に読めます。\n\n■ いい日には\n今日の幸運をカード一枚にのせて、友だちとシェアしましょう。\n\n\n※旧暦は韓国天文研究院の基準です。詳しい計算の基準はアプリで確認できます。"
+      "description": "同じ日でも、一人ひとりの今日は違います。\n\n干支ひとつで見る占いが誰にでも同じ言葉をかけるなら、命理日記は生まれた日と時間から立てたあなたの命式に、その日の干支を重ねて読みます。命理日記があなたに届ける一文は、本当の「わたしの物語」です。\n\n■ 今日を開いたら\nその日の総運の一文と、日の性格にまず出会います。用神の日か、貴人の日かをバッジでお知らせし、ラッキーカラーと方角、数字、集中しやすい時間も一緒に載せています。知らない命理の用語はタップしてみてください。意味と、今日そう読んだ理由が続けて表示されます。\n\n■ 一日を記録したら\n日ごとに変わる問いひとつから日記を始めます。一日に何回書いても、過ぎた日を後から書いてもかまいません。保存した日記には命式の気のタグが付き、同じタグの記録をまとめて読み返せます。良かった一日は、その日の運勢と一緒に残しておきましょう。\n\n■ なぜそう読んだのか気になったら\n解説の一文一文に判定の根拠があります。窮通宝鑑、滴天髄、三命通会の原文とその意味を一緒に開いて読めます。\n\n■ 大切な予定があるなら\nカレンダーで、うまく運ぶ日と気をつける日を前もって確かめられます。大切な約束は吉日に決めましょう。日付ごとに、その日の吉凶と予定、日記をひとつの場所で見られます。\n\n■ 自分らしく生きるにはと迷ったとき\n命式と五行の分布、通変星と蔵干、十二運、神殺、大運と歳運まで、あなたの命式を表で広げて見られます。生まれ持った性向の解説と、自分を助ける気も一緒に読めます。\n\n■ いい日には\n今日の幸運をカード一枚にのせて、友だちとシェアしましょう。\n\n\n※旧暦は韓国天文研究院の基準です。詳しい計算の基準はアプリで確認できます。"
     },
     "store.screenshot.caption": {
-      "today": "同じ日でも\n命式で見ると違う",
+      "today": "同じ日でも\n命式で見ると違います",
       "evidence": "一文一文に\n根拠のある解釈",
       "calendar": "大切な約束は\n吉日に決めましょう",
       "daySheet": "良かった一日は\n運勢と一緒に日記へ",
       "mySaju": "命式に照らして\n自分を見つめ直す",
-      "share": "あなたの幸運を\n友だちにシェア"
+      "share": "今日の幸運を\n友だちとシェア"
     }
   }
 }

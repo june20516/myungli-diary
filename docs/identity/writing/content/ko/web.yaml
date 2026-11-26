@@ -16,3 +16,8 @@
 - {slot: web-landing.footer.privacy, key: footerPrivacy, text: "개인정보 처리방침"}
 - {slot: web-landing.footer.support, key: footerSupport, text: "문의와 지원"}
 - {slot: web-landing.lang.label, key: langLabel, text: "언어"}
+# 404 페이지(#1358). 슬롯은 slots/web/not-found.yaml입니다.
+- {slot: web-not-found.meta.title, key: notFoundMetaTitle, text: "페이지를 찾을 수 없습니다 | 명리일기"}
+- {slot: web-not-found.page.title, key: notFoundPageTitle, text: "페이지를 찾을 수 없습니다"}
+- {slot: web-not-found.page.body, key: notFoundPageBody, text: "주소가 바뀌었거나 없는 페이지입니다."}
+- {slot: web-not-found.page.home, key: notFoundPageHome, text: "명리일기 첫 화면으로"}

@@ -17,3 +17,8 @@
 - {slot: web-landing.footer.privacy, key: footerPrivacy, text: "プライバシーポリシー"}
 - {slot: web-landing.footer.support, key: footerSupport, text: "お問い合わせとサポート"}
 - {slot: web-landing.lang.label, key: langLabel, text: "言語"}
+# 404 페이지(#1358). 슬롯은 slots/web/not-found.yaml입니다.
+- {slot: web-not-found.meta.title, key: notFoundMetaTitle, text: "ページが見つかりません | 命理日記"}
+- {slot: web-not-found.page.title, key: notFoundPageTitle, text: "ページが見つかりません"}
+- {slot: web-not-found.page.body, key: notFoundPageBody, text: "このページは移動したか、存在しません。"}
+- {slot: web-not-found.page.home, key: notFoundPageHome, text: "命理日記のトップへ"}
