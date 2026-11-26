@@ -32,12 +32,18 @@
 * **명령:** `server ops <하위 명령> ...`. 운영자는 저장소의 배포된 커밋에서 `go run ./cmd/server ops ...`로 실행합니다.
 * **연결:** 운영자 본인의 Google 계정으로 `gcloud auth application-default login` 한 뒤, Cloud SQL Go connector가 IAM 인증으로 붙습니다. DB 사용자는 운영자의 Cloud SQL IAM 사용자(메일 주소)입니다. 비밀번호나 Secret을 운영자 컴퓨터에 두지 않습니다.
 * **설정:** `ops`는 DB 연결 값(`CLOUD_SQL_INSTANCE`, `DATABASE_URL`)만 읽습니다. 서버 기동용 Secret을 요구하지 않습니다. 환경별 값은 로컬 값 대장(D98)에 `server/<환경>/ops.env`로 둡니다(인스턴스 이름과 DB 이름, 비밀 아님).
-* **실행자 식별:** 감사 기록의 실행자는 명령 인자가 아니라 DB가 인증한 세션 사용자(`session_user`)입니다. IAM 인증이라 위조할 수 없습니다. 어드민 API가 붙으면 그 경로는 인증한 운영자 식별자를 넘깁니다(§6).
-* **출력:** 결과는 stdout(사람이 읽는 표)으로만 씁니다. 표에서 사용자 입력 글의 터미널 제어문자(ESC 등 C0, DEL, C1)는 U+FFFD로 바꿉니다(JSON은 이스케이프됨). 로컬 실행이라 Cloud Logging에 남지 않습니다. `--json`으로 기계가 읽는 출력도 냅니다.
+* **실행자와 시각 식별:** 감사 기록의 실행자는 명령 인자가 아니라 DB가 인증한 세션 사용자(`session_user`)입니다. `ops_audit`의 `BEFORE INSERT` trigger(`ops_audit_stamp`)가 `at`을 언제나 `now()`로, `channel`이 `cli`면 `actor`를 `session_user`로 덮으므로 명령 인자나 운영자 컴퓨터 시계로 바꿀 수 없습니다. `SET ROLE`은 `current_user`만 바꾸고 `session_user`는 그대로라 역할 이름이 아니라 로그인한 사람이 남습니다. 부여 시작, 회수 시각, 기간 검사, 권한 상태 판정도 트랜잭션 안의 DB `now()` 기준입니다. 어드민 API가 붙으면 그 경로는 인증한 운영자 식별자를 넘기고, 그때 그 경로의 감사 INSERT 권한과 실행자 출처를 다시 정합니다(§6).
+* **출력:** 결과는 stdout(사람이 읽는 표)으로만 씁니다. 표에서 사용자 입력 글의 터미널 제어문자(ESC 등 C0, DEL, C1)와 양방향 제어문자(U+200E, U+200F, U+202A~U+202E, U+2066~U+2069)는 U+FFFD로 바꿉니다(JSON은 이스케이프됨). 로컬 실행이라 Cloud Logging에 남지 않습니다. `--json`으로 기계가 읽는 출력도 냅니다.
 
 ### 3.1 prod 실행 권한 범위
 
-* DB에 새 역할 `myungli_ops`(NOLOGIN)를 migration으로 만듭니다. 권한은 명령이 읽는 표의 `SELECT`, `entitlement_grants`의 `INSERT`와 `revoked_at` 갱신(`UPDATE`), 감사 표 `ops_audit`의 `INSERT`와 `SELECT`뿐입니다. 표 구조 변경, 삭제, 다른 표 쓰기는 못 합니다.
+* DB에 새 역할 `myungli_ops`(NOLOGIN)를 migration으로 만듭니다. 권한은 아래뿐입니다. 표 구조 변경, 삭제, 다른 표 쓰기는 못 합니다.
+  * `accounts`, `entitlement_grants`, `purchases`, `diaries`, `diary_days`, `schedules`의 `SELECT`.
+  * `auth_identities`, `devices`, `profiles`는 `db/queries/ops.sql`이 쓰는 칸만 칼럼 단위 `SELECT`. 제공자 subject, Apple 토큰, 알림 token과 그 해시, 출생 정보 해시, 알림 설정은 읽지 못합니다.
+  * `entitlement_grants`의 `INSERT`와 `revoked_at` 갱신(`UPDATE`), id sequence `USAGE`.
+  * `accounts`의 `updated_at` 갱신(`UPDATE`). 운영자 부여가 계정 행을 `FOR SHARE`로 잠그는 데 PostgreSQL이 그 표의 UPDATE 권한(한 칸 이상)을 요구하기 때문이고, 값은 바꾸지 않습니다.
+  * 감사 표 `ops_audit`의 `INSERT`와 `SELECT`.
+* **남는 위험과 다음 조건:** `myungli_ops` 구성원은 `diaries`, `schedules`, `profiles`를 `psql` 같은 직접 SQL로 읽을 수 있고, 이 열람은 감사 행을 남기지 않습니다. 지금 운영자는 프로젝트 소유자 한 명이라 받아들입니다. 프로젝트 소유자가 아닌 운영자를 등록하기 전에 콘텐츠 열람을 `SECURITY DEFINER` 함수(함수 안에서 감사 행을 함께 씀)로 옮기고 `myungli_ops`에는 그 함수의 `EXECUTE`만 줍니다.
 * **운영자 등록은 Cloud SQL IAM 사용자 추가 하나입니다.** 운영자 메일은 개인정보라 공개 저장소의 tfvars나 CI 로그(env는 CI가 저장소 tfvars로 apply)에 둘 수 없습니다. 프로젝트 관리자가 `gcloud sql users create <메일> --instance=<인스턴스> --type=cloud_iam_user`로 추가하고, 다음 `migrate up`(배포마다 도는 `server-migrate` Job)이 사람 IAM 사용자 전부를 `myungli_ops` 구성원으로 넣습니다.
 * **사람 IAM 사용자 판별:** Cloud SQL은 사람 IAM 사용자의 DB 이름을 메일 전체로, 서비스 계정은 `.gserviceaccount.com`을 뗀 `<이름>@<프로젝트>.iam`으로 둡니다(Cloud SQL 문서 "Add and manage IAM users"). 그래서 로그인 가능한 역할 중 이름에 `@`가 있고 `.iam`으로 끝나지 않는 것을 사람으로 봅니다. 런타임과 migrator 서비스 계정은 들어가지 않습니다.
 * **IAM 권한:** 연결에는 프로젝트 IAM `roles/cloudsql.client`(connector)와 `roles/cloudsql.instanceUser`(IAM 로그인)가 필요합니다. 프로젝트 소유자가 아닌 운영자에게는 runbook대로 두 역할을 줍니다.
@@ -107,8 +113,8 @@
 | 칸 | 뜻 |
 | --- | --- |
 | `id` uuid | 기록 id. 부여 행의 `source_ref`로도 씀 |
-| `at` timestamptz | 실행 시각 |
-| `actor` text | 실행자(CLI는 `session_user`, 어드민 API는 인증한 운영자) |
+| `at` timestamptz | 실행 시각. trigger가 DB `now()`(트랜잭션 시작 시각)로 정함 |
+| `actor` text | 실행자(CLI는 trigger가 `session_user`로 정함, 어드민 API는 인증한 운영자) |
 | `channel` text | `cli` 또는 이후 `admin_api` |
 | `action` text | `account_show`, `grant`, `revoke`, `content_view`, `audit_list` |
 | `account_id` uuid | 대상 계정(조회로 찾지 못하면 NULL) |
@@ -123,8 +129,8 @@
 
 * **조회와 열람도 기록합니다.** 개인정보 처리 시스템 접속 기록은 조회를 포함하므로(안전성 확보조치 기준) 모든 명령이 기록합니다.
 * **기록이 먼저:** 변경 명령은 변경과 기록을 한 트랜잭션에 씁니다. 조회와 열람 명령은 기록을 커밋한 뒤에만 결과를 출력합니다. 기록에 실패하면 아무것도 보이지 않습니다.
-* **거절은 기록하지 않음:** 부여와 회수가 거절되면(검사 실패, 회수 불가 출처 등) 트랜잭션이 되돌아가 감사 행이 없습니다. 사용법 오류도 DB에 붙기 전에 끝납니다.
-* **고칠 수 없음:** `myungli_ops`는 `ops_audit`에 `INSERT`와 `SELECT`만 있습니다. `myungli_app`은 retention 때문에 `DELETE`가 필요하므로(app 역할의 `UPDATE`는 거둠), 표의 trigger가 `UPDATE`를 언제나 거절하고 `DELETE`는 `at`이 2년보다 오래된 행만 허용합니다. 표 주인(migrator)만 trigger를 끌 수 있습니다.
+* **거절은 기록하지 않음:** 부여와 회수가 거절되면(DB 시각 기준 기간 검사 실패, 회수 불가 출처 등) 트랜잭션이 되돌아가 감사 행이 없습니다. 인자 해석과 사유 검사 같은 사용법 오류는 DB에 붙기 전에 끝납니다.
+* **고칠 수 없음:** `myungli_ops`는 `ops_audit`에 `INSERT`와 `SELECT`만 있습니다. `myungli_app`은 retention 때문에 `DELETE`가 필요하므로(app 역할의 `UPDATE`와 `INSERT`는 거둠), 표의 trigger가 `UPDATE`를 언제나 거절하고 `DELETE`는 `at`이 2년보다 오래된 행만 허용합니다. 표 주인(migrator)만 trigger를 끌 수 있습니다.
 * **보관:** 2년. `job retention`이 2년 지난 행을 지웁니다(접속 기록 보관 기준). 정리 쿼리는 clock과 DB `now()` 기준 2년을 함께 만족하는 행만 고릅니다(trigger의 DB 시계와 어긋나도 거절당하지 않게). 운영자 부여 권한 행(`operator`)도 끝난 지 2년이 지나면 함께 지웁니다.
 * **합치기:** 계정 합치기는 구매 구간만 옮깁니다(보상 구간과 같이 운영자 부여 행은 옮기지 않음). 필요하면 합친 계정에 다시 줍니다. 계정 삭제(익명화) 때도 지우지 않습니다. 계정 id만 있고 개인정보 본문이 없기 때문입니다. 지휘의 수집, 보관 대장(D87)에 반영을 요청합니다.
 * **기록 보기:** `ops audit list --account <uuid>` 또는 `--since <날짜>`. 이 조회 자체도 기록합니다(`action` `audit_list`).
@@ -133,8 +139,11 @@
 
 ```
 internal/ops/            핵심 함수(어드민 API가 그대로 씀)
-  ops.go                 Service: AccountSummary, Grant, Revoke, ViewDiary, ViewSchedule, ViewProfile, AuditList
-  actor.go               Actor{ID, Channel}
+  ops.go                 Service와 DB 시각 출처, Actor{ID, Channel}
+  account.go             AccountSummary
+  grant.go               Grant, Revoke
+  content.go             ViewDiary, ViewSchedule, ViewProfile
+  auditlist.go           AuditList
   audit.go               감사 기록 쓰기(트랜잭션 안), 목적과 사유 검사
   opsdb/                 sqlc 쿼리
 internal/cli/ops.go      인자 해석, session_user로 Actor 만들기, 표와 JSON 출력
@@ -146,14 +155,16 @@ internal/cli/ops.go      인자 해석, session_user로 Actor 만들기, 표와 
 
 ## 7. 오류 처리
 
-* 인자 오류(사유 없음, 목적 값 틀림, 대상 둘 다 또는 하나도 없음, 기간 범위 밖): 종료 코드 2, DB에 붙지 않습니다.
+* 인자 오류(사유 없음, 목적 값 틀림, 대상 둘 다 또는 하나도 없음, 기간 범위 밖): 종료 코드 2, 데이터를 바꾸거나 보이지 않고 감사 기록도 남기지 않습니다. 인자 해석 단계의 오류는 DB에 붙기 전에, 기간 범위처럼 DB 시각이 필요한 검사는 Service가 트랜잭션을 되돌려 끝냅니다.
 * 계정 없음: 종료 코드 1, 감사 기록은 남깁니다(무엇을 찾았는지 남기기 위해, `account_id` NULL).
+* 프로필 없음(계정은 있고 프로필 행만 없음): 종료 코드 1, "프로필이 없습니다"로 계정 없음과 구분하고 감사 기록은 남깁니다.
 * 권한 오류(DB 역할 없음): 종료 코드 1, 연결 사용자를 보여 주고 runbook의 권한 절로 안내합니다.
 
 ## 8. 테스트
 
 * `internal/ops`: testcontainers DB로 명령마다 결과와 감사 행(칸, 전후 값), 기록 실패 때 결과 없음, 사유와 목적 검사, `ad_free_pass` 회수 거절, 지운 계정 부여 거절, 거절한 부여와 회수는 감사 행을 남기지 않음.
-* 역할 권한: `myungli_ops` 구성원 연결로 허용된 쓰기만 되고, `ops_audit` 갱신과 삭제가 `myungli_app`, `myungli_ops` 모두 거절되는지.
+* 역할 권한: `myungli_ops` 구성원 연결로 허용된 쓰기만 되고, `ops_audit` 갱신과 삭제가 `myungli_app`, `myungli_ops` 모두 거절되는지, `myungli_app`의 `ops_audit` INSERT가 거절되는지, 민감 칸(`auth_identities.subject`, `devices.fcm_token`, `profiles.birth_hash` 등)을 `myungli_ops`가 읽지 못하는지.
+* 감사 trigger: 다른 `actor`와 과거 `at`으로 넣어도 `cli` 행에는 `session_user`와 `now()`가 남는지.
 * 계약: `operator` 출처가 `ad_free_pass`, `rewarded_ad`로 나가는지(`billing_handlers` 테스트), `contractgate`가 변경 없음으로 통과.
 * `internal/cli`: 인자 해석과 출력 형식, 본문이 stderr나 로그로 새지 않는지(로거 출력에 본문이 없음).
 * `retention`: 2년 지난 감사 행 정리.
