@@ -80,7 +80,7 @@
 ## 현재 상태
 * 계약 버전과 상태는 [`docs/contracts/README.md`](../../contracts/README.md)를 봅니다. 이 파일에는 버전을 적지 않습니다.
 * 여기에는 진행 중인 일(브랜치, 열린 PR, 막힌 것)만 적고, 병합하면 지웁니다(`docs/workflow.md` §3 마무리 2번). 병합된 일의 경과는 PR 본문, `decisions.md`, git에 있습니다.
-* **진행 중:** 원어민 검수 시트(#1283, W84), 브랜치 `writing/review-sheet-1283`. 병합 뒤 1차 en, ja 시트(`review/<언어>/tier1.xlsx`)를 사용자가 Google Sheets로 감수자에게 보냅니다.
+* **진행 중:** 원어민 검수 1차 감수 대기(W84). 사용자가 `review/<언어>/tier1.xlsx`를 Google Sheets로 감수자에게 보냈고, 돌아오면 `mlw review-import`로 반영합니다(`guide/review-procedure.md` "원어민 검수"). 예시 칸 보강은 브랜치 `writing/review-sheet-1283`.
 
 ## 다음 할 일
 1. **열린 `drift` Issue가 있으면 먼저 맞춥니다**(`gh issue list --label drift --label to:writing`, `docs/workflow.md` §6.1).

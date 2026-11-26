@@ -86,7 +86,8 @@ mlw review-export <content_dir> --lang ja --bundle store,ui
 * `glossary`: 그 범주의 대상 언어 값 이름 중 **첫째**(원고 순서). 가장 긴 값이 아니라 보통 값입니다.
 * `list`: 같은 범주 값 이름 둘을 `, `로 잇습니다.
 * `number`: `3`. 복수형(ICU)은 `icu.expand_entry`로 형태를 모두 보입니다.
-* `text`: 키별 표본이 없으므로 `‹<자리표시자 이름>›`(예: `‹date›`)로 둡니다.
+* `text`: 이름별 표본(`SAMPLE_TEXT`, 같은 이름이 키마다 다르면 `SAMPLE_TEXT_BY_KEY`)으로 채웁니다. 표기는 원고와 용어집을 따릅니다. 가격은 D74로 `‹price›`, 표본이 없는 이름은 `‹<이름>›`입니다.
+* 채울 것이 없어 현재 번역과 같은 줄은 `예시`를 비웁니다(감수자 피드백, 2026-11-26).
 * `name`(호칭): 언어별 표본 상수(en `Alex`, ja `ゆき`, 각 언어 `onboardCallInputHint`의 예와 같음).
 * 해석할 수 없는 자리표시자는 그대로 둡니다(검사기가 따로 막음).
 
