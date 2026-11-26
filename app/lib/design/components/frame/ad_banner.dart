@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -61,8 +62,9 @@ class AdBannerFrame extends StatelessWidget {
 /// 보통은 `MyungliBottomBar`가 탭 바와 한 바탕으로 감싸 씁니다. 혼자 쓰면([ownSurface])
 /// 자기 바탕을 가집니다.
 ///
-/// 불러오기가 실패하면 자동으로 다시 시도하지 않습니다. 광고 제거·동의 상태가 바뀌어
-/// 배너가 한 번 꺼졌다 켜질 때 다시 시도합니다.
+/// 불러오기가 실패하면(광고 없음, 응답 없음 포함) [retryDelays] 뒤 다시 시도합니다. 실패가
+/// 이어질수록 간격이 늘고 마지막 값에서 멈춥니다(#1345). 광고 제거나 동의 상태가 바뀌어 배너가
+/// 꺼지면 시도를 멈추고, 다시 켜지면 처음부터 셉니다.
 class AdBanner extends ConsumerStatefulWidget {
   /// 배너를 만듭니다.
   const new({
@@ -72,6 +74,14 @@ class AdBanner extends ConsumerStatefulWidget {
     this.onVisibleChanged,
     super.key,
   });
+
+  /// 실패한 뒤 다시 시도하기까지 기다리는 시간. n번째 연속 실패 뒤에는 n번째 값(넘치면 마지막 값).
+  static const List<Duration> retryDelays = [
+    Duration(seconds: 30),
+    Duration(minutes: 1),
+    Duration(minutes: 2),
+    Duration(minutes: 5),
+  ];
 
   /// 명세 대조용 요약.
   static const ComponentSpec spec = ComponentSpec('ad-banner', {}, {
@@ -112,6 +122,8 @@ class _AdBannerState extends ConsumerState<AdBanner>
   bool _loading = false;
   bool _failed = false;
   bool _reportedVisible = false;
+  Timer? _retry;
+  int _failures = 0;
 
   bool get _active => !widget.adFree && widget.consentGiven;
 
@@ -167,6 +179,9 @@ class _AdBannerState extends ConsumerState<AdBanner>
           : InteractionPattern.disappearSeep.duration;
     if (!_active) {
       _failed = false;
+      _failures = 0;
+      _retry?.cancel();
+      _retry = null;
       if (_presence.status != AnimationStatus.dismissed) {
         _presence.reverse();
       } else if (_handle != null) {
@@ -198,15 +213,30 @@ class _AdBannerState extends ConsumerState<AdBanner>
     }
     if (handle == null) {
       _failed = true;
+      _scheduleRetry();
       return;
     }
+    _failures = 0;
     setState(() => _handle = handle);
     _presence.forward();
     _reportVisible();
   }
 
+  void _scheduleRetry() {
+    const delays = AdBanner.retryDelays;
+    final delay = delays[math.min(_failures, delays.length - 1)];
+    _failures++;
+    _retry = Timer(delay, () {
+      _retry = null;
+      if (!mounted) return;
+      _failed = false;
+      _sync();
+    });
+  }
+
   @override
   void dispose() {
+    _retry?.cancel();
     _presence.dispose();
     _handle?.dispose();
     super.dispose();

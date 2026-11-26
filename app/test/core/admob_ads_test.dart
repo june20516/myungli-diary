@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myungli_diary/core/api/app_error.dart';
@@ -5,6 +7,8 @@ import 'package:myungli_diary/core/platform/admob_ads.dart';
 import 'package:myungli_diary/core/platform/ads.dart';
 
 class _Banner implements BannerAdHandle {
+  bool disposed = false;
+
   @override
   Widget get view => const SizedBox();
 
@@ -12,7 +16,7 @@ class _Banner implements BannerAdHandle {
   Size get size => const Size(320, 50);
 
   @override
-  void dispose() {}
+  void dispose() => disposed = true;
 }
 
 class _Rewarded implements RewardedAdHandle {
@@ -26,6 +30,9 @@ class _Api implements AdMobApi {
   bool canRequest = true;
   int initializeFailures = 0;
   AdMobLoadFailure? failWith;
+
+  /// 있으면 배너 요청이 이것이 끝날 때까지 답하지 않습니다.
+  Completer<BannerAdHandle?>? pendingBanner;
 
   @override
   Future<void> initialize() async {
@@ -46,6 +53,7 @@ class _Api implements AdMobApi {
   }) async {
     calls.add('banner $unitId $width');
     if (failWith case final failure?) throw failure;
+    if (pendingBanner case final pending?) return await pending.future;
     return _Banner();
   }
 
@@ -185,6 +193,42 @@ void main() {
       await adapter.loadBanner(width: 360);
       expect(failures.single.code, 3);
       expect(failures.single.domain, 'com.google.android.gms.ads');
+    });
+
+    test('배너가 시간 안에 답하지 않으면 응답 없음 실패이고, 늦게 온 광고는 놓습니다(#1345)', () async {
+      final failures = <AdMobLoadFailure>[];
+      final adapter = AdMobAds(
+        platform: TargetPlatform.android,
+        api: api,
+        onLoadFailure: failures.add,
+        bannerTimeout: const Duration(milliseconds: 10),
+      );
+      api.pendingBanner = Completer();
+      await expectLater(
+        adapter.loadBanner(width: 360),
+        throwsA(isA<UnexpectedError>()),
+      );
+      expect(failures.single, same(adMobBannerTimeoutFailure));
+
+      final late = _Banner();
+      api.pendingBanner!.complete(late);
+      await Future<void>.delayed(Duration.zero);
+      expect(late.disposed, isTrue);
+    });
+
+    test('시간이 지난 뒤 온 실패는 버립니다', () async {
+      final adapter = AdMobAds(
+        platform: TargetPlatform.android,
+        api: api,
+        bannerTimeout: const Duration(milliseconds: 10),
+      );
+      api.pendingBanner = Completer();
+      await expectLater(
+        adapter.loadBanner(width: 360),
+        throwsA(isA<UnexpectedError>()),
+      );
+      api.pendingBanner!.completeError(const AdMobLoadFailure(3, 'no fill'));
+      await Future<void>.delayed(Duration.zero);
     });
 
     test('지원하지 않는 플랫폼은 SDK를 부르지 않고 null', () async {

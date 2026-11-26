@@ -54,6 +54,18 @@ AppError? adMobLoadError(int code, {required TargetPlatform platform}) {
   return UnexpectedError(StateError('AdMob 불러오기 실패 $code'));
 }
 
+/// 배너 요청이 이 시간 안에 답하지 않으면 실패로 봅니다(#1345).
+///
+/// prod 기기에서 SDK가 성공도 실패도 알리지 않아 배너가 불러오는 중에 멈춘 것을 봤습니다.
+const adMobBannerTimeout = Duration(seconds: 30);
+
+/// 시간 제한으로 끝난 배너 불러오기. SDK 오류와 겹치지 않게 앱 도메인을 씁니다.
+const adMobBannerTimeoutFailure = AdMobLoadFailure(
+  0,
+  'no response',
+  domain: 'app.timeout',
+);
+
 /// 보상형 광고를 닫은 뒤의 결과. [showError]가 있으면 보이지 못한 것입니다.
 ///
 /// 보상을 받았으면 [adUnit]과 [rewardItem]을 결과에 담습니다(staging 보상 전달, D101 ④).
@@ -260,7 +272,8 @@ final class _SdkRewarded implements RewardedAdHandle {
 ///
 /// SDK는 처음 부를 때 한 번 초기화하고, 실패하면 다음 호출에서 다시 초기화합니다. 동의
 /// 상태(UMP)가 광고 요청을 허락하지 않거나 지원하지 않는 플랫폼이면 불러오지 않고 null입니다.
-/// 불러오기 실패는 [adMobLoadError] 규칙으로 null이나 [AppError]가 됩니다.
+/// 불러오기 실패는 [adMobLoadError] 규칙으로 null이나 [AppError]가 됩니다. 배너가
+/// [bannerTimeout] 안에 답하지 않으면 [adMobBannerTimeoutFailure]로 실패하고, 늦게 온 광고는 놓습니다.
 final class AdMobAds implements Ads {
   /// adapter를 만듭니다.
   new({
@@ -268,6 +281,7 @@ final class AdMobAds implements Ads {
     this.useTestAds = kDebugMode,
     this.api = const SdkAdMobApi(),
     this.onLoadFailure,
+    this.bannerTimeout = adMobBannerTimeout,
   });
 
   /// 실행 플랫폼.
@@ -282,13 +296,28 @@ final class AdMobAds implements Ads {
   /// 불러오기 실패(채울 광고 없음 포함)를 알립니다. 원인(코드, 도메인)을 가리는 기록용입니다.
   final void Function(AdMobLoadFailure failure)? onLoadFailure;
 
+  /// 배너 요청을 기다리는 최대 시간.
+  final Duration bannerTimeout;
+
   Future<void>? _initialized;
 
   @override
   Future<BannerAdHandle?> loadBanner({required int width}) => _load(
     AdMobFormat.banner,
-    (unitId) => api.loadBanner(unitId: unitId, width: width),
+    (unitId) => _bannerWithin(api.loadBanner(unitId: unitId, width: width)),
   );
+
+  Future<BannerAdHandle?> _bannerWithin(Future<BannerAdHandle?> loading) =>
+      loading.timeout(
+        bannerTimeout,
+        onTimeout: () {
+          // 시간이 지난 뒤 온 광고는 보일 곳이 없어 놓고, 늦은 실패는 버립니다.
+          unawaited(
+            loading.then((late) => late?.dispose(), onError: (Object _) {}),
+          );
+          throw adMobBannerTimeoutFailure;
+        },
+      );
 
   @override
   Future<RewardedAdHandle?> loadRewarded({required String userId}) => _load(
