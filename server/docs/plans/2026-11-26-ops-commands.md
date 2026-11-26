@@ -107,7 +107,9 @@ spec §3.4. Cloud Run 직접 IAP에서 사람 계정의 프로그램 접근이 �
 - 미들웨어 순서: 본문 상한 64 KiB, 접근 로그(route, status, latencyMs만), IAP 검증(401, 키 없음은 503), 허용 목록(403), 핸들러. 응답 `Content-Type: application/json`, `Cache-Control: no-store`.
 - 오류 JSON `{"code","message"}`: `invalid_input`, `unauthenticated`, `forbidden`, `not_found`, `profile_not_found`, `conflict`, `unavailable`, `internal`. 500의 message는 고정 문구(내부 오류 원문을 응답에 넣지 않음).
 
-- [ ] **Step 1: 실패하는 테스트**(httptest, DB는 testcontainers, IAP는 Task 3의 테스트 키): 명령마다 200과 본문, 감사 행의 actor와 actor_sub, `TestHandlers_RejectsUnknownFields`, GET은 405, 본문 초과 413, 헤더 없음 401, 목록 밖 403(감사 행 없음), 계정 없음 404(감사 있음), `ad_free_pass` 회수 409, 응답 헤더 `no-store`, 로그 출력에 사유, 목적, 메일, 본문 문자열이 없음.
+* **CSRF와 쿠키 경로 차단(지휘 검토 2):** 지금은 CLI 경로만 엽니다. 요청은 `Authorization: Bearer`(IAP가 검증한 ID token)로만 받는다는 전제로, 핸들러 앞에서 ① 사용자 정의 헤더 `X-Myungli-Ops: 1` 필수(다른 사이트의 폼과 단순 요청은 붙일 수 없고, 붙이면 CORS preflight가 필요한데 이 API는 CORS를 허용하지 않음) ② `Content-Type: application/json` 필수 ③ `Origin` 헤더가 있으면 거절(CLI는 보내지 않음) ④ `Sec-Fetch-Site`가 있고 `none`이 아니면 거절. 모두 403 `forbidden`이고 감사 없음. 어드민 웹이나 브라우저 폼을 열 때는 `Origin` 허용 목록과 CSRF 토큰을 따로 설계합니다(이 plan 밖).
+
+- [ ] **Step 1: 실패하는 테스트**(httptest, DB는 testcontainers, IAP는 Task 3의 테스트 키): `TestHandlers_CSRFGuard`(헤더 없음, form 본문, `Origin` 있음, `Sec-Fetch-Site: cross-site` 각각 403), 명령마다 200과 본문, 감사 행의 actor와 actor_sub, `TestHandlers_RejectsUnknownFields`, GET은 405, 본문 초과 413, 헤더 없음 401, 목록 밖 403(감사 행 없음), 계정 없음 404(감사 있음), `ad_free_pass` 회수 409, 응답 헤더 `no-store`, 로그 출력에 사유, 목적, 메일, 본문 문자열이 없음.
 - [ ] **Step 2: FAIL → 구현 → PASS** `go test -race ./internal/opsapi/`
 - [ ] **Step 3: Commit** `feat(server): 운영 API 핸들러 (#1321)`
 
@@ -139,6 +141,9 @@ spec §3.4. Cloud Run 직접 IAP에서 사람 계정의 프로그램 접근이 �
 * workflow: `gcloud run services update server-ops --image ... --env-vars-file ops-env.yaml --set-secrets OPS_OPERATORS=OPS_OPERATORS:latest`(Secret 버전이 없으면 이 단계만 건너뛰고 요약에 적음), migrate Job env에 `DB_OPS_USER`가 들어감(migrator_env).
 * provider `~> 8.9`의 `iap_enabled` 지원은 `terraform validate`로 확인합니다. 없으면 provider minor 범위를 올리고 lock을 갱신.
 
+* **서비스 계정 빌려 쓰기 차단(지휘 검토 1):** `server-ops` 서비스 계정의 IAM 정책을 Terraform이 권한 있게 관리합니다(`google_service_account_iam_policy`). 정책에는 배포 계정(deployer)의 `roles/iam.serviceAccountUser`(Cloud Run 배포에 필요한 actAs)만 둡니다. `roles/iam.serviceAccountTokenCreator`와 그 밖의 주체는 두지 않습니다.
+* **배포 때 검사:** 새 스크립트 `server/deploy/check-ops-sa.sh <project>`가 ① `server-ops` 계정의 IAM 정책에 deployer의 serviceAccountUser 말고 다른 바인딩이 있으면 실패 ② 프로젝트 IAM 정책에서 `roles/iam.serviceAccountUser`, `roles/iam.serviceAccountTokenCreator`, `roles/iam.workloadIdentityUser`를 가진 주체가 있으면 실패(프로젝트 단위 부여는 모든 계정을 빌려 쓸 수 있게 함). 예외는 deployer 계정의 프로젝트 단위 `roles/iam.serviceAccountUser` 하나입니다(bootstrap `deployer_roles`, 모든 서비스와 Job 배포의 actAs에 필요). 예외는 스크립트에 근거 주석과 함께 둡니다. deployer가 actAs로 `server-ops`를 쓸 수 있다는 점(배포 브랜치에 들어간 코드가 그 계정으로 실행될 수 있음, 브랜치 보호와 PR 리뷰가 막음)은 runbook "남는 위험"에 적습니다. deployer를 서비스 계정 단위 부여로 좁히는 것은 bootstrap 변경(사용자 apply)이라 이 plan 밖이고 #1321에 제안으로 남깁니다. 출력에는 역할과 주체 종류만, 사람 메일은 가림. `deploy-server-env.yml`의 server-ops 갱신 전에 돌리고 실패하면 배포를 멈춥니다. 스크립트는 `gcloud ... --format=json`과 `jq`로 쓰고, 고정 JSON 입력으로 도는 테스트(`server/deploy/check-ops-sa_test.sh` 또는 Go 테스트)를 둡니다.
+
 - [ ] **Step 1: 구현 뒤 `terraform fmt -check`, `terraform init -backend=false && terraform validate`(env), workflow는 YAML 검사와 `sh -n`(run 블록 추출), `server.yml`의 기존 Terraform 검사가 있으면 함께.**
 - [ ] **Step 2: `terraform plan`은 CI(deploy-server의 plan job)에서 확인하므로 로컬에서는 validate까지. plan에서 `server_ops`에 `allUsers`가 없음을 확인하는 기존 형식 검사가 있으면 더함.**
 - [ ] **Step 3: Commit** `feat(server): server-ops 서비스와 IAP, 운영 DB 사용자 (#1321)`
@@ -164,6 +169,7 @@ spec §3.4. Cloud Run 직접 IAP에서 사람 계정의 프로그램 접근이 �
 - Modify: `server/docs/runbook/ops.md`(전면 개정), `server/docs/decisions.md`(S170 개정, 처음 안 원문은 `server/docs/decisions-history.md`로), `server/docs/decisions-history.md`, `server/deploy/terraform/README.md`(운영자 등록 절 교체, Secret 목록에 `OPS_OPERATORS`), `docs/local-values.md`(K20을 `ops-oauth.json`으로), `server/CLAUDE.md`(다음 할 일 11번), spec(Task 0 결과와 `actor_sub` 칸 반영)
 
 - [ ] **Step 1: 문서 작성.** runbook: 준비(OAuth 클라이언트, `server ops login`), 운영자 등록과 빼기(IAP 바인딩 명령, `OPS_OPERATORS` 값 갱신), 명령 사용법, 상태 코드와 종료 코드, 사유에 개인정보 금지(문의 번호나 Issue 번호만). 목적별 운영 기준과 통제 세부는 적지 않음. 사람 DB 계정 안내는 모두 삭제.
+- [ ] **Step 1b: 남는 위험과 IAP 접근 기록(지휘 검토 1, 3).** 먼저 공식 문서로 확인합니다: ① 서비스 계정 토큰 발급(`iamcredentials.googleapis.com` `GenerateAccessToken`, `GenerateIdToken`)이 감사 로그의 어느 종류(관리 활동, 데이터 접근)에 남는지, 데이터 접근이면 기본으로 꺼져 있는지 ② IAP 데이터 접근 감사 로그(`iap.googleapis.com`)가 무엇을 남기는지(요청 본문, query, 헤더가 남지 않는지). 확인한 사실과 출처를 spec §2 표에 더하고, runbook "남는 위험" 절에 프로젝트 소유자의 우회 가능성과 그 기록이 남는 곳, 켜야 하는 감사 로그와 켜는 명령(`gcloud projects get-iam-policy`/`set-iam-policy`의 `auditConfigs`, 사람이 실행)을 적습니다. 지휘가 적은 "관리 활동에 남음"과 다르면 #1321에 알립니다.
 - [ ] **Step 2: S170** 근거에 `사용자 영향: D145`(⑦에 이미 반영) 또는 그대로 `#1376`을 판단해 적음. 처음 안을 대체했다는 문장과 #1381 점검 항목별 처리.
 - [ ] **Step 3: 전체 검사** vet, lint(기본, staging), `go test -race ./...`, contractgate, `go generate ./... && git status --porcelain`, 문서의 금지 문자 grep.
 - [ ] **Step 4: Commit** `docs(server): 운영 API runbook과 S170 개정 (#1321)`
