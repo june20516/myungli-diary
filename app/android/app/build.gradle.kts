@@ -136,6 +136,16 @@ configurations.configureEach {
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
     androidTestUtil("androidx.test:orchestrator:1.5.1")
+
+    // SDK가 끌어오는 낡은 라이브러리를 알려진 취약점을 고친 버전으로 올립니다(#1254). SDK를 올려
+    // 함께 해소되면 이 줄을 지웁니다(LINE SDK Android 5.13.0까지 Picasso 2.8 그대로).
+    constraints {
+        // LINE SDK(Picasso 2.8) → OkHttp 3.10.0, CVE-2021-0341(고친 버전 4.9.2, app-Q1-10).
+        implementation("com.squareup.okhttp3:okhttp:4.12.0")
+        // 광고 SDK(androidx ads-adservices-java) → Guava 31.1, CVE-2020-8908, CVE-2023-2976,
+        // CVE-2026-102554(고친 버전 33.7.2, app-Q1-11).
+        implementation("com.google.guava:guava:33.8.0-android")
+    }
 }
 
 // Crashlytics mapping file id(#739, 결정 A105). Android Crashlytics는 이 리소스(build ID)가 없으면
