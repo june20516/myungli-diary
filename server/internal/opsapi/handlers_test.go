@@ -546,6 +546,7 @@ func TestHandlers_LogsHaveNoSensitiveValues(t *testing.T) {
 	env.post(t, "/ops/v1/accounts:show?reason=쿼리-비밀", jsonBody(t, map[string]any{"accountId": account, "reason": secretReason}))
 	env.post(t, "/ops/v1/accounts:show", `{`)
 	env.do(t, request{path: "/ops/v1/accounts:show", omit: []string{opsapi.AssertionHeader}})
+	env.post(t, "/ops/v1/nothing", `{}`)
 
 	out := env.logs.String()
 	require.NotEmpty(t, out)
@@ -553,6 +554,7 @@ func TestHandlers_LogsHaveNoSensitiveValues(t *testing.T) {
 		assert.NotContains(t, out, forbidden)
 	}
 
+	assert.Contains(t, out, `"route":"unmatched"`, "없는 경로는 unmatched로 남습니다")
 	dec := json.NewDecoder(strings.NewReader(out))
 	for {
 		var line map[string]any

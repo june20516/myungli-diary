@@ -171,7 +171,7 @@ type httpKeySource struct {
 	lastErr     error     // 마지막 요청이 실패했다면 그 오류, 성공하면 nil
 }
 
-// NewHTTPKeySource는 url의 JWK Set을 1시간 캐시하는 KeySource를 만듭니다.
+// NewHTTPKeySource는 rawURL의 JWK Set을 1시간 캐시하는 KeySource를 만듭니다.
 //   - 캐시 기간이 지나면 낡은 캐시를 바로 돌려주고 뒤에서 다시 받습니다(성공 뒤 24시간까지).
 //   - 받기에 실패하면 1분 동안은 네트워크 없이 같은 결과를 돌려줍니다.
 //   - 모르는 kid로 다시 받는 일도 같은 최소 간격(1분)을 따릅니다.
