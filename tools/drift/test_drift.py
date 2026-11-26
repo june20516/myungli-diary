@@ -207,5 +207,20 @@ class DriftTest(unittest.TestCase):
         self.assertEqual(self.by_number(self.close(state, app="failure"), 412)["state"], "open")
 
 
+    def test_report_opens_issue_for_web(self):
+        # web 단위(D144)도 계약(site.json, 토큰, writing 생성물)을 받는 쪽입니다.
+        after = self.run_drift("report", {"issues": []}, PR="430", PR_TITLE="제목 430", CONTRACTS="docs/ia/site.json ",
+                               SERVER="none:skipped", APP="none:skipped", WRITING="none:skipped", DESIGN="none:skipped",
+                               WEB="drift:failure")
+        self.assertEqual([i["title"] for i in after["issues"]], ["[drift] web: PR #430 계약 변경 따라잡기"])
+        self.assertEqual(after["issues"][0]["labels"], ["drift", "kind:request", "to:web", "from:root"])
+
+    def test_close_closes_web_drift_when_web_passes(self):
+        state = {"issues": [drift_issue(432, "web", 431)],
+                 "prs": {"431": {"state": "MERGED", "merge": "m431"}}, "compare": {f"m431...{SHA}": "ahead"}}
+        after = self.run_drift("close", state, SHA=SHA, SERVER="skipped", APP="skipped", WRITING="skipped",
+                               DESIGN="skipped", WEB="success")
+        self.assertEqual(self.by_number(after, 432)["state"], "closed")
+
 if __name__ == "__main__":
     unittest.main()

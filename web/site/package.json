@@ -1,0 +1,26 @@
+{
+  "name": "site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build && node scripts/check-dist.ts",
+    "preview": "astro preview",
+    "typecheck": "astro check && tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@myungli/tokens": "workspace:*",
+    "@resvg/resvg-js": "2.6.2",
+    "astro": "7.4.13",
+    "satori": "0.63.2",
+    "sharp": "0.35.5",
+    "subset-font": "2.9.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.12",
+    "fontverter": "2.1.0",
+    "harfbuzzjs": "1.6.4",
+    "node-html-parser": "9.0.7",
+    "typescript": "6.0.3"
+  }
+}

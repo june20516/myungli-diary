@@ -1,0 +1,28 @@
+{
+  "name": "myungli-web",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.23.0",
+  "engines": {
+    "node": "26.13.1"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "pnpm -r --if-present typecheck && tsc -p e2e/tsconfig.json",
+    "test": "vitest run --passWithNoTests",
+    "build": "pnpm --filter site build",
+    "e2e": "WEB_ORIGIN=http://127.0.0.1:47291 pnpm build && cd deploy/firebase && firebase emulators:exec --only hosting --project demo-myungli-web 'cd ../.. && playwright test -c e2e/playwright.config.ts'"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.65.1",
+    "@types/node": "26.6.7",
+    "eslint": "10.15.0",
+    "eslint-plugin-astro": "3.2.1",
+    "firebase-tools": "15.37.0",
+    "globals": "17.14.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.74.0",
+    "vitest": "5.1.1"
+  }
+}

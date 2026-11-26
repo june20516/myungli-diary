@@ -1,0 +1,12 @@
+{
+  "projects": {
+    "default": "demo-myungli-web",
+    "staging": "myungli-diary-staging",
+    "prod": "myungli-diary"
+  },
+  "targets": {
+    "demo-myungli-web": { "hosting": { "landing": ["demo-myungli-web"] } },
+    "myungli-diary-staging": { "hosting": { "landing": ["myungli-diary-staging-landing"] } },
+    "myungli-diary": { "hosting": { "landing": ["myungli-diary-landing"] } }
+  }
+}

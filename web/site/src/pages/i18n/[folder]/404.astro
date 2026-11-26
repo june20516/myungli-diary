@@ -1,0 +1,18 @@
+---
+// 언어별 404(Hosting i18n 재작성, config/not-found.ts). 빌드 뒤 404/index.html을 404.html로 옮깁니다(build/not-found.ts).
+import NotFound from "../../../components/NotFound.astro";
+import { LANGS, type Lang } from "../../../config/lang.ts";
+import { notFoundFolder } from "../../../config/not-found.ts";
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { folder: notFoundFolder(lang) }, props: { lang } }));
+}
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+---
+
+<NotFound lang={lang} />

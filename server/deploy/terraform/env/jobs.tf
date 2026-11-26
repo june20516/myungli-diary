@@ -7,6 +7,8 @@ locals {
     "server-retention"  = ["job", "retention"]
     "server-precompute" = ["job", "precompute"]
     "server-notify"     = ["job", "notify"]
+    # 배포 뒤 조합 확인(D147 ①, S169). Scheduler 없이 배포 workflow가 실행합니다.
+    "server-smoke" = ["job", "smoke"]
   }
   # migrate와 seed만 migrator 계정으로 돕니다(S137). 나머지 Job은 serve와 같은 런타임 계정입니다.
   migrator_jobs = ["server-migrate", "server-seed"]

@@ -281,7 +281,7 @@
   user_state: "언제 샀고 언제까지 쓰는지 봅니다."
   structure: "구매일(`Purchased`)과 사용 기간(`Period`) 두 부품. 구분 글자로 잇지 않고 레이아웃으로 나눕니다(라운드 R20, W44). 날짜(date, start, end)는 app이 기기 locale의 짧은 날짜로 만듭니다. 사용 기간이 없는 상품은 구매일만 보입니다."
   tone: {진지: 3, 격식: 3, 존중: 4, 담백: 5}
-  max_length: {ko: 26, en: 48, ja: 21}
+  max_length: {ko: 27, en: 48, ja: 21}
   components: [purchase-row]
   keys:
     - params: {date: text}

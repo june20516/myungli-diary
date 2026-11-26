@@ -1,0 +1,99 @@
+# 랜딩 배포(WB1 #1331, 준비 메모 docs/specs/2026-11-25-web-landing-design.md §5). web 소유(D144).
+# PR: workflow 검사와 Terraform fmt, validate. staging push: staging Hosting 사이트. main push(승격): prod(environment web-prod 승인, D136).
+# 저장소 변수 WEB_DEPLOY_ENABLED가 true가 아니면(사용자 준비 E25 #1332 전) 배포 job은 건너뜁니다. 절차는 web/deploy/README.md입니다.
+name: deploy-web
+
+on:
+  push:
+    branches: [staging, main]
+    paths:
+      - "web/**"
+      - ".github/workflows/deploy-web.yml"
+      # 사이트가 빌드 때 읽는 계약 파일이 바뀌어도 다시 배포합니다.
+      - "docs/identity/design/tokens/**"
+      - "docs/ia/site.json"
+      - "docs/identity/writing/generated/web/**"
+      - "docs/identity/writing/generated/store/**"
+  pull_request:
+    paths:
+      - "web/deploy/**"
+      - ".github/workflows/deploy-web.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  TERRAFORM_VERSION: "1.17.0"
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+      - name: terraform fmt
+        run: terraform fmt -check -recursive web/deploy/terraform
+      - name: terraform validate
+        run: |
+          terraform -chdir=web/deploy/terraform init -backend=false -input=false
+          terraform -chdir=web/deploy/terraform validate
+      - name: actionlint
+        run: docker run --rm -v "$PWD":/repo -w /repo rhysd/actionlint:1.7.12 -color .github/workflows/deploy-web.yml .github/workflows/web.yml
+
+  deploy:
+    needs: checks
+    # staging 브랜치는 staging, main(승격으로만 바뀜, D136)은 prod. PR에서는 돌지 않습니다.
+    if: >-
+      github.event_name != 'pull_request'
+      && vars.WEB_DEPLOY_ENABLED == 'true'
+      && (github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/main' && 'web-prod' || 'web-staging' }}
+    # 같은 환경의 배포는 하나씩, 진행 중인 것을 취소하지 않습니다.
+    concurrency:
+      group: deploy-web-${{ github.ref == 'refs/heads/main' && 'prod' || 'staging' }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      PROJECT: ${{ github.ref == 'refs/heads/main' && 'myungli-diary' || 'myungli-diary-staging' }}
+      WEB_ORIGIN: ${{ github.ref == 'refs/heads/main' && 'https://myungli-diary.app' || 'https://staging.myungli-diary.app' }}
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      # WIF pool은 server bootstrap 것을 같이 쓰고(같은 provider 변수), 계정은 web 전용입니다(web/deploy/terraform).
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+        with:
+          workload_identity_provider: ${{ github.ref == 'refs/heads/main' && vars.GCP_WIF_PROVIDER_PROD || vars.GCP_WIF_PROVIDER_STAGING }}
+          service_account: web-deployer@${{ env.PROJECT }}.iam.gserviceaccount.com
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          package_json_file: web/package.json
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: web/.nvmrc
+      - name: 설치(lockfile 고정)
+        run: pnpm install --frozen-lockfile
+      # 빌드 뒤 검사(check-dist)가 이 origin으로 OG 절대 주소와 페이지를 확인하므로, origin이 비거나 로컬 값이면 빌드 전에 멈춥니다.
+      - name: origin 확인
+        run: |
+          case "$WEB_ORIGIN" in
+            https://myungli-diary.app | https://staging.myungli-diary.app) ;;
+            *)
+              echo "WEB_ORIGIN이 배포 주소가 아닙니다: '$WEB_ORIGIN'" >&2
+              exit 1
+              ;;
+          esac
+      - name: 빌드
+        run: pnpm build
+      - name: Firebase Hosting(사이트 target landing)
+        working-directory: web/deploy/firebase
+        run: pnpm exec firebase deploy --only hosting:landing --project "$PROJECT" --non-interactive
+      - name: 요약
+        run: echo "### 랜딩 배포 ($PROJECT) $WEB_ORIGIN" >> "$GITHUB_STEP_SUMMARY"

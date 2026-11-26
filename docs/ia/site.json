@@ -1,0 +1,124 @@
+{
+  "version": 1,
+  "tabs": [],
+  "components": [],
+  "screens": [
+    {
+      "id": "web-landing",
+      "title": "앱 랜딩",
+      "tab": null,
+      "presentation": "system",
+      "auth": "any",
+      "purpose": "myungli-diary.app 랜딩입니다(WB1). 스토어 등록정보 웹사이트, 피처링과 광고의 도착 페이지로 앱을 한눈에 설명하고 두 스토어로 보냅니다. 언어별 경로 /ko/, /en/, /ja/. 출시 전에는 스토어 배지 자리에 곧 출시 안내(링크 없음), 출시 뒤에는 두 스토어 배지가 스토어로 연결",
+      "depths": [],
+      "states": [],
+      "slots": [
+        {
+          "id": "web-landing.meta.title",
+          "source": "content",
+          "role": "브라우저 탭과 검색 결과 제목, 공유 미리보기 제목"
+        },
+        {
+          "id": "web-landing.meta.description",
+          "source": "content",
+          "role": "검색 결과와 공유 미리보기 설명 한두 문장"
+        },
+        {
+          "id": "web-landing.hero.tagline",
+          "source": "content",
+          "role": "앱 이름 아래 한 줄 소개"
+        },
+        {
+          "id": "web-landing.hero.body",
+          "source": "content",
+          "role": "앱이 해 주는 것을 찾는 순간과 얻는 것으로 두세 문장(R49 답지)"
+        },
+        {
+          "id": "web-landing.shots.alt",
+          "source": "content",
+          "role": "앱 화면 사진의 대체 텍스트. 키는 스토어 스크린샷 장면 id(today, evidence, calendar, daySheet, mySaju, share, design store/store.json)이고, 사진마다 무엇을 보여 주는지"
+        },
+        {
+          "id": "web-landing.store.soon",
+          "source": "content",
+          "role": "출시 전 스토어 배지 자리 안내(곧 출시)"
+        },
+        {
+          "id": "web-landing.store.apple",
+          "source": "content",
+          "role": "App Store 배지 링크의 접근성 이름"
+        },
+        {
+          "id": "web-landing.store.google",
+          "source": "content",
+          "role": "Google Play 배지 링크의 접근성 이름"
+        },
+        {
+          "id": "web-landing.footer.terms",
+          "source": "content",
+          "role": "이용약관 링크 이름(server /legal/terms)"
+        },
+        {
+          "id": "web-landing.footer.privacy",
+          "source": "content",
+          "role": "개인정보 처리방침 링크 이름(server /legal/privacy)"
+        },
+        {
+          "id": "web-landing.footer.support",
+          "source": "content",
+          "role": "지원 페이지 링크 이름(server /support)"
+        },
+        {
+          "id": "web-landing.lang.label",
+          "source": "content",
+          "role": "언어 바꾸기 묶음의 접근성 이름"
+        }
+      ],
+      "components": [],
+      "exits": [],
+      "decisions": [
+        "D144",
+        "D145",
+        "D146"
+      ]
+    },
+    {
+      "id": "web-not-found",
+      "title": "없는 주소",
+      "tab": null,
+      "presentation": "system",
+      "auth": "any",
+      "purpose": "랜딩 사이트(myungli-diary.app)에서 없는 주소를 열었을 때의 404 페이지입니다(#1358). 브라우저 언어(Accept-Language)에 맞는 언어로 내고, 맞는 언어가 없으면 en입니다. 페이지를 찾을 수 없다는 제목, 안내 한 문장, 랜딩으로 가는 링크 하나만 둡니다",
+      "depths": [],
+      "states": [],
+      "components": [],
+      "exits": [],
+      "decisions": [
+        "D144",
+        "D146"
+      ],
+      "slots": [
+        {
+          "id": "web-not-found.meta.title",
+          "source": "content",
+          "role": "404 페이지의 브라우저 탭 제목"
+        },
+        {
+          "id": "web-not-found.page.title",
+          "source": "content",
+          "role": "페이지를 찾을 수 없다는 제목 한 줄"
+        },
+        {
+          "id": "web-not-found.page.body",
+          "source": "content",
+          "role": "주소가 없거나 바뀌었다는 안내 한 문장"
+        },
+        {
+          "id": "web-not-found.page.home",
+          "source": "content",
+          "role": "랜딩 첫 화면으로 가는 링크 이름"
+        }
+      ]
+    }
+  ]
+}

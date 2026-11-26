@@ -54,11 +54,13 @@ jobs:
       app: ${{ steps.detect.outputs.app }}
       writing: ${{ steps.detect.outputs.writing }}
       design: ${{ steps.detect.outputs.design }}
+      web: ${{ steps.detect.outputs.web }}
       core_mode: ${{ steps.detect.outputs.core_mode }}
       server_mode: ${{ steps.detect.outputs.server_mode }}
       app_mode: ${{ steps.detect.outputs.app_mode }}
       writing_mode: ${{ steps.detect.outputs.writing_mode }}
       design_mode: ${{ steps.detect.outputs.design_mode }}
+      web_mode: ${{ steps.detect.outputs.web_mode }}
       contracts: ${{ steps.detect.outputs.contracts }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -73,7 +75,7 @@ jobs:
           if [ "$EVENT" = "workflow_dispatch" ]; then
             echo "수동 실행: 모든 단위를 own으로 돌립니다."
             echo "docs=true" >> "$GITHUB_OUTPUT"
-            for name in core server app writing design; do
+            for name in core server app writing design web; do
               echo "$name=true" >> "$GITHUB_OUTPUT"; echo "${name}_mode=own" >> "$GITHUB_OUTPUT"
             done
             exit 0
@@ -85,7 +87,7 @@ jobs:
           else
             # 비교 기준이 없으면 아무 검사도 고르지 않습니다.
             echo "docs=false" >> "$GITHUB_OUTPUT"
-            for name in core server app writing design; do
+            for name in core server app writing design web; do
               echo "$name=false" >> "$GITHUB_OUTPUT"; echo "${name}_mode=none" >> "$GITHUB_OUTPUT"
             done
             exit 0
@@ -131,11 +133,13 @@ jobs:
           # writing 검사기가 읽는 계약: IA, 메시지 키·매개변수, proto(#144), design 글자 수 상한 표(슬롯 max_length 대조, W26).
           # 검사기가 읽지 않는 과정 문서(CLAUDE.md·결정·spec·계획·산출물)만 바뀐 것은 writing 검사를 고르지 않습니다(docs 검사만 돕니다).
           writing_changed=$(echo "$changed" | grep -vE '^docs/identity/writing/(CLAUDE\.md|decisions\.md|specs/|plans/|artifacts/)' || true)
-          unit writing "$writing_changed" '^docs/identity/writing/' '^docs/ia/screens\.json$|^core/(message_(keys|params)|evidence_(rules|sources))\.json$|^proto/|^docs/identity/design/lengths\.md$|^docs/identity/design/store/'
+          unit writing "$writing_changed" '^docs/identity/writing/' '^docs/ia/(screens|site)\.json$|^core/(message_(keys|params)|evidence_(rules|sources))\.json$|^proto/|^docs/identity/design/lengths\.md$|^docs/identity/design/store/'
           # design 검사기가 읽는 계약: IA(components.py), writing 라운드 원고와 ui 원고의 링크 문구(lengths.py),
           # writing 용어 한자와 원전 원고의 한자(hanja_supplement.py 덮임 검사, V121). 과정 문서는 writing과 같이 뺍니다.
           design_changed=$(echo "$changed" | grep -vE '^docs/identity/design/(CLAUDE\.md|decisions\.md|specs/|plans/|artifacts/)' || true)
           unit design "$design_changed" '^docs/identity/design/' '^docs/ia/screens\.json$|^docs/identity/writing/artifacts/[^/]*-round-R[0-9]+\.md$|^docs/identity/writing/content/[^/]+/ui\.yaml$|^docs/identity/writing/content/hanja\.yaml$|^docs/identity/writing/content/[^/]+/source\.yaml$'
+          # web이 쓰는 계약: 디자인 토큰, 웹 IA(site.json, D146), writing 웹 원고와 스토어 등록정보 생성물(랜딩 앱 이름, #1342).
+          unit web "$code_changed" '^web/' '^docs/identity/design/(tokens|web)/|^docs/ia/site\.json$|^docs/identity/writing/generated/(web|store)/'
           # drift Issue 본문에 적을 계약 파일 목록입니다.
           contracts=$(echo "$changed" | grep -E '^server/api/openapi\.yaml$|^docs/ia/screens\.json$|^docs/identity/design/(tokens|components|store)/|^docs/identity/writing/(content|slots|rules|tools|generated/store)/|^docs/identity/writing/artifacts/[^/]*-round-R[0-9]+\.md$|^core/(message_(keys|params)|evidence_(rules|sources))\.json$|^proto/|^docs/identity/design/lengths\.md$|^docs/legal/[^/]+/' | head -20 | tr '\n' ' ')
           echo "contracts=$contracts" >> "$GITHUB_OUTPUT"
@@ -198,13 +202,20 @@ jobs:
     with:
       mode: ${{ needs.changes.outputs.design_mode }}
 
+  web:
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
+    uses: ./.github/workflows/web.yml
+    with:
+      mode: ${{ needs.changes.outputs.web_mode }}
+
   # drift로 돈 단위가 실패하면 PR에서 받는 쪽 앞으로 Issue를 엽니다. 그 단위 앞으로 열린 drift가 이미 있으면 새로 열지 않고
   # 가장 오래된 Issue에 원인 PR을 더합니다(같은 원인의 Issue가 PR마다 쌓이지 않게). 같은 PR의 다음 실행에서 drift가 통과하면
   # (주는 쪽이 PR 안에서 맞춤) 그 PR이 연 Issue를 닫습니다. push에서는 drift를 돌리지 않기 때문입니다. 로직은 tools/drift/drift.sh입니다.
   # 승격 PR(staging → main)은 drift를 보고하지 않습니다. diff가 지난 승격 뒤 모든 변경이라 이미 staging PR에서 보고된 원인이
   # 겹치고, 승격 merge commit은 staging에 다시 들어오지 않아 drift-close가 그 원인을 영영 닫지 못하기 때문입니다(D141).
   drift-report:
-    needs: [changes, core, server, app, writing, design]
+    needs: [changes, core, server, app, writing, design, web]
     if: always() && github.event_name == 'pull_request' && github.base_ref != 'main'
     runs-on: ubuntu-latest
     permissions:
@@ -226,13 +237,14 @@ jobs:
           APP: ${{ needs.changes.outputs.app_mode }}:${{ needs.app.result }}
           WRITING: ${{ needs.changes.outputs.writing_mode }}:${{ needs.writing.result }}
           DESIGN: ${{ needs.changes.outputs.design_mode }}:${{ needs.design.result }}
+          WEB: ${{ needs.changes.outputs.web_mode }}:${{ needs.web.result }}
         run: tools/drift/drift.sh report
 
   # staging에서 단위 검사가 통과하면 그 단위는 그 커밋의 모든 계약에 맞습니다(drift는 staging에서 생기고 풀림, D136 ①). 원인 PR(제목과 더해진 원인)이 모두 그 커밋에 들어 있는
   # drift Issue를 닫습니다. 원인 PR이 모두 병합 없이 닫혔으면 따라잡을 것이 없으므로 not planned로 닫습니다.
   # 받는 쪽이 PR 본문에 `Closes`를 빠뜨려도 남지 않게 하려는 것입니다(남은 drift는 gate 판정을 느슨하게 합니다).
   drift-close:
-    needs: [changes, server, app, writing, design]
+    needs: [changes, server, app, writing, design, web]
     if: always() && github.event_name == 'push' && github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
     permissions:
@@ -253,10 +265,11 @@ jobs:
           APP: ${{ needs.app.result }}
           WRITING: ${{ needs.writing.result }}
           DESIGN: ${{ needs.design.result }}
+          WEB: ${{ needs.web.result }}
         run: tools/drift/drift.sh close
 
   ci-gate:
-    needs: [changes, docs, core, server, app, writing, design]
+    needs: [changes, docs, core, server, app, writing, design, web]
     if: always()
     runs-on: ubuntu-latest
     permissions:
@@ -272,8 +285,9 @@ jobs:
           APP: ${{ needs.changes.outputs.app_mode }}:${{ needs.app.result }}
           WRITING: ${{ needs.changes.outputs.writing_mode }}:${{ needs.writing.result }}
           DESIGN: ${{ needs.changes.outputs.design_mode }}:${{ needs.design.result }}
+          WEB: ${{ needs.changes.outputs.web_mode }}:${{ needs.web.result }}
         run: |
-          echo "결과: $FIXED core=$CORE server=$SERVER app=$APP writing=$WRITING design=$DESIGN"
+          echo "결과: $FIXED core=$CORE server=$SERVER app=$APP writing=$WRITING design=$DESIGN web=$WEB"
           failed=""
           for result in $FIXED; do
             case "$result" in
@@ -281,7 +295,7 @@ jobs:
               *) failed="$failed $result" ;;
             esac
           done
-          for pair in "core=$CORE" "server=$SERVER" "app=$APP" "writing=$WRITING" "design=$DESIGN"; do
+          for pair in "core=$CORE" "server=$SERVER" "app=$APP" "writing=$WRITING" "design=$DESIGN" "web=$WEB"; do
             unit="${pair%%=*}"; mode="${pair#*=}"; mode_name="${mode%%:*}"; result="${mode#*:}"
             case "$result" in
               success|skipped) continue ;;

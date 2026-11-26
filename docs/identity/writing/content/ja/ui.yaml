@@ -26,7 +26,7 @@
 - {slot: birthplace.empty.body, key: birthplaceEmptyBody, text: "該当する都市がありません。近くの大きな都市で探してみてください。"}
 - {slot: preview.cta.save, key: previewCtaSave, text: "保存して続ける"}
 - {slot: preview.cta.restart, key: previewCtaRestart, text: "入力し直す"}
-- {slot: preview.restart.notice, key: previewRestartNotice, text: "入力し直した情報で見るには、ログインしてみてください。"}
+- {slot: preview.restart.notice, key: previewRestartNotice, text: "入力し直した情報で読み解きを見るには、ログインしてみてください。"}
 - {slot: preview.share.login-notice, key: previewShareLoginNotice, text: "ログインすると今日の読み解きを共有できます。"}
 - {slot: preview.share.login-notice, key: previewShareLoginNoticeConfirm, text: "ログインする"}
 - {slot: preview.share.login-notice, key: previewShareLoginNoticeCancel, text: "閉じる"}
@@ -77,12 +77,12 @@
 - {slot: evidence-sheet.lock.reward, key: evidenceSheetLockReward, text: "広告を1本最後まで見ると、そこから2時間、根拠と解釈をすべて見られます。"}
 - {slot: evidence-sheet.lock.cta, key: evidenceSheetLockCta, text: "広告を見て開く"}
 - {slot: evidence-sheet.lock.pass, key: evidenceSheetLockPass, text: "広告除去パスがあれば、期間中ずっと開いています。"}
-- {slot: evidence-sheet.lock.pass, key: evidenceSheetLockPassLink, text: "広告除去を見る"}
+- {slot: evidence-sheet.lock.pass, key: evidenceSheetLockPassLink, text: "広告除去パスを見る"}
 - {slot: evidence-sheet.lock.unavailable, key: evidenceSheetLockUnavailable, text: "いま見られる広告がありません。しばらくしてからもう一度お試しください。"}
 - {slot: evidence-sheet.section.basis, key: evidenceSheetSectionBasis, text: "判定の根拠"}
 - {slot: evidence-sheet.section.source, key: evidenceSheetSectionSource, text: "原典"}
 - {slot: evidence-sheet.section.personal, key: evidenceSheetSectionPersonal, text: "わたしの命式では"}
-- {slot: evidence-sheet.unlock.failed, key: evidenceSheetUnlockFailed, text: "広告の確認に時間がかかっています。少し待って開き直してください。"}
+- {slot: evidence-sheet.unlock.failed, key: evidenceSheetUnlockFailed, text: "広告の確認に時間がかかっています。少し待ってもう一度開いてください。"}
 - {slot: evidence-sheet.a11y.locked, key: evidenceSheetA11yLocked, text: "ロック中"}
 - {slot: evidence-sheet.a11y.checking, key: evidenceSheetA11yChecking, text: "確認中"}
 - {slot: evidence-sheet.a11y.unlocked, key: evidenceSheetA11yUnlocked, text: "根拠と解釈が開きました"}
@@ -112,7 +112,7 @@
 - {slot: settings.logout.confirm, key: settingsLogoutConfirm, text: "ログアウトしますか?"}
 - {slot: settings.logout.confirm, key: settingsLogoutConfirmLogout, text: "ログアウト"}
 - {slot: settings.logout.confirm, key: settingsLogoutConfirmCancel, text: "キャンセル"}
-- {slot: settings.ad-free.label, key: settingsAdFreeLabel, text: "広告を消す"}
+- {slot: settings.ad-free.label, key: settingsAdFreeLabel, text: "広告除去"}
 - {slot: settings.ad-free.label, key: settingsAdFreeLabelActive, text: "{date}まで"}
 - {slot: profile-edit.recalc.notice, key: profileEditRecalcNotice, text: "誕生日・時間・性別・出生地を変えると、読み解きを計算し直します。"}
 - {slot: profile-edit.recalc.confirm, key: profileEditRecalcConfirmTitle, text: "情報を変更しますか?"}
@@ -148,7 +148,7 @@
 - {slot: ad-free.history.cta, key: adFreeHistoryCta, text: "購入履歴"}
 - {slot: ad-free.legal.notice, key: adFreeLegalNotice, text: "購入と同時に利用が始まる商品は、申込みの撤回が制限されることがあります。詳しくは利用規約とプライバシーポリシーでご確認いただけます。"}
 - {slot: purchase-history.empty.body, key: purchaseHistoryEmptyBody, text: "購入履歴はありません。"}
-- {slot: purchase-history.missing.notice, key: purchaseHistoryMissingNotice, text: "支払った商品が表示されない場合は、「お問い合わせ」からお知らせください。"}
+- {slot: purchase-history.missing.notice, key: purchaseHistoryMissingNotice, text: "購入した商品が表示されない場合は、「お問い合わせ」からお知らせください。"}
 - {slot: ui.purchase.status, key: purchaseStatusActive, text: "利用中"}
 - {slot: ui.purchase.status, key: purchaseStatusPending, text: "利用前"}
 - {slot: ui.purchase.status, key: purchaseStatusExpired, text: "期限切れ"}
@@ -175,7 +175,7 @@
 - {slot: ui.error.code, key: errorAuthRefreshReused, text: "安全のためログアウトしました。もう一度ログインしてください。"}
 - {slot: ui.error.code, key: errorAuthProviderTokenInvalid, text: "ログインできませんでした。もう一度お試しください。"}
 - {slot: ui.error.code, key: errorAuthExchangeInvalid, text: "ログインの時間が過ぎました。最初からもう一度ログインしてください。"}
-- {slot: ui.error.code, key: errorAuthIdentityNotFound, text: "ログイン方法が見つかりませんでした。画面を開き直してください。"}
+- {slot: ui.error.code, key: errorAuthIdentityNotFound, text: "ログイン方法が見つかりませんでした。画面をもう一度開いてください。"}
 - {slot: ui.error.code, key: errorAuthProviderTaken, text: "同じログイン方法で別のアカウントがすでに連携されています。"}
 - {slot: ui.error.code, key: errorAuthIdentityInUse, text: "このログイン方法は別のアカウントに連携されています。"}
 - {slot: ui.error.code, key: errorAuthLastIdentity, text: "ログイン方法は1つ以上残しておく必要があります。"}
@@ -185,7 +185,7 @@
 - {slot: ui.error.code, key: errorPreviewUsed, text: "プレビューは一度だけ見られます。ログインすると続きを読めます。"}
 - {slot: ui.error.code, key: errorRouteNotFound, text: "処理できませんでした。アプリをアップデートしてください。"}
 - {slot: ui.error.code, key: errorDiaryNotFound, text: "日記が見つかりませんでした。"}
-- {slot: ui.error.code, key: errorReactionNotFound, text: "反応する文が見つかりませんでした。画面を更新してください。"}
+- {slot: ui.error.code, key: errorReactionNotFound, text: "反応を残す文が見つかりませんでした。画面を更新してください。"}
 - {slot: ui.error.code, key: errorScheduleNotFound, text: "予定が見つかりませんでした。一覧を更新してください。"}
 - {slot: ui.error.code, key: errorMethodNotAllowed, text: "処理できませんでした。アプリをアップデートしてください。"}
 - {slot: ui.error.code, key: errorProfileRequired, text: "先に生まれた日と時間を入力してください。"}
@@ -300,7 +300,7 @@
 - {slot: my-saju.bar.title, key: mySajuBarTitle, text: "私の命式"}
 - {slot: saju-chart.bar.title, key: sajuChartBarTitle, text: "命式表"}
 - {slot: settings.bar.title, key: settingsBarTitle, text: "設定"}
-- {slot: ad-free.bar.title, key: adFreeBarTitle, text: "広告を消す"}
+- {slot: ad-free.bar.title, key: adFreeBarTitle, text: "広告除去"}
 - {slot: profile-edit.bar.title, key: profileEditBarTitle, text: "情報の変更"}
 - {slot: calc-basis.bar.title, key: calcBasisBarTitle, text: "計算の基準"}
 - {slot: account-delete.bar.title, key: accountDeleteBarTitle, text: "アカウント削除"}
@@ -369,7 +369,7 @@
 - {slot: ui.account-merge.summary, key: accountMergeSummaryDiary, text: "日記"}
 - {slot: ui.account-merge.summary, key: accountMergeSummaryEvent, text: "予定"}
 - {slot: ui.account-merge.summary, key: accountMergeSummaryAdFree, text: "広告除去の残り期間"}
-- {slot: ui.account-merge.summary, key: accountMergeSummaryDiaryCount, text: "{count, plural, other{{count}編}}"}
+- {slot: ui.account-merge.summary, key: accountMergeSummaryDiaryCount, text: "{count, plural, other{{count}件}}"}
 - {slot: ui.account-merge.summary, key: accountMergeSummaryEventCount, text: "{count, plural, other{{count}件}}"}
 - {slot: ui.account-merge.summary, key: accountMergeSummaryAdFreeDays, text: "{days, plural, other{{days}日}}"}
 # IA 밖 app 임시 문구(#331, 라운드 R26)와 ATT 본문(#697).

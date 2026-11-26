@@ -35,7 +35,7 @@ IA_DATA = {
 def ia(tmp_path: Path) -> Ia:
     path = tmp_path / "screens.json"
     path.write_text(json.dumps(IA_DATA), encoding="utf-8")
-    return load_ia(path)
+    return load_ia([path])
 
 
 def make_slot(
@@ -90,7 +90,55 @@ def test_load_ia_broken(tmp_path: Path) -> None:
     path = tmp_path / "screens.json"
     path.write_text("{", encoding="utf-8")
     with pytest.raises(LoadError):
-        load_ia(path)
+        load_ia([path])
+
+
+SITE_ID = "web-landing.hero.tagline"
+SITE_DATA = {
+    "version": 1,
+    "tabs": [],
+    "components": [],
+    "screens": [{"id": "web-landing", "slots": [{"id": SITE_ID, "source": "content", "role": "한 줄 소개"}]}],
+}
+
+
+def write_json(path: Path, data: object) -> Path:
+    path.write_text(json.dumps(data), encoding="utf-8")
+    return path
+
+
+def test_load_ia_merges_surface_files(tmp_path: Path) -> None:
+    """표면별 IA 파일(D146)을 하나로 합치고, 대조 문제는 그 슬롯이 적힌 파일을 가리킵니다."""
+    screens = write_json(tmp_path / "screens.json", IA_DATA)
+    site = write_json(tmp_path / "site.json", SITE_DATA)
+    ia = load_ia([screens, site])
+    assert list(ia.slots) == [UI_ID, CONTENT_ID, SITE_ID]
+    assert ia.screens[SITE_ID] == "web-landing"
+    uncovered = [finding for finding in check_ia(covering_slots(), ia) if finding.rule_id == RULE_UNCOVERED]
+    assert [(finding.file, SITE_ID in finding.message) for finding in uncovered] == [(site, True)]
+    web_slot = make_slot("web-landing.hero.tagline", "web", ("heroTagline",), ia=(SITE_ID,))
+    assert check_ia(covering_slots(web_slot), ia) == []
+
+
+@pytest.mark.parametrize(
+    "site_screen",
+    [
+        {"id": "other", "slots": [{"id": CONTENT_ID, "source": "content"}]},
+        {"id": "x", "slots": []},
+    ],
+    ids=["slot", "screen"],
+)
+def test_load_ia_rejects_ids_shared_across_files(tmp_path: Path, site_screen: dict[str, object]) -> None:
+    screens = write_json(tmp_path / "screens.json", IA_DATA)
+    site = write_json(tmp_path / "site.json", {**SITE_DATA, "screens": [site_screen]})
+    with pytest.raises(LoadError) as error:
+        load_ia([screens, site])
+    assert [finding.file for finding in error.value.findings] == [site]
+
+
+def test_web_slot_cannot_hold_ui_ia_slot(ia: Ia) -> None:
+    web_slot = make_slot("web.x", "web", ("x",), ia=(UI_ID,))
+    assert rule_ids(check_ia(covering_slots(web_slot), ia)) == [RULE_SOURCE]
 
 
 def test_clean_mapping_has_no_findings(ia: Ia) -> None:

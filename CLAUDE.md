@@ -4,7 +4,7 @@
 
 ## 나는 어떤 세션인가
 * 작업 디렉터리가 **본 저장소(`myungli-diary`) 루트**면 → **지휘 세션**입니다. 아래 "지휘 세션" 절을 따릅니다. 단위 worktree(`../myungli-diary-<단위>`)의 루트는 지휘 세션이 아닙니다.
-* 작업 디렉터리가 `core/`, `server/`, `app/` 아래면 → 그 **서브 프로젝트 세션**입니다. 그 디렉터리의 `CLAUDE.md`를 따르고, 자기 소유 경로(`docs/workflow.md` §2) 밖은 고치지 않습니다.
+* 작업 디렉터리가 `core/`, `server/`, `app/`, `web/` 아래면 → 그 **서브 프로젝트 세션**입니다. 그 디렉터리의 `CLAUDE.md`를 따르고, 자기 소유 경로(`docs/workflow.md` §2) 밖은 고치지 않습니다.
 * 작업 디렉터리가 `docs/identity/writing/` 또는 `docs/identity/design/` 아래면 → 그 **작업 단위 세션**(writing / design)입니다. 서브 프로젝트 세션과 같은 규칙을 따릅니다.
 
 ## 공통 규칙

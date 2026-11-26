@@ -1,12 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
 import 'package:myungli_diary/core/api/gen/model/diary_stats.dart';
+import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/features/me/data/diary_stats_repository.dart';
 
 /// 일기 회고 집계 저장소. 로그인한 계정에서만 읽을 수 있습니다.
-final diaryStatsRepositoryProvider = Provider<DiaryStatsRepository>(
-  (ref) => DiaryStatsRepository(ref.watch(restClientProvider)),
-);
+///
+/// 계정이 바뀌면 다시 만들어집니다([signedInAccountIdProvider], #1345).
+final diaryStatsRepositoryProvider = Provider<DiaryStatsRepository>((ref) {
+  ref.watch(signedInAccountIdProvider);
+  return DiaryStatsRepository(ref.watch(restClientProvider));
+});
 
 /// 나 탭 명리일기 회고 집계(A119). 캐시 없이, 구독이 끊겼다가 다시 생길 때 새로 받습니다.
 ///

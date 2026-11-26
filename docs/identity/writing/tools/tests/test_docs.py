@@ -10,7 +10,7 @@ from mlw.docs import render_docs, stale_docs, write_docs
 from mlw.ia import Ia, load_ia
 from mlw.loader import load_content, load_rules, load_slots
 from mlw.model import UNBOUNDED, RuleSet, Slot
-from mlw.paths import CONTENT_DIR, IA_FILE, RULES_DIR, SLOTS_DIR, WRITING_DIR
+from mlw.paths import CONTENT_DIR, IA_FILES, RULES_DIR, SLOTS_DIR, WRITING_DIR
 
 HEADER = "<!-- mlw gen-docs로 생성. 직접 고치지 않습니다 -->"
 FILES = {
@@ -22,6 +22,9 @@ FILES = {
     "arb/app_en.arb",
     "arb/app_ja.arb",
     "store/listing.json",
+    "web/ko.json",
+    "web/en.json",
+    "web/ja.json",
 }
 
 
@@ -37,11 +40,11 @@ def slots(rules: RuleSet) -> dict[str, Slot]:
 
 @pytest.fixture(scope="module")
 def docs(rules: RuleSet, slots: dict[str, Slot]) -> dict[str, str]:
-    return render_docs(rules, slots, load_ia(IA_FILE), load_content(CONTENT_DIR))
+    return render_docs(rules, slots, load_ia(IA_FILES), load_content(CONTENT_DIR))
 
 
 def test_render_is_deterministic(rules: RuleSet, slots: dict[str, Slot], docs: dict[str, str]) -> None:
-    assert render_docs(rules, slots, load_ia(IA_FILE), load_content(CONTENT_DIR)) == docs
+    assert render_docs(rules, slots, load_ia(IA_FILES), load_content(CONTENT_DIR)) == docs
     assert set(docs) == FILES
 
 
@@ -103,7 +106,7 @@ def test_ia_coverage_doc(tmp_path: Path, rules: RuleSet, slots: dict[str, Slot])
         '{"id": "a.b.c", "source": "content", "role": "r"}, {"id": "a.d.e", "source": "ui", "role": "r"}]}]}',
         encoding="utf-8",
     )
-    ia: Ia = load_ia(path)
+    ia: Ia = load_ia([path])
     one = next(iter(slots.values()))
     mapped = {"x.slot": dataclass_replace(one, id="x.slot", ia=("a.b.c",))}
     docs = render_docs(rules, mapped, ia, [])
@@ -121,7 +124,7 @@ def test_slot_doc_shows_unbounded_and_key_limits(rules: RuleSet, slots: dict[str
         max_length={"ko": 10, "en": UNBOUNDED, "ja": None},
         key_max_length={"actionClose": {"ko": 4}},
     )
-    docs = render_docs(rules, {**slots, slot.id: slot}, load_ia(IA_FILE), load_content(CONTENT_DIR))
+    docs = render_docs(rules, {**slots, slot.id: slot}, load_ia(IA_FILES), load_content(CONTENT_DIR))
     [row] = [line for line in docs["slot-catalog.md"].splitlines() if line.startswith("| ui.action.button |")]
     assert "ko 10, en 상한 없음, ja -" in row
     assert "`actionClose` ko 4" in row
@@ -130,7 +133,7 @@ def test_slot_doc_shows_unbounded_and_key_limits(rules: RuleSet, slots: dict[str
 def test_slot_doc_shows_line_and_byte_limits(rules: RuleSet, slots: dict[str, Slot]) -> None:
     """스토어 슬롯의 줄 수 상한과 바이트 단위가 슬롯 목록에 보입니다(#1201)."""
     slot = dataclass_replace(slots["ui.action.button"], max_lines=2, length_unit="utf8_bytes")
-    docs = render_docs(rules, {**slots, slot.id: slot}, load_ia(IA_FILE), load_content(CONTENT_DIR))
+    docs = render_docs(rules, {**slots, slot.id: slot}, load_ia(IA_FILES), load_content(CONTENT_DIR))
     [row] = [line for line in docs["slot-catalog.md"].splitlines() if line.startswith("| ui.action.button |")]
     assert "줄마다, 최대 2줄" in row
     assert "UTF-8 바이트" in row

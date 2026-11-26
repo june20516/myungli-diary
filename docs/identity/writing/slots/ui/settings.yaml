@@ -188,7 +188,7 @@
     good:
       - {lang: ko, key: calcBasisLongitudeBodySubtract, text: "출생 시각은 {longitude} 기준으로 {minutes}분을 빼서 계산합니다. 진태양시는 쓰지 않습니다. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.", why: "라운드 R18 선택(W43)", source: writing}
       - {lang: ko, key: calcBasisLongitudeBodyNone, text: "출생 시각은 {longitude} 기준이라 따로 보정하지 않고 계산합니다. 진태양시는 쓰지 않습니다. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.", why: "라운드 R18 선택(W43)", source: writing}
-      - {lang: ko, key: calcBasisLongitudeBodyDstSubtract, text: "출생 시각은 서머타임 {dstMinutes}분을 먼저 빼고, {longitude} 기준으로 {minutes}분을 더 빼서 계산합니다. 진태양시는 쓰지 않습니다. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.", why: "라운드 R18 선택(W43)", source: writing}
+      - {lang: ko, key: calcBasisLongitudeBodyDstSubtract, text: "출생 시각은 서머타임 {dstMinutes}분을 먼저 빼고, {longitude} 기준으로 {minutes}분을 빼서 계산합니다. 진태양시는 쓰지 않습니다. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.", why: "라운드 R18 선택(W43)", source: writing}
       - {lang: ko, key: calcBasisLongitudeBodyEast, text: "동경 {degrees}°", why: "경도 표기", source: writing}
     bad:
       - {lang: ko, text: "정확한 계산을 위해 최선을 다하고 있어요.", why: "무엇을 했는지 말하지 않음 slop.P1, 자기 성격 형용 slop.P6", source: writing}

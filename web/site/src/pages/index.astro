@@ -1,0 +1,53 @@
+---
+// 언어 고르기. JS가 있으면 브라우저 언어로 옮기고, 없으면(크롤러, 공유 미리보기) 세 언어 링크와 hreflang, 기본 OG(en)를 봅니다.
+import { DEFAULT_LANG, LANGS } from "../config/lang.ts";
+import { loadCopy } from "../copy/load.ts";
+import { LANG_NATIVE_NAME, OG_LOCALE } from "../i18n/locale.ts";
+import Base from "../layouts/Base.astro";
+
+const copy = loadCopy(DEFAULT_LANG);
+---
+
+<Base
+  htmlLang={DEFAULT_LANG}
+  title={copy.text("web-landing.meta.title")}
+  description={copy.text("web-landing.meta.description")}
+  path="/"
+  ogImagePath={`/${DEFAULT_LANG}/og.png`}
+  ogLocale={OG_LOCALE[DEFAULT_LANG]}
+>
+  <main>
+    <h1>{copy.appName}</h1>
+    <ul>
+      {
+        LANGS.map((lang) => (
+          <li>
+            <a href={`/${lang}/`} hreflang={lang} lang={lang}>
+              {LANG_NATIVE_NAME[lang]}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </main>
+</Base>
+
+<script>
+  import { pickLang } from "../i18n/pick.ts";
+
+  location.replace(`/${pickLang(navigator.languages)}/`);
+</script>
+
+<style>
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: var(--space-48) var(--space-20);
+  }
+  ul {
+    display: flex;
+    gap: var(--space-16);
+    padding: 0;
+    list-style: none;
+  }
+</style>

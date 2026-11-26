@@ -70,11 +70,11 @@ def make_slots_dir(root: Path, slot_yaml: str) -> Path:
 def test_content_slots_cover_message_keys(rules: RuleSet) -> None:
     slots = load_slots(SLOTS_DIR, rules)
     message_keys = set(json.loads(MESSAGE_KEYS_PATH.read_text(encoding="utf-8")))
-    # ui 슬롯은 ARB 메시지 이름, store 슬롯은 스토어 칸 이름이라 core 메시지 키가 아닙니다.
+    # ui 슬롯은 ARB 메시지 이름, store, web 슬롯은 생성 JSON 칸 이름이라 core 메시지 키가 아닙니다.
     covered = {
         key
         for slot in slots.values()
-        if slot.id not in IDENTIFIER_SLOTS and slot.file.parent.name not in ("ui", "store")
+        if slot.id not in IDENTIFIER_SLOTS and slot.file.parent.name not in ("ui", "store", "web")
         for key in slot.keys
     }
     assert len(message_keys) == 186

@@ -78,16 +78,46 @@ void main() {
       domain: 'com.google.admob',
     );
 
-    test('staging은 비치명 오류 요약으로 남깁니다', () {
+    test('staging은 광고 없음까지 비치명 오류 요약으로 남깁니다', () {
       final reporter = FakeCrashReporter();
-      reportAdLoadFailure(reporter, failure, staging: true);
+      reportAdLoadFailure(
+        reporter,
+        failure,
+        platform: TargetPlatform.iOS,
+        staging: true,
+      );
       expect(reporter.errors.single.code, 'com.google.admob.1');
     });
 
-    test('prod(기본값)는 남기지 않습니다', () {
+    test('prod(기본값)는 광고 없음과 연결 오류를 남기지 않습니다', () {
       final reporter = FakeCrashReporter();
-      reportAdLoadFailure(reporter, failure);
+      reportAdLoadFailure(reporter, failure, platform: TargetPlatform.iOS);
+      reportAdLoadFailure(
+        reporter,
+        const AdMobLoadFailure(3, 'No fill'),
+        platform: TargetPlatform.android,
+      );
+      reportAdLoadFailure(
+        reporter,
+        const AdMobLoadFailure(2, 'Network error'),
+        platform: TargetPlatform.android,
+      );
       expect(reporter.errors, isEmpty);
+    });
+
+    test('prod도 응답 없음과 그 밖의 실패는 남깁니다(#1345)', () {
+      final reporter = FakeCrashReporter();
+      reportAdLoadFailure(
+        reporter,
+        adMobBannerTimeoutFailure,
+        platform: TargetPlatform.android,
+      );
+      reportAdLoadFailure(
+        reporter,
+        const AdMobLoadFailure(1, 'Invalid request'),
+        platform: TargetPlatform.android,
+      );
+      expect(reporter.errors.map((e) => e.code), ['app.timeout.0', 'admob.1']);
     });
   });
 

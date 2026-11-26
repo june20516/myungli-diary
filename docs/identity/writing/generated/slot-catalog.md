@@ -265,7 +265,7 @@
 | ui.a11y.label | 컴포넌트 primary-button<br>컴포넌트 ad-banner<br>컴포넌트 skeleton<br>컴포넌트 term-token<br>컴포넌트 input-step<br>컴포넌트 text-field<br>컴포넌트 city-search | info | - | 1 | 9 | `term`: text<br>`step`: number<br>`stepCount`: number<br>`current`: number<br>`max`: number<br>`count`: number | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.account-merge.choice | 컴포넌트 account-choice | info | - | 1 | 2 | - | ko 11, en 19, ja 9 |
 | ui.account-merge.error | 컴포넌트 dialog | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
-| ui.account-merge.saju | 컴포넌트 account-choice | info | - | 1 | 5 | `date`: text<br>`calendar`: text<br>`time`: text | ko 23, en 43, ja 18 |
+| ui.account-merge.saju | 컴포넌트 account-choice | info | - | 1 | 5 | `date`: text<br>`calendar`: text<br>`time`: text | ko 28, en 43, ja 22 |
 | ui.account-merge.summary | account-merge.title.body | info | - | 1 | 7 | `count`: number<br>`days`: number | ko 19, en 35, ja 15 |
 | ui.action.button | 컴포넌트 primary-button<br>컴포넌트 dialog<br>컴포넌트 share-button<br>컴포넌트 check-row<br>컴포넌트 text-field<br>컴포넌트 input-step | guide | - | 1 | 8 | - | ko 8, en 13, ja 6 |
 | ui.ad-free.benefit | 컴포넌트 offer-card | info | - | 1 | 1 | - | ko 56, en 94, ja 40 |
@@ -273,7 +273,7 @@
 | ui.app.bootstrap | 컴포넌트 error-state | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.app.name | 컴포넌트 app-bar | info | - | 1 | 1 | - | ko 14, en 24, ja 11 |
 | ui.app.notice | 컴포넌트 notice-banner<br>컴포넌트 empty-state | info | - | 1 | 2 | - | ko 52, en 90, ja 38 |
-| ui.app.trace | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 2 | `traceId`: text | ko 48, en 78, ja 34 |
+| ui.app.trace | 컴포넌트 error-state<br>컴포넌트 toast | info | - | 1 | 2 | `traceId`: text | ko 48, en 78, ja 34<br>`traceIdLabel` ja 41 |
 | ui.birth-info.row | 컴포넌트 birth-info-row | info | - | 1 | 1 | `branch`: text | ko 19, en 34, ja 15 |
 | ui.birth.option | 컴포넌트 segmented<br>컴포넌트 check-row | info | - | 1 | 5 | - | ko 13, en 21, ja 10 |
 | ui.calendar.nav | 컴포넌트 calendar-month | guide | - | 1 | 2 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
@@ -314,7 +314,7 @@
 | ui.picker.item | 컴포넌트 date-picker<br>컴포넌트 time-picker | info | - | 1 | 8 | `year`: number<br>`month`: number<br>`day`: number<br>`hour`: number<br>`minute`: text | ko 7, en 12, ja 5 |
 | ui.picker.label | 컴포넌트 date-picker<br>컴포넌트 time-picker | info | - | 1 | 6 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.profile-edit.birthplace | 컴포넌트 settings-row | info | - | 1 | 1 | - | ko 9, en 16, ja 7 |
-| ui.purchase.meta | 컴포넌트 purchase-row | info | - | 1 | 2 | `date`: text<br>`start`: text<br>`end`: text | ko 26, en 48, ja 21 |
+| ui.purchase.meta | 컴포넌트 purchase-row | info | - | 1 | 2 | `date`: text<br>`start`: text<br>`end`: text | ko 27, en 48, ja 21 |
 | ui.purchase.product | 컴포넌트 purchase-row | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.purchase.status | 컴포넌트 purchase-row | info | - | 1 | 4 | - | ko 9, en 14, ja 6<br>`purchaseStatusActive` ko 5, en 8, ja 3 |
 | ui.saju-chart.tab | 컴포넌트 segmented | info | - | 1 | 2 | - | ko 13, en 21, ja 10 |
@@ -329,6 +329,22 @@
 | ui.shinsal.weighing | 컴포넌트 explain-sheet | info | - | 1 | 1 | - | ko 52, en 88, ja 38 |
 | ui.system.tracking | 컴포넌트 dialog | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | ui.tag-sheet.sentence-kind | 컴포넌트 tag-sentence-list | info | - | 1 | 2 | - | ko -, en -, ja - |
+| web-landing.footer.privacy | web-landing.footer.privacy | guide | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-landing.footer.support | web-landing.footer.support | guide | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-landing.footer.terms | web-landing.footer.terms | guide | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-landing.hero.body | web-landing.hero.body | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-landing.hero.tagline | web-landing.hero.tagline | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-landing.lang.label | web-landing.lang.label | guide | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-landing.meta.description | web-landing.meta.description | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-landing.meta.title | web-landing.meta.title | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-landing.shots.alt | web-landing.shots.alt | info | - | 1 | 6 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-landing.store.apple | web-landing.store.apple | guide | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-landing.store.google | web-landing.store.google | guide | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-landing.store.soon | web-landing.store.soon | guide | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-not-found.meta.title | web-not-found.meta.title | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-not-found.page.body | web-not-found.page.body | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-not-found.page.home | web-not-found.page.home | guide | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-not-found.page.title | web-not-found.page.title | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | welcome.concept.body | welcome.concept.body | info | - | 1 | 1 | - | ko -, en -, ja - |
 | welcome.concept.head | welcome.concept.head | info | - | 1 | 1 | - | ko -, en -, ja - |
 | welcome.cta.signin | welcome.cta.signin | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |

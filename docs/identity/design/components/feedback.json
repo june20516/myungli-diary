@@ -1,5 +1,5 @@
 {
-  "version": "9.0.1",
+  "version": "9.1.0",
   "group": "feedback",
   "stateMap": {
     "loading": "skeleton",
@@ -147,11 +147,12 @@
         "circle": { "size": { "value": 56, "unit": "px" }, "bg": "{color.status.bg}", "radius": "{radius.full}" },
         "icon": { "size": "{size.icon.28}", "weight": "light", "color": "{color.action.primary}" },
         "sentence": { "type": "{type.sentence.body}", "fg": "{color.text.secondary}", "align": "center", "marginTop": "{space.16}" },
-        "retry": { "component": "primary-button", "variant": "quiet", "marginTop": "{space.24}" }
+        "retry": { "component": "primary-button", "variant": "quiet", "marginTop": "{space.24}" },
+        "traceId": { "when": "오류에 문의 번호(ProblemError traceId)가 있을 때만", "type": "{type.caption.md}", "fg": "{color.text.secondary}", "align": "center", "marginTop": "{space.12}", "slot": "ui.app.trace", "key": "traceIdLabel", "lines": 2, "wrap": "이름 뒤 띄어쓰기에서만 줄을 바꾼다. 번호는 가운데서 끊거나 줄이지 않는다(32자리 번호는 가장 좁은 272px에서도 한 줄, #1362, V138)", "copy": "길게 누르면 번호만 복사하고 가벼운 햅틱 뒤 toast(키 traceIdCopied)", "position": "다시 시도 아래. 다시 시도가 없으면 문장 아래 space.24 뒤" }
       },
       "states": {},
       "haptic": [],
-      "a11y": { "role": "alert", "label": "문장 그대로", "decorativeIcon": true },
+      "a11y": { "role": "alert", "label": "문장 그대로", "decorativeIcon": true, "traceId": "이름과 번호를 그대로 읽고, 길게 누르기 동작에 복사를 단다" },
       "rules": ["빨간색을 쓰지 않는다.", "다시 시도를 누르면 그 자리에 skeleton이 다시 나온다."]
     }
   ]

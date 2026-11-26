@@ -95,7 +95,7 @@ terraform apply -var-file="$env.tfvars" -var-file="${MYUNGLI_LOCAL_DIR:-$HOME/.c
 | DB 사용자 | 서비스 계정 | 권한 | 쓰는 곳 |
 | --- | --- | --- | --- |
 | `server-migrator@<프로젝트>.iam` | `server-migrator` | `cloudsqlsuperuser`, 표의 주인 | Job `server-migrate`, `server-seed` |
-| `server-runtime@<프로젝트>.iam` | `server-runtime` | `myungli_app` 구성원(읽기와 쓰기만) | serve, Job `server-retention`, `server-precompute`, `server-notify` |
+| `server-runtime@<프로젝트>.iam` | `server-runtime` | `myungli_app` 구성원(읽기와 쓰기만) | serve, Job `server-retention`, `server-precompute`, `server-notify`, `server-smoke` |
 
 `migrate up`은 `DB_RUNTIME_USER`를 `myungli_app` 구성원으로 두고, 그 사용자가 `cloudsqlsuperuser`에 속하면 실패합니다. 실패하면 런타임 DB 사용자를 지우고 다시 배포해 Terraform이 역할 없이 다시 만들게 합니다(`database_roles`는 provider가 다시 읽지 않아 목록 수정만으로는 거둬지지 않음).
 
@@ -186,6 +186,10 @@ terraform apply -var-file="$env.tfvars" -var-file="${MYUNGLI_LOCAL_DIR:-$HOME/.c
 이 변경으로 plan에 나오는 것은 staging과 load의 `deployer_wif` 교체(`@refs/heads/main` → `@refs/heads/staging`)뿐이고 prod는 바뀌지 않습니다. 아직 apply하지 않은 bootstrap 변경(D103 묶음)이 있으면 함께 보이니, 모르는 변경이면 apply하지 않고 server에 묻습니다.
 
 **되돌리기:** `bootstrap/main.tf`의 `deploy_branch`를 `"main"` 하나로 되돌린 커밋에서 같은 순서로 apply하고, environment 제한도 `main`으로 되돌립니다.
+
+## 배포 뒤 조합 확인 (D147, S169)
+
+server나 엔진 배포 끝에서 판 맞춤 확인과 조합 확인(Job `server-smoke`)이 돕니다. 엔진이 뒤처졌으면 `deploy-server`가 같은 실행에서 엔진을 배포합니다. 실패했을 때 할 일은 [`server/docs/runbook/deploy.md`](../../docs/runbook/deploy.md)입니다.
 
 ## 첫 배포 순서
 

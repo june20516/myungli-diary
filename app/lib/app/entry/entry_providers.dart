@@ -252,6 +252,9 @@ final adConsentGivenProvider = FutureProvider<bool>((ref) {
 
 /// 앱 루트 `ProviderScope`에 넣는 override. 계정 id를 [meProvider]에서 채웁니다.
 final List<Override> entryOverrides = [
+  signedInAccountIdProvider.overrideWith(
+    (ref) => ref.watch(meProvider.select((me) => me?.accountId)),
+  ),
   currentAccountIdProvider.overrideWith((ref) {
     final me = ref.watch(meProvider);
     if (me == null) {

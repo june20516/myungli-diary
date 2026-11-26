@@ -2,7 +2,7 @@
 
 # IA 슬롯 대응
 
-원본은 `docs/ia/screens.json`과 `slots/`의 YAML입니다. IA 화면 순서이고, `-`는 담는 슬롯이 없음입니다.
+원본은 `docs/ia/screens.json`, `docs/ia/site.json`과 `slots/`의 YAML입니다. IA 화면 순서이고, `-`는 담는 슬롯이 없음입니다.
 
 | IA 슬롯 | source | writing 슬롯 |
 | --- | --- | --- |
@@ -279,3 +279,19 @@
 | account-delete.cta.delete | ui | account-delete.cta.delete |
 | account-delete.delete.confirm | ui | account-delete.delete.confirm |
 | legal.bar.title | ui | legal.bar.title |
+| web-landing.meta.title | content | web-landing.meta.title |
+| web-landing.meta.description | content | web-landing.meta.description |
+| web-landing.hero.tagline | content | web-landing.hero.tagline |
+| web-landing.hero.body | content | web-landing.hero.body |
+| web-landing.shots.alt | content | web-landing.shots.alt |
+| web-landing.store.soon | content | web-landing.store.soon |
+| web-landing.store.apple | content | web-landing.store.apple |
+| web-landing.store.google | content | web-landing.store.google |
+| web-landing.footer.terms | content | web-landing.footer.terms |
+| web-landing.footer.privacy | content | web-landing.footer.privacy |
+| web-landing.footer.support | content | web-landing.footer.support |
+| web-landing.lang.label | content | web-landing.lang.label |
+| web-not-found.meta.title | content | web-not-found.meta.title |
+| web-not-found.page.title | content | web-not-found.page.title |
+| web-not-found.page.body | content | web-not-found.page.body |
+| web-not-found.page.home | content | web-not-found.page.home |

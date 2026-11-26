@@ -1313,5 +1313,22 @@
     ],
     "status": "chosen",
     "note": "후보 토큰으로 app 화면을 golden과 같은 Linux 렌더로 그림(app 코드는 고치지 않음). 렌더 도구는 저장소 밖 작업물이라 이 요약 그림이 원본. 비공개 페이지 \"길일 팔레트 비교\"에 다섯 안(기준, 맞바꿈, 금빛, 하늘, 자색)과 섞음안을 화면 19곳 라이트와 다크로 둠. 이 파일은 줄마다 기준, 금빛, 자색, 섞음이고 칸은 라이트 달력, 열린 오늘, 열린 근거 시트, 사용 중 광고 제거권, 이어서 다크. 사용자 답(2026-11-23): 로고 색 그대로, 맞바꿈과 하늘 탈락, 섞음안(길 금빛, 유료 자색, sage 짝 coral) 채택"
+  },
+  {
+    "id": "design-web-landing-questions",
+    "title": "WB1 랜딩 웹 시안 세 안 비교(#1330)",
+    "kind": "concept",
+    "file": "2026-11-26-web-landing/index.html",
+    "source": "2026-11-26-web-landing/index.html",
+    "date": "2026-11-26",
+    "milestone": "T1",
+    "screens": [
+      "web-landing"
+    ],
+    "decisions": [
+      "V137"
+    ],
+    "status": "chosen",
+    "note": "web 토큰 CSS(web/packages/tokens/tokens.css, 토큰 1.11.0)를 복사해 읽는 정적 페이지 세 안(a.html 오늘의 바탕, b.html 펼친 공책, c.html 하루의 흐름)과 비교판(index.html, 데스크톱 1280과 모바일 390, 언어 ko en ja, 출시 전후, 라이트 다크, 슬롯 id 표시). 화면 사진은 스토어 스크린샷 빌드 11 금빛 판의 화면 판을 잘라 폭 600 webp로. 글은 처음에 스토어 원고를 빌린 자리 문구였고, 고른 뒤 writing 원고(#1349)로 바꿈(C안 화면별 글만 스크린샷 원고 그대로). Pretendard는 시안 글자만 남긴 부분 집합. 스토어 배지는 공식 파일 자리 상자만(흉내 그림 없음). 비공개 페이지 \"랜딩 시안 비교 (#1330)\". 사용자 답(2026-11-26): A안. 구현 명세 web/README.md"
   }
 ]

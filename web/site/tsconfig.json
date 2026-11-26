@@ -1,0 +1,8 @@
+{
+  "extends": ["astro/tsconfigs/strict", "../tsconfig.base.json"],
+  "compilerOptions": {
+    "paths": { "@design/*": ["../../docs/identity/design/*"] }
+  },
+  "include": [".astro/types.d.ts", "src", "test", "scripts"],
+  "exclude": ["dist"]
+}

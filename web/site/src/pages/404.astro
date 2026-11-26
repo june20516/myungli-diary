@@ -1,0 +1,7 @@
+---
+// 맞는 언어가 없을 때 Hosting이 내는 404(en). 언어별 404는 i18n/[folder]/404.astro입니다.
+import NotFound from "../components/NotFound.astro";
+import { DEFAULT_LANG } from "../config/lang.ts";
+---
+
+<NotFound lang={DEFAULT_LANG} />

@@ -1,0 +1,55 @@
+{
+  "web-landing.meta.title": {
+    "metaTitle": "命理日記 | 今日の干支を、あなたの命式に合わせて読み解く日記"
+  },
+  "web-landing.meta.description": {
+    "metaDescription": "同じ日でも、一人ひとりの今日は違います。あなたの命式で毎日の干支を読み解きます。"
+  },
+  "web-landing.hero.tagline": {
+    "heroTagline": "今日の干支を、あなたの命式に合わせて読み解く日記"
+  },
+  "web-landing.hero.body": {
+    "heroBody": "自分の命式で読み解いた今日を見て、その日の出来事は解説の横に日記として残しましょう。うまく運ぶ日と気をつける日は、カレンダーで前もって確かめられます。"
+  },
+  "web-landing.shots.alt": {
+    "today": "今日の画面。自分の命式で読み解いたその日の総運の一文と、日の性格",
+    "evidence": "読み解きの根拠の画面。解説の一文ごとの判定根拠と古典の原文",
+    "calendar": "カレンダーの画面。うまく運ぶ日と気をつける日が示されたひと月",
+    "daySheet": "一日の画面。その日の運勢の横に残した日記",
+    "mySaju": "私の命式の画面。命式と五行の分布の表",
+    "share": "シェアカード。今日の幸運を一枚にまとめたカード"
+  },
+  "web-landing.store.soon": {
+    "storeSoon": "App Store と Google Play でまもなく公開します。"
+  },
+  "web-landing.store.apple": {
+    "storeApple": "App Storeからダウンロード"
+  },
+  "web-landing.store.google": {
+    "storeGoogle": "Google Play で手に入れよう"
+  },
+  "web-landing.footer.terms": {
+    "footerTerms": "利用規約"
+  },
+  "web-landing.footer.privacy": {
+    "footerPrivacy": "プライバシーポリシー"
+  },
+  "web-landing.footer.support": {
+    "footerSupport": "お問い合わせとサポート"
+  },
+  "web-landing.lang.label": {
+    "langLabel": "言語"
+  },
+  "web-not-found.meta.title": {
+    "notFoundMetaTitle": "ページが見つかりません | 命理日記"
+  },
+  "web-not-found.page.title": {
+    "notFoundPageTitle": "ページが見つかりません"
+  },
+  "web-not-found.page.body": {
+    "notFoundPageBody": "このページは移動したか、存在しません。"
+  },
+  "web-not-found.page.home": {
+    "notFoundPageHome": "命理日記のトップへ"
+  }
+}

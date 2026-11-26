@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>명리일기 랜딩 A안</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Zen+Maru+Gothic&display=swap">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="landing.css">
+<style>
+/* A안 오늘의 바탕
+   VOICE 조용하고 단정하게, 스토어 스크린샷 틀(V133 F1)과 같은 첫인상
+   IDEA 앱의 오늘 화면 바탕(gradient.today) 위에 한 문장이 놓인 모습
+   PICTURE 화면 세 장(근거, 오늘, 달력)을 가운데 겹쳐 세우고 아래를 띠 끝에서 자름
+   COLOUR 바탕 gradient.today, 글 text.primary, 출시 전 점 badge.good.bg(금빛)
+   TYPE 한 줄 소개는 문장 글꼴(고운돋움), 나머지는 UI 글꼴. 가운데 정렬 */
+.hero { background: var(--gradient-today); overflow: hidden; padding: clamp(var(--space-32), 7vw, 88px) var(--gutter) 0; }
+.hero-text { max-width: 720px; margin: 0 auto; display: grid; justify-items: center; gap: var(--space-20); text-align: center; }
+.tagline {
+  margin: var(--space-8) 0 0; font-family: var(--font-family-sentence); font-weight: 400;
+  font-size: clamp(28px, 4.2vw, 44px); line-height: 1.35; letter-spacing: -0.01em; text-wrap: balance;
+}
+.body {
+  margin: 0; max-width: 34em; color: var(--color-text-secondary);
+  font-size: 17px; line-height: 1.65; text-wrap: pretty;
+}
+.store { justify-content: center; margin-top: var(--space-8); }
+
+/* 화면 세 장: 가운데가 앞, 양옆이 뒤. 띠 아래 끝에서 잘림(스토어 틀처럼 아래로 넘침) */
+.fan { position: relative; width: min(100%, 860px); height: clamp(360px, 46vw, 500px); margin: clamp(var(--space-32), 5vw, 64px) auto 0; }
+.fan .shot { position: absolute; top: 0; left: 50%; width: clamp(210px, 28vw, 300px); }
+.fan .front { transform: translateX(-50%); z-index: 2; }
+.fan .back { top: clamp(28px, 4vw, 48px); width: clamp(180px, 24vw, 260px); z-index: 1; }
+.fan .back img { box-shadow: var(--shadow-raised); }
+.fan .left { transform: translateX(calc(-50% - clamp(130px, 22vw, 250px))); }
+.fan .right { transform: translateX(calc(-50% + clamp(130px, 22vw, 250px))); }
+
+.page-foot { border-top: var(--border-width-hairline) solid var(--color-line); padding: var(--space-16) var(--gutter) var(--space-32); }
+.page-foot .foot { max-width: var(--page-max); margin: 0 auto; }
+
+@media (max-width: 600px) {
+  .tagline { font-size: 26px; }
+  .body { font-size: 16px; }
+  .fan { height: 330px; }
+  .fan .front { width: 200px; }
+  .fan .back { width: 168px; top: 28px; }
+  .fan .left { transform: translateX(calc(-50% - 118px)); }
+  .fan .right { transform: translateX(calc(-50% + 118px)); }
+  .page-foot .foot { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-text">
+    <a class="name" href="#">
+      <img class="icon" src="icon.webp" alt="" width="56" height="56">
+      <img class="wordmark on-light" src="wordmark.svg" alt="명리일기" width="107" height="30">
+      <img class="wordmark on-dark" src="wordmark-dark.svg" alt="명리일기" width="107" height="30">
+      <span data-app-name></span>
+    </a>
+    <h1 class="tagline" data-slot="web-landing.hero.tagline"></h1>
+    <p class="body" data-slot="web-landing.hero.body"></p>
+    <div class="store">
+      <p class="soon" data-slot="web-landing.store.soon"></p>
+      <div class="badges">
+        <a class="badge apple" href="#" aria-label="" data-slot="web-landing.store.apple">App Store 공식 배지</a>
+        <a class="badge google" href="#" aria-label="" data-slot="web-landing.store.google">Google Play 공식 배지</a>
+      </div>
+    </div>
+  </div>
+  <div class="fan">
+    <figure class="shot back left" data-note="web-landing.shots.alt"><img data-scene="evidence" data-slot="web-landing.shots.alt" alt=""></figure>
+    <figure class="shot back right"><img data-scene="calendar" data-slot="web-landing.shots.alt" alt=""></figure>
+    <figure class="shot front"><img data-scene="today" data-slot="web-landing.shots.alt" alt=""></figure>
+  </div>
+</header>
+<footer class="page-foot">
+  <div class="foot">
+    <nav>
+      <a data-slot="web-landing.footer.terms" href="#"></a>
+      <a data-slot="web-landing.footer.privacy" href="#"></a>
+      <a data-slot="web-landing.footer.support" href="#"></a>
+    </nav>
+    <nav class="lang" aria-label="" data-slot="web-landing.lang.label"></nav>
+  </div>
+</footer>
+<script src="copy.js"></script>
+<script src="landing.js"></script>
+</body>
+</html>

@@ -4,6 +4,21 @@
 
 MVP 화면, 목적, 경로, 상태, 문장 슬롯, 컴포넌트를 정한 계약입니다(D39·D51). 설계 근거는 [IA spec](../specs/2026-10-11-ia-design.md)에 있습니다. 화면별 상세는 `screens.json`에서 봅니다.
 
+## 표면별 IA 파일 (D146)
+
+IA는 형식과 검사 도구를 하나로 두고, 보이는 표면마다 파일을 나눕니다. 읽는 단위가 자기 파일만 보게 해서 계약 변경 검사(drift)가 필요한 곳에만 돌게 하려는 것입니다.
+
+| 파일 | 표면 | 읽는 쪽 |
+| --- | --- | --- |
+| `screens.json` | 앱, server가 내주는 페이지(지원, 법적 문서, Apple 복귀) | app, server, writing, design |
+| `site.json` | 랜딩(`myungli-diary.app`), social(`social.myungli-diary.app`, WB2) | web, writing |
+| `admin.json` | 어드민(WB3에서 만듦) | web |
+
+* 형식(최상위 `version`, `tabs`, `components`, `screens`)과 화면, 슬롯 규칙은 모두 같습니다.
+* 화면 id와 슬롯 id는 파일 사이에서도 유일합니다. 문서 검사(`tools/docs-check`)가 겹침을 막습니다.
+* 이 폴더 바로 아래의 `.json`은 모두 IA 파일로 검사합니다(하위 폴더는 보지 않음). IA가 아닌 JSON(예: 스키마)은 하위 폴더에 둡니다.
+* 다른 파일의 화면으로 가는 이동은 `exits`에 넣지 않고 화면 `purpose`에 밖으로 나가는 링크로 적습니다.
+
 ## 탭 구조 (D48)
 
 | 탭 | 첫 화면 | 맡는 일 |

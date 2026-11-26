@@ -18,6 +18,7 @@ UNIT_CLAUDE_FILES = (
     "core/CLAUDE.md",
     "server/CLAUDE.md",
     "app/CLAUDE.md",
+    "web/CLAUDE.md",
     "docs/identity/writing/CLAUDE.md",
     "docs/identity/design/CLAUDE.md",
 )
@@ -54,6 +55,7 @@ ARTIFACT_FIELDS = (
 ARTIFACT_KINDS = {"concept", "mockup", "component", "screenshot", "token-sheet", "copy-sample"}
 ARTIFACT_STATUSES = {"draft", "chosen", "rejected", "superseded"}
 
+IA_DIR = "docs/ia"
 IA_PATH = "docs/ia/screens.json"
 IA_ID_PATTERN = re.compile(r"[a-z0-9]+(-[a-z0-9]+)*")
 IA_SLOT_PATTERN = re.compile(r"[a-z0-9]+(-[a-z0-9]+)*(\.[a-z0-9]+(-[a-z0-9]+)*){2,}")
@@ -339,15 +341,52 @@ def _check_ia_screen(
 
 
 def check_ia(root: Path) -> list[str]:
-    path = root / IA_PATH
-    if not path.exists():
+    """`docs/ia/`의 IA 파일을 모두 같은 형식으로 검사합니다(D146: 형식 하나, 표면별 파일).
+
+    화면 id와 슬롯 id는 파일 사이에서도 유일해야 합니다.
+    """
+    ia_dir = root / IA_DIR
+    if not ia_dir.is_dir():
         return []
+    paths = sorted(ia_dir.glob("*.json"), key=lambda p: (p.name != Path(IA_PATH).name, p.name))
+    problems: list[str] = []
+    seen_screens: dict[str, str] = {}
+    seen_slots: dict[str, str] = {}
+    for path in paths:
+        rel = path.relative_to(root).as_posix()
+        file_problems, screens = _check_ia_file(root, rel)
+        problems += file_problems
+        for screen in screens:
+            screen_id = screen.get("id")
+            if not isinstance(screen_id, str):
+                continue
+            owner = seen_screens.setdefault(screen_id, rel)
+            if owner != rel:
+                # 화면이 겹치면 그 슬롯 겹침은 같은 원인이라 따로 보고하지 않습니다.
+                message = f"{rel} [{screen_id}]: 화면 id가 {owner}과 겹침"
+                if message not in problems:
+                    problems.append(message)
+                continue
+            slots = screen.get("slots")
+            for slot in slots if isinstance(slots, list) else []:
+                slot_id = slot.get("id") if isinstance(slot, dict) else None
+                if not isinstance(slot_id, str):
+                    continue
+                slot_owner = seen_slots.setdefault(slot_id, rel)
+                if slot_owner != rel:
+                    problems.append(f"{rel} [{screen_id}]: 슬롯 id가 {slot_owner}과 겹침: {slot_id}")
+    return problems
+
+
+def _check_ia_file(root: Path, rel: str) -> tuple[list[str], list[dict]]:
+    """IA 파일 하나의 문제와 화면 목록. 형식이 깨져 화면을 못 읽으면 빈 목록."""
+    path = root / rel
     try:
         doc = json.loads(path.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, UnicodeDecodeError) as error:
-        return [f"{IA_PATH}: JSON 형식 오류 ({error})"]
+        return [f"{rel}: JSON 형식 오류 ({error})"], []
     if not isinstance(doc, dict) or not {"version", "tabs", "components", "screens"} <= doc.keys():
-        return [f"{IA_PATH}: 최상위는 객체여야 하고 version·tabs·components·screens가 있어야 합니다"]
+        return [f"{rel}: 최상위는 객체여야 하고 version·tabs·components·screens가 있어야 합니다"], []
 
     problems = []
     version = doc["version"]
@@ -382,7 +421,7 @@ def check_ia(root: Path) -> list[str]:
                 screen, tab_ids, component_ids, screen_ids, decision_ids, slot_ids
             )
         )
-    return [p if p.startswith(IA_PATH) else f"{IA_PATH} {p}" for p in problems]
+    return [p if p.startswith(rel) else f"{rel} {p}" for p in problems], screens
 
 
 def _table_cells(line: str) -> list[str]:

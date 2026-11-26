@@ -1,4 +1,7 @@
-"""IA 대조 검사: 슬롯 명세가 IA 계약(`docs/ia/screens.json`)의 슬롯을 빠짐없이, 맞는 자리에 담는지 봅니다.
+"""IA 대조 검사: 슬롯 명세가 IA 계약의 슬롯을 빠짐없이, 맞는 자리에 담는지 봅니다.
+
+* IA는 표면별 파일로 나뉩니다(D146). writing은 `docs/ia/screens.json`(앱, server 페이지)과
+  `docs/ia/site.json`(랜딩)을 함께 읽고, 화면 id와 슬롯 id는 파일 사이에서도 유일해야 합니다.
 
 * ui 슬롯은 id가 IA 슬롯 id 그대로입니다. IA 밖 공용 문구(`ui.*`)는 `components`로 자리를 적습니다.
 * content 슬롯은 `ia`나 `components`로 자리를 적습니다.
@@ -6,9 +9,10 @@
 """
 
 import json
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import cast
 
 import regex
 
@@ -32,36 +36,68 @@ KEY_SUFFIX = r"(?:[0-9]+|[A-Z][A-Za-z0-9]*)?"
 
 @dataclass(frozen=True)
 class Ia:
-    # IA 슬롯 id -> source(`ui` 또는 `content`). 화면 순서를 지킵니다.
+    # IA 슬롯 id -> source(`ui` 또는 `content`). 파일 순서, 화면 순서를 지킵니다.
     slots: dict[str, str]
     # IA 슬롯 id -> 한 줄 역할
     roles: dict[str, str]
     components: frozenset[str]
-    file: Path
     # IA 슬롯 id -> 그 슬롯이 있는 화면 id
     screens: dict[str, str] = field(default_factory=dict)
+    # IA 슬롯 id -> 그 슬롯이 적힌 IA 파일(대조 문제를 가리킬 자리)
+    files: dict[str, Path] = field(default_factory=dict)
 
 
 def _load_error(path: Path, message: str) -> LoadError:
     return LoadError([Finding(path, 1, RULE_LOAD, "error", message)])
 
 
-def load_ia(path: Path) -> Ia:
-    """IA 계약 파일을 읽습니다. 없거나 구조가 맞지 않으면 `LoadError`입니다."""
+def _read_ia_file(path: Path) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
+    """IA 파일 하나의 화면 목록과 컴포넌트 목록입니다."""
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
+        screens = list(data["screens"])
+        components = list(data["components"])
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
         raise _load_error(path, f"IA 파일을 읽을 수 없습니다: {error}") from error
-    try:
-        slots = {
-            slot["id"]: slot["source"] for screen in data["screens"] for slot in screen.get("slots", [])
-        }
-        roles = {slot["id"]: slot.get("role", "") for screen in data["screens"] for slot in screen.get("slots", [])}
-        screens = {slot["id"]: screen["id"] for screen in data["screens"] for slot in screen.get("slots", [])}
-        components = frozenset(component["id"] for component in data["components"])
     except (KeyError, TypeError) as error:
         raise _load_error(path, f"IA 파일 구조가 맞지 않습니다: {error}") from error
-    return Ia(slots=slots, roles=roles, components=components, file=path, screens=screens)
+    return screens, components
+
+
+def load_ia(paths: Sequence[Path]) -> Ia:
+    """IA 계약 파일들을 읽어 하나로 합칩니다. 없거나 구조가 맞지 않거나 id가 파일 사이에서 겹치면 `LoadError`입니다."""
+    slots: dict[str, str] = {}
+    roles: dict[str, str] = {}
+    screens: dict[str, str] = {}
+    files: dict[str, Path] = {}
+    components: set[str] = set()
+    screen_files: dict[str, Path] = {}
+    findings: list[Finding] = []
+    for path in paths:
+        screen_list, component_list = _read_ia_file(path)
+        try:
+            for screen in screen_list:
+                screen_id = str(screen["id"])
+                if screen_id in screen_files:
+                    message = f"화면 id '{screen_id}'가 {screen_files[screen_id].name}과 겹칩니다"
+                    findings.append(Finding(path, 1, RULE_LOAD, "error", message))
+                screen_files.setdefault(screen_id, path)
+                for slot in cast(list[dict[str, str]], screen.get("slots", [])):
+                    slot_id = slot["id"]
+                    if slot_id in files:
+                        message = f"슬롯 id '{slot_id}'가 {files[slot_id].name}과 겹칩니다"
+                        findings.append(Finding(path, 1, RULE_LOAD, "error", message))
+                        continue
+                    slots[slot_id] = slot["source"]
+                    roles[slot_id] = slot.get("role", "")
+                    screens[slot_id] = screen_id
+                    files[slot_id] = path
+            components.update(str(component["id"]) for component in component_list)
+        except (KeyError, TypeError, AttributeError) as error:
+            raise _load_error(path, f"IA 파일 구조가 맞지 않습니다: {error}") from error
+    if findings:
+        raise LoadError(findings)
+    return Ia(slots=slots, roles=roles, components=frozenset(components), screens=screens, files=files)
 
 
 def camel(ia_id: str) -> str:
@@ -125,5 +161,5 @@ def check_ia(slots: Mapping[str, Slot], ia: Ia) -> list[Finding]:
     for ia_id, source in ia.slots.items():
         if ia_id not in covered:
             message = f"IA {source} 슬롯 '{ia_id}'를 담는 writing 슬롯이 없습니다"
-            findings.append(Finding(ia.file, 1, RULE_UNCOVERED, "error", message))
+            findings.append(Finding(ia.files[ia_id], 1, RULE_UNCOVERED, "error", message))
     return findings

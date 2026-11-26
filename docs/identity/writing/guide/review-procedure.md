@@ -52,3 +52,29 @@ uv run --project docs/identity/writing/tools mlw judge docs/identity/writing/con
 
 ## 영어·일본어
 같은 절차로 레퍼런스를 고를 수 있지만 원어민 검수(D28, W1)를 대신하지 않습니다. W0에서는 구두점, 경칭, 한국어 대비 길이 비율 같은 언어별 대응만 정합니다.
+
+## 원어민 검수 (E18)
+en, ja 원고는 원어민 감수자가 앱 없이 시트로 봅니다(D140, W84). 시트는 xlsx이고 감수는 Google Sheets에서 합니다.
+
+1. **내보내기(writing):** 차수나 묶음 단위로 빈 시트를 만들어 저장소에 넣습니다.
+   ```
+   uv run --project docs/identity/writing/tools mlw review-export --lang en --tier 1
+   uv run --project docs/identity/writing/tools mlw review-export --lang ja --bundle store,ui
+   ```
+   * 출력은 `review/<언어>/tier<n>.xlsx` 또는 `<묶음>-<묶음>.xlsx`입니다. 차수 표는 W84 ③, 감수자 안내 원문은 `review/guide-<언어>.md`입니다.
+   * 원고 파일이 새로 생겨 차수 표에 없으면 내보내기가 멈춥니다. `mlw.review.sheet.TIERS`에 넣습니다.
+2. **올리기(사용자):** Google Drive에 xlsx를 올리면 Sheets 문서로 바뀝니다(설정 "업로드한 파일 변환"이 꺼져 있으면 열 때 "Google Sheets로 열기"). 감수자에게 편집 권한으로 공유합니다.
+3. **받기(사용자):** 감수가 끝나면 "파일 > 다운로드 > Microsoft Excel(.xlsx)"로 받아 `${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/writing/review/`에 둡니다. 저장소에는 넣지 않습니다(감수자 정보).
+4. **writing 판정:** 수정안을 그대로 받지 않고 한 줄씩 한국어 원문, 슬롯 설명, 같은 말을 쓰는 다른 줄과 대조합니다(W85 ③).
+   * 감수자가 적은 글자 수는 믿지 않고 다시 잽니다. 상한 판정은 검사기가 합니다.
+   * 고쳐서 받을 줄은 수정안 칸을 고치고, 받지 않을 줄은 `writing 판정` 칸에 이유를 적습니다. 같은 말을 쓰는 다른 줄도 함께 맞춥니다.
+   * 묶음 탭의 첫 줄(칸 머리)이 망가져 있으면 다시 읽기가 멈춥니다. 원래 머리로 고친 사본으로 읽습니다.
+5. **다시 읽기(writing):** 먼저 `--dry-run`으로 결과만 보고, 이어 실제로 반영합니다.
+   ```
+   uv run --project docs/identity/writing/tools mlw review-import docs/identity/writing/content <받은 시트.xlsx> --dry-run
+   uv run --project docs/identity/writing/tools mlw review-import docs/identity/writing/content <받은 시트.xlsx>
+   ```
+   * 결과는 받은 시트 옆 `<이름>-result.xlsx`의 `반영 결과` 칸과, 출력의 이유별 수입니다.
+   * `용어 표기가 바뀜`과 `용어 분류` 행은 같은 용어가 다른 곳에도 있을 수 있어 writing이 `glossary`와 맞춰 직접 고칩니다.
+   * `검사:` 이유는 상한, slop, 금지 문자 같은 검사에 걸린 것입니다. 감수자와 다른 표현을 정하거나 상한을 design에 요청합니다.
+   * 반영한 뒤 생성 문서(ARB, 스토어, 웹 JSON)가 다시 만들어지므로 함께 commit하고, 받는 쪽(app, server, web)에 알립니다.

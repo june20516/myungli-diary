@@ -1,0 +1,82 @@
+---
+// 언어별 랜딩, design 명세 V137(A안 "오늘의 바탕"). 바탕 띠(이름, 한 줄 소개, 소개, 스토어 자리, 화면 사진)와 아래쪽.
+import AppName from "../../components/AppName.astro";
+import PageFoot from "../../components/PageFoot.astro";
+import ShotFan from "../../components/ShotFan.astro";
+import StoreSlot from "../../components/StoreSlot.astro";
+import { LANGS, type Lang } from "../../config/lang.ts";
+import { siteConfig } from "../../config/site.ts";
+import { loadCopy } from "../../copy/load.ts";
+import { OG_LOCALE } from "../../i18n/locale.ts";
+import Base from "../../layouts/Base.astro";
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+const copy = loadCopy(lang);
+---
+
+<Base
+  htmlLang={lang}
+  title={copy.text("web-landing.meta.title")}
+  description={copy.text("web-landing.meta.description")}
+  path={`/${lang}/`}
+  ogImagePath={`/${lang}/og.png`}
+  ogLocale={OG_LOCALE[lang]}
+>
+  <main class="hero">
+    <div class="hero-text">
+      <AppName lang={lang} appName={copy.appName} />
+      <h1 class="tagline">{copy.text("web-landing.hero.tagline")}</h1>
+      <p class="body">{copy.text("web-landing.hero.body")}</p>
+      <StoreSlot copy={copy} release={siteConfig.release} stores={siteConfig.stores} />
+    </div>
+    <ShotFan copy={copy} />
+  </main>
+  <PageFoot lang={lang} copy={copy} />
+</Base>
+
+<style>
+  .hero {
+    display: block;
+    overflow: hidden;
+    padding: clamp(var(--space-32), 7vw, 88px) var(--gutter) 0;
+    background: var(--gradient-today);
+  }
+  .hero-text {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-20);
+    max-width: 720px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .tagline {
+    margin: var(--space-8) 0 0;
+    font-family: var(--font-family-sentence);
+    font-size: clamp(28px, 4.2vw, 44px);
+    font-weight: 400;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  .body {
+    max-width: 34em;
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 17px;
+    line-height: 1.65;
+    text-wrap: pretty;
+  }
+
+  @media (max-width: 600px) {
+    .tagline {
+      font-size: 26px;
+    }
+    .body {
+      font-size: 16px;
+    }
+  }
+</style>
