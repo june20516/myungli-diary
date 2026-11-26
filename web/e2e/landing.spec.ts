@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { createSiteConfig } from "../site/src/config/site.ts";
+import { loadCopy } from "../site/src/copy/load.ts";
 import { BASE_URL } from "./playwright.config.ts";
 
 const LANGS = ["ko", "en", "ja"] as const;
@@ -147,11 +148,32 @@ test.describe("캐시 헤더", () => {
   });
 });
 
-test("없는 주소는 404 상태이고 canonical을 내지 않음", async ({ page }) => {
-  const response = await page.goto("/ko/nope/");
-  expect(response?.status()).toBe(404);
-  await expect(page.locator("link[rel=canonical]")).toHaveCount(0);
-  await expect(page.locator("meta[property='og:url']")).toHaveCount(0);
+test.describe("없는 주소(404)", () => {
+  for (const [locale, lang] of [
+    ["ko-KR", "ko"],
+    ["ja-JP", "ja"],
+    ["en-US", "en"],
+    ["fr-FR", "en"],
+  ] as const) {
+    test(`${locale}: 404 상태, ${lang} 원고, 첫 화면 링크`, async ({ browser }) => {
+      const copy = loadCopy(lang);
+      const context = await browser.newContext({ locale, viewport: { width: 390, height: 844 } });
+      const page = await context.newPage();
+      const response = await page.goto("/ko/nope/");
+      expect(response?.status()).toBe(404);
+      await expect(page.locator("html")).toHaveAttribute("lang", lang);
+      await expect(page).toHaveTitle(copy.text("web-not-found.meta.title"));
+      await expect(page.locator("h1")).toHaveText(copy.text("web-not-found.page.title"));
+      await expect(page.locator("main p")).toHaveText(copy.text("web-not-found.page.body"));
+      await expect(page.locator("main a")).toHaveCount(1);
+      await expect(page.locator("link[rel=canonical]")).toHaveCount(0);
+      await expect(page.locator("meta[property='og:url']")).toHaveCount(0);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      await page.getByRole("link", { name: copy.text("web-not-found.page.home") }).click();
+      await expect(page).toHaveURL(`${BASE_URL}/${lang}/`);
+      await context.close();
+    });
+  }
 });
 
 test("prod가 아닌 origin은 검색 색인을 막음", async ({ page, request }) => {

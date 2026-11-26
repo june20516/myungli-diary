@@ -3,6 +3,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { NodeType, parse, type HTMLElement, type Node } from "node-html-parser";
 import { LANGS } from "../config/lang.ts";
+import { localizedNotFoundFile } from "../config/not-found.ts";
 import { findD93 } from "../text/d93.ts";
 
 /** 사람이 읽는 글이 들어가는 속성. */
@@ -11,7 +12,12 @@ const TEXT_ATTRIBUTES = ["title", "alt", "aria-label", "placeholder"];
 const HIDDEN_TEXT_PARENTS = new Set(["script", "style"]);
 
 function requiredFiles(): string[] {
-  return ["index.html", "app-ads.txt", ...LANGS.flatMap((lang) => [`${lang}/index.html`, `${lang}/og.png`])];
+  return [
+    "index.html",
+    "404.html",
+    "app-ads.txt",
+    ...LANGS.flatMap((lang) => [`${lang}/index.html`, `${lang}/og.png`, localizedNotFoundFile(lang)]),
+  ];
 }
 
 function htmlFiles(dir: string): string[] {

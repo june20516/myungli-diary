@@ -3,9 +3,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 import { LANGS } from "../src/config/lang.ts";
-import { landingSlotIds, loadCopy } from "../src/copy/load.ts";
+import { siteSlotIds, loadCopy } from "../src/copy/load.ts";
 
-const SLOT_COUNT = 12;
+/** web-landing 12개와 web-not-found 4개. */
+const SLOT_COUNT = 16;
 const SHOT_ALT = "web-landing.shots.alt";
 
 function writingDirWith(lang: string, entries: unknown): string {
@@ -16,7 +17,7 @@ function writingDirWith(lang: string, entries: unknown): string {
 
 function completeEntries(): Record<string, Record<string, string>> {
   return Object.fromEntries(
-    landingSlotIds().map((id) => [id, id === SHOT_ALT ? { today: "오늘 사진", calendar: "달력 사진" } : { only: `문구 ${id}` }]),
+    siteSlotIds().map((id) => [id, id === SHOT_ALT ? { today: "오늘 사진", calendar: "달력 사진" } : { only: `문구 ${id}` }]),
   );
 }
 
@@ -25,15 +26,25 @@ function loadWith(entries: unknown) {
 }
 
 describe("loadCopy", () => {
-  test("IA에 web-landing 슬롯이 12개", () => {
-    expect(landingSlotIds()).toHaveLength(SLOT_COUNT);
+  test("IA에 사이트 슬롯이 16개(랜딩 12, 404 4)", () => {
+    expect(siteSlotIds()).toHaveLength(SLOT_COUNT);
   });
 
   test.each(LANGS)("writing 생성물 %s가 IA 슬롯과 정확히 맞음", (lang) => {
     const copy = loadCopy(lang);
-    for (const id of landingSlotIds()) {
+    for (const id of siteSlotIds()) {
       for (const key of copy.keys(id)) expect(copy.text(id, key).length).toBeGreaterThan(0);
     }
+  });
+
+  test("404 슬롯도 원고에서 읽음", () => {
+    expect(loadWith(completeEntries()).text("web-not-found.page.home")).toBe("문구 web-not-found.page.home");
+  });
+
+  test("404 슬롯이 빠져도 오류", () => {
+    const entries = completeEntries();
+    delete entries["web-not-found.page.body"];
+    expect(() => loadWith(entries)).toThrow(/missing: web-not-found\.page\.body/);
   });
 
   test("생성물이 없으면 오류", () => {
