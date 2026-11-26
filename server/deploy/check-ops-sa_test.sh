@@ -34,7 +34,7 @@ run_case() {
     echo "실패 [$name]: 종료 코드 $code, 기대 $want"
     ok=false
   fi
-  if grep -qE 'example\.com|someone|owner@|operator@|ops-team|gone@|keyadmin' <<< "$out"; then
+  if grep -qE 'example\.com|someone|owner@|operator@|ops-team|gone@|keyadmin|editor@' <<< "$out"; then
     echo "실패 [$name]: 사람 메일이 출력에 남았습니다"
     ok=false
   fi
@@ -73,6 +73,9 @@ run_case "프로젝트 단위 serviceAccountUser가 deployer 밖 주체" 1 sa-ok
 run_case "프로젝트 단위 serviceAccountKeyAdmin은 deployer도 예외 아님" 1 sa-ok.json project-key-admin.json keys-none.json \
   "roles/iam.serviceAccountKeyAdmin serviceAccount:deployer@test-project.iam.gserviceaccount.com" \
   "roles/iam.serviceAccountKeyAdmin user:(가림)"
+run_case "프로젝트 단위 editor" 1 sa-ok.json project-editor.json keys-none.json \
+  "roles/editor serviceAccount:123456789-compute@developer.gserviceaccount.com" \
+  "roles/editor user:(가림)"
 run_case "사용자 관리 키 없음" 0 sa-ok.json project-ok.json keys-none.json "사용자 관리 키가 없습니다"
 run_case "사용자 관리 키 있음" 1 sa-ok.json project-ok.json keys-user.json "사용자 관리 키가 2개 있습니다"
 # 입력이 JSON이 아니면 jq 부재 같은 다른 원인과 구분되도록 고정 문구와 종료 코드 1을 함께 봅니다.

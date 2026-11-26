@@ -1,0 +1,5 @@
+{"bindings":[
+ {"role":"roles/owner","members":["user:owner@example.com"]},
+ {"role":"roles/iam.serviceAccountUser","members":["serviceAccount:deployer@test-project.iam.gserviceaccount.com"]},
+ {"role":"roles/editor","members":["serviceAccount:123456789-compute@developer.gserviceaccount.com","user:editor@example.com"]}
+],"etag":"BwX","version":1}
