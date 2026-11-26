@@ -39,3 +39,16 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 0
+
+  # core 컨테이너 기반 이미지는 tag@sha256 digest로 고정합니다(core C46, #1392). digest와 판 갱신 PR을 받으므로
+  # open-pull-requests-limit: 0을 두지 않습니다. uv 이미지 판은 core.yml setup-uv version과 같아야 해서
+  # uv 판 갱신은 막고 digest 갱신만 받습니다(판은 core가 두 곳을 함께 올림).
+  - package-ecosystem: docker
+    directory: /core
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "chore(core)"
+    ignore:
+      - dependency-name: "ghcr.io/astral-sh/uv"
+        update-types: ["version-update:semver-major", "version-update:semver-minor", "version-update:semver-patch"]
