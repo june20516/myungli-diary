@@ -30,6 +30,10 @@ abstract interface class PushMessaging {
   /// 기기 토큰이 바뀔 때마다 새 토큰.
   Stream<String> get tokenRefreshes;
 
+  /// 지금 기기 토큰을 버립니다. 다음 [token]은 새 토큰입니다. 로그아웃한 기기에 이전 계정
+  /// 알림이 가지 않게 로그아웃 정리에서 부릅니다(#1254 app-Q1-4). 실패해도 던지지 않습니다.
+  Future<void> deleteToken();
+
   /// 앱이 실행 중일 때 알림을 눌러 열릴 때마다.
   Stream<PushOpen> get opens;
 

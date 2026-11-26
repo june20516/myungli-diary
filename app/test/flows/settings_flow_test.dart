@@ -153,6 +153,9 @@ final class _UnknownLanguage extends Interceptor {
 final class _CountingPush implements PushMessaging {
   new({this.granted = true});
 
+  @override
+  Future<void> deleteToken() async {}
+
   final bool granted;
   int permissionRequests = 0;
 

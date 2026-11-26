@@ -143,6 +143,16 @@ final class _Push implements PushMessaging {
 
   @override
   Future<bool> hasPermission() async => granted;
+
+  /// [deleteToken]을 부른 횟수.
+  int deletes = 0;
+
+  /// SDK처럼 지금 토큰을 버리고, 다음 [token]은 새 토큰입니다.
+  @override
+  Future<void> deleteToken() async {
+    deletes++;
+    current = 'renewed-$deletes';
+  }
 }
 
 /// 진입 상태를 테스트가 바꿉니다.
@@ -388,6 +398,28 @@ void main() {
     await pumpEventQueue();
     expect(h.api.deleted, isEmpty);
     expect(await h.storedId(), isNull);
+  });
+
+  test('어떤 로그아웃이든 FCM 토큰을 지워, 다음 로그인은 새 토큰으로 등록(#1254 app-Q1-4)', () async {
+    h = _Harness()..start();
+    await h.enter(EntryState.ready);
+    final tokens = h.container.read(tokenStoreProvider);
+    await tokens.save(
+      TokenPair(
+        accessToken: 'a',
+        accessTokenExpiresAt: DateTime.utc(2030),
+        refreshToken: 'r',
+        refreshTokenExpiresAt: DateTime.utc(2031),
+      ),
+    );
+    h.container.read(signOutCleanerProvider);
+    await tokens.signOut();
+    await pumpEventQueue();
+    expect(h.push.deletes, 1);
+
+    await h.enter(EntryState.signedOut);
+    await h.enter(EntryState.ready);
+    expect(h.api.registered, ['t1', 'renewed-1']);
   });
 
   test('프로필 사본이 없어도(로그아웃 정리 뒤 다시 로그인, 재설치) 실행 때 등록하고 프로필은 받지 않음', () async {

@@ -16,7 +16,7 @@ import 'package:myungli_diary/core/storage/device_flags.dart';
 /// ([AppDatabase.clearSignedOutData]). 캐시·초안 지우기는 계정 합치기 뒤 정리
 /// ([AppDatabase.clearAccountData])와 같은 함수입니다. 기기 플래그는 남기고 알림 허락
 /// 대기([notifyAskPendingKey])를 끄고 저장된 알림 기기 id([registeredDeviceIdKey])를
-/// 지웁니다. 그래서 이번 실행에서 내 정보를 받기 전에 로그아웃돼도
+/// 지우고, FCM 토큰을 버립니다. 그래서 이번 실행에서 내 정보를 받기 전에 로그아웃돼도
 /// 정리됩니다. 외부 SDK 연결 해제는 `AccountLinker`가 맡습니다.
 final class SignOutCleaner {
   /// [_ref]로 DB와 보고 담당을 읽는 정리 담당을 만듭니다.
@@ -39,6 +39,9 @@ final class SignOutCleaner {
     await _guard(
       () => _ref.read(deviceFlagsStoreProvider).remove(registeredDeviceIdKey),
     );
+    // 해제 요청을 못 보낸 경로에서도 이전 계정 알림이 이 기기로 오지 않게 FCM 토큰을
+    // 버립니다. 다음 로그인은 새 토큰으로 등록합니다(#1254 app-Q1-4).
+    await _guard(() => _ref.read(pushMessagingProvider).deleteToken());
   }
 
   Future<void> _guard(Future<void> Function() step) async {
