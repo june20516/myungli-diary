@@ -104,17 +104,17 @@
           "role": "404 페이지의 브라우저 탭 제목"
         },
         {
-          "id": "web-not-found.title",
+          "id": "web-not-found.page.title",
           "source": "content",
           "role": "페이지를 찾을 수 없다는 제목 한 줄"
         },
         {
-          "id": "web-not-found.body",
+          "id": "web-not-found.page.body",
           "source": "content",
           "role": "주소가 없거나 바뀌었다는 안내 한 문장"
         },
         {
-          "id": "web-not-found.home",
+          "id": "web-not-found.page.home",
           "source": "content",
           "role": "랜딩 첫 화면으로 가는 링크 이름"
         }
