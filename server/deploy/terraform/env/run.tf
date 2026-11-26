@@ -127,3 +127,55 @@ resource "google_cloud_run_v2_service_iam_member" "server_public" {
   role     = "roles/run.invoker"
   member   = "allUsers"
 }
+
+# 내부 운영 API입니다(#1321). Cloud Run 직접 IAP가 Google 계정으로 막고, 앱은 IAP가 서명한 JWT를 다시 검증합니다.
+# server처럼 env와 Secret(OPS_OPERATORS)은 배포 workflow가 준비를 확인한 뒤 붙입니다(S121).
+resource "google_cloud_run_v2_service" "server_ops" {
+  name                = "server-ops"
+  location            = var.region
+  ingress             = "INGRESS_TRAFFIC_ALL"
+  iap_enabled         = true
+  deletion_protection = var.deletion_protection
+
+  template {
+    service_account = google_service_account.ops.email
+
+    scaling {
+      min_instance_count = 0
+    }
+
+    # vpc_access를 두지 않습니다. server가 VPC를 쓰는 까닭은 internal ingress 엔진 호출(network.tf)인데 운영 API는 엔진을 부르지 않고,
+    # Cloud SQL은 public IP에 Cloud SQL connector(IAM 인증)로 붙으므로(sql.tf) VPC 없이 연결됩니다. IAP 공개키도 인터넷으로 받습니다.
+
+    containers {
+      image = local.placeholder_image
+      args  = ["ops-serve"]
+
+      resources {
+        limits = {
+          cpu    = "1"
+          memory = "512Mi"
+        }
+        # 요청을 처리하는 동안에만 CPU를 받고 과금합니다(S163). resources를 두면 provider 기본값이 상시 할당이라 명시합니다.
+        cpu_idle          = true
+        startup_cpu_boost = true
+      }
+    }
+  }
+
+  # server와 같은 까닭으로 DB와 DB 사용자가 먼저 생기도록 기다립니다.
+  depends_on = [google_sql_database.main, google_sql_user.ops]
+
+  lifecycle {
+    ignore_changes = [template[0].containers[0].image, template[0].containers[0].env, client, client_version]
+  }
+}
+
+# IAP가 통과시킨 요청만 들어오도록 IAP 서비스 에이전트에게만 호출 권한을 줍니다. allUsers는 두지 않습니다.
+# 사람(운영자)의 IAP 접근 권한(roles/iap.httpsResourceAccessor)은 메일이 저장소에 남지 않도록 Terraform 밖에서 줍니다(runbook, D74).
+resource "google_cloud_run_v2_service_iam_member" "server_ops_iap" {
+  name     = google_cloud_run_v2_service.server_ops.name
+  location = var.region
+  role     = "roles/run.invoker"
+  member   = "serviceAccount:service-${var.project_number}@gcp-sa-iap.iam.gserviceaccount.com"
+}

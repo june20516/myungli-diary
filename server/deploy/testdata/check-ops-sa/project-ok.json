@@ -1,0 +1,6 @@
+{"bindings":[
+ {"role":"roles/owner","members":["user:owner@example.com"]},
+ {"role":"roles/run.admin","members":["serviceAccount:deployer@test-project.iam.gserviceaccount.com"]},
+ {"role":"roles/iam.serviceAccountUser","members":["serviceAccount:deployer@test-project.iam.gserviceaccount.com"]},
+ {"role":"roles/cloudsql.client","members":["serviceAccount:server-ops@test-project.iam.gserviceaccount.com","user:operator@example.com"]}
+],"etag":"BwX","version":1}

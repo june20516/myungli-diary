@@ -13,6 +13,8 @@ locals {
     "fcm.googleapis.com",
     "iam.googleapis.com",
     "iamcredentials.googleapis.com",
+    # Cloud Run 직접 IAP(server-ops, #1321). Cloud Run IAP 문서 "Before you begin"이 켜라고 합니다.
+    "iap.googleapis.com",
     "monitoring.googleapis.com",
     "run.googleapis.com",
     "secretmanager.googleapis.com",
@@ -35,6 +37,8 @@ locals {
     "roles/monitoring.notificationChannelViewer",
     "roles/monitoring.uptimeCheckConfigEditor",
     "roles/resourcemanager.projectIamAdmin",
+    # run.admin은 server-ops의 iap_enabled 설정도 맡습니다. Cloud Run IAP 문서의 서비스 IAP 켜기 필요 역할은 run.admin,
+    # iam.serviceAccountUser, Artifact Registry 읽기이고 IAP 역할은 사람 접근 설정에만 필요합니다(#1321).
     "roles/run.admin",
     "roles/secretmanager.admin",
     "roles/serviceusage.serviceUsageConsumer",
