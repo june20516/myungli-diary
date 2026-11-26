@@ -45,39 +45,50 @@ func withoutRoleName(err error) error {
 	return err
 }
 
+// ErrOpsHasSuperuser는 운영 API DB 사용자가 superuser(또는 cloudsqlsuperuser 구성원)라는 뜻입니다.
+var ErrOpsHasSuperuser = errors.New("운영 API DB 사용자가 superuser입니다")
+
 // CheckRoleSeparation은 런타임과 운영 API의 DB 사용자가 서로의 권한을 갖지 않는지 확인합니다.
-//   - runtimeUser가 OpsRole 구성원이면 ErrRuntimeInOpsRole
-//   - opsUser가 AppRole 구성원이면 ErrOpsInAppRole
-//   - OpsRole의 직접 구성원 중 opsUser 밖이 있으면 ErrUnexpectedOpsMember(사람 계정이 몰래 들어오는 것을 막음)
+//   - runtimeUser가 OpsRole의 권한을 쓸 수 있으면 ErrRuntimeInOpsRole
+//   - opsUser가 AppRole의 권한을 쓸 수 있으면 ErrOpsInAppRole
+//   - opsUser가 superuser이면 ErrOpsHasSuperuser
+//   - OpsRole의 직접 구성원 중 권한을 쓸 수 있는 사용자가 opsUser 밖에 있으면 ErrUnexpectedOpsMember(사람 계정이 몰래 들어오는 것을 막음)
 //
-// 또 opsUser가 cloudsqlsuperuser 구성원이면 ErrRuntimeHasSuperuser입니다(런타임과 같은 기준).
+// PostgreSQL 16부터 CREATEROLE을 가진 사용자가 역할을 만들면 만든 사용자가 ADMIN OPTION만 있고 INHERIT와 SET이 없는
+// 구성원으로 자동 등록됩니다(Cloud SQL migrator가 이 경우). 이 행은 권한을 쓸 수 없으므로 "권한을 쓸 수 있다"를
+// 상속(USAGE) 또는 SET ROLE 가능(SET)으로 판정하고, ADMIN 전용 행은 세지 않습니다.
 // 오류에 역할 이름을 담지 않으므로 호출자는 그대로 로그에 남겨도 됩니다.
 func CheckRoleSeparation(ctx context.Context, pool *pgxpool.Pool, runtimeUser, opsUser string) error {
-	runtimeInOps, err := hasRole(ctx, pool, runtimeUser, OpsRole)
+	superuser, err := isSuperuser(ctx, pool, opsUser)
+	if err != nil {
+		return err
+	}
+	if superuser {
+		return ErrOpsHasSuperuser
+	}
+
+	runtimeInOps, err := canUseRole(ctx, pool, runtimeUser, OpsRole)
 	if err != nil {
 		return err
 	}
 	if runtimeInOps {
 		return ErrRuntimeInOpsRole
 	}
-	opsInApp, err := hasRole(ctx, pool, opsUser, AppRole)
+	opsInApp, err := canUseRole(ctx, pool, opsUser, AppRole)
 	if err != nil {
 		return err
 	}
 	if opsInApp {
 		return ErrOpsInAppRole
 	}
-	if err := CheckRuntimeNotSuperuser(ctx, pool, opsUser); err != nil {
-		return err
-	}
-
 	var others int
 	err = pool.QueryRow(ctx, `
 		SELECT count(*) FROM pg_auth_members m
 		JOIN pg_roles member ON member.oid = m.member
-		WHERE m.roleid = $1::regrole AND member.rolname <> $2`, pgx.Identifier{OpsRole}.Sanitize(), opsUser).Scan(&others)
+		WHERE m.roleid = $1::regrole AND (m.inherit_option OR m.set_option) AND member.rolname <> $2`,
+		pgx.Identifier{OpsRole}.Sanitize(), opsUser).Scan(&others)
 	if err != nil {
-		return fmt.Errorf("%s 구성원 확인: %w", OpsRole, err)
+		return fmt.Errorf("%s 구성원 확인: %w", OpsRole, withoutRoleName(err))
 	}
 	if others > 0 {
 		return fmt.Errorf("%w: %d명", ErrUnexpectedOpsMember, others)
@@ -85,11 +96,25 @@ func CheckRoleSeparation(ctx context.Context, pool *pgxpool.Pool, runtimeUser, o
 	return nil
 }
 
-// hasRole은 member가 role의 구성원(상속 포함)인지 묻습니다.
-func hasRole(ctx context.Context, pool *pgxpool.Pool, member, role string) (bool, error) {
-	var isMember bool
-	if err := pool.QueryRow(ctx, `SELECT pg_has_role($1, $2, 'MEMBER')`, member, role).Scan(&isMember); err != nil {
+// canUseRole은 member가 role의 권한을 쓸 수 있는지(상속 또는 SET ROLE) 묻습니다. ADMIN 전용 구성원은 false입니다.
+func canUseRole(ctx context.Context, pool *pgxpool.Pool, member, role string) (bool, error) {
+	var usable bool
+	err := pool.QueryRow(ctx, `SELECT pg_has_role($1, $2, 'USAGE') OR pg_has_role($1, $2, 'SET')`, member, role).Scan(&usable)
+	if err != nil {
 		return false, fmt.Errorf("%s 소속 확인: %w", role, withoutRoleName(err))
 	}
-	return isMember, nil
+	return usable, nil
+}
+
+// isSuperuser는 member가 superuser이거나 cloudsqlsuperuser의 구성원인지 묻습니다.
+func isSuperuser(ctx context.Context, pool *pgxpool.Pool, member string) (bool, error) {
+	var superuser bool
+	err := pool.QueryRow(ctx, `
+		SELECT COALESCE((SELECT rolsuper FROM pg_roles WHERE rolname = $1), false)
+		    OR CASE WHEN EXISTS (SELECT 1 FROM pg_roles WHERE rolname = $2)
+		            THEN pg_has_role($1, $2, 'MEMBER') ELSE false END`, member, cloudSQLSuperuser).Scan(&superuser)
+	if err != nil {
+		return false, fmt.Errorf("superuser 확인: %w", withoutRoleName(err))
+	}
+	return superuser, nil
 }

@@ -1,6 +1,8 @@
 -- 운영 명령(#1321)의 바탕입니다. 운영자 부여의 출처 operator, 운영 행위를 남기는 감사 표 ops_audit,
 -- 운영 API 서비스(server-ops)가 쓰는 권한 묶음 myungli_ops를 더합니다. 구성원 지정은 migrate 명령이 합니다(staging, prod).
 -- 위로 다시 적용해도 되도록 IF NOT EXISTS, CREATE OR REPLACE를 씁니다(down이 감사 표를 남깁니다).
+-- 전제: 옛 00029(channel cli, admin_api)가 적용된 DB는 없습니다(배포 전). IF NOT EXISTS는 이 파일이 만든 새 표를
+-- down 뒤 다시 up할 때를 위한 것이고, 옛 모양의 표를 새 모양으로 바꾸지 않습니다.
 
 -- +goose Up
 -- 열에 붙은 CHECK는 PostgreSQL이 entitlement_grants_source_check로 이름 붙였습니다(00012, 00022).
