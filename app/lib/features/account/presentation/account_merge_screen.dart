@@ -360,7 +360,8 @@ String _sajuLine(AppLocalizations l10n, MergeProfileSummary profile) {
   final calendar = birth.calendar == CalendarType.lunar
       ? l10n.calendarLunar
       : l10n.calendarSolar;
-  final date = formatBirthDay(
+  // 카드 한 줄 상한에 맞춰 짧은 숫자 날짜(`yMd`)입니다(#1362, design V138).
+  final date = formatBirthDayNumeric(
     l10n.localeName,
     birth.date.year,
     birth.date.month,

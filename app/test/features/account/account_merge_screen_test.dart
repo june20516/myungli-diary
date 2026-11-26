@@ -511,7 +511,9 @@ void main() {
       expect(options[1].saju, _ko.accountChoiceSajuEmpty);
       expect(options[0].saju, isNot(_ko.accountChoiceSajuEmpty));
       expect(options[0].saju, startsWith(_ko.calendarSolar));
-      expect(options[0].saju, contains('1990'));
+      // 카드 줄은 짧은 숫자 날짜(`yMd`)입니다(#1362, design V138).
+      expect(options[0].saju, contains('1990. 4. 15.'));
+      expect(options[0].saju, isNot(contains('1990년')));
     });
 
     testWidgets('음력 윤달 생일은 달력 종류 뒤에 윤달 낱말이 붙는 틀입니다(V48, W46)', (tester) async {
@@ -549,7 +551,7 @@ void main() {
       await _pump(tester, api: api);
       await _authenticate(tester);
       final options = _choice(tester).options;
-      final date = formatBirthDay('ko', 1990, 6, 15);
+      final date = formatBirthDayNumeric('ko', 1990, 6, 15);
       expect(
         options[0].saju,
         _ko.accountChoiceSajuLeap(
