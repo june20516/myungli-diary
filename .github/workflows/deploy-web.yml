@@ -92,8 +92,8 @@ jobs:
           esac
       - name: 빌드
         run: pnpm build
+      # Firebase 프로젝트 폴더는 web/(firebase.json, .firebaserc). public은 그 안이어야 합니다(#1379).
       - name: Firebase Hosting(사이트 target landing)
-        working-directory: web/deploy/firebase
         run: pnpm exec firebase deploy --only hosting:landing --project "$PROJECT" --non-interactive
       - name: 요약
         run: echo "### 랜딩 배포 ($PROJECT) $WEB_ORIGIN" >> "$GITHUB_STEP_SUMMARY"

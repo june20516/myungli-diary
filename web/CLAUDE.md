@@ -31,8 +31,8 @@
 ## 현재 상태
 진행 중인 일만 적고, 병합하면 지웁니다(`docs/workflow.md` §3 마무리 2번).
 
-* **404 페이지(브랜치 `web/not-found-1366`, plan [`docs/plans/2026-11-26-wb1-not-found.md`](docs/plans/2026-11-26-wb1-not-found.md)):** 원고 drift #1366 따라잡기와 IA `web-not-found` 화면. 브라우저 언어별 404는 Hosting i18n 재작성(`firebase.json` `i18n.root`, `site/src/config/not-found.ts`). 병합은 사용자.
-* **배포 대기:** 랜딩(#1340, #1359)은 staging에 병합됐고, 실제 배포는 사용자 E25(#1332, Firebase 사이트와 DNS, 배포 권한) 뒤 저장소 변수 `WEB_DEPLOY_ENABLED`로 켭니다.
+* **배포 경로 고침(브랜치 `web/deploy-public-1379`):** `firebase deploy`가 프로젝트 폴더 밖 `public`을 거절해(#1379) `firebase.json`, `.firebaserc`를 `web/`로 옮김(`public` `site/dist`). 병합되면 staging에 `deploy-web`이 돌고 지휘가 확인합니다. 병합은 사용자.
+* **배포:** E25(#1332)가 끝나 `WEB_DEPLOY_ENABLED=true`입니다. 랜딩(#1340, #1359)과 404(#1368)는 staging에 병합됐습니다.
 
 ## 기준 문서와 도구
 * 랜딩 화면 기준: design 명세 [`docs/identity/design/web/README.md`](../docs/identity/design/web/README.md)(V137). design 원본(로고, 화면 사진)은 복사하지 않고 별칭 `@design/`으로 그 자리에서 읽습니다.
@@ -56,6 +56,6 @@
 | `pnpm e2e` | 빌드 뒤 Hosting 에뮬레이터 위 Playwright |
 
 ## 다음 할 일
-1. **staging 배포 확인:** 사용자 E25(#1332)가 끝나면 `deploy-web`을 staging에서 돌려 `https://staging.myungli-diary.app/`(세 언어, `app-ads.txt`, OG, 글꼴, 언어별 404)를 확인합니다. 404는 `Accept-Language`를 바꿔 봅니다. 에뮬레이터는 첫 언어가 지원 밖이면(`de,ko;q=0.5`) 둘째 언어 대신 en을 냈는데, 문서는 품질 값 순서대로 찾는다고 해 실제 Hosting 동작을 확인합니다. 절차는 [`deploy/README.md`](deploy/README.md). prod 승격(지휘) 뒤 `myungli-diary.app`이 열리면 #1331의 끝나는 조건입니다.
+1. **staging 배포 확인:** #1379 고침이 병합되면 `deploy-web`이 staging에서 돈 뒤 `https://staging.myungli-diary.app/`(세 언어, `app-ads.txt`, OG, 글꼴, 언어별 404)를 확인합니다. 404는 `Accept-Language`를 바꿔 봅니다. 에뮬레이터는 첫 언어가 지원 밖이면(`de,ko;q=0.5`) 둘째 언어 대신 en을 냈는데, 문서는 품질 값 순서대로 찾는다고 해 실제 Hosting 동작을 확인합니다. 절차는 [`deploy/README.md`](deploy/README.md). prod 승격(지휘) 뒤 `myungli-diary.app`이 열리면 #1331의 끝나는 조건입니다.
 2. **원어민 검수(E18):** writing이 en, ja 원고를 바꾸면 같은 경로라 빌드만 다시 하면 됩니다. 줄 수가 크게 바뀌면 390, 1280 폭 화면을 다시 봅니다.
 3. 출시 때 `site/src/config/site.ts`의 `release`를 `live`로, 두 스토어 주소를 넣습니다. Apple 상표 고지 줄 슬롯(지휘가 출시 무렵 더함)을 아래쪽 링크 묶음 아래에 둡니다(V137 "스토어 자리").
