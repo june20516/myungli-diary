@@ -2,9 +2,11 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -28,11 +30,21 @@ func GrantOpsRole(ctx context.Context, pool *pgxpool.Pool) ([]string, error) {
 		return nil, fmt.Errorf("운영자 대상 읽기: %w", err)
 	}
 
-	for _, name := range names {
+	for i, name := range names {
 		statement := "GRANT " + pgx.Identifier{OpsRole}.Sanitize() + " TO " + pgx.Identifier{name}.Sanitize()
 		if _, err := pool.Exec(ctx, statement); err != nil {
-			return nil, fmt.Errorf("%s 구성원 지정: %w", OpsRole, err)
+			return nil, grantOpsRoleError(i, err)
 		}
 	}
 	return names, nil
+}
+
+// grantOpsRoleError는 GRANT 실패를 로그에 남겨도 되는 오류로 바꿉니다. PostgreSQL 오류 문구에는 사람 메일(역할 이름)이
+// 들어갈 수 있어 원문을 감싸지 않고 SQLSTATE 코드만 담습니다. 대상은 이름 대신 순번(1부터)으로 가리킵니다.
+func grantOpsRoleError(index int, err error) error {
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) {
+		return fmt.Errorf("%s 구성원 지정(%d번째 대상): SQLSTATE %s", OpsRole, index+1, pgErr.Code)
+	}
+	return fmt.Errorf("%s 구성원 지정(%d번째 대상): %w", OpsRole, index+1, err)
 }

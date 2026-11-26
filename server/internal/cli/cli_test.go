@@ -163,6 +163,8 @@ func TestRun_MigrateUp_GrantsAppRoleToRuntimeUser(t *testing.T) {
 // 배포 환경(staging, prod)의 migrate up은 사람 IAM 사용자를 운영자 역할(myungli_ops)에 넣고, local은 넣지 않습니다(#1321).
 func TestRunMigrate_GrantsOpsRoleOnlyInDeployedEnv(t *testing.T) {
 	ctx := context.Background()
+	// 운영자 대상은 cluster의 모든 사람 역할이라, 같은 cluster에서 역할을 만드는 다른 테스트와 겹치지 않게 합니다.
+	dbtest.LockCluster(t)
 	pool := dbtest.New(t)
 	operator := "op-cli-" + strings.ReplaceAll(uuid.NewString()[:8], "-", "") + "@example.com"
 	if _, err := pool.Exec(ctx, "CREATE ROLE "+pgx.Identifier{operator}.Sanitize()+" LOGIN"); err != nil {

@@ -26,10 +26,13 @@ CREATE TABLE ops_audit (
 CREATE INDEX ops_audit_account_idx ON ops_audit (account_id, at DESC);
 CREATE INDEX ops_audit_at_idx ON ops_audit (at);
 
--- 감사 행은 고칠 수 없고, 보관 2년이 지난 행만 지울 수 있습니다.
+-- 감사 행은 고칠 수 없고, 보관 2년이 지난 행만 지울 수 있고, 표를 비울 수(TRUNCATE) 없습니다.
 -- +goose StatementBegin
 CREATE FUNCTION ops_audit_guard() RETURNS trigger AS $$
 BEGIN
+    IF TG_OP = 'TRUNCATE' THEN
+        RAISE EXCEPTION 'ops_audit은 비울 수 없습니다';
+    END IF;
     IF TG_OP = 'UPDATE' THEN
         RAISE EXCEPTION 'ops_audit 행은 고칠 수 없습니다';
     END IF;
@@ -43,6 +46,9 @@ $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER ops_audit_guard BEFORE UPDATE OR DELETE ON ops_audit
     FOR EACH ROW EXECUTE FUNCTION ops_audit_guard();
+-- 행 trigger는 TRUNCATE를 막지 못하므로 문장 trigger를 따로 둡니다.
+CREATE TRIGGER ops_audit_guard_truncate BEFORE TRUNCATE ON ops_audit
+    FOR EACH STATEMENT EXECUTE FUNCTION ops_audit_guard();
 
 -- 00024의 기본 권한이 새 표에 UPDATE를 주므로 거둡니다(trigger가 한 번 더 막습니다).
 REVOKE UPDATE ON ops_audit FROM myungli_app;
@@ -76,6 +82,7 @@ REVOKE INSERT ON entitlement_grants FROM myungli_ops;
 REVOKE SELECT ON accounts, auth_identities, devices, entitlement_grants, purchases, diaries, diary_days, schedules, profiles FROM myungli_ops;
 REVOKE USAGE ON SCHEMA public FROM myungli_ops;
 
+DROP TRIGGER ops_audit_guard_truncate ON ops_audit;
 DROP TRIGGER ops_audit_guard ON ops_audit;
 DROP FUNCTION ops_audit_guard();
 DROP TABLE ops_audit;

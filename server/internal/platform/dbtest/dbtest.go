@@ -152,3 +152,36 @@ func (s shared) databaseURL(database string) string {
 	u.Path = "/" + database
 	return u.String()
 }
+
+// clusterLockKey는 cluster 전체 상태(역할과 구성원 관계)를 바꾸는 테스트가 함께 쓰는 advisory lock 키입니다.
+const clusterLockKey = 1321_0001
+
+// LockCluster는 cluster 공용 상태(로그인 역할과 구성원 관계)를 바꾸는 테스트 구간을 직렬화합니다.
+// 역할은 DB가 아니라 cluster에 속해, 사람 역할을 모두 훑는 GrantOpsRole 같은 코드는 다른 테스트가 만든 역할과 섞일 수 있습니다.
+// advisory lock은 연결 하나가 쥐므로 전용 연결에서 잡고, 테스트가 끝나면 풉니다.
+func LockCluster(t testing.TB) {
+	t.Helper()
+
+	// 컨테이너를 아직 띄우지 않았으면 여기서 띄웁니다.
+	setupOnce.Do(func() { setupState, setupErr = setup() })
+	if setupErr != nil {
+		t.Fatalf("테스트 DB 준비 실패: %v", setupErr)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), setupTimeout)
+	defer cancel()
+	conn, err := setupState.adminPool.Acquire(ctx)
+	if err != nil {
+		t.Fatalf("cluster 잠금 연결: %v", err)
+	}
+	if _, err := conn.Exec(ctx, "SELECT pg_advisory_lock($1)", clusterLockKey); err != nil {
+		conn.Release()
+		t.Fatalf("cluster 잠금: %v", err)
+	}
+	t.Cleanup(func() {
+		defer conn.Release()
+		if _, err := conn.Exec(context.Background(), "SELECT pg_advisory_unlock($1)", clusterLockKey); err != nil {
+			t.Errorf("cluster 잠금 풀기: %v", err)
+		}
+	})
+}

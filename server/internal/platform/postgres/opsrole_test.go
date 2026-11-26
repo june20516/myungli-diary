@@ -42,6 +42,7 @@ func isOpsMember(t *testing.T, pool *pgxpool.Pool, name string) bool {
 // 사람 IAM 사용자(로그인 가능, 이름에 @, .iam으로 끝나지 않음)만 운영자 역할에 넣고, 이미 구성원이면 목록에 넣지 않습니다.
 func TestGrantOpsRole_OnlyHumanIAMUsers(t *testing.T) {
 	ctx := context.Background()
+	dbtest.LockCluster(t)
 	pool := dbtest.New(t)
 	suffix := uuid.NewString()[:8]
 	human := "op-" + suffix + "@example.com"
@@ -97,6 +98,8 @@ func TestOpsRole_Privileges(t *testing.T) {
 	allowed := []string{
 		`SELECT 1 FROM diaries`,
 		`SELECT 1 FROM accounts FOR SHARE`,
+		// 운영자 부여가 계정 행을 FOR SHARE로 잠그려면 accounts의 UPDATE 권한이 한 칸 필요합니다(migration 00029).
+		`UPDATE accounts SET updated_at = updated_at WHERE false`,
 		`INSERT INTO ops_audit (id, at, actor, channel, action, reason, target) VALUES (gen_random_uuid(), now(), 'op@example.com', 'cli', 'grant', '사유', '{}')`,
 		`INSERT INTO entitlement_grants (account_id, entitlement, source, source_ref, starts_at, expires_at)
 			VALUES ('` + accountID.String() + `', 'insight', 'operator', 'ref-2', now(), now() + interval '1 day')`,
