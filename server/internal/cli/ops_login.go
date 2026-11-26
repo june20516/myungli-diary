@@ -31,6 +31,8 @@ const (
 	opsLoginTimeout = 5 * time.Minute
 	// opsStateBytes는 state 값의 무작위 바이트 수입니다.
 	opsStateBytes = 32
+	// opsCallbackShutdownTimeout은 콜백 서버가 응답을 마저 보내고 닫기를 기다리는 시간입니다.
+	opsCallbackShutdownTimeout = 3 * time.Second
 )
 
 // opsOAuthScopes는 ID token에 메일을 담기 위한 scope입니다.
@@ -60,6 +62,9 @@ func runOpsLogin(ctx context.Context, deps opsDeps, args []string, getenv func(s
 
 	dir, err := opsLocalDir(getenv, *env)
 	if err != nil {
+		return err
+	}
+	if err := ensureOpsDir(dir); err != nil {
 		return err
 	}
 	client, err := readOpsOAuthClient(filepath.Join(dir, opsClientFile))
@@ -135,7 +140,14 @@ func authorizeOps(ctx context.Context, deps opsDeps, client opsOAuthClient, stde
 	results := make(chan opsCallback, 1)
 	server := &http.Server{Handler: opsCallbackHandler(state, results), ReadHeaderTimeout: 10 * time.Second}
 	go func() { _ = server.Serve(listener) }()
-	defer func() { _ = server.Close() }()
+	// 콜백 응답을 브라우저에 다 보낸 뒤 닫도록 Shutdown을 쓰고, 시간 안에 못 끝나면 Close합니다.
+	defer func() {
+		shutdownCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), opsCallbackShutdownTimeout)
+		defer cancel()
+		if server.Shutdown(shutdownCtx) != nil {
+			_ = server.Close()
+		}
+	}()
 
 	_, _ = fmt.Fprintf(stderr, "브라우저에서 Google 계정으로 로그인하세요. 브라우저가 열리지 않으면 아래 주소를 여세요.\n%s\n", authURL)
 	if err := deps.openBrowser(ctx, authURL); err != nil {
@@ -165,18 +177,18 @@ func authorizeOps(ctx context.Context, deps opsDeps, client opsOAuthClient, stde
 	return token.RefreshToken, nil
 }
 
-// opsCallbackHandler는 루프백 리디렉션을 받아 첫 결과 하나만 넘깁니다. state가 다르면 다른 값은 보지 않고 거절합니다.
+// opsCallbackHandler는 루프백 리디렉션을 받아 state가 맞는 첫 결과 하나만 넘깁니다.
+// 경로가 콜백이 아니거나 state가 맞지 않는 요청은 400만 답하고 결과로 넘기지 않습니다.
+// 같은 컴퓨터의 다른 프로그램이 엉뚱한 요청을 보내도 로그인이 끝나지 않고 올바른 콜백을 계속 기다립니다.
 func opsCallbackHandler(state string, results chan<- opsCallback) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/" {
-			http.NotFound(w, r)
+		query := r.URL.Query()
+		if r.URL.Path != "/" || subtle.ConstantTimeCompare([]byte(query.Get("state")), []byte(state)) != 1 {
+			http.Error(w, "로그인 응답이 아닙니다.", http.StatusBadRequest)
 			return
 		}
-		query := r.URL.Query()
 		var result opsCallback
 		switch {
-		case subtle.ConstantTimeCompare([]byte(query.Get("state")), []byte(state)) != 1:
-			result.err = errors.New("로그인 응답의 state가 맞지 않습니다. 다시 로그인하세요")
 		case query.Get("error") != "":
 			result.err = fmt.Errorf("로그인이 거절되었습니다(%s)", cell(query.Get("error")))
 		case query.Get("code") == "":
@@ -209,11 +221,33 @@ func randomOpsState() (string, error) {
 	return base64.RawURLEncoding.EncodeToString(buf), nil
 }
 
+// ensureOpsDir는 로컬 값 폴더를 확인합니다. 없으면 0700으로 만들고, 있는데 그룹이나 기타 사용자에게 쓰기 권한이 있으면 거절합니다.
+// 다른 사용자가 자격 파일을 바꿔치기하지 못하게 하려는 것입니다.
+func ensureOpsDir(dir string) error {
+	info, err := os.Stat(dir)
+	if errors.Is(err, fs.ErrNotExist) {
+		if err := os.MkdirAll(dir, 0o700); err != nil {
+			return fmt.Errorf("%s 폴더를 만들지 못했습니다: %w", dir, err)
+		}
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("%s 폴더 정보를 읽지 못했습니다: %w", dir, err)
+	}
+	if !info.IsDir() {
+		return fmt.Errorf("%s가 폴더가 아닙니다", dir)
+	}
+	if perm := info.Mode().Perm(); perm&0o022 != 0 {
+		return fmt.Errorf("%s 폴더 권한이 %04o입니다. 그룹과 기타 사용자의 쓰기 권한을 빼세요(chmod go-w %s)", dir, perm, dir)
+	}
+	return nil
+}
+
 // writeOpsCredentials는 로컬 값 파일을 권한 600으로 씁니다. 같은 폴더의 임시 파일에 쓴 뒤 rename해 반쯤 쓴 파일이 남지 않게 합니다.
 func writeOpsCredentials(path string, credentials opsCredentials) (err error) {
 	dir := filepath.Dir(path)
-	if err := os.MkdirAll(dir, 0o700); err != nil {
-		return fmt.Errorf("%s 폴더를 만들지 못했습니다: %w", dir, err)
+	if err := ensureOpsDir(dir); err != nil {
+		return err
 	}
 	payload, err := json.MarshalIndent(credentials, "", "  ") //nolint:gosec // 로컬 값 파일(권한 600)에 쓰려고 직렬화합니다. 출력하지 않습니다
 	if err != nil {
@@ -247,7 +281,7 @@ func writeOpsCredentials(path string, credentials opsCredentials) (err error) {
 	return nil
 }
 
-// openSystemBrowser는 운영체제 기본 브라우저로 주소를 엽니다. 끝나기를 기다리지 않습니다.
+// openSystemBrowser는 운영체제 기본 브라우저로 주소를 엽니다. 끝나기를 기다리지 않고, 프로세스는 goroutine에서 거둡니다.
 func openSystemBrowser(ctx context.Context, target string) error {
 	var command *exec.Cmd
 	switch runtime.GOOS {
@@ -258,5 +292,9 @@ func openSystemBrowser(ctx context.Context, target string) error {
 	default:
 		command = exec.CommandContext(ctx, "xdg-open", target) //nolint:gosec // 고정 실행 파일에 login이 만든 인증 주소만 넘깁니다
 	}
-	return command.Start()
+	if err := command.Start(); err != nil {
+		return err
+	}
+	go func() { _ = command.Wait() }()
+	return nil
 }

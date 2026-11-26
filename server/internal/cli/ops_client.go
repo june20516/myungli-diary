@@ -129,6 +129,9 @@ func loadOpsCredentials(path, env string) (opsCredentials, error) {
 	if perm := info.Mode().Perm(); perm&0o077 != 0 {
 		return opsCredentials{}, fmt.Errorf("%s 권한이 %04o입니다. 본인만 읽을 수 있게 600으로 바꾸세요(chmod 600 %s)", path, perm, path)
 	}
+	if err := checkOpsFileOwner(info, os.Getuid()); err != nil {
+		return opsCredentials{}, fmt.Errorf("%s: %w", path, err)
+	}
 
 	raw, err := io.ReadAll(io.LimitReader(file, opsMaxCredentialsBytes))
 	if err != nil {
@@ -146,7 +149,8 @@ func loadOpsCredentials(path, env string) (opsCredentials, error) {
 }
 
 // validateOpsAPIURL은 운영 API 주소를 검사하고 끝의 /를 뗀 주소를 돌려줍니다.
-// https만 받고, 시험용으로 루프백(127.0.0.1, ::1, localhost)의 http는 허용합니다. 사용자 정보, query, fragment는 거절합니다.
+// https만 받고, 시험용으로 루프백 IP 리터럴(127.0.0.1, ::1)의 http는 허용합니다. 이름(localhost)은 해석 결과를 믿지 않으려고 받지 않습니다.
+// 사용자 정보, query, fragment는 거절합니다.
 func validateOpsAPIURL(raw string) (string, error) {
 	parsed, err := url.Parse(raw)
 	if err != nil || parsed.Host == "" {
@@ -156,7 +160,7 @@ func validateOpsAPIURL(raw string) (string, error) {
 	case "https":
 	case "http":
 		if !isLoopbackHost(parsed.Hostname()) {
-			return "", errors.New("https 주소여야 합니다(http는 127.0.0.1과 localhost만)")
+			return "", errors.New("https 주소여야 합니다(http는 127.0.0.1과 ::1만)")
 		}
 	default:
 		return "", errors.New("https 주소여야 합니다")
@@ -169,8 +173,9 @@ func validateOpsAPIURL(raw string) (string, error) {
 	return parsed.String(), nil
 }
 
+// isLoopbackHost는 http를 허용하는 루프백 IP 리터럴인지 알려 줍니다.
 func isLoopbackHost(host string) bool {
-	return host == "127.0.0.1" || host == "::1" || host == "localhost"
+	return host == "127.0.0.1" || host == "::1"
 }
 
 // opsClient는 운영 API를 부릅니다.

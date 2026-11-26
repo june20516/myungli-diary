@@ -552,7 +552,6 @@ func TestOpsLogin_RejectsBadCallback(t *testing.T) {
 		mutate func(url.Values)
 		want   string
 	}{
-		{"state 다름", func(q url.Values) { q.Set("state", "other") }, "state"},
 		{"동의 거절", func(q url.Values) { q.Del("code"); q.Set("error", "access_denied") }, "access_denied"},
 	}
 	for _, tt := range tests {
@@ -602,15 +601,72 @@ func TestOpsLogin_UsageAndClientFile(t *testing.T) {
 }
 
 func TestValidateOpsAPIURL_AllowsLocalHTTP(t *testing.T) {
-	for _, raw := range []string{"http://127.0.0.1:8080", "http://localhost:9000/", "https://ops.example.test/base"} {
+	for _, raw := range []string{"http://127.0.0.1:8080", "http://[::1]:9000/", "https://ops.example.test/base"} {
 		_, err := validateOpsAPIURL(raw)
 		assert.NoError(t, err, raw)
 	}
 	normalized, err := validateOpsAPIURL("https://ops.example.test/base/")
 	require.NoError(t, err)
 	assert.Equal(t, "https://ops.example.test/base", normalized)
-	for _, raw := range []string{"", "ftp://ops.example.test", "https://user:pw@ops.example.test", "https://ops.example.test#x", "http://10.0.0.1"} {
+	for _, raw := range []string{"", "ftp://ops.example.test", "https://user:pw@ops.example.test", "https://ops.example.test#x", "http://10.0.0.1", "http://localhost:9000"} {
 		_, err := validateOpsAPIURL(raw)
 		assert.Error(t, err, raw)
 	}
+}
+
+// TestOpsLogin_IgnoresStrayCallbacks는 콜백 경로가 아니거나 state가 맞지 않는 요청이 400만 받고,
+// 로그인은 그 뒤에 오는 올바른 콜백으로 끝나는지 확인합니다.
+func TestOpsLogin_IgnoresStrayCallbacks(t *testing.T) {
+	h := newLoginHarness(t)
+	deps := h.deps()
+	correct := h.browser(t, nil)
+	deps.openBrowser = func(ctx context.Context, raw string) error {
+		authURL, err := url.Parse(raw)
+		require.NoError(t, err)
+		redirect := authURL.Query().Get("redirect_uri")
+		state := authURL.Query().Get("state")
+		for _, stray := range []string{
+			redirect + "favicon.ico?" + url.Values{"state": {state}, "code": {"stray"}}.Encode(),
+			redirect + "?" + url.Values{"state": {"other"}, "code": {"evil"}}.Encode(),
+			redirect + "?" + url.Values{"state": {"other"}, "error": {"access_denied"}}.Encode(),
+		} {
+			req, err := http.NewRequestWithContext(ctx, http.MethodGet, stray, nil)
+			require.NoError(t, err)
+			resp, err := http.DefaultClient.Do(req)
+			require.NoError(t, err)
+			_ = resp.Body.Close()
+			assert.Equal(t, http.StatusBadRequest, resp.StatusCode, stray)
+		}
+		return correct(ctx, raw)
+	}
+
+	code, _, stderr := h.run(t, deps, "login", "--env", "prod", "--api-url", "https://ops.example.test")
+	require.Equal(t, 0, code, stderr)
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	require.Len(t, h.exchanges, 1)
+	assert.Equal(t, "auth-code", h.exchanges[0].Get("code"))
+}
+
+func TestOpsLogin_RejectsGroupWritableDir(t *testing.T) {
+	h := newLoginHarness(t)
+	require.NoError(t, os.Chmod(h.clientDir, 0o770)) //nolint:gosec // 거절되는지 보려고 일부러 넓힌 권한입니다
+	deps := h.deps()
+	deps.openBrowser = func(context.Context, string) error {
+		t.Error("브라우저를 열기 전에 끝나야 합니다")
+		return nil
+	}
+	code, _, stderr := h.run(t, deps, "login", "--env", "prod", "--api-url", "https://ops.example.test")
+	assert.Equal(t, 1, code)
+	assert.Contains(t, stderr, "쓰기 권한")
+	_, err := os.Stat(filepath.Join(h.clientDir, "ops-oauth.json"))
+	assert.ErrorIs(t, err, os.ErrNotExist)
+}
+
+func TestOpsLogin_CreatesMissingDirPrivate(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "server", "staging")
+	require.NoError(t, ensureOpsDir(dir))
+	info, err := os.Stat(dir)
+	require.NoError(t, err)
+	assert.Equal(t, os.FileMode(0o700), info.Mode().Perm())
 }
