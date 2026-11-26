@@ -6,8 +6,14 @@ import { checkDist } from "../src/check/dist.ts";
 
 const ORIGIN = "https://staging.myungli-diary.app";
 
-function page(lang: string, body: string, ogImage = `${ORIGIN}/${lang}/og.png`): string {
-  return `<!doctype html><html lang="${lang}"><head><title>제목</title><meta property="og:image" content="${ogImage}"><link rel="canonical" href="${ORIGIN}/${lang}/"></head><body>${body}<a href="/ko/">ko</a><a href="https://example.com/x">밖</a></body></html>`;
+function shotImages(scenes: readonly string[] = ["evidence", "today", "calendar"], emptyAlt: readonly string[] = []): string {
+  return scenes.map((scene) => `<img src="/ko/og.png" alt="${emptyAlt.includes(scene) ? "" : `${scene} 화면`}" data-scene="${scene}">`).join("");
+}
+
+const SHOTS = shotImages();
+
+function page(lang: string, body: string, ogImage = `${ORIGIN}/${lang}/og.png`, shots = SHOTS): string {
+  return `<!doctype html><html lang="${lang}"><head><title>제목</title><meta property="og:image" content="${ogImage}"><link rel="canonical" href="${ORIGIN}/${lang}/"></head><body>${body}${shots}<a href="/ko/">ko</a><a href="https://example.com/x">밖</a></body></html>`;
 }
 
 function makeDist(overrides: Record<string, string | null> = {}): string {
@@ -74,5 +80,28 @@ describe("checkDist", () => {
 
   test("og:image가 상대 주소면 문제", () => {
     expect(checkDist(makeDist({ "ko/index.html": page("ko", "", "/ko/og.png") }), ORIGIN)).toContain(`og:image가 ${ORIGIN}/ko/og.png 아님: ko/index.html (/ko/og.png)`);
+  });
+
+  test("@font-face 글꼴 파일이 없으면 깨진 링크", () => {
+    const style = '<style>@font-face{font-family:"Pretendard";src:url("/fonts/ko-pretendard-400-abc.woff2") format("woff2")}</style>';
+    expect(checkDist(makeDist({ "ko/index.html": page("ko", style) }), ORIGIN)).toContain("깨진 링크: ko/index.html → /fonts/ko-pretendard-400-abc.woff2");
+  });
+
+  test("@font-face 글꼴 파일이 있으면 문제 없음", () => {
+    const style = '<style>@font-face{font-family:"Pretendard";src:url("/fonts/a.woff2") format("woff2")}</style>';
+    expect(checkDist(makeDist({ "ko/index.html": page("ko", style), "fonts/a.woff2": "woff2" }), ORIGIN)).toEqual([]);
+  });
+
+  test("srcset의 깨진 주소도 문제", () => {
+    const picture = '<picture><source srcset="/missing-dark.svg" media="(prefers-color-scheme: dark)"><img src="/ko/og.png" alt="명리일기"></picture>';
+    expect(checkDist(makeDist({ "ko/index.html": page("ko", picture) }), ORIGIN)).toContain("깨진 링크: ko/index.html → /missing-dark.svg");
+  });
+
+  test("언어 페이지에 화면 사진이 세 장이 아니면 문제", () => {
+    expect(checkDist(makeDist({ "ja/index.html": page("ja", "", undefined, shotImages(["evidence", "today"])) }), ORIGIN)).toContain("화면 사진이 3장 아님: ja/index.html (2장)");
+  });
+
+  test("화면 사진 alt가 비면 문제", () => {
+    expect(checkDist(makeDist({ "en/index.html": page("en", "", undefined, shotImages(undefined, ["today"])) }), ORIGIN)).toContain("화면 사진 alt가 비어 있음: en/index.html (today)");
   });
 });

@@ -48,14 +48,14 @@ jobs:
           key: web-pnpm-${{ runner.os }}-${{ hashFiles('web/.nvmrc', 'web/package.json', 'web/pnpm-lock.yaml') }}
       - name: 설치(lockfile 고정)
         run: pnpm install --frozen-lockfile
-      # OG 글꼴은 고정 주소와 sha256(site/src/og/fonts.ts)이라 그 파일이 키입니다. 복원 뒤에도 sha256을 다시 확인합니다.
-      - name: OG 글꼴 캐시 복원
+      # 웹 글꼴과 OG 글꼴 원본은 고정 주소와 sha256(site/src/fonts/source.ts)이라 그 파일이 키입니다. 복원 뒤에도 sha256을 다시 확인합니다.
+      - name: 글꼴 캐시 복원
         if: env.USE_CACHE == 'true'
         id: fonts-cache
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: web/.cache/fonts
-          key: web-fonts-${{ hashFiles('web/site/src/og/fonts.ts') }}
+          key: web-fonts-${{ hashFiles('web/site/src/fonts/source.ts') }}
 
       - name: lint
         if: env.OWN == 'true'
@@ -111,12 +111,12 @@ jobs:
         with:
           path: ${{ steps.pnpm-store.outputs.path }}
           key: web-pnpm-${{ runner.os }}-${{ hashFiles('web/.nvmrc', 'web/package.json', 'web/pnpm-lock.yaml') }}
-      - name: OG 글꼴 캐시 저장
+      - name: 글꼴 캐시 저장
         if: env.SAVE_CACHE == 'true' && steps.fonts-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: web/.cache/fonts
-          key: web-fonts-${{ hashFiles('web/site/src/og/fonts.ts') }}
+          key: web-fonts-${{ hashFiles('web/site/src/fonts/source.ts') }}
       - name: Playwright 브라우저 캐시 저장
         if: env.SAVE_CACHE == 'true' && steps.playwright-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6

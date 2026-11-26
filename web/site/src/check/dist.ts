@@ -1,4 +1,4 @@
-// 빌드 산출물 검사: 필요한 파일, 언어별 절대 주소 og:image, 보이는 글의 D93, 같은 origin 링크.
+// 빌드 산출물 검사: 필요한 파일, 언어별 절대 주소 og:image, 보이는 글의 D93, 같은 origin 링크(스타일의 url() 포함), 언어 페이지의 화면 사진.
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { NodeType, parse, type HTMLElement, type Node } from "node-html-parser";
@@ -46,6 +46,14 @@ function visibleTexts(root: HTMLElement): string[] {
   return texts;
 }
 
+/** 언어 페이지의 화면 사진 수(V137: 근거, 오늘, 달력). */
+const SHOT_COUNT = 3;
+
+/** <style> 안 url(...) 주소(@font-face 글꼴 파일). */
+function styleUrls(root: HTMLElement): string[] {
+  return root.querySelectorAll("style").flatMap((style: HTMLElement) => [...style.text.matchAll(/url\(\s*["']?([^"')]+)["']?\s*\)/g)].map((match) => match[1] ?? ""));
+}
+
 /** 같은 origin 주소면 dist 안 파일 경로, 아니면 undefined. */
 function localTarget(url: string, origin: string): string | undefined {
   let path: string;
@@ -70,8 +78,12 @@ export function checkDist(distDir: string, origin: string): string[] {
       for (const found of findD93(text)) problems.push(`D93 ${JSON.stringify(found.char)}: ${name} (${text.trim().slice(0, 60)})`);
     }
 
-    for (const element of root.querySelectorAll("[href], [src], meta[property='og:image']")) {
-      const url = element.getAttribute("href") ?? element.getAttribute("src") ?? element.getAttribute("content") ?? "";
+    const urls = [
+      ...root.querySelectorAll("[href], [src], meta[property='og:image']").map((element: HTMLElement) => element.getAttribute("href") ?? element.getAttribute("src") ?? element.getAttribute("content") ?? ""),
+      ...root.querySelectorAll("[srcset]").flatMap((element: HTMLElement) => (element.getAttribute("srcset") ?? "").split(",").map((candidate: string) => candidate.trim().split(/\s+/)[0] ?? "")),
+      ...styleUrls(root),
+    ];
+    for (const url of urls) {
       const target = localTarget(url, origin);
       if (target !== undefined && !existsSync(join(distDir, target))) problems.push(`깨진 링크: ${name} → ${url}`);
     }
@@ -81,6 +93,11 @@ export function checkDist(distDir: string, origin: string): string[] {
       const expected = `${origin}/${lang}/og.png`;
       const actual = root.querySelector("meta[property='og:image']")?.getAttribute("content");
       if (actual !== expected) problems.push(`og:image가 ${expected} 아님: ${name} (${actual ?? "없음"})`);
+      const shots = root.querySelectorAll("img[data-scene]");
+      if (shots.length !== SHOT_COUNT) problems.push(`화면 사진이 ${SHOT_COUNT}장 아님: ${name} (${shots.length}장)`);
+      for (const shot of shots) {
+        if ((shot.getAttribute("alt") ?? "").trim() === "") problems.push(`화면 사진 alt가 비어 있음: ${name} (${shot.getAttribute("data-scene") ?? ""})`);
+      }
     }
   }
   return problems;

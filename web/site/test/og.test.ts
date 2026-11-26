@@ -2,7 +2,7 @@ import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
-import { ensureFonts, type FontSource } from "../src/og/fonts.ts";
+import { ensureFonts, type FontSource } from "../src/fonts/source.ts";
 import { OG_HEIGHT, OG_WIDTH, renderOg } from "../src/og/render.ts";
 
 const colors = { bg: "#f7f6f2", fg: "#2b2b2a" };

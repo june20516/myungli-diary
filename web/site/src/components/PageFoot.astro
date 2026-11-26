@@ -1,0 +1,81 @@
+---
+// 아래쪽(V137): 법적 문서와 지원 링크(server 주소에 페이지 언어), 언어 바꾸기.
+import type { Lang } from "../config/lang.ts";
+import { siteConfig } from "../config/site.ts";
+import type { Copy } from "../copy/load.ts";
+import LangSwitch from "./LangSwitch.astro";
+
+interface Props {
+  lang: Lang;
+  copy: Copy;
+}
+
+const { lang, copy } = Astro.props;
+const legal = siteConfig.legal(lang);
+const links = [
+  { href: legal.terms, text: copy.text("web-landing.footer.terms") },
+  { href: legal.privacy, text: copy.text("web-landing.footer.privacy") },
+  { href: legal.support, text: copy.text("web-landing.footer.support") },
+];
+---
+
+<footer class="page-foot">
+  <div class="foot">
+    <ul class="legal">
+      {
+        links.map(({ href, text }) => (
+          <li>
+            <a href={href}>{text}</a>
+          </li>
+        ))
+      }
+    </ul>
+    <LangSwitch current={lang} label={copy.text("web-landing.lang.label")} />
+  </div>
+</footer>
+
+<style>
+  .page-foot {
+    padding: var(--space-16) var(--gutter) var(--space-32);
+    border-top: var(--border-width-hairline) solid var(--color-line);
+  }
+  .foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-16) var(--space-32);
+    max-width: 1120px;
+    margin: 0 auto;
+    color: var(--color-text-secondary);
+    font-size: var(--type-label-md-font-size);
+    font-weight: var(--type-label-md-font-weight);
+  }
+  .legal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .foot :global(a) {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 var(--space-8);
+    text-decoration: none;
+  }
+  .foot :global(a:hover) {
+    color: var(--color-text-primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  @media (max-width: 600px) {
+    .foot {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

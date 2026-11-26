@@ -1,0 +1,79 @@
+---
+// 스토어 자리(V137): 출시 전은 곧 출시 안내 알약 하나(링크 없음), 출시 뒤는 App Store, Google Play 공식 배지.
+import { BADGE_HEIGHT, storeBadge } from "../assets/landing.ts";
+import type { Release, StoreLinks } from "../config/site.ts";
+import type { Copy } from "../copy/load.ts";
+
+interface Props {
+  copy: Copy;
+  release: Release;
+  stores: StoreLinks;
+}
+
+const { copy, release, stores } = Astro.props;
+const badges = [
+  { store: "apple", href: stores.apple, label: copy.text("web-landing.store.apple") },
+  { store: "google", href: stores.google, label: copy.text("web-landing.store.google") },
+] as const;
+---
+
+<div class="store">
+  {
+    release === "soon" ? (
+      <p class="soon">{copy.text("web-landing.store.soon")}</p>
+    ) : (
+      badges.map(({ store, href, label }) => {
+        const badge = storeBadge(store, copy.lang);
+        return (
+          <a class="badge" href={href} aria-label={label}>
+            <img src={badge.src} alt="" width={badge.width} height={BADGE_HEIGHT} />
+          </a>
+        );
+      })
+    )
+  }
+</div>
+
+<style>
+  .store {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-16);
+    margin-top: var(--space-8);
+  }
+  .soon {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-8);
+    min-height: 44px;
+    margin: 0;
+    padding: var(--space-8) var(--space-20);
+    box-sizing: border-box;
+    border: var(--border-width-hairline) solid var(--color-badge-ordinary-border);
+    border-radius: var(--radius-full);
+    background: var(--color-chip-bg);
+    color: var(--color-text-primary);
+    font-size: var(--type-label-lg-font-size);
+    font-weight: var(--type-label-lg-font-weight);
+    letter-spacing: var(--type-label-lg-letter-spacing);
+    text-wrap: balance;
+  }
+  .soon::before {
+    content: "";
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-badge-good-bg);
+  }
+  .badge {
+    display: block;
+  }
+  .badge img {
+    display: block;
+    width: auto;
+    height: 48px;
+  }
+</style>
