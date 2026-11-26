@@ -657,10 +657,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get eventEditTitleHint => '予定のタイトル';
 
   @override
-  String get evidenceSheetLockPassLink => '広告除去を見る';
+  String get evidenceSheetLockPassLink => '広告除去パスを見る';
 
   @override
-  String get evidenceSheetUnlockFailed => '広告の確認に時間がかかっています。少し待って開き直してください。';
+  String get evidenceSheetUnlockFailed => '広告の確認に時間がかかっています。少し待ってもう一度開いてください。';
 
   @override
   String get previewShareLoginNoticeConfirm => 'ログインする';
@@ -689,7 +689,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get sajuChartTimeUnknownNotice => '生まれた時刻がわからないため、時柱を除いて表示しています。';
 
   @override
-  String get settingsAdFreeLabel => '広告を消す';
+  String get settingsAdFreeLabel => '広告除去';
 
   @override
   String settingsAdFreeLabelActive(String date) {
@@ -954,7 +954,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get accountDeleteBarTitle => 'アカウント削除';
 
   @override
-  String get adFreeBarTitle => '広告を消す';
+  String get adFreeBarTitle => '広告除去';
 
   @override
   String get birthplaceBarTitle => '出生地';
@@ -1044,7 +1044,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get todayBarTitle => '今日';
 
   @override
-  String get errorReactionNotFound => '反応する文が見つかりませんでした。画面を更新してください。';
+  String get errorReactionNotFound => '反応を残す文が見つかりませんでした。画面を更新してください。';
 
   @override
   String get errorScheduleNotFound => '予定が見つかりませんでした。一覧を更新してください。';
@@ -1289,7 +1289,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settingsLoginMethodsLabel => 'ログイン方法';
 
   @override
-  String get errorAuthIdentityNotFound => 'ログイン方法が見つかりませんでした。画面を開き直してください。';
+  String get errorAuthIdentityNotFound => 'ログイン方法が見つかりませんでした。画面をもう一度開いてください。';
 
   @override
   String get errorAuthProviderTaken => '同じログイン方法で別のアカウントがすでに連携されています。';
@@ -1324,7 +1324,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get loginMethodsMergeCta => '別のアカウントの記録を移す';
 
   @override
-  String get previewRestartNotice => '入力し直した情報で見るには、ログインしてみてください。';
+  String get previewRestartNotice => '入力し直した情報で読み解きを見るには、ログインしてみてください。';
 
   @override
   String get purchaseHistoryBarTitle => '購入履歴';
@@ -1334,7 +1334,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get purchaseHistoryMissingNotice =>
-      '支払った商品が表示されない場合は、「お問い合わせ」からお知らせください。';
+      '購入した商品が表示されない場合は、「お問い合わせ」からお知らせください。';
 
   @override
   String get accountChoiceOther => '取り込むアカウント';
@@ -1356,7 +1356,7 @@ class AppLocalizationsJa extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count編',
+      other: '$count件',
     );
     return '$_temp0';
   }
