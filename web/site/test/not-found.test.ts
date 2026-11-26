@@ -7,7 +7,7 @@ import { moveLocalizedNotFound } from "../src/build/not-found.ts";
 import { LANGS } from "../src/config/lang.ts";
 import { I18N_ROOT, localizedNotFoundFile } from "../src/config/not-found.ts";
 
-const FIREBASE_JSON = fileURLToPath(new URL("../../deploy/firebase/firebase.json", import.meta.url));
+const FIREBASE_JSON = fileURLToPath(new URL("../../firebase.json", import.meta.url));
 
 describe("언어별 404", () => {
   test("폴더 이름은 Hosting i18n 형식(언어 소문자, _ALL)", () => {
