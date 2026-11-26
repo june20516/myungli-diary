@@ -16,7 +16,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/june20516/myungli-diary/server/internal/billing"
-	"github.com/june20516/myungli-diary/server/internal/platform/clock/clocktest"
 	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
 )
 
@@ -25,10 +24,25 @@ var (
 	testActor = Actor{ID: "bran", Channel: ChannelCLI}
 )
 
+// newServiceAt은 지금 시각을 at으로 고정한 Service를 만듭니다. 감사 행의 at은 trigger가 DB now()로 정하므로 고정되지 않습니다.
+func newServiceAt(pool *pgxpool.Pool, at time.Time) *Service {
+	svc := NewService(pool)
+	svc.now = func(context.Context, pgx.Tx) (time.Time, error) { return at, nil }
+	return svc
+}
+
+// sessionUser는 테스트 연결의 session_user입니다. CLI 감사 행의 actor는 trigger가 이 값으로 정합니다.
+func sessionUser(t *testing.T, pool *pgxpool.Pool) string {
+	t.Helper()
+	var user string
+	require.NoError(t, pool.QueryRow(context.Background(), "SELECT session_user").Scan(&user))
+	return user
+}
+
 func newTestService(t *testing.T) (*Service, *pgxpool.Pool) {
 	t.Helper()
 	pool := dbtest.New(t)
-	return NewService(pool, clocktest.New(testNow)), pool
+	return newServiceAt(pool, testNow), pool
 }
 
 func insertAccount(t *testing.T, pool *pgxpool.Pool) uuid.UUID {
@@ -271,5 +285,5 @@ func newNoAuditService(t *testing.T, pool *pgxpool.Pool) *Service {
 	restricted, err := pgxpool.NewWithConfig(ctx, cfg)
 	require.NoError(t, err)
 	t.Cleanup(restricted.Close)
-	return NewService(restricted, clocktest.New(testNow))
+	return newServiceAt(restricted, testNow)
 }

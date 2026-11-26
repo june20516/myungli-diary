@@ -50,8 +50,29 @@ CREATE TRIGGER ops_audit_guard BEFORE UPDATE OR DELETE ON ops_audit
 CREATE TRIGGER ops_audit_guard_truncate BEFORE TRUNCATE ON ops_audit
     FOR EACH STATEMENT EXECUTE FUNCTION ops_audit_guard();
 
+-- 감사 행의 시각과 실행자는 DB가 정합니다. at은 언제나 now()(트랜잭션 시작 시각)이고,
+-- channel이 cli면 actor는 DB가 인증한 session_user입니다. 운영자 노트북 시계나 인자로 남는 값을 바꿀 수 없습니다.
+-- SET ROLE은 current_user만 바꾸고 session_user는 그대로라, myungli_ops로 SET ROLE해도 로그인한 사람이 남습니다.
+-- +goose StatementBegin
+CREATE FUNCTION ops_audit_stamp() RETURNS trigger AS $$
+BEGIN
+    NEW.at := now();
+    IF NEW.channel = 'cli' THEN
+        NEW.actor := session_user;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+-- +goose StatementEnd
+
+CREATE TRIGGER ops_audit_stamp BEFORE INSERT ON ops_audit
+    FOR EACH ROW EXECUTE FUNCTION ops_audit_stamp();
+
 -- 00024의 기본 권한이 새 표에 UPDATE를 주므로 거둡니다(trigger가 한 번 더 막습니다).
 REVOKE UPDATE ON ops_audit FROM myungli_app;
+-- 앱 런타임은 감사 행을 쓰지 않습니다. admin_api channel의 actor는 trigger가 정하지 않으므로,
+-- 출시 뒤 어드민 API가 생길 때 쓰는 권한과 actor 출처를 다시 정합니다. retention용 DELETE는 남깁니다.
+REVOKE INSERT ON ops_audit FROM myungli_app;
 
 -- +goose StatementBegin
 DO $$
@@ -65,7 +86,14 @@ $$;
 -- +goose StatementEnd
 
 GRANT USAGE ON SCHEMA public TO myungli_ops;
-GRANT SELECT ON accounts, auth_identities, devices, entitlement_grants, purchases, diaries, diary_days, schedules, profiles, ops_audit TO myungli_ops;
+GRANT SELECT ON accounts, entitlement_grants, purchases, diaries, diary_days, schedules, ops_audit TO myungli_ops;
+-- 제공자 subject, Apple 토큰, 알림 token, 출생 정보 해시처럼 운영 명령이 읽지 않는 민감 칸은 칸 단위로 뺍니다.
+-- 칸 목록은 db/queries/ops.sql이 SELECT, WHERE, ORDER BY에 쓰는 칸입니다. 쿼리가 칸을 더 쓰면 여기도 더합니다.
+GRANT SELECT (id, account_id, provider, created_at) ON auth_identities TO myungli_ops;
+GRANT SELECT (id, account_id, platform, active, created_at, last_seen_at) ON devices TO myungli_ops;
+GRANT SELECT (account_id, honorific, language, current_timezone, calendar, is_leap_month,
+              birth_year, birth_month, birth_day, birth_time_status, birth_time,
+              gender, birth_timezone, birth_place_status, birth_city_id, longitude) ON profiles TO myungli_ops;
 GRANT INSERT ON entitlement_grants, ops_audit TO myungli_ops;
 GRANT UPDATE (revoked_at) ON entitlement_grants TO myungli_ops;
 GRANT USAGE ON SEQUENCE entitlement_grants_id_seq TO myungli_ops;
@@ -79,9 +107,17 @@ REVOKE UPDATE (updated_at) ON accounts FROM myungli_ops;
 REVOKE USAGE ON SEQUENCE entitlement_grants_id_seq FROM myungli_ops;
 REVOKE UPDATE (revoked_at) ON entitlement_grants FROM myungli_ops;
 REVOKE INSERT ON entitlement_grants FROM myungli_ops;
-REVOKE SELECT ON accounts, auth_identities, devices, entitlement_grants, purchases, diaries, diary_days, schedules, profiles FROM myungli_ops;
+REVOKE SELECT (account_id, honorific, language, current_timezone, calendar, is_leap_month,
+               birth_year, birth_month, birth_day, birth_time_status, birth_time,
+               gender, birth_timezone, birth_place_status, birth_city_id, longitude) ON profiles FROM myungli_ops;
+REVOKE SELECT (id, account_id, platform, active, created_at, last_seen_at) ON devices FROM myungli_ops;
+REVOKE SELECT (id, account_id, provider, created_at) ON auth_identities FROM myungli_ops;
+REVOKE SELECT ON accounts, entitlement_grants, purchases, diaries, diary_days, schedules FROM myungli_ops;
 REVOKE USAGE ON SCHEMA public FROM myungli_ops;
 
+-- myungli_app의 ops_audit INSERT 회수는 표를 지우면 함께 사라지므로 따로 되돌리지 않습니다.
+DROP TRIGGER ops_audit_stamp ON ops_audit;
+DROP FUNCTION ops_audit_stamp();
 DROP TRIGGER ops_audit_guard_truncate ON ops_audit;
 DROP TRIGGER ops_audit_guard ON ops_audit;
 DROP FUNCTION ops_audit_guard();

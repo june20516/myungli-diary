@@ -86,7 +86,7 @@ func (s *Service) AuditList(ctx context.Context, actor Actor, filter AuditFilter
 		for _, row := range rows {
 			records = append(records, toAuditRecord(row))
 		}
-		return recordTx(ctx, tx, auditID, s.clk.Now(), Entry{
+		return recordTx(ctx, tx, auditID, Entry{
 			Actor: actor, Action: ActionAuditList, AccountID: filter.AccountID, Reason: reason,
 			Target: auditListTarget(filter),
 		})

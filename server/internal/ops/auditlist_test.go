@@ -8,13 +8,15 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
 )
 
 func seedAudit(t *testing.T, svc *Service, accountID uuid.UUID, at time.Time, reason string) {
 	t.Helper()
-	_, err := svc.pool.Exec(context.Background(), `INSERT INTO ops_audit (id, at, actor, channel, action, account_id, reason, target)
+	// trigger가 at과 actor를 덮어쓰므로 끄고 넣습니다.
+	dbtest.ExecWithoutTriggers(t, svc.pool, `INSERT INTO ops_audit (id, at, actor, channel, action, account_id, reason, target)
 		VALUES (gen_random_uuid(), $1, 'seed', 'cli', 'account_show', $2, $3, '{}')`, at, accountID, reason)
-	require.NoError(t, err)
 }
 
 func TestAuditList_FiltersAndAuditsItself(t *testing.T) {

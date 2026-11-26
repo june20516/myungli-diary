@@ -481,7 +481,7 @@ func TestSteps_KeepsWebLoginWithinGrace(t *testing.T) {
 	assert.Zero(t, f.count("SELECT count(*) FROM provider_revocations"))
 }
 
-// ops_audit trigger가 DB의 now()를 쓰므로 이 테스트들은 실제 시각 근처의 행을 씁니다.
+// ops_audit 삭제 trigger가 DB의 now()를 쓰므로 이 테스트들은 실제 시각 근처의 행을 씁니다.
 func newRealClockFixture(t *testing.T) *fixture {
 	t.Helper()
 	pool := dbtest.New(t)
@@ -491,7 +491,8 @@ func newRealClockFixture(t *testing.T) *fixture {
 func (f *fixture) insertOpsAudit(at time.Time) uuid.UUID {
 	f.t.Helper()
 	id := uuid.Must(uuid.NewV7())
-	f.exec(`INSERT INTO ops_audit (id, at, actor, channel, action, reason, target)
+	// trigger(ops_audit_stamp)가 at을 now()로 덮으므로 끄고 넣습니다.
+	dbtest.ExecWithoutTriggers(f.t, f.pool, `INSERT INTO ops_audit (id, at, actor, channel, action, reason, target)
 		VALUES ($1, $2, 'op@example.com', 'cli', 'account_show', '문의 확인', '{}'::jsonb)`, id, at)
 	return id
 }

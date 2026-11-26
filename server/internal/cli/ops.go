@@ -14,7 +14,6 @@ import (
 
 	"github.com/june20516/myungli-diary/server/internal/billing"
 	"github.com/june20516/myungli-diary/server/internal/ops"
-	"github.com/june20516/myungli-diary/server/internal/platform/clock"
 	"github.com/june20516/myungli-diary/server/internal/platform/config"
 	"github.com/june20516/myungli-diary/server/internal/profile"
 )
@@ -45,8 +44,7 @@ type opsAction func(ctx context.Context, svc *ops.Service, actor ops.Actor, stdo
 
 // runOps는 `server ops` 하위 명령을 실행합니다. 인자 오류는 DB에 붙기 전에 사용법 오류로 끝납니다.
 func runOps(ctx context.Context, args []string, getenv func(string) string, stdout, _ io.Writer) error {
-	clk := clock.System{}
-	action, err := parseOps(args, clk)
+	action, err := parseOps(args)
 	if err != nil {
 		return err
 	}
@@ -64,14 +62,14 @@ func runOps(ctx context.Context, args []string, getenv func(string) string, stdo
 	}
 	defer closeDB()
 
-	// 실행자는 인자가 아니라 DB가 인증한 세션 사용자입니다(IAM 인증이라 위조할 수 없습니다).
+	// 실행자는 인자가 아니라 DB가 인증한 세션 사용자입니다. 감사 행의 actor는 trigger가 같은 session_user로 한 번 더 정합니다.
 	var sessionUser string
 	if err := pool.QueryRow(ctx, "SELECT session_user").Scan(&sessionUser); err != nil {
 		return fmt.Errorf("DB 세션 사용자 확인 실패: %w", err)
 	}
 	actor := ops.Actor{ID: sessionUser, Channel: ops.ChannelCLI}
 
-	return classifyOpsError(action(ctx, ops.NewService(pool, clk), actor, stdout), sessionUser)
+	return classifyOpsError(action(ctx, ops.NewService(pool), actor, stdout), sessionUser)
 }
 
 // classifyOpsError는 Service 오류를 종료 코드에 맞는 오류로 바꿉니다.
@@ -107,7 +105,7 @@ func classifyOpsError(err error, sessionUser string) error {
 }
 
 // parseOps는 `ops` 뒤의 인자를 해석합니다. DB에 붙지 않습니다.
-func parseOps(args []string, clk clock.Clock) (opsAction, error) {
+func parseOps(args []string) (opsAction, error) {
 	if len(args) == 0 {
 		return nil, usageErrorf("%s", opsUsageText)
 	}
@@ -116,7 +114,7 @@ func parseOps(args []string, clk clock.Clock) (opsAction, error) {
 	case "account":
 		return parseOpsAccount(rest)
 	case "grant":
-		return parseOpsGrant(rest, clk)
+		return parseOpsGrant(rest)
 	case "revoke":
 		return parseOpsRevoke(rest)
 	case "content":
@@ -214,7 +212,7 @@ func parseOpsAccount(args []string) (opsAction, error) {
 	}, nil
 }
 
-func parseOpsGrant(args []string, clk clock.Clock) (opsAction, error) {
+func parseOpsGrant(args []string) (opsAction, error) {
 	f := newOpsFlags("grant")
 	account := f.fs.String("account", "", "계정 id")
 	entitlement := f.fs.String("entitlement", "", "부여 종류 ad_free|insight")
@@ -246,12 +244,10 @@ func parseOpsGrant(args []string, clk clock.Clock) (opsAction, error) {
 	}
 	asJSON, daysValue := *f.json, *days
 
+	// --days의 만료는 Service가 DB 시각 기준으로 셉니다. 운영자 컴퓨터 시계를 쓰지 않습니다.
 	return func(ctx context.Context, svc *ops.Service, actor ops.Actor, stdout io.Writer) error {
-		expiresAt := untilTime
-		if daysValue > 0 {
-			expiresAt = clk.Now().Add(time.Duration(daysValue) * 24 * time.Hour)
-		}
-		result, err := svc.Grant(ctx, actor, ops.GrantRequest{AccountID: accountID, Kind: kind, ExpiresAt: expiresAt, Reason: reason})
+		req := ops.GrantRequest{AccountID: accountID, Kind: kind, ExpiresAt: untilTime, Days: daysValue, Reason: reason}
+		result, err := svc.Grant(ctx, actor, req)
 		if err != nil {
 			return err
 		}

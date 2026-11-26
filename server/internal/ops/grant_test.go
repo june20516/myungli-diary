@@ -200,3 +200,43 @@ func TestGrant_AuditFailureRollsBackGrant(t *testing.T) {
 	assert.Zero(t, grantCount(t, pool, id))
 	assert.Empty(t, auditRows(t, pool))
 }
+
+// 일수로 준 만료는 Service 시각 기준이고, 만료 시각과 일수 중 정확히 하나만 받습니다.
+func TestGrant_DaysCountFromServiceNow(t *testing.T) {
+	svc, pool := newTestService(t)
+	id := insertAccount(t, pool)
+	ctx := context.Background()
+
+	for name, req := range map[string]GrantRequest{
+		"둘 다 없음": {},
+		"둘 다 있음": {ExpiresAt: testNow.Add(time.Hour), Days: 1},
+		"일수 367": {Days: 367},
+		"일수 음수":  {Days: -1},
+	} {
+		req.AccountID, req.Kind, req.Reason = id, billing.OperatorInsight, "r"
+		_, err := svc.Grant(ctx, testActor, req)
+		assert.ErrorIs(t, err, ErrGrantPeriod, name)
+	}
+	assert.Empty(t, auditRows(t, pool))
+
+	res, err := svc.Grant(ctx, testActor, GrantRequest{AccountID: id, Kind: billing.OperatorInsight, Days: 366, Reason: "r"})
+	require.NoError(t, err)
+	require.Len(t, res.Grants, 1)
+	assert.Equal(t, testNow, res.Grants[0].StartsAt)
+	assert.Equal(t, testNow.Add(366*24*time.Hour), res.Grants[0].ExpiresAt)
+}
+
+// 기본 Service는 DB 시각을 씁니다. 부여 시작과 감사 행 at이 같은 트랜잭션의 now()입니다.
+func TestGrant_DefaultNowIsDBTransactionTime(t *testing.T) {
+	pool := dbtest.New(t)
+	svc := NewService(pool)
+	id := insertAccount(t, pool)
+
+	res, err := svc.Grant(context.Background(), testActor, GrantRequest{AccountID: id, Kind: billing.OperatorInsight, Days: 1, Reason: "r"})
+	require.NoError(t, err)
+	var at time.Time
+	require.NoError(t, pool.QueryRow(context.Background(), `SELECT at FROM ops_audit WHERE id = $1`, res.AuditID).Scan(&at))
+	require.Len(t, res.Grants, 1)
+	assert.True(t, at.Equal(res.Grants[0].StartsAt), "at = %v, startsAt = %v", at, res.Grants[0].StartsAt)
+	assert.Equal(t, res.Grants[0].StartsAt.Add(24*time.Hour), res.Grants[0].ExpiresAt)
+}

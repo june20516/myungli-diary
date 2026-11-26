@@ -6,12 +6,13 @@ package ops
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/june20516/myungli-diary/server/internal/platform/clock"
 	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
 )
 
@@ -56,12 +57,23 @@ func validateActor(a Actor) error {
 // Service는 운영 명령을 실행합니다.
 type Service struct {
 	pool *pgxpool.Pool
-	clk  clock.Clock
+	// now는 트랜잭션 안에서 지금 시각을 돌려줍니다. 기본은 DB의 now()입니다.
+	// 운영자 노트북 시계로 부여 시작, 회수 시각, 기간 검사가 어긋나지 않게 하려는 것이고, 테스트만 고정 시각으로 바꿉니다.
+	now func(ctx context.Context, tx pgx.Tx) (time.Time, error)
 }
 
-// NewService는 Service를 만듭니다.
-func NewService(pool *pgxpool.Pool, clk clock.Clock) *Service {
-	return &Service{pool: pool, clk: clk}
+// NewService는 Service를 만듭니다. 시각은 DB의 now()를 씁니다.
+func NewService(pool *pgxpool.Pool) *Service {
+	return &Service{pool: pool, now: dbNow}
+}
+
+// dbNow는 트랜잭션 시작 시각(now())을 UTC로 돌려줍니다. 같은 트랜잭션의 감사 행 at(trigger)과 같은 값입니다.
+func dbNow(ctx context.Context, tx pgx.Tx) (time.Time, error) {
+	var now time.Time
+	if err := tx.QueryRow(ctx, "SELECT now()").Scan(&now); err != nil {
+		return time.Time{}, fmt.Errorf("DB 시각 조회: %w", err)
+	}
+	return now.UTC(), nil
 }
 
 // inTx는 fn을 트랜잭션 하나 안에서 실행합니다. 감사 행과 데이터 접근이 함께 커밋되거나 함께 취소됩니다.

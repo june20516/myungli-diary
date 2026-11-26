@@ -18,6 +18,9 @@ import (
 // ErrContentTarget은 열람 대상이 날짜와 항목 id 중 정확히 하나가 아니거나 날짜가 달력에 없을 때입니다.
 var ErrContentTarget = errors.New("열람 대상은 날짜와 항목 id 중 정확히 하나여야 하고 날짜는 달력에 있어야 합니다")
 
+// ErrProfileNotFound는 계정은 있지만 프로필 행이 없을 때입니다. 감사 행은 남습니다.
+var ErrProfileNotFound = errors.New("프로필이 없습니다")
+
 // 감사 target의 열람 종류입니다.
 const (
 	kindDiary    = "diary"
@@ -163,17 +166,17 @@ func (s *Service) ViewDiary(ctx context.Context, actor Actor, req ViewRequest) (
 	}
 	target := req.Target
 	var view DiaryView
-	err = s.runView(ctx, actor, in, listTargetOf(kindDiary, target), func(q *opsdb.Queries) ([]uuid.UUID, bool, error) {
+	err = s.runView(ctx, actor, in, listTargetOf(kindDiary, target), func(q *opsdb.Queries) ([]uuid.UUID, error, error) {
 		view = DiaryView{Entries: []DiaryEntry{}, Tags: []string{}}
 		entries, deleted, err := loadDiaries(ctx, q, target)
 		if err != nil {
-			return nil, false, err
+			return nil, nil, err
 		}
 		view.Entries, view.DeletedCount = entries, deleted
 		if len(entries) > 0 {
 			tags, err := q.GetOpsDiaryDayTags(ctx, opsdb.GetOpsDiaryDayTagsParams{AccountID: target.AccountID, Date: profile.PgDate(entries[0].Date)})
 			if err != nil && !errors.Is(err, pgx.ErrNoRows) {
-				return nil, false, fmt.Errorf("날짜 기록 태그 조회: %w", err)
+				return nil, nil, fmt.Errorf("날짜 기록 태그 조회: %w", err)
 			}
 			if tags != nil {
 				view.Tags = tags
@@ -183,7 +186,7 @@ func (s *Service) ViewDiary(ctx context.Context, actor Actor, req ViewRequest) (
 		for _, entry := range entries {
 			ids = append(ids, entry.ID)
 		}
-		return ids, true, nil
+		return ids, nil, nil
 	})
 	if err != nil {
 		return DiaryView{}, err
@@ -242,18 +245,18 @@ func (s *Service) ViewSchedule(ctx context.Context, actor Actor, req ViewRequest
 	}
 	target := req.Target
 	var view ScheduleView
-	err = s.runView(ctx, actor, in, listTargetOf(kindSchedule, target), func(q *opsdb.Queries) ([]uuid.UUID, bool, error) {
+	err = s.runView(ctx, actor, in, listTargetOf(kindSchedule, target), func(q *opsdb.Queries) ([]uuid.UUID, error, error) {
 		view = ScheduleView{Entries: []ScheduleEntry{}}
 		entries, deleted, err := loadSchedules(ctx, q, target)
 		if err != nil {
-			return nil, false, err
+			return nil, nil, err
 		}
 		view.Entries, view.DeletedCount = entries, deleted
 		ids := make([]uuid.UUID, 0, len(entries))
 		for _, entry := range entries {
 			ids = append(ids, entry.ID)
 		}
-		return ids, true, nil
+		return ids, nil, nil
 	})
 	if err != nil {
 		return ScheduleView{}, err
@@ -316,7 +319,7 @@ func formatClock(t pgtype.Time) *string {
 }
 
 // ViewProfile은 계산 오류 문의 확인용으로 프로필(호칭, 출생 정보)을 엽니다. 감사 규칙은 ViewDiary와 같습니다.
-// 계정이나 프로필 행이 없으면 감사 행을 남기고 ErrAccountNotFound입니다.
+// 계정이 없으면 ErrAccountNotFound, 계정은 있고 프로필 행이 없으면 ErrProfileNotFound이고, 둘 다 감사 행은 남깁니다.
 func (s *Service) ViewProfile(ctx context.Context, actor Actor, accountID uuid.UUID, purpose Purpose, reason string) (ProfileView, error) {
 	in, err := validateViewInput(actor, accountID, purpose, reason)
 	if err != nil {
@@ -325,17 +328,17 @@ func (s *Service) ViewProfile(ctx context.Context, actor Actor, accountID uuid.U
 	var view ProfileView
 	err = s.runView(ctx, actor, in, func(opened []uuid.UUID) any {
 		return profileTarget{AccountID: accountID, Kind: kindProfile, Count: len(opened)}
-	}, func(q *opsdb.Queries) ([]uuid.UUID, bool, error) {
+	}, func(q *opsdb.Queries) ([]uuid.UUID, error, error) {
 		view = ProfileView{}
 		row, err := q.GetOpsProfile(ctx, accountID)
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, false, nil
+			return nil, ErrProfileNotFound, nil
 		}
 		if err != nil {
-			return nil, false, fmt.Errorf("프로필 조회: %w", err)
+			return nil, nil, fmt.Errorf("프로필 조회: %w", err)
 		}
 		view = toProfileView(row)
-		return []uuid.UUID{accountID}, true, nil
+		return []uuid.UUID{accountID}, nil, nil
 	})
 	if err != nil {
 		return ProfileView{}, err
@@ -432,15 +435,15 @@ func listTargetOf(kind string, t ContentTarget) func([]uuid.UUID) any {
 }
 
 // runView는 계정 확인, 열람, 감사 행 쓰기를 한 트랜잭션에서 합니다.
-// load는 연 항목 id와 대상을 찾았는지를 돌려줍니다. 계정이 없으면 load를 부르지 않습니다.
-// 대상을 못 찾아도 감사 행은 커밋하고 그 뒤에 ErrAccountNotFound를 돌려줍니다.
+// load는 연 항목 id와, 대상이 없을 때 돌려줄 오류(missing), 조회 실패(err)를 돌려줍니다. 계정이 없으면 load를 부르지 않습니다.
+// 대상을 못 찾아도 감사 행은 커밋하고 그 뒤에 missing(계정이 없으면 ErrAccountNotFound)을 돌려줍니다.
 func (s *Service) runView(ctx context.Context, actor Actor, in viewInput, targetOf func([]uuid.UUID) any,
-	load func(q *opsdb.Queries) ([]uuid.UUID, bool, error)) error {
+	load func(q *opsdb.Queries) (opened []uuid.UUID, missing, err error)) error {
 	auditID := uuid.New()
-	notFound := false
+	var missing error
 	err := s.inTx(ctx, func(tx pgx.Tx) error {
 		q := opsdb.New(tx)
-		notFound = false
+		missing = nil
 		var accountID *uuid.UUID
 		if _, err := q.GetOpsAccount(ctx, in.AccountID); err == nil {
 			accountID = &in.AccountID
@@ -450,26 +453,23 @@ func (s *Service) runView(ctx context.Context, actor Actor, in viewInput, target
 
 		var opened []uuid.UUID
 		if accountID != nil {
-			ids, found, err := load(q)
+			ids, notFound, err := load(q)
 			if err != nil {
 				return err
 			}
-			opened, notFound = ids, !found
+			opened, missing = ids, notFound
 		} else {
-			notFound = true
+			missing = ErrAccountNotFound
 		}
 
 		purpose := in.Purpose
-		return recordTx(ctx, tx, auditID, s.clk.Now(), Entry{
+		return recordTx(ctx, tx, auditID, Entry{
 			Actor: actor, Action: ActionContentView, AccountID: accountID, Purpose: &purpose, Reason: in.Reason,
 			Target: targetOf(opened),
 		})
 	})
-	switch {
-	case err != nil:
+	if err != nil {
 		return err
-	case notFound:
-		return ErrAccountNotFound
 	}
-	return nil
+	return missing
 }

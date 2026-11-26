@@ -14,6 +14,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/testcontainers/testcontainers-go"
 	tcpostgres "github.com/testcontainers/testcontainers-go/modules/postgres"
@@ -184,4 +185,22 @@ func LockCluster(t testing.TB) {
 			t.Errorf("cluster 잠금 풀기: %v", err)
 		}
 	})
+}
+
+// ExecWithoutTriggers는 sql을 trigger를 끈 트랜잭션 하나에서 실행합니다.
+// ops_audit처럼 trigger가 시각과 실행자를 덮어쓰는 표에 과거 시각이나 다른 실행자의 행을 미리 넣을 때 씁니다.
+// session_replication_role은 superuser만 바꿀 수 있어 운영 역할(myungli_app, myungli_ops)로는 같은 우회가 되지 않습니다.
+func ExecWithoutTriggers(t testing.TB, pool *pgxpool.Pool, sql string, args ...any) {
+	t.Helper()
+	ctx := context.Background()
+	err := pgx.BeginFunc(ctx, pool, func(tx pgx.Tx) error {
+		if _, err := tx.Exec(ctx, "SET LOCAL session_replication_role = replica"); err != nil {
+			return fmt.Errorf("trigger 끄기: %w", err)
+		}
+		_, err := tx.Exec(ctx, sql, args...)
+		return err
+	})
+	if err != nil {
+		t.Fatalf("trigger를 끈 실행: %v", err)
+	}
 }

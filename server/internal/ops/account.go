@@ -145,7 +145,7 @@ func (s *Service) AccountSummary(ctx context.Context, actor Actor, key AccountKe
 		}
 		notFound = accountID == nil && ambiguous == nil
 
-		return recordTx(ctx, tx, auditID, s.clk.Now(), Entry{
+		return recordTx(ctx, tx, auditID, Entry{
 			Actor: actor, Action: ActionAccountShow, AccountID: accountID, Reason: reason, Target: auditTarget,
 		})
 	})
@@ -174,9 +174,14 @@ func newAccountTarget(key AccountKey) (accountTarget, error) {
 }
 
 // loadSummary는 계정 한 건의 지원용 상태를 tx 안에서 읽습니다. 계정이 없으면 pgx.ErrNoRows를 돌려줍니다.
+// 권한 상태는 DB 시각 기준입니다.
 func (s *Service) loadSummary(ctx context.Context, tx pgx.Tx, accountID uuid.UUID) (AccountSummary, error) {
 	q := opsdb.New(tx)
 	account, err := q.GetOpsAccount(ctx, accountID)
+	if err != nil {
+		return AccountSummary{}, err
+	}
+	now, err := s.now(ctx, tx)
 	if err != nil {
 		return AccountSummary{}, err
 	}
@@ -207,7 +212,7 @@ func (s *Service) loadSummary(ctx context.Context, tx pgx.Tx, accountID uuid.UUI
 		},
 		Identities: make([]IdentityInfo, 0, len(identities)),
 		Devices:    make([]DeviceInfo, 0, len(devices)),
-		Status:     billing.StatusAt(grants, s.clk.Now()),
+		Status:     billing.StatusAt(grants, now),
 		Grants:     grants,
 		Purchases:  make([]PurchaseInfo, 0, len(purchases)),
 	}

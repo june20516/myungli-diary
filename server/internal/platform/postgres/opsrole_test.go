@@ -79,7 +79,45 @@ func TestGrantOpsRole_OnlyHumanIAMUsers(t *testing.T) {
 	}
 }
 
-// 운영자 역할은 읽는 표 SELECT, 감사 INSERT, 부여 INSERT와 회수(revoked_at)만 할 수 있습니다.
+// 운영자 역할은 운영 명령이 읽지 않는 민감 칸(제공자 subject, Apple 토큰, 알림 token, 출생 정보 해시)을 읽지 못합니다.
+func TestOpsRole_SensitiveColumnsHidden(t *testing.T) {
+	ctx := context.Background()
+	pool := dbtest.New(t)
+	for _, c := range []struct{ table, column string }{
+		{"auth_identities", "subject"},
+		{"auth_identities", "apple_refresh_token"},
+		{"auth_identities", "apple_token_key_id"},
+		{"devices", "fcm_token"},
+		{"devices", "token_hash"},
+		{"profiles", "birth_hash"},
+		{"profiles", "notify_time"},
+	} {
+		var canRead bool
+		if err := pool.QueryRow(ctx, `SELECT has_column_privilege($1, $2, $3, 'SELECT')`, postgres.OpsRole, c.table, c.column).Scan(&canRead); err != nil {
+			t.Fatalf("%s.%s 권한 확인: %v", c.table, c.column, err)
+		}
+		if canRead {
+			t.Errorf("%s가 %s.%s를 읽을 수 있습니다", postgres.OpsRole, c.table, c.column)
+		}
+	}
+	for _, statement := range []string{
+		`SELECT subject FROM auth_identities`,
+		`SELECT * FROM devices`,
+		`SELECT birth_hash FROM profiles`,
+	} {
+		err := asRole(t, pool, postgres.OpsRole, statement)
+		var pgErr *pgconn.PgError
+		if !errors.As(err, &pgErr) || pgErr.Code != insufficientPrivilege {
+			t.Errorf("%s: 권한 오류(%s)를 기대했지만 %v", statement, insufficientPrivilege, err)
+		}
+	}
+	if err := asRole(t, pool, postgres.OpsRole, `SELECT provider, created_at FROM auth_identities ORDER BY created_at, id`); err != nil {
+		t.Errorf("auth_identities 허용 칸 SELECT: %v", err)
+	}
+}
+
+// 운영자 역할은 읽는 표(일부는 칸 단위) SELECT, 감사 INSERT와 SELECT, 부여 INSERT와 회수(revoked_at),
+// 계정 행 잠금용 accounts UPDATE(updated_at)만 할 수 있습니다.
 func TestOpsRole_Privileges(t *testing.T) {
 	ctx := context.Background()
 	pool := dbtest.New(t)

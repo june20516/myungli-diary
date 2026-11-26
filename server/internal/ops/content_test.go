@@ -15,7 +15,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/june20516/myungli-diary/server/internal/billing"
-	"github.com/june20516/myungli-diary/server/internal/platform/clock/clocktest"
 	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
 	"github.com/june20516/myungli-diary/server/internal/profile"
 )
@@ -397,7 +396,8 @@ func TestViewProfile_MissingProfileOrAccount(t *testing.T) {
 	noProfile := insertAccount(t, pool)
 
 	_, err := svc.ViewProfile(ctx, testActor, noProfile, PurposeInquiry, "문의")
-	require.ErrorIs(t, err, ErrAccountNotFound)
+	require.ErrorIs(t, err, ErrProfileNotFound, "계정은 있고 프로필 행만 없습니다")
+	assert.NotErrorIs(t, err, ErrAccountNotFound)
 	rows := viewAuditRows(t, pool)
 	require.Len(t, rows, 1)
 	require.NotNil(t, rows[0].AccountID, "계정은 있으므로 감사 행에 계정 id가 남습니다")
@@ -443,7 +443,7 @@ func TestService_AllCommandsWorkAsOpsRole(t *testing.T) {
 	opsPool, err := pgxpool.NewWithConfig(ctx, cfg)
 	require.NoError(t, err)
 	t.Cleanup(opsPool.Close)
-	svc := NewService(opsPool, clocktest.New(testNow))
+	svc := newServiceAt(opsPool, testNow)
 
 	var currentUser string
 	require.NoError(t, opsPool.QueryRow(ctx, "SELECT current_user").Scan(&currentUser))
@@ -472,6 +472,13 @@ func TestService_AllCommandsWorkAsOpsRole(t *testing.T) {
 	records, err := svc.AuditList(ctx, testActor, AuditFilter{AccountID: &account}, "점검")
 	require.NoError(t, err, "AuditList")
 	assert.Len(t, records, 6)
+
+	// SET ROLE은 current_user만 바꾸므로 감사 행의 actor는 역할 이름이 아니라 로그인한 session_user입니다.
+	loginUser := sessionUser(t, opsPool)
+	require.NotEqual(t, "myungli_ops", loginUser)
+	for _, record := range records {
+		assert.Equal(t, loginUser, record.Actor)
+	}
 }
 
 func TestViewJSON_DatesAreStringsAndKeysAreCamelCase(t *testing.T) {

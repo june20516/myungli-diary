@@ -73,10 +73,14 @@ func TestRecordTx_WritesRow(t *testing.T) {
 	pool := dbtest.New(t)
 	ctx := context.Background()
 	id := uuid.New()
-	at := time.Date(2026, 11, 26, 3, 0, 0, 0, time.UTC)
+	var txNow time.Time
 
+	// 넘긴 실행자 ID는 cli channel이면 trigger가 session_user로 덮고, 시각은 트랜잭션의 now()입니다.
 	err := pgx.BeginFunc(ctx, pool, func(tx pgx.Tx) error {
-		return recordTx(ctx, tx, id, at, Entry{
+		if err := tx.QueryRow(ctx, "SELECT now()").Scan(&txNow); err != nil {
+			return err
+		}
+		return recordTx(ctx, tx, id, Entry{
 			Actor:  Actor{ID: "bran", Channel: ChannelCLI},
 			Action: ActionAccountShow,
 			Reason: "문의 확인",
@@ -95,7 +99,10 @@ func TestRecordTx_WritesRow(t *testing.T) {
 	require.NoError(t, pool.QueryRow(ctx, `SELECT actor, channel, action, reason, target::text,
 		before IS NULL, after IS NULL, account_id IS NULL, purpose IS NULL, at FROM ops_audit WHERE id = $1`, id).
 		Scan(&actor, &channel, &action, &reason, &target, &beforeIsNull, &afterIsNull, &accountIsNull, &purposeIsNull, &gotAt))
-	assert.Equal(t, "bran", actor)
+	var user string
+	require.NoError(t, pool.QueryRow(ctx, "SELECT session_user").Scan(&user))
+	assert.Equal(t, user, actor)
+	assert.NotEqual(t, "bran", actor)
 	assert.Equal(t, "cli", channel)
 	assert.Equal(t, "account_show", action)
 	assert.Equal(t, "문의 확인", reason)
@@ -104,7 +111,7 @@ func TestRecordTx_WritesRow(t *testing.T) {
 	assert.True(t, afterIsNull)
 	assert.True(t, accountIsNull)
 	assert.True(t, purposeIsNull)
-	assert.True(t, at.Equal(gotAt))
+	assert.True(t, txNow.Equal(gotAt))
 }
 
 func TestRecordTx_ContentViewWithPurposeAndNilTarget(t *testing.T) {
@@ -115,7 +122,7 @@ func TestRecordTx_ContentViewWithPurposeAndNilTarget(t *testing.T) {
 	purpose := PurposeInquiry
 
 	err := pgx.BeginFunc(ctx, pool, func(tx pgx.Tx) error {
-		return recordTx(ctx, tx, id, time.Now(), Entry{
+		return recordTx(ctx, tx, id, Entry{
 			Actor:     Actor{ID: "bran", Channel: ChannelAdminAPI},
 			Action:    ActionContentView,
 			AccountID: &accountID,
@@ -126,10 +133,11 @@ func TestRecordTx_ContentViewWithPurposeAndNilTarget(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	var target, after, gotPurpose string
+	var target, after, gotPurpose, actor string
 	var gotAccount uuid.UUID
-	require.NoError(t, pool.QueryRow(ctx, `SELECT target::text, after::text, purpose, account_id FROM ops_audit WHERE id = $1`, id).
-		Scan(&target, &after, &gotPurpose, &gotAccount))
+	require.NoError(t, pool.QueryRow(ctx, `SELECT target::text, after::text, purpose, account_id, actor FROM ops_audit WHERE id = $1`, id).
+		Scan(&target, &after, &gotPurpose, &gotAccount, &actor))
+	assert.Equal(t, "bran", actor, "admin_api channel의 actor는 trigger가 덮지 않습니다")
 	assert.JSONEq(t, `{}`, target)
 	assert.JSONEq(t, `{"n":1}`, after)
 	assert.Equal(t, "inquiry", gotPurpose)
@@ -142,7 +150,7 @@ func TestRecordTx_TypedNilIsNullOrEmpty(t *testing.T) {
 	id := uuid.New()
 
 	err := pgx.BeginFunc(ctx, pool, func(tx pgx.Tx) error {
-		return recordTx(ctx, tx, id, time.Now(), Entry{
+		return recordTx(ctx, tx, id, Entry{
 			Actor:  Actor{ID: "bran", Channel: ChannelCLI},
 			Action: ActionAccountShow,
 			Reason: "문의",

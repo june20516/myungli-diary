@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
-	"time"
 	"unicode/utf8"
 
 	"github.com/google/uuid"
@@ -77,7 +76,9 @@ type Entry struct {
 }
 
 // recordTx는 감사 행을 tx 안에서 씁니다. Before, After가 nil이면 NULL, Target이 nil이면 {}로 남깁니다.
-func recordTx(ctx context.Context, tx pgx.Tx, id uuid.UUID, at time.Time, e Entry) error {
+// 시각(at)은 넘기지 않습니다. trigger(00029 ops_audit_stamp)가 DB의 now()로 정하고,
+// channel이 cli면 e.Actor.ID 대신 DB가 인증한 session_user를 actor로 남깁니다.
+func recordTx(ctx context.Context, tx pgx.Tx, id uuid.UUID, e Entry) error {
 	target := e.Target
 	if isNil(target) {
 		target = struct{}{}
@@ -97,7 +98,6 @@ func recordTx(ctx context.Context, tx pgx.Tx, id uuid.UUID, at time.Time, e Entr
 
 	params := opsdb.InsertOpsAuditParams{
 		ID:      id,
-		At:      at,
 		Actor:   e.Actor.ID,
 		Channel: string(e.Actor.Channel),
 		Action:  string(e.Action),
