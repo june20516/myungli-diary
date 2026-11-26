@@ -39,5 +39,17 @@
   },
   "web-landing.lang.label": {
     "langLabel": "언어"
+  },
+  "web-not-found.meta.title": {
+    "notFoundMetaTitle": "페이지를 찾을 수 없습니다 | 명리일기"
+  },
+  "web-not-found.page.title": {
+    "notFoundPageTitle": "페이지를 찾을 수 없습니다"
+  },
+  "web-not-found.page.body": {
+    "notFoundPageBody": "주소가 바뀌었거나 없는 페이지입니다."
+  },
+  "web-not-found.page.home": {
+    "notFoundPageHome": "명리일기 첫 화면으로"
   }
 }

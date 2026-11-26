@@ -58,6 +58,8 @@
 
 ## 라이팅 검사기 (`mlw` CLI, 패키지 `myungli-writing`)
 
+**v0.17.0 (2026-11-26, writing #1283, W85):** 글자 수 상한 검사가 숫자(`number`)와 app이 만드는 글(`text`: 날짜, 시각, 경도, 지지 이름 등) 자리표시자도 가장 긴 값으로 바꿔 잽니다. 전에는 이런 줄을 건너뛰었습니다. 값은 `mlw/longest.py` 표에서 구하고, 사용자가 쓴 글처럼 길이를 정할 수 없는 값만 이유를 적어 건너뜁니다. 슬롯에 새 `number`, `text` 매개변수를 더하면 이 표에도 넣어야 테스트가 통과합니다. `review-import`는 묶음 탭의 칸 머리가 망가졌으면 그 탭을 건너뛰지 않고 오류로 멈춥니다.
+
 **v0.16.0 (2026-11-26, writing #1283, W84):** 원어민 검수 시트 명령 두 개를 더했습니다. `review-export`는 en, ja 원고를 차수(`--tier`)나 묶음(`--bundle`)별 xlsx로 내보내고, `review-import`는 감수자가 채운 시트의 수정안을 판정해 원고 `text`에 반영한 뒤 `gen-docs`와 전체 검사를 돌립니다. 원고 형식과 기존 명령의 동작은 바뀌지 않습니다. 의존성 `openpyxl`이 늘었습니다.
 
 **v0.15.0 (2026-11-25, writing #1329, W83):** IA를 표면별 파일 여러 개로 읽습니다(D146). `--ia`가 파일 여러 개를 받고 기본값은 `docs/ia/screens.json`과 `docs/ia/site.json`이며, 화면 id나 슬롯 id가 파일 사이에서 겹치면 `load.json` 오류입니다. 슬롯 묶음 `web`(IA 대조, 문장, 완결성 검사는 받고 하루와 한 주 묶음 검사에서는 빠짐), `gen-docs`가 `generated/web/<언어>.json`을 만듭니다.
@@ -107,5 +109,7 @@
 **2026-11-16 (writing #1208, #1201, D133):** 처음 판. ko는 라운드 R49 확정, en과 ja는 원어민 검수(E18) 전 초안. 슬롯 `store.app-name`, `store.subtitle`, `store.promotional-text`, `store.keywords`(100바이트), `store.short-description`, `store.description`, `store.screenshot.caption`(design 스토어 이미지 명세 장면 id 6개, 줄마다 상한, 두 줄). 계약 목록에는 지휘가 root PR로 올렸습니다.
 
 ## 웹 페이지 문구 (랜딩)
+
+**1.1.0 (2026-11-26, writing #1358, W85):** 404 페이지 슬롯 넷(`web-not-found.meta.title`, `web-not-found.page.title`, `web-not-found.page.body`, `web-not-found.page.home`)을 더했습니다. 같은 `generated/web/<언어>.json`에 들어갑니다. en `metaDescription`, `heroBody` 문장은 원어민 검수 1차로 바뀌었습니다.
 
 **1.0.0 (2026-11-25, writing #1329, W83):** 처음 판. `generated/web/<언어>.json`은 슬롯 id → 키 → 글입니다. 랜딩 슬롯 12개(`web-landing.*`, IA `site.json`), `web-landing.shots.alt`의 키는 스토어 스크린샷 장면 id(`today`, `evidence`, `calendar`, `daySheet`, `mySaju`, `share`)이고 web이 보여 주는 사진의 키를 고릅니다. 소개 문장은 스토어 문구(라운드 R49)와 같고 링크 이름은 앱 문구와 같습니다. en과 ja는 원어민 검수(E18) 전 초안입니다.

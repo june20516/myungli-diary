@@ -635,7 +635,7 @@ def test_review_export_tier1(tmp_path: Path, capsys: pytest.CaptureFixture[str])
     assert str(out) in capsys.readouterr().out
     meta, rows = read_sheet(out)
     assert meta.lang == "en"
-    assert re.fullmatch(r"[0-9a-f]{40}", meta.commit)
+    assert re.fullmatch(r"[0-9a-f]{40}(\+dirty)?", meta.commit)
     assert {row.bundle for row in rows} == {"store", "ui", "system", "web"}
     import openpyxl
 

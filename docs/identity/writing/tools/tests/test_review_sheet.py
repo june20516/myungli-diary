@@ -208,3 +208,14 @@ def test_not_a_workbook(tmp_path: Path) -> None:
     path.write_text("not a workbook", encoding="utf-8")
     with pytest.raises(SheetError):
         read_sheet(path)
+
+
+def test_broken_header_in_bundle_tab_is_error(tmp_path: Path) -> None:
+    # 검수자가 헤더 칸 하나를 덮어써도 그 묶음의 수정안이 조용히 빠지지 않게 멈춥니다.
+    path = tmp_path / "s.xlsx"
+    write_default(path)
+    book = openpyxl.load_workbook(path)
+    book["store"]["B1"] = "ㅎ"
+    book.save(path)
+    with pytest.raises(SheetError, match="store"):
+        read_sheet(path)

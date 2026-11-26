@@ -3,13 +3,13 @@
     "metaTitle": "Myungli Diary | Daily Readings for Your Chart"
   },
   "web-landing.meta.description": {
-    "metaDescription": "The same day is different for everyone. See each day read for your own chart."
+    "metaDescription": "The same day is different for everyone. See each day's reading for your chart."
   },
   "web-landing.hero.tagline": {
     "heroTagline": "Daily Readings for Your Chart"
   },
   "web-landing.hero.body": {
-    "heroBody": "See today read for your own chart, then keep what happened beside it in your diary. Check smooth days and careful days ahead of time in the calendar."
+    "heroBody": "See today's reading for your chart, then keep what happened beside it in your diary. Check smooth days and careful days ahead of time in the calendar."
   },
   "web-landing.shots.alt": {
     "today": "Today screen. The day's overall reading in one sentence and the day's character, read for your own chart",
@@ -39,5 +39,17 @@
   },
   "web-landing.lang.label": {
     "langLabel": "Language"
+  },
+  "web-not-found.meta.title": {
+    "notFoundMetaTitle": "Page not found | Myungli Diary"
+  },
+  "web-not-found.page.title": {
+    "notFoundPageTitle": "Page not found"
+  },
+  "web-not-found.page.body": {
+    "notFoundPageBody": "This page has moved or doesn't exist."
+  },
+  "web-not-found.page.home": {
+    "notFoundPageHome": "Go to Myungli Diary home"
   }
 }

@@ -284,14 +284,18 @@ def read_sheet(path: Path, skipped: list[str] | None = None) -> tuple[SheetMeta,
     """메타와 묶음 탭의 행입니다. 감수자가 고치는 칸은 앞뒤 공백을 지웁니다.
 
     칸 머리가 없는 탭(감수자가 더한 메모 탭 등)은 건너뛰고, `skipped`가 있으면 그 탭 이름을 덧붙입니다.
+    묶음 이름의 탭(TIERS)이 칸 머리를 잃었으면 그 묶음의 수정안이 빠지지 않게 SheetError입니다.
     """
     book = _load(path)
     meta = _read_meta(book)
+    bundles = {bundle for tier in TIERS.values() for bundle in tier}
     rows: list[ReviewRow] = []
     for sheet in _bundle_sheets(book):
         try:
             rows.extend(_read_bundle(sheet))
-        except SheetError:
+        except SheetError as error:
+            if sheet.title in bundles:
+                raise SheetError(f"묶음 탭 {sheet.title}의 칸 머리를 읽을 수 없습니다. 첫 줄을 고쳐 주세요 ({error})") from error
             if skipped is not None:
                 skipped.append(sheet.title)
     return meta, rows

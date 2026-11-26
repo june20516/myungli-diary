@@ -39,5 +39,17 @@
   },
   "web-landing.lang.label": {
     "langLabel": "言語"
+  },
+  "web-not-found.meta.title": {
+    "notFoundMetaTitle": "ページが見つかりません | 命理日記"
+  },
+  "web-not-found.page.title": {
+    "notFoundPageTitle": "ページが見つかりません"
+  },
+  "web-not-found.page.body": {
+    "notFoundPageBody": "このページは移動したか、存在しません。"
+  },
+  "web-not-found.page.home": {
+    "notFoundPageHome": "命理日記のトップへ"
   }
 }

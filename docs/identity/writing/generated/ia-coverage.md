@@ -291,3 +291,7 @@
 | web-landing.footer.privacy | content | web-landing.footer.privacy |
 | web-landing.footer.support | content | web-landing.footer.support |
 | web-landing.lang.label | content | web-landing.lang.label |
+| web-not-found.meta.title | content | web-not-found.meta.title |
+| web-not-found.page.title | content | web-not-found.page.title |
+| web-not-found.page.body | content | web-not-found.page.body |
+| web-not-found.page.home | content | web-not-found.page.home |

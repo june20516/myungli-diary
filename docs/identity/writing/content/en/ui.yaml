@@ -42,7 +42,7 @@
 - {slot: notify-ask.question.head, key: notifyAskQuestionHead, text: "Would you like today's reading every morning?"}
 - {slot: notify-ask.why.body, key: notifyAskWhyBody, text: "Each notification tells you what kind of day it is, with one line from your daily reading."}
 - {slot: notify-ask.cta.skip, key: notifyAskCtaSkip, text: "Not now"}
-- {slot: today.guide.cta, key: todayGuideCta, text: "Write in diary"}
+- {slot: today.guide.cta, key: todayGuideCta, text: "Write in your diary"}
 - {slot: today.guide.cta, key: todayGuideCtaWritten, text: "Write a new entry"}
 - {slot: today.guide.cta, key: todayGuideCtaFull, text: "You've written enough for today"}
 - {slot: today.event.summary, key: todayEventSummary, text: "Events today: {count}, {title}"}
@@ -74,7 +74,7 @@
 - {slot: event-edit.delete.confirm, key: eventEditDeleteConfirmDelete, text: "Delete"}
 - {slot: event-edit.delete.confirm, key: eventEditDeleteConfirmCancel, text: "Cancel"}
 - {slot: evidence-sheet.lock.head, key: evidenceSheetLockHead, text: "The basis and interpretation are locked"}
-- {slot: evidence-sheet.lock.reward, key: evidenceSheetLockReward, text: "Watch one ad to the end to see all the basis and interpretation for the next 2 hours."}
+- {slot: evidence-sheet.lock.reward, key: evidenceSheetLockReward, text: "Watch one ad to the end to see the full basis and interpretation for the next 2 hours."}
 - {slot: evidence-sheet.lock.cta, key: evidenceSheetLockCta, text: "Watch ad to unlock"}
 - {slot: evidence-sheet.lock.pass, key: evidenceSheetLockPass, text: "With an ad-free pass, they stay unlocked the whole time."}
 - {slot: evidence-sheet.lock.pass, key: evidenceSheetLockPassLink, text: "See ad-free pass"}
@@ -87,8 +87,8 @@
 - {slot: evidence-sheet.a11y.checking, key: evidenceSheetA11yChecking, text: "Checking"}
 - {slot: evidence-sheet.a11y.unlocked, key: evidenceSheetA11yUnlocked, text: "The basis and interpretation are unlocked"}
 - {slot: diary-list.empty.body, key: diaryListEmptyBody, text: "No diary entries yet. Why not start with today?"}
-- {slot: diary-list.pick-date.cta, key: diaryListPickDateCta, text: "Write in diary"}
-- {slot: ui.diary-list.pick-date-confirm, key: diaryListPickDateConfirm, text: "Write a {date} entry"}
+- {slot: diary-list.pick-date.cta, key: diaryListPickDateCta, text: "Write in your diary"}
+- {slot: ui.diary-list.pick-date-confirm, key: diaryListPickDateConfirm, text: "Write an entry for {date}"}
 - {slot: ui.diary-list.pick-date-confirm, key: diaryListPickDateConfirmFull, text: "You've written enough for this day"}
 - {slot: diary-edit.body.placeholder, key: diaryEditBodyPlaceholder, text: "Write about your day"}
 - {slot: diary-edit.draft.status, key: diaryEditDraftStatusLocal, text: "Draft"}
@@ -124,9 +124,9 @@
 - {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodySubtract, text: "We subtract {minutes, plural, one{{minutes} minute} other{{minutes} minutes}} from your birth time, based on {longitude}. We don't use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps."}
 - {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyAdd, text: "We add {minutes, plural, one{{minutes} minute} other{{minutes} minutes}} to your birth time, based on {longitude}. We don't use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps."}
 - {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyNone, text: "We use your birth time as is, based on {longitude}. We don't use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps."}
-- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyDstSubtract, text: "We remove the {dstMinutes}-minute daylight saving offset from your birth time, then subtract {minutes, plural, one{{minutes} minute} other{{minutes} minutes}} based on {longitude}. We don't use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps."}
-- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyDstAdd, text: "We remove the {dstMinutes}-minute daylight saving offset from your birth time, then add {minutes, plural, one{{minutes} minute} other{{minutes} minutes}} based on {longitude}. We don't use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps."}
-- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyDstNone, text: "We remove the {dstMinutes}-minute daylight saving offset from your birth time. Based on {longitude}, there's no further adjustment. We don't use true solar time. If you were born within minutes of an hour boundary, your hour pillar may differ from other saju apps."}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyDstSubtract, text: "We subtract {dstMinutes} minutes for daylight saving and {minutes, plural, one{{minutes} minute} other{{minutes} minutes}} based on {longitude}. We don't use true solar time. If you were born near an hour boundary, your hour pillar may differ from other saju apps."}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyDstAdd, text: "We subtract {dstMinutes} minutes for daylight saving and add {minutes, plural, one{{minutes} minute} other{{minutes} minutes}} based on {longitude}. We don't use true solar time. If you were born near an hour boundary, your hour pillar may differ from other saju apps."}
+- {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyDstNone, text: "We only subtract {dstMinutes} minutes for daylight saving, with no adjustment for {longitude}. We don't use true solar time. If you were born near an hour boundary, your hour pillar may differ from other saju apps."}
 - {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyEast, text: "{degrees}°E"}
 - {slot: calc-basis.longitude.body, key: calcBasisLongitudeBodyWest, text: "{degrees}°W"}
 - {slot: calc-basis.lunar.body, key: calcBasisLunarBody, text: "Lunar dates follow the Korean lunar calendar published by the Korea Astronomy and Space Science Institute."}
@@ -157,7 +157,7 @@
 - {slot: ui.purchase.meta, key: purchaseMetaPeriod, text: "{start} to {end}"}
 - {slot: ui.purchase.product, key: purchaseProductAdFreeMonth, text: "Ad-free, 1 month"}
 - {slot: ui.depth.explain, key: depthExplain, text: "Reading"}
-- {slot: onboard-time.hour.confirm, key: onboardTimeHourConfirm, text: "You were born in the {branch} hour, from {start} to {end}."}
+- {slot: onboard-time.hour.confirm, key: onboardTimeHourConfirm, text: "Born in the {branch} hour, from {start} to {end}."}
 - {slot: notify-ask.cta.allow, key: notifyAskCtaAllow, text: "Turn on notifications"}
 - {slot: system-push.channel.morning, key: systemPushChannelMorning, text: "Today's reading alerts"}
 
@@ -260,7 +260,7 @@
 - {slot: ui.picker.item, key: timePickerMinuteItem, text: "{minute}"}
 - {slot: ui.picker.item, key: timePickerAm, text: "AM"}
 - {slot: ui.picker.item, key: timePickerPm, text: "PM"}
-- {slot: ui.picker.item, key: datePickerLeapMonthValue, text: "Leap month {month}"}
+- {slot: ui.picker.item, key: datePickerLeapMonthValue, text: "Leap {month}"}
 - {slot: ui.date-picker.solar-confirm, key: datePickerSolarConfirm, text: "Solar: {date}"}
 - {slot: ui.birth.option, key: calendarSolar, text: "Solar"}
 - {slot: ui.birth.option, key: calendarLunar, text: "Lunar"}
@@ -304,7 +304,7 @@
 - {slot: profile-edit.bar.title, key: profileEditBarTitle, text: "Edit details"}
 - {slot: calc-basis.bar.title, key: calcBasisBarTitle, text: "How we calculate"}
 - {slot: account-delete.bar.title, key: accountDeleteBarTitle, text: "Delete account"}
-- {slot: legal.bar.title, key: legalBarTitle, text: "Terms & policies"}
+- {slot: legal.bar.title, key: legalBarTitle, text: "Terms and policies"}
 # 달력·일정 공용 문구(#217)
 - {slot: ui.calendar.nav, key: calendarPrevMonth, text: "Previous month"}
 - {slot: ui.calendar.nav, key: calendarNextMonth, text: "Next month"}
@@ -352,7 +352,7 @@
 - {slot: account-merge.auth.body, key: accountMergeAuthBody, text: "Verify the account you're bringing in."}
 - {slot: account-merge.not-other.body, key: accountMergeNotOtherBodySelf, text: "You signed in with this account's sign-in method. Please sign in again with one from the account you're bringing in."}
 - {slot: account-merge.not-other.body, key: accountMergeNotOtherBodyNone, text: "No account is linked to this sign-in method."}
-- {slot: account-merge.overlap.notice, key: accountMergeOverlapNotice, text: "Entries from the same day also all move to this account."}
+- {slot: account-merge.overlap.notice, key: accountMergeOverlapNotice, text: "Entries from the same day are also moved to this account."}
 - {slot: account-merge.cta.merge, key: accountMergeCtaMerge, text: "Merge accounts"}
 - {slot: account-merge.merge.confirm, key: accountMergeMergeConfirm, text: "Merge the two accounts? This can't be undone."}
 - {slot: account-merge.merge.confirm, key: accountMergeMergeConfirmMerge, text: "Merge"}

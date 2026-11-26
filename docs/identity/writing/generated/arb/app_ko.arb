@@ -196,7 +196,7 @@
       }
     }
   },
-  "calcBasisLongitudeBodyDstSubtract": "출생 시각은 서머타임 {dstMinutes}분을 먼저 빼고, {longitude} 기준으로 {minutes}분을 더 빼서 계산합니다. 진태양시는 쓰지 않습니다. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.",
+  "calcBasisLongitudeBodyDstSubtract": "출생 시각은 서머타임 {dstMinutes}분을 먼저 빼고, {longitude} 기준으로 {minutes}분을 빼서 계산합니다. 진태양시는 쓰지 않습니다. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.",
   "@calcBasisLongitudeBodyDstSubtract": {
     "description": "calc-basis.longitude.body: 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용",
     "placeholders": {
@@ -226,7 +226,7 @@
       }
     }
   },
-  "calcBasisLongitudeBodyDstNone": "출생 시각은 서머타임 {dstMinutes}분만 빼고 계산합니다. {longitude} 기준이라 경도 보정은 따로 하지 않습니다. 진태양시는 쓰지 않습니다. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.",
+  "calcBasisLongitudeBodyDstNone": "출생 시각은 서머타임 {dstMinutes}분만 빼고, {longitude} 기준이라 경도는 따로 보정하지 않습니다. 진태양시는 쓰지 않습니다. 그래서 시가 바뀌는 경계 몇 분 안에 태어났다면 다른 만세력 앱과 시주가 다를 수 있어요.",
   "@calcBasisLongitudeBodyDstNone": {
     "description": "calc-basis.longitude.body: 출생 시간대의 기준 경도로 출생 시각을 보정한다는 안내. 기준 경도와 보정 분은 출생 시간대·도시에서 받습니다(한국 127.5° −30분, 일본 135° 보정 없음. D42·D71), 진태양시 미적용",
     "placeholders": {

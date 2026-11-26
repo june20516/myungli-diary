@@ -341,6 +341,10 @@
 | web-landing.store.apple | web-landing.store.apple | guide | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | web-landing.store.google | web-landing.store.google | guide | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | web-landing.store.soon | web-landing.store.soon | guide | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-not-found.meta.title | web-not-found.meta.title | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-not-found.page.body | web-not-found.page.body | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-not-found.page.home | web-not-found.page.home | guide | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
+| web-not-found.page.title | web-not-found.page.title | info | - | 1 | 1 | - | ko 상한 없음, en 상한 없음, ja 상한 없음 |
 | welcome.concept.body | welcome.concept.body | info | - | 1 | 1 | - | ko -, en -, ja - |
 | welcome.concept.head | welcome.concept.head | info | - | 1 | 1 | - | ko -, en -, ja - |
 | welcome.cta.signin | welcome.cta.signin | guide | - | 1 | 1 | - | ko 23, en 42, ja 19 |

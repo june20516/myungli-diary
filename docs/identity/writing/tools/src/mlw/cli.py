@@ -11,9 +11,10 @@ import os
 import subprocess
 import sys
 from collections import Counter
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date
+from functools import partial
 from pathlib import Path
 from typing import cast
 
@@ -31,6 +32,7 @@ from mlw.icu import RULE_PLURAL, expand_entry, parse_plural, plural_problem
 from mlw.jev import API_KEY_ENV, http_poster, jev_answers, limit_reason, pair_records, write_shadow
 from mlw.judge import DEFAULT_BATCH_SIZE, DEFAULT_MODEL, claude_cli_caller, judge_entries
 from mlw.loader import load_content, load_rules, load_slots
+from mlw.longest import LangValues, lang_values, longest_param_value
 from mlw.markup import check_name_position, check_ui_josa, check_ui_markup, strip_vocative
 from mlw.model import LANGS, PARAM_KIND_NUMBER, Entry, Finding, LoadError, ParamKind, RuleSet, Slot
 from mlw.placeholders import Placeholder, parse
@@ -79,8 +81,16 @@ def longest_by_category(entries: Sequence[Entry], lang: str) -> dict[str, tuple[
     return {category: tuple(sorted(texts, key=len, reverse=True)) for category, texts in by_category.items()}
 
 
-def _longest_value(placeholder: Placeholder, kind: ParamKind, by_category: Mapping[str, Sequence[str]]) -> str | None:
-    """값 종류 규칙으로 가장 긴 렌더 값을 구합니다. 범주를 해석할 수 없으면 ValueError, 값이 없으면 None입니다."""
+def _longest_value(
+    placeholder: Placeholder,
+    kind: ParamKind,
+    by_category: Mapping[str, Sequence[str]],
+    measure: Callable[[str], str | None] | None,
+) -> str | None:
+    """값 종류 규칙으로 가장 긴 렌더 값을 구합니다. 범주를 해석할 수 없으면 ValueError, 값이 없으면 None입니다.
+
+    숫자와 자유 글은 `measure`(매개변수 이름 -> 가장 긴 값, `mlw.longest`)로 구합니다.
+    """
     if kind.kind == "glossary":
         category = placeholder.category or kind.default_category
         if category is None or category not in kind.categories:
@@ -92,8 +102,8 @@ def _longest_value(placeholder: Placeholder, kind: ParamKind, by_category: Mappi
     if kind.kind == "list":
         values = by_category.get(kind.categories[0], ())
         return LIST_SEPARATOR.join(values[:LIST_MAX_ITEMS]) if values else None
-    # number: 값 범위를 모르므로 값을 두지 않습니다.
-    return None
+    # number, text: 표(W85)에 값이 없으면 값을 두지 않습니다.
+    return measure(placeholder.name) if measure is not None else None
 
 
 def longest_values_for(
@@ -101,11 +111,13 @@ def longest_values_for(
     params: Mapping[str, ParamKind],
     by_category: Mapping[str, Sequence[str]],
     name_max: int | None,
+    measure: Callable[[str], str | None] | None = None,
 ) -> tuple[dict[str, str], list[str]]:
     """원고 하나의 글자 수 검사에 쓸 값과, 범주를 해석할 수 없는 자리표시자 목록입니다.
 
     값은 자리표시자 키(`name` 또는 `name:category`) -> 가장 긴 렌더 값입니다. 값이 없는 범주, 숫자,
-    상한이 없는 호칭은 넣지 않습니다. 그러면 그 원고의 글자 수 검사는 건너뜁니다(Ruling 2).
+    상한이 없는 호칭, `measure`가 값을 정하지 못한 숫자와 자유 글은 넣지 않습니다. 그러면 그 원고의 글자 수 검사는
+    건너뜁니다(Ruling 2, W85).
     """
     try:
         placeholders = parse(entry.text)
@@ -124,7 +136,7 @@ def longest_values_for(
             unresolved.append(placeholder.key)
             continue
         try:
-            value = _longest_value(placeholder, kind, by_category)
+            value = _longest_value(placeholder, kind, by_category, measure)
         except ValueError:
             unresolved.append(placeholder.key)
             continue
@@ -133,13 +145,16 @@ def longest_values_for(
     return values, unresolved
 
 
-def _entry_sentence_findings(
-    entry: Entry, slot: Slot, rules: RuleSet, by_lang: Mapping[str, Mapping[str, Sequence[str]]]
-) -> list[Finding]:
+ByLang = Mapping[str, tuple[Mapping[str, Sequence[str]], LangValues]]
+
+
+def _entry_sentence_findings(entry: Entry, slot: Slot, rules: RuleSet, by_lang: ByLang) -> list[Finding]:
     max_length = slot.length_limit(entry.lang, entry.key)
     name_max = rules.josa.name_rules.max_length.get(entry.lang)
     params = slot.keys.get(entry.key, {})
-    values, unresolved = longest_values_for(entry, params, by_lang.get(entry.lang, {}), name_max)
+    by_category, lang_texts = by_lang[entry.lang]
+    measure = partial(_measure_param, slot.id, lang_texts)
+    values, unresolved = longest_values_for(entry, params, by_category, name_max, measure)
     findings: list[Finding] = []
     if max_length is not None and unresolved:
         message = f"자리표시자 {', '.join(unresolved)}의 범주를 해석할 수 없어 글자 수를 계산하지 못했습니다"
@@ -180,9 +195,11 @@ def _unique(findings: Sequence[Finding]) -> list[Finding]:
     return unique
 
 
-def _vocative_sentence_findings(
-    entry: Entry, slot: Slot, rules: RuleSet, by_lang: Mapping[str, Mapping[str, Sequence[str]]]
-) -> list[Finding]:
+def _measure_param(slot_id: str, values: LangValues, param: str) -> str | None:
+    return longest_param_value(slot_id, param, values)
+
+
+def _vocative_sentence_findings(entry: Entry, slot: Slot, rules: RuleSet, by_lang: ByLang) -> list[Finding]:
     """원고 하나의 문장 검사입니다. 호칭 자리 슬롯은 호칭 덩어리를 지운 문장도 검사합니다."""
     full = _entry_sentence_findings(entry, slot, rules, by_lang)
     stripped = strip_vocative(entry.text, entry.lang) if slot.vocative else None
@@ -202,7 +219,7 @@ def sentence_findings(slots: Mapping[str, Slot], entries: Sequence[Entry], rules
     지운 문장에서만 나온 문제는 메시지 앞에 `호칭 없이: `를 붙이고, 같은 규칙·같은 메시지는 한 번만 냅니다.
     plural 원고는 형태마다 펼친 문장을 검사합니다.
     """
-    by_lang = {lang: longest_by_category(entries, lang) for lang in LANGS}
+    by_lang = {lang: (longest_by_category(entries, lang), lang_values(entries, lang)) for lang in LANGS}
     findings: list[Finding] = []
     for entry in entries:
         slot = slots.get(entry.slot)
