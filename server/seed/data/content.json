@@ -1,5 +1,5 @@
 {
-  "version": "12134385097b16d5",
+  "version": "5a6968fe6bcffde5",
   "slots": {
     "calendar.day_level": {
       "id": "calendar.day_level",
@@ -16524,7 +16524,7 @@
       "key": "notice.dayun_start_approximate",
       "variant": "single",
       "lang": "ja",
-      "body": "大運が始まる年齢は、生まれた時刻がわからないため概算で計算しました。"
+      "body": "大運が始まる年齢は、生まれた時刻がわからないため目安として計算しました。"
     },
     {
       "slot": "system.notice",
@@ -16587,7 +16587,7 @@
       "key": "notice.nonexistent_local_time",
       "variant": "single",
       "lang": "ja",
-      "body": "時刻の基準が変わり飛ばされた時刻のため、切り替え後で計算しました。"
+      "body": "時刻の基準が変わって存在しない時刻のため、切り替え後の時刻で計算しました。"
     },
     {
       "slot": "system.notice",
@@ -16650,7 +16650,7 @@
       "key": "support.contact.body",
       "variant": "single",
       "lang": "ja",
-      "body": "アプリのマイページ \u003e 設定 \u003e お問い合わせから送信できます。返信先のメールアドレスをご入力いただければ、そのアドレスにお答えします。"
+      "body": "アプリのマイページ \u003e 設定 \u003e お問い合わせから送信できます。返信先のメールアドレスをご入力いただければ、そのアドレス宛てにお返事をお送りします。"
     },
     {
       "slot": "system.support",
