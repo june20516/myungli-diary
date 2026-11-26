@@ -26,6 +26,12 @@ func TestValidateReason(t *testing.T) {
 		{"개행 포함", "a\nb", "", true},
 		{"캐리지 리턴 포함", "a\rb", "", true},
 		{"501자", strings.Repeat("가", 501), "", true},
+		{"NUL 포함", "a\x00b", "", true},
+		{"잘못된 UTF-8", "a\xffb", "", true},
+		{"U+0085 포함", "a\u0085b", "", true},
+		{"U+2028 포함", "a\u2028b", "", true},
+		{"U+2029 포함", "a\u2029b", "", true},
+		{"탭 허용", "a\tb", "a\tb", false},
 		{"앞뒤 공백 제거", " 환불 확인 ", "환불 확인", false},
 		{"500자", strings.Repeat("가", 500), strings.Repeat("가", 500), false},
 	}
@@ -128,4 +134,30 @@ func TestRecordTx_ContentViewWithPurposeAndNilTarget(t *testing.T) {
 	assert.JSONEq(t, `{"n":1}`, after)
 	assert.Equal(t, "inquiry", gotPurpose)
 	assert.Equal(t, accountID, gotAccount)
+}
+
+func TestRecordTx_TypedNilIsNullOrEmpty(t *testing.T) {
+	pool := dbtest.New(t)
+	ctx := context.Background()
+	id := uuid.New()
+
+	err := pgx.BeginFunc(ctx, pool, func(tx pgx.Tx) error {
+		return recordTx(ctx, tx, id, time.Now(), Entry{
+			Actor:  Actor{ID: "bran", Channel: ChannelCLI},
+			Action: ActionAccountShow,
+			Reason: "문의",
+			Target: (*struct{})(nil),
+			Before: (*struct{})(nil),
+			After:  map[string]any(nil),
+		})
+	})
+	require.NoError(t, err)
+
+	var target string
+	var beforeIsNull, afterIsNull bool
+	require.NoError(t, pool.QueryRow(ctx, `SELECT target::text, before IS NULL, after IS NULL FROM ops_audit WHERE id = $1`, id).
+		Scan(&target, &beforeIsNull, &afterIsNull))
+	assert.JSONEq(t, `{}`, target)
+	assert.True(t, beforeIsNull)
+	assert.True(t, afterIsNull)
 }

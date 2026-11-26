@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -42,7 +43,9 @@ func ParsePurpose(s string) (Purpose, error) {
 // ValidateReason은 사유의 앞뒤 공백을 떼고 1~500자(rune)이며 줄바꿈이 없는지 검사해 정리한 사유를 돌려줍니다.
 func ValidateReason(s string) (string, error) {
 	reason := strings.TrimSpace(s)
-	if reason == "" || utf8.RuneCountInString(reason) > maxReasonRunes || strings.ContainsAny(reason, "\r\n") {
+	// 줄을 깨는 문자(U+0085, U+2028, U+2029)와 NUL, 잘못된 UTF-8도 거절합니다. 탭은 허용합니다.
+	if reason == "" || !utf8.ValidString(reason) || utf8.RuneCountInString(reason) > maxReasonRunes ||
+		strings.ContainsAny(reason, "\r\n\x00\u0085\u2028\u2029") {
 		return "", ErrReason
 	}
 	return reason, nil
@@ -76,7 +79,7 @@ type Entry struct {
 // recordTx는 감사 행을 tx 안에서 씁니다. Before, After가 nil이면 NULL, Target이 nil이면 {}로 남깁니다.
 func recordTx(ctx context.Context, tx pgx.Tx, id uuid.UUID, at time.Time, e Entry) error {
 	target := e.Target
-	if target == nil {
+	if isNil(target) {
 		target = struct{}{}
 	}
 	targetJSON, err := json.Marshal(target)
@@ -117,8 +120,23 @@ func recordTx(ctx context.Context, tx pgx.Tx, id uuid.UUID, at time.Time, e Entr
 
 // marshalOptional은 v가 nil이면 nil(DB의 NULL)을, 아니면 JSON을 돌려줍니다.
 func marshalOptional(v any) ([]byte, error) {
-	if v == nil {
+	if isNil(v) {
 		return nil, nil
 	}
 	return json.Marshal(v)
+}
+
+// isNil은 v가 untyped nil이거나 nil 포인터, map, slice, interface인지 알려 줍니다.
+// typed nil이 JSON null로 남지 않게 untyped nil과 같게 다룹니다.
+func isNil(v any) bool {
+	if v == nil {
+		return true
+	}
+	rv := reflect.ValueOf(v)
+	switch rv.Kind() {
+	case reflect.Ptr, reflect.Map, reflect.Slice, reflect.Interface:
+		return rv.IsNil()
+	default:
+		return false
+	}
 }
