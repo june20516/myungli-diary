@@ -32,7 +32,7 @@
 * **명령:** `server ops <하위 명령> ...`. 운영자는 저장소의 배포된 커밋에서 `go run ./cmd/server ops ...`로 실행합니다.
 * **연결:** 운영자 본인의 Google 계정으로 `gcloud auth application-default login` 한 뒤, Cloud SQL Go connector가 IAM 인증으로 붙습니다. DB 사용자는 운영자의 Cloud SQL IAM 사용자(메일 주소)입니다. 비밀번호나 Secret을 운영자 컴퓨터에 두지 않습니다.
 * **설정:** `ops`는 DB 연결 값(`CLOUD_SQL_INSTANCE`, `DATABASE_URL`)만 읽습니다. 서버 기동용 Secret을 요구하지 않습니다. 환경별 값은 로컬 값 대장(D98)에 `server/<환경>/ops.env`로 둡니다(인스턴스 이름과 DB 이름, 비밀 아님).
-* **실행자와 시각 식별:** 감사 기록의 실행자는 명령 인자가 아니라 DB가 인증한 세션 사용자(`session_user`)입니다. `ops_audit`의 `BEFORE INSERT` trigger(`ops_audit_stamp`)가 `at`을 언제나 `now()`로, `channel`이 `cli`면 `actor`를 `session_user`로 덮으므로 명령 인자나 운영자 컴퓨터 시계로 바꿀 수 없습니다. `SET ROLE`은 `current_user`만 바꾸고 `session_user`는 그대로라 역할 이름이 아니라 로그인한 사람이 남습니다. 부여 시작, 회수 시각, 기간 검사, 권한 상태 판정도 트랜잭션 안의 DB `now()` 기준입니다. 어드민 API가 붙으면 그 경로는 인증한 운영자 식별자를 넘기고, 그때 그 경로의 감사 INSERT 권한과 실행자 출처를 다시 정합니다(§6).
+* **실행자와 시각 식별:** 감사 기록의 실행자는 명령 인자가 아니라 DB가 인증한 세션 사용자(`session_user`)입니다. `ops_audit`의 `BEFORE INSERT` trigger(`ops_audit_stamp`)가 `at`을 언제나 `now()`로, `actor`를 `session_user`로 덮으므로 명령 인자나 운영자 컴퓨터 시계로 바꿀 수 없습니다. `SET ROLE`은 `current_user`만 바꾸고 `session_user`는 그대로라 역할 이름이 아니라 로그인한 사람이 남습니다. 부여 시작, 회수 시각, 기간 검사, 권한 상태 판정도 트랜잭션 안의 DB `now()` 기준입니다. 어드민 API가 붙으면 그 경로는 인증한 운영자 식별자를 넘기고, 그때 그 경로의 감사 INSERT 권한과 실행자 출처를 다시 정합니다(§6).
 * **출력:** 결과는 stdout(사람이 읽는 표)으로만 씁니다. 표에서 사용자 입력 글의 터미널 제어문자(ESC 등 C0, DEL, C1)와 양방향 제어문자(U+200E, U+200F, U+202A~U+202E, U+2066~U+2069)는 U+FFFD로 바꿉니다(JSON은 이스케이프됨). 로컬 실행이라 Cloud Logging에 남지 않습니다. `--json`으로 기계가 읽는 출력도 냅니다.
 
 ### 3.1 prod 실행 권한 범위
@@ -114,8 +114,8 @@
 | --- | --- |
 | `id` uuid | 기록 id. 부여 행의 `source_ref`로도 씀 |
 | `at` timestamptz | 실행 시각. trigger가 DB `now()`(트랜잭션 시작 시각)로 정함 |
-| `actor` text | 실행자(CLI는 trigger가 `session_user`로 정함, 어드민 API는 인증한 운영자) |
-| `channel` text | `cli` 또는 이후 `admin_api` |
+| `actor` text | 실행자. trigger가 `session_user`로 정함 |
+| `channel` text | `cli`. `admin_api`는 표의 CHECK에는 있지만 어드민 API 전까지 trigger가 거절함 |
 | `action` text | `account_show`, `grant`, `revoke`, `content_view`, `audit_list` |
 | `account_id` uuid | 대상 계정(조회로 찾지 못하면 NULL) |
 | `purpose` text | 열람 목적(`content_view`만 필수, DB CHECK) |
@@ -130,6 +130,7 @@
 * **조회와 열람도 기록합니다.** 개인정보 처리 시스템 접속 기록은 조회를 포함하므로(안전성 확보조치 기준) 모든 명령이 기록합니다.
 * **기록이 먼저:** 변경 명령은 변경과 기록을 한 트랜잭션에 씁니다. 조회와 열람 명령은 기록을 커밋한 뒤에만 결과를 출력합니다. 기록에 실패하면 아무것도 보이지 않습니다.
 * **거절은 기록하지 않음:** 부여와 회수가 거절되면(DB 시각 기준 기간 검사 실패, 회수 불가 출처 등) 트랜잭션이 되돌아가 감사 행이 없습니다. 인자 해석과 사유 검사 같은 사용법 오류는 DB에 붙기 전에 끝납니다.
+* **어드민 API 전까지 cli만:** trigger가 `channel`이 `cli`가 아닌 행을 거절합니다. psql로 `admin_api`를 넣어 실행자를 임의로 남기는 경로가 없습니다. 어드민 API를 만들 때 그 경로의 실행자 결정 방식과 INSERT 권한을 다시 정합니다.
 * **고칠 수 없음:** `myungli_ops`는 `ops_audit`에 `INSERT`와 `SELECT`만 있습니다. `myungli_app`은 retention 때문에 `DELETE`가 필요하므로(app 역할의 `UPDATE`와 `INSERT`는 거둠), 표의 trigger가 `UPDATE`를 언제나 거절하고 `DELETE`는 `at`이 2년보다 오래된 행만 허용합니다. 표 주인(migrator)만 trigger를 끌 수 있습니다.
 * **보관:** 2년. `job retention`이 2년 지난 행을 지웁니다(접속 기록 보관 기준). 정리 쿼리는 clock과 DB `now()` 기준 2년을 함께 만족하는 행만 고릅니다(trigger의 DB 시계와 어긋나도 거절당하지 않게). 운영자 부여 권한 행(`operator`)도 끝난 지 2년이 지나면 함께 지웁니다.
 * **합치기:** 계정 합치기는 구매 구간만 옮깁니다(보상 구간과 같이 운영자 부여 행은 옮기지 않음). 필요하면 합친 계정에 다시 줍니다. 계정 삭제(익명화) 때도 지우지 않습니다. 계정 id만 있고 개인정보 본문이 없기 때문입니다. 지휘의 수집, 보관 대장(D87)에 반영을 요청합니다.

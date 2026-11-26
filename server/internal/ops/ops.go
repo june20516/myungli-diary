@@ -31,7 +31,9 @@ type Channel string
 
 // 운영 명령 경로입니다.
 const (
-	ChannelCLI      Channel = "cli"
+	ChannelCLI Channel = "cli"
+	// ChannelAdminAPI는 출시 뒤 어드민 API 경로입니다. 지금은 DB trigger(00029 ops_audit_stamp)가 이 경로의 감사 행을 거절하므로
+	// 이 경로로 부르면 감사 쓰기에서 실패합니다. actor 결정 방식은 어드민 API를 만들 때 정합니다.
 	ChannelAdminAPI Channel = "admin_api"
 )
 
@@ -42,6 +44,7 @@ type Actor struct {
 }
 
 // validateActor는 실행자 ID가 비어 있지 않고 채널이 알려진 값인지 검사합니다.
+// admin_api도 통과시키지만, 감사 행은 DB가 아직 cli만 받습니다(ChannelAdminAPI 주석).
 func validateActor(a Actor) error {
 	if strings.TrimSpace(a.ID) == "" {
 		return ErrActor

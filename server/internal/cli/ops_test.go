@@ -475,11 +475,11 @@ func TestOps_TextStripsControlCharactersInProfileAndAudit(t *testing.T) {
 }
 
 func TestSanitizeTerminal_ReplacesBidiControls(t *testing.T) {
-	for _, r := range []rune{'\u200E', '\u200F', '\u202A', '\u202B', '\u202C', '\u202D', '\u202E', '\u2066', '\u2067', '\u2068', '\u2069'} {
+	for _, r := range []rune{'\u061C', '\u200E', '\u200F', '\u202A', '\u202B', '\u202C', '\u202D', '\u202E', '\u2066', '\u2067', '\u2068', '\u2069'} {
 		assert.Equal(t, "가\ufffd나", sanitizeTerminal("가"+string(r)+"나"), "U+%04X", r)
 	}
-	// 범위 바로 바깥 글자(U+200D, U+2070)와 보통 글자, 탭, 줄바꿈은 그대로입니다.
-	assert.Equal(t, "a\u200db\u2070c 한글\t\n", sanitizeTerminal("a\u200db\u2070c 한글\t\n"))
+	// 범위 바로 바깥 글자(U+061B, U+061D, U+200D, U+2070)와 보통 글자, 탭, 줄바꿈은 그대로입니다.
+	assert.Equal(t, "\u061b\u061da\u200db\u2070c 한글\t\n", sanitizeTerminal("\u061b\u061da\u200db\u2070c 한글\t\n"))
 }
 
 func TestOps_AuditListTextShowsTarget(t *testing.T) {

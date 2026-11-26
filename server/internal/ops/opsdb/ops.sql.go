@@ -211,7 +211,7 @@ type InsertOpsAuditParams struct {
 
 // 운영 명령(#1321)의 감사 기록 쿼리입니다.
 // 운영 행위 한 건을 남깁니다. purpose는 content_view일 때만 값이 있습니다.
-// at은 trigger(00029 ops_audit_stamp)가 now()로, channel이 cli면 actor는 session_user로 덮어씁니다.
+// at은 trigger(00029 ops_audit_stamp)가 now()로, actor는 session_user로 덮어씁니다. cli 밖의 channel은 trigger가 거절합니다.
 func (q *Queries) InsertOpsAudit(ctx context.Context, arg InsertOpsAuditParams) error {
 	_, err := q.db.Exec(ctx, insertOpsAudit,
 		arg.ID,

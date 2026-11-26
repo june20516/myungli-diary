@@ -200,7 +200,7 @@ func TestViewDiary_AuditHasIDsNotBody(t *testing.T) {
 
 	req := byDate(account, viewDate)
 	req.Purpose, req.Reason = PurposeLegal, " 수사 협조 요청 "
-	_, err := svc.ViewDiary(context.Background(), Actor{ID: "bran", Channel: ChannelAdminAPI}, req)
+	_, err := svc.ViewDiary(context.Background(), testActor, req)
 	require.NoError(t, err)
 
 	rows := viewAuditRows(t, pool)

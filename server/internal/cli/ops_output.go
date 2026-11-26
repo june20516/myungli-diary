@@ -36,7 +36,7 @@ func cell(s string) string {
 }
 
 // sanitizeTerminal은 사용자 입력 글에서 터미널 제어문자(\n, \t 외 C0 제어문자와 DEL, C1 U+0080~U+009F)와
-// 양방향(bidi) 제어문자(U+200E, U+200F, U+202A~U+202E, U+2066~U+2069)를 U+FFFD로 바꿉니다.
+// 양방향(bidi) 제어문자(U+061C, U+200E, U+200F, U+202A~U+202E, U+2066~U+2069)를 U+FFFD로 바꿉니다.
 // 사람이 읽는 출력에서 ESC 시퀀스로 터미널을 조작하거나 글자 방향을 뒤집어 다른 내용처럼 보이게 하지 못하게 합니다.
 // JSON은 이스케이프되므로 그대로 둡니다.
 func sanitizeTerminal(s string) string {
@@ -53,9 +53,9 @@ func isTerminalControl(r rune) bool {
 	return r != '\n' && r != '\t' && (r < 0x20 || r == 0x7f || (r >= 0x80 && r <= 0x9f))
 }
 
-// isBidiControl은 글자 방향을 바꾸는 표시(LRM, RLM)와 embedding, override, isolate 제어문자인지 알려 줍니다.
+// isBidiControl은 글자 방향을 바꾸는 표시(ALM, LRM, RLM)와 embedding, override, isolate 제어문자인지 알려 줍니다.
 func isBidiControl(r rune) bool {
-	return r == '\u200E' || r == '\u200F' || (r >= '\u202A' && r <= '\u202E') || (r >= '\u2066' && r <= '\u2069')
+	return r == '\u061C' || r == '\u200E' || r == '\u200F' || (r >= '\u202A' && r <= '\u202E') || (r >= '\u2066' && r <= '\u2069')
 }
 
 func formatTime(t time.Time) string { return t.UTC().Format(time.RFC3339) }

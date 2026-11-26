@@ -78,41 +78,51 @@ func TestOpsAudit_DeleteOnlyOlderThanTwoYears(t *testing.T) {
 	}
 }
 
-// 감사 행의 at은 언제나 DB now()이고, cli channel의 actor는 session_user입니다. 넣는 값으로 바꿀 수 없습니다.
-func TestOpsAudit_StampSetsAtAndCLIActor(t *testing.T) {
+// 감사 행의 at은 언제나 DB now()이고 actor는 session_user입니다. 넣는 값으로 바꿀 수 없습니다.
+func TestOpsAudit_StampSetsAtAndActor(t *testing.T) {
 	ctx := context.Background()
 	pool := dbtest.New(t)
-	cliID, apiID := uuid.Must(uuid.NewV7()), uuid.Must(uuid.NewV7())
+	id := uuid.Must(uuid.NewV7())
 	if _, err := pool.Exec(ctx, `INSERT INTO ops_audit (id, at, actor, channel, action, reason, target)
-		VALUES ($1, now() - interval '3 years', 'someone-else@example.com', 'cli', 'grant', '사유', '{}')`, cliID); err != nil {
+		VALUES ($1, now() - interval '3 years', 'someone-else@example.com', 'cli', 'grant', '사유', '{}')`, id); err != nil {
 		t.Fatalf("cli 행 INSERT: %v", err)
 	}
-	if _, err := pool.Exec(ctx, `INSERT INTO ops_audit (id, at, actor, channel, action, reason, target)
-		VALUES ($1, now() - interval '3 years', 'admin-user', 'admin_api', 'grant', '사유', '{}')`, apiID); err != nil {
-		t.Fatalf("admin_api 행 INSERT: %v", err)
-	}
 
-	var sessionUser string
+	var sessionUser, actor string
+	var recent bool
 	if err := pool.QueryRow(ctx, `SELECT session_user`).Scan(&sessionUser); err != nil {
 		t.Fatalf("session_user: %v", err)
 	}
-	for id, wantActor := range map[uuid.UUID]string{cliID: sessionUser, apiID: "admin-user"} {
-		var actor string
-		var recent bool
-		if err := pool.QueryRow(ctx, `SELECT actor, at > now() - interval '1 minute' FROM ops_audit WHERE id = $1`, id).Scan(&actor, &recent); err != nil {
-			t.Fatalf("행 읽기: %v", err)
-		}
-		if actor != wantActor || !recent {
-			t.Errorf("actor = %q, 최근 시각 = %v, want %q, true", actor, recent, wantActor)
-		}
+	if err := pool.QueryRow(ctx, `SELECT actor, at > now() - interval '1 minute' FROM ops_audit WHERE id = $1`, id).Scan(&actor, &recent); err != nil {
+		t.Fatalf("행 읽기: %v", err)
 	}
+	if actor != sessionUser || !recent {
+		t.Errorf("actor = %q, 최근 시각 = %v, want %q, true", actor, recent, sessionUser)
+	}
+}
+
+// 어드민 API 전까지 cli 밖의 channel은 trigger가 거절합니다. actor를 임의로 남기는 경로가 없습니다.
+func TestOpsAudit_StampRejectsAdminAPI(t *testing.T) {
+	ctx := context.Background()
+	pool := dbtest.New(t)
+	_, err := pool.Exec(ctx, `INSERT INTO ops_audit (id, at, actor, channel, action, reason, target)
+		VALUES (gen_random_uuid(), now(), 'admin-user', 'admin_api', 'grant', '사유', '{}')`)
+	requirePgError(t, err, raiseException, "")
+	var rows int
+	if err := pool.QueryRow(ctx, `SELECT count(*) FROM ops_audit`).Scan(&rows); err != nil || rows != 0 {
+		t.Errorf("감사 행 = %d (err %v), want 0", rows, err)
+	}
+	// myungli_ops로 SET ROLE해도 같습니다.
+	err = asRole(t, pool, postgres.OpsRole, `INSERT INTO ops_audit (id, at, actor, channel, action, reason, target)
+		VALUES (gen_random_uuid(), now(), 'admin-user', 'admin_api', 'grant', '사유', '{}')`)
+	requirePgError(t, err, raiseException, "")
 }
 
 // 앱 런타임(myungli_app)은 감사 행을 쓸 수 없습니다. retention용 DELETE는 남습니다.
 func TestOpsAudit_AppRoleCannotInsert(t *testing.T) {
 	pool := dbtest.New(t)
 	err := asRole(t, pool, "myungli_app", `INSERT INTO ops_audit (id, at, actor, channel, action, reason, target)
-		VALUES (gen_random_uuid(), now(), 'x', 'admin_api', 'grant', '사유', '{}')`)
+		VALUES (gen_random_uuid(), now(), 'x', 'cli', 'grant', '사유', '{}')`)
 	requirePgError(t, err, insufficientPrivilege, "")
 }
 

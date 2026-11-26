@@ -50,16 +50,18 @@ CREATE TRIGGER ops_audit_guard BEFORE UPDATE OR DELETE ON ops_audit
 CREATE TRIGGER ops_audit_guard_truncate BEFORE TRUNCATE ON ops_audit
     FOR EACH STATEMENT EXECUTE FUNCTION ops_audit_guard();
 
--- 감사 행의 시각과 실행자는 DB가 정합니다. at은 언제나 now()(트랜잭션 시작 시각)이고,
--- channel이 cli면 actor는 DB가 인증한 session_user입니다. 운영자 노트북 시계나 인자로 남는 값을 바꿀 수 없습니다.
+-- 감사 행의 시각과 실행자는 DB가 정합니다. at은 언제나 now()(트랜잭션 시작 시각)이고, actor는 DB가 인증한 session_user입니다.
+-- 운영자 노트북 시계나 인자로 남는 값을 바꿀 수 없습니다.
 -- SET ROLE은 current_user만 바꾸고 session_user는 그대로라, myungli_ops로 SET ROLE해도 로그인한 사람이 남습니다.
+-- 어드민 API가 아직 없으므로 cli 밖의 channel은 거절합니다. 그 경로의 actor 결정 방식은 어드민 API를 만들 때 정합니다.
 -- +goose StatementBegin
 CREATE FUNCTION ops_audit_stamp() RETURNS trigger AS $$
 BEGIN
-    NEW.at := now();
-    IF NEW.channel = 'cli' THEN
-        NEW.actor := session_user;
+    IF NEW.channel <> 'cli' THEN
+        RAISE EXCEPTION 'ops_audit의 admin_api 경로는 어드민 API를 만들 때 정합니다';
     END IF;
+    NEW.at := now();
+    NEW.actor := session_user;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -70,8 +72,8 @@ CREATE TRIGGER ops_audit_stamp BEFORE INSERT ON ops_audit
 
 -- 00024의 기본 권한이 새 표에 UPDATE를 주므로 거둡니다(trigger가 한 번 더 막습니다).
 REVOKE UPDATE ON ops_audit FROM myungli_app;
--- 앱 런타임은 감사 행을 쓰지 않습니다. admin_api channel의 actor는 trigger가 정하지 않으므로,
--- 출시 뒤 어드민 API가 생길 때 쓰는 권한과 actor 출처를 다시 정합니다. retention용 DELETE는 남깁니다.
+-- 앱 런타임은 감사 행을 쓰지 않습니다. 출시 뒤 어드민 API가 생길 때 쓰는 권한과 actor 출처를 다시 정합니다.
+-- retention용 DELETE는 남깁니다.
 REVOKE INSERT ON ops_audit FROM myungli_app;
 
 -- +goose StatementBegin

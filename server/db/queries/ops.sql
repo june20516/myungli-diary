@@ -2,7 +2,7 @@
 
 -- name: InsertOpsAudit :exec
 -- 운영 행위 한 건을 남깁니다. purpose는 content_view일 때만 값이 있습니다.
--- at은 trigger(00029 ops_audit_stamp)가 now()로, channel이 cli면 actor는 session_user로 덮어씁니다.
+-- at은 trigger(00029 ops_audit_stamp)가 now()로, actor는 session_user로 덮어씁니다. cli 밖의 channel은 trigger가 거절합니다.
 INSERT INTO ops_audit (id, at, actor, channel, action, account_id, purpose, reason, target, before, after)
 VALUES (@id, now(), @actor, @channel, @action, sqlc.narg('account_id'), sqlc.narg('purpose'), @reason, @target, sqlc.narg('before'), sqlc.narg('after'));
 

@@ -123,7 +123,7 @@ func TestRecordTx_ContentViewWithPurposeAndNilTarget(t *testing.T) {
 
 	err := pgx.BeginFunc(ctx, pool, func(tx pgx.Tx) error {
 		return recordTx(ctx, tx, id, Entry{
-			Actor:     Actor{ID: "bran", Channel: ChannelAdminAPI},
+			Actor:     Actor{ID: "bran", Channel: ChannelCLI},
 			Action:    ActionContentView,
 			AccountID: &accountID,
 			Purpose:   &purpose,
@@ -133,11 +133,10 @@ func TestRecordTx_ContentViewWithPurposeAndNilTarget(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	var target, after, gotPurpose, actor string
+	var target, after, gotPurpose string
 	var gotAccount uuid.UUID
-	require.NoError(t, pool.QueryRow(ctx, `SELECT target::text, after::text, purpose, account_id, actor FROM ops_audit WHERE id = $1`, id).
-		Scan(&target, &after, &gotPurpose, &gotAccount, &actor))
-	assert.Equal(t, "bran", actor, "admin_api channel의 actor는 trigger가 덮지 않습니다")
+	require.NoError(t, pool.QueryRow(ctx, `SELECT target::text, after::text, purpose, account_id FROM ops_audit WHERE id = $1`, id).
+		Scan(&target, &after, &gotPurpose, &gotAccount))
 	assert.JSONEq(t, `{}`, target)
 	assert.JSONEq(t, `{"n":1}`, after)
 	assert.Equal(t, "inquiry", gotPurpose)

@@ -77,7 +77,7 @@ type Entry struct {
 
 // recordTx는 감사 행을 tx 안에서 씁니다. Before, After가 nil이면 NULL, Target이 nil이면 {}로 남깁니다.
 // 시각(at)은 넘기지 않습니다. trigger(00029 ops_audit_stamp)가 DB의 now()로 정하고,
-// channel이 cli면 e.Actor.ID 대신 DB가 인증한 session_user를 actor로 남깁니다.
+// e.Actor.ID 대신 DB가 인증한 session_user를 actor로 남깁니다. cli 밖의 channel은 trigger가 거절합니다.
 func recordTx(ctx context.Context, tx pgx.Tx, id uuid.UUID, e Entry) error {
 	target := e.Target
 	if isNil(target) {

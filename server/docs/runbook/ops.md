@@ -142,7 +142,7 @@ server ops audit list --since 2026-11-01 --limit 200 --reason "기간 점검"
 * 표 `ops_audit`에 언제(`at`, DB 시각), 누가(`actor`, DB가 인증한 `session_user`), 어떤 경로로(`channel` `cli`), 무엇을(`action` `account_show`, `grant`, `revoke`, `content_view`, `audit_list`와 `target`), 왜(`reason`, 열람은 `purpose`) 했는지, 부여와 회수는 전후 값(`before`, `after`)이 남습니다.
 * 열람 기록에는 본문이 아니라 계정 id와 연 항목 id, 개수만 남습니다.
 * 조회와 열람도 기록합니다. 기록에 실패하면 결과가 보이지 않습니다. 권한 부여와 회수가 거절되면 감사 행은 남지 않습니다.
-* `at`과 `cli` 경로의 `actor`는 trigger가 DB `now()`와 `session_user`로 정하므로 명령 인자나 컴퓨터 시계로 바꿀 수 없습니다.
+* `at`과 `actor`는 trigger가 DB `now()`와 `session_user`로 정하므로 명령 인자나 컴퓨터 시계로 바꿀 수 없습니다. 어드민 API 전까지 `channel`은 `cli`만 받습니다.
 * 행은 고칠 수 없고, 2년이 지난 행만 지울 수 있습니다(trigger). `job retention`이 2년 지난 감사 행과 끝난 지 2년 지난 운영자 부여 행을 지웁니다.
 * 보려면 위 "감사 기록 보기"를 씁니다.
 
