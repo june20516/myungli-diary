@@ -113,8 +113,13 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
 * **광고 시험(staging, D101, A106):** 광고 단위는 빌드 모드로(debug는 Google 테스트 단위, release는 실제 단위, A99), 모의 광고와 보상 경로는 환경 파일의 `STAGING_ADS`(staging `"true"`, prod `"false"`)로 고릅니다.
   * staging: AdMob을 먼저 불러오고, 광고를 받지 못하면(채울 광고 없음, 앱 검토 전) 같은 자리, 같은 크기의 모의 광고("모의 광고" 배너, 15초 전체 화면 보상형)를 보입니다. 보상형을 끝까지 보면 광고 출처와 상관없이 staging 전용 경로(`POST /test/v1/billing/rewarded-ad`, server S131)로 SSV와 같은 값을 보내고, 실제와 같은 `getEntitlements`로 권한을 다시 읽습니다. 테스트 광고와 검토 전 앱에는 SSV 콜백이 오지 않기 때문입니다(#741).
   * prod: AdMob만, 보상은 SSV 콜백만입니다. `STAGING_ADS`가 상수 false라 staging 분기는 prod 바이너리에서 빠집니다.
-  * 광고 불러오기 실패는 debug 콘솔에 `AdMob 불러오기 실패 <domain> <code>`로, staging에서는 Crashlytics 비치명 오류(`AdMobLoadFailure`, code `<domain>.<code>`)로 남습니다. Android 광고 없음은 3, iOS 광고 없음은 1입니다.
+  * 광고 불러오기 실패는 빌드와 상관없이 콘솔에 `AdMob 불러오기 실패 <domain> <code>`로 남고, Crashlytics 비치명 오류(`AdMobLoadFailure`, code `<domain>.<code>`)로도 남습니다. staging은 모든 실패를, prod는 광고 없음(Android 3, iOS 1)과 연결 오류(2)를 뺀 실패(응답 없음 `app.timeout.0` 포함)를 남깁니다(A156). 배너는 30초 안에 답이 없으면 실패로 보고 30초, 1분, 2분, 5분 간격으로 다시 시도합니다. UMP 동의 정보는 실행마다 처음 광고를 부르기 전에 한 번 갱신합니다(갱신하지 않은 실행에서 SDK가 광고 요청을 보내지 않았음, #1345).
   * **테스트 기기:** 실제 단위(release)로 실기기에서 광고를 누르면 계정 정지 사유가 되니 시험 기기는 AdMob에 등록합니다. AdMob 콘솔 **설정 → 테스트 기기 → 테스트 기기 추가**에서 플랫폼과 광고 식별자를 넣습니다(반영까지 보통 1시간, 길면 24시간). Android는 휴대폰 **설정 → Google → 광고**의 광고 ID, iOS는 IDFA입니다. iOS는 IDFA를 기본으로 보여 주지 않아 IDFA를 보여 주는 앱(App Store)이 필요하고, 앱 추적을 허용하지 않은 기기에서는 IDFA가 0으로 나올 수 있으니 그 앱의 추적을 허용합니다. iOS 시뮬레이터는 자동으로 테스트 기기입니다. 등록되면 광고에 "Test mode"(또는 "Test Ad") 표시가 붙습니다.
+  * **광고 디버깅 주의(#1387):**
+    * 휴대폰 설정의 "광고 디버그 로깅 사용"을 켜면 광고 ID가 달라질 수 있습니다(2026-11-26 관찰, Google 문서로는 확인하지 못함). 그러면 등록한 테스트 기기에서 빠져 실제 광고가 나옵니다. 켠 채로 실제 광고 단위를 볼 때는 그 ID도 테스트 기기로 등록하고, 끝나면 바로 끕니다. GMA SDK 로그는 이 토글 대신 `adb shell setprop log.tag.Ads VERBOSE`(UMP는 `log.tag.UserMessagingPlatform`)로 보고, 끝나면 되돌립니다.
+    * 패키지 이름을 바꾼 임시 빌드(`applicationIdSuffix` 등)는 실제 광고 단위를 쓰지 않습니다(debug 빌드처럼 Google 테스트 단위). 실제 단위를 썼다면 끝난 뒤 AdMob "확인할 앱"에서 그 앱을 막습니다.
+    * 내 기기에 나온 실제 광고는 누르거나 반복해 불러오지 않습니다(무효 트래픽).
+    * 코드에 테스트 기기 ID(`RequestConfiguration.testDeviceIds`)를 넣지 않습니다. 기기 식별자를 공개 저장소에 둬야 하고, 필요한 경우는 debug의 테스트 단위, staging의 모의 광고 대체, 콘솔 테스트 기기 등록으로 이미 덮입니다. 테스트 단위로 바꾸면 보상형 SSV 콜백이 오지 않는 점(#741)도 그대로입니다.
 * **시나리오:** fake 모드의 시작 상태입니다. `SCENARIO`를 생략하면 `new-user`입니다.
 
   | id | 상태 |
