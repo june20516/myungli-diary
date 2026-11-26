@@ -8,7 +8,7 @@ import pytest
 from myungli_engine._gen.myungli.engine.v1 import engine_pb2 as pb
 from myungli_engine._gen.myungli.engine.v1 import engine_pb2_grpc as pb_grpc
 from myungli_engine.grpc_api import server as server_module
-from myungli_engine.grpc_api.errors import INTERNAL_MESSAGE
+from myungli_engine.grpc_api.errors import INTERNAL_MESSAGE, MAX_DETAIL_LENGTH
 from myungli_engine.version import ENGINE_VERSION, RULESET_VERSION
 
 SEOUL = "Asia/Seoul"
@@ -378,6 +378,27 @@ def test_invalid_birth_is_invalid_argument(stub: pb_grpc.MyungliEngineStub, birt
     assert status_of(caught.value) == grpc.StatusCode.INVALID_ARGUMENT
 
 
+@pytest.mark.parametrize("length", [65, 300, 1_000_000])
+def test_overlong_timezone_is_invalid_argument_with_short_details(
+    stub: pb_grpc.MyungliEngineStub, length: int
+) -> None:
+    birth = solar_birth(1985, 3, 10)
+    birth.timezone = "A" * length
+    with pytest.raises(grpc.RpcError) as caught:
+        stub.GetChart(pb.ChartRequest(birth=birth, as_of=AS_OF))
+    assert status_of(caught.value) == grpc.StatusCode.INVALID_ARGUMENT
+    assert len(details_of(caught.value)) <= MAX_DETAIL_LENGTH
+
+
+def test_overlong_current_timezone_is_invalid_argument(stub: pb_grpc.MyungliEngineStub) -> None:
+    request = pb.DailyRequest(
+        birth=solar_birth(1985, 3, 10), date=pb.LocalDate(year=2026, month=10, day=10), current_timezone="A" * 300
+    )
+    with pytest.raises(grpc.RpcError) as caught:
+        stub.GetDaily(request)
+    assert status_of(caught.value) == grpc.StatusCode.INVALID_ARGUMENT
+
+
 def test_unknown_enum_number_is_invalid_argument(stub: pb_grpc.MyungliEngineStub) -> None:
     birth = solar_birth(1985, 3, 10)
     birth.calendar = 99  # type: ignore[assignment]
@@ -462,6 +483,22 @@ def test_start_validates_refs_then_warms_up_caches(monkeypatch: pytest.MonkeyPat
     running = server_module.start(0)
     running.stop(grace=None)
     assert calls == ["validate_refs", "warm_up"]
+
+
+def test_start_caps_concurrent_rpcs(monkeypatch: pytest.MonkeyPatch) -> None:
+    """처리 중과 대기 RPC를 합쳐 상한을 넘으면 grpc가 RESOURCE_EXHAUSTED로 바로 거절한다 (Q1 CORE-2)."""
+    created: dict[str, object] = {}
+    real_server = server_module.grpc.server
+
+    def capture(*args: object, **kwargs: object) -> grpc.Server:
+        created.update(kwargs)
+        return real_server(*args, **kwargs)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(server_module.grpc, "server", capture)
+    running = server_module.start(0)
+    running.stop(grace=None)
+    assert created["maximum_concurrent_rpcs"] == server_module.MAX_CONCURRENT_RPCS
+    assert server_module.MAX_CONCURRENT_RPCS >= server_module.MAX_WORKERS
 
 
 def test_start_refuses_when_reference_data_missing(monkeypatch: pytest.MonkeyPatch) -> None:

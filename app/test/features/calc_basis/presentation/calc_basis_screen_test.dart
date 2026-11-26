@@ -186,7 +186,7 @@ void main() {
 
       final text = _longitudeText(tester)!;
       // 원고(#214 표)와 계산이 함께 맞음을 문장 그대로 고정합니다.
-      expect(text, contains('서머타임 60분을 먼저 빼고, 동경 127.5° 기준으로 30분을 더 빼서'));
+      expect(text, contains('서머타임 60분을 먼저 빼고, 동경 127.5° 기준으로 30분을 빼서'));
       expect(
         text,
         _ko.calcBasisLongitudeBodyDstSubtract(
@@ -245,7 +245,10 @@ void main() {
           60,
         ),
       );
-      expect(calcBasisLongitudeText(en, basis), contains('60-minute'));
+      expect(
+        calcBasisLongitudeText(en, basis),
+        contains('subtract 60 minutes for daylight saving'),
+      );
 
       // DstAdd: 보정 분(4)과 서머타임 분(60)이 서로 다른 자리에 들어갑니다.
       const add = TimeBasis(

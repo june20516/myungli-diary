@@ -1,7 +1,7 @@
 {
   "hosting": {
     "target": "landing",
-    "public": "../../site/dist",
+    "public": "site/dist",
     "ignore": [
       "**/.*"
     ],

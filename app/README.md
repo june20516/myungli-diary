@@ -69,6 +69,7 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
     | 10 | Play 비공개 테스트 `alpha`(초안 출시, `tool/upload_play.sh … alpha draft`) | TestFlight | 분리 전 | staging | `45d6448c` | 2026-11-17 | T1 빌드. TestFlight 설치본의 업데이트 안내(#1258), 광고 제거권 사용 중 강조(V135), 구매 내역 상품 이름(server #1264), staging App Check debug token 교체 뒤 빌드. 업로드 키 지문, universal APK로 release 실행 확인(에뮬레이터, welcome 도착), IPA 권한(production 푸시, Apple 로그인), `CFBundleVersion` 10, `UIDeviceFamily` [1] 확인. 심볼과 dSYM 업로드. Play는 초안 앱이라 비공개 테스트 출시 시작은 콘솔에서 |
     | 11 | Play 비공개 테스트 `alpha`(`tool/upload_play.sh … alpha completed`, 바로 출시) | TestFlight | `app/build-11`(staging 끝 `af76fd2e` 위) | staging | `e2062d52` | 2026-11-24 | 길일 금빛, 유료 열림 자색(토큰 1.11.0, D142, V136, #1299), 열린 문장 반짝임 띠가 용어 칩 바탕을 칠하지 않게(A154). upload key 그대로(#1254). 업로드 키 지문, universal APK로 release 실행 확인(에뮬레이터, welcome 도착, 크래시 없음), IPA 권한(production 푸시, Apple 로그인), `CFBundleVersion` 11, `UIDeviceFamily` [1] 확인. 심볼과 dSYM 업로드. 비공개 테스트 출시를 시작한 뒤라 `alpha`에 `completed`가 받아들여짐. Q1 남은 항목은 다음 빌드 |
     | 12 | Play 내부 테스트 `internal`(`tool/upload_play.sh … internal completed`) | TestFlight | `main`(승격 `5e295688`, #1327) | prod | `5e295688` | 2026-11-25 | I3 prod 리허설 빌드(#1282, D139). 비공개 테스트 `alpha`(staging 설정)에는 올리지 않음. 업로드 키 지문, AAB와 IPA의 Dart 바이너리에 prod `API_BASE_URL`, universal APK로 release 실행 확인(에뮬레이터, welcome 도착, 크래시 없음), IPA 권한(production 푸시, Apple 로그인), `CFBundleVersion` 12, `UIDeviceFamily` [1] 확인. prod Crashlytics에 심볼과 dSYM 업로드 |
+    | 13 | Play 내부 테스트 `internal`(`tool/upload_play.sh … internal completed`) | TestFlight | `main`(승격 `180a0b04`, #1374) | prod | `180a0b04` | 2026-11-26 | #1345 확인용: 계정 전환 뒤 이전 계정 일기 캐시 비움, 실행마다 UMP 동의 정보 갱신과 배너 30초 시간 제한, 다시 시도(A156). 업로드 키 지문(debug 키 아님), AAB와 IPA의 Dart 바이너리에 prod `API_BASE_URL`, universal APK로 release 실행 확인(에뮬레이터, welcome 도착, 크래시 없음), IPA 권한(production 푸시, Apple 로그인), `CFBundleVersion` 13, `UIDeviceFamily` [1] 확인. prod Crashlytics에 심볼과 dSYM 업로드 |
 * **iOS TestFlight(A103):** 자동 서명, 팀 `7JGP3D7B3Z`, App Store Connect 앱 `6829967838`. 배포 인증서와 profile은 export 때 Xcode가 만듭니다(`-allowProvisioningUpdates`). export와 업로드는 App Store Connect API Admin 팀 키(로컬 값 K18)로 인증해, Xcode > Settings > Accounts 로그인에 기대지 않습니다(그 로그인은 까닭 없이 풀린 적이 두 번 있음, 2026-11-03과 11-17). 클라우드 배포 인증서는 Admin 키여야 받을 수 있습니다.
   ```
   flutter build ipa --release --dart-define-from-file=config/auth.json \
@@ -112,8 +113,13 @@ flutter run --dart-define-from-file=config/auth.json --dart-define=API_MODE=fake
 * **광고 시험(staging, D101, A106):** 광고 단위는 빌드 모드로(debug는 Google 테스트 단위, release는 실제 단위, A99), 모의 광고와 보상 경로는 환경 파일의 `STAGING_ADS`(staging `"true"`, prod `"false"`)로 고릅니다.
   * staging: AdMob을 먼저 불러오고, 광고를 받지 못하면(채울 광고 없음, 앱 검토 전) 같은 자리, 같은 크기의 모의 광고("모의 광고" 배너, 15초 전체 화면 보상형)를 보입니다. 보상형을 끝까지 보면 광고 출처와 상관없이 staging 전용 경로(`POST /test/v1/billing/rewarded-ad`, server S131)로 SSV와 같은 값을 보내고, 실제와 같은 `getEntitlements`로 권한을 다시 읽습니다. 테스트 광고와 검토 전 앱에는 SSV 콜백이 오지 않기 때문입니다(#741).
   * prod: AdMob만, 보상은 SSV 콜백만입니다. `STAGING_ADS`가 상수 false라 staging 분기는 prod 바이너리에서 빠집니다.
-  * 광고 불러오기 실패는 debug 콘솔에 `AdMob 불러오기 실패 <domain> <code>`로, staging에서는 Crashlytics 비치명 오류(`AdMobLoadFailure`, code `<domain>.<code>`)로 남습니다. Android 광고 없음은 3, iOS 광고 없음은 1입니다.
+  * 광고 불러오기 실패는 빌드와 상관없이 콘솔에 `AdMob 불러오기 실패 <domain> <code>`로 남고, Crashlytics 비치명 오류(`AdMobLoadFailure`, code `<domain>.<code>`)로도 남습니다. staging은 모든 실패를, prod는 광고 없음(Android 3, iOS 1)과 연결 오류(2)를 뺀 실패(응답 없음 `app.timeout.0` 포함)를 남깁니다(A156). 배너는 30초 안에 답이 없으면 실패로 보고 30초, 1분, 2분, 5분 간격으로 다시 시도합니다. UMP 동의 정보는 실행마다 처음 광고를 부르기 전에 한 번 갱신합니다(갱신하지 않은 실행에서 SDK가 광고 요청을 보내지 않았음, #1345).
   * **테스트 기기:** 실제 단위(release)로 실기기에서 광고를 누르면 계정 정지 사유가 되니 시험 기기는 AdMob에 등록합니다. AdMob 콘솔 **설정 → 테스트 기기 → 테스트 기기 추가**에서 플랫폼과 광고 식별자를 넣습니다(반영까지 보통 1시간, 길면 24시간). Android는 휴대폰 **설정 → Google → 광고**의 광고 ID, iOS는 IDFA입니다. iOS는 IDFA를 기본으로 보여 주지 않아 IDFA를 보여 주는 앱(App Store)이 필요하고, 앱 추적을 허용하지 않은 기기에서는 IDFA가 0으로 나올 수 있으니 그 앱의 추적을 허용합니다. iOS 시뮬레이터는 자동으로 테스트 기기입니다. 등록되면 광고에 "Test mode"(또는 "Test Ad") 표시가 붙습니다.
+  * **광고 디버깅 주의(#1387):**
+    * 휴대폰 설정의 "광고 디버그 로깅 사용"을 켜면 광고 ID가 달라질 수 있습니다(2026-11-26 관찰, Google 문서로는 확인하지 못함). 그러면 등록한 테스트 기기에서 빠져 실제 광고가 나옵니다. 켠 채로 실제 광고 단위를 볼 때는 그 ID도 테스트 기기로 등록하고, 끝나면 바로 끕니다. GMA SDK 로그는 이 토글 대신 `adb shell setprop log.tag.Ads VERBOSE`(UMP는 `log.tag.UserMessagingPlatform`)로 보고, 끝나면 되돌립니다.
+    * 패키지 이름을 바꾼 임시 빌드(`applicationIdSuffix` 등)는 실제 광고 단위를 쓰지 않습니다(debug 빌드처럼 Google 테스트 단위). 실제 단위를 썼다면 끝난 뒤 AdMob "확인할 앱"에서 그 앱을 막습니다.
+    * 내 기기에 나온 실제 광고는 누르거나 반복해 불러오지 않습니다(무효 트래픽).
+    * 코드에 테스트 기기 ID(`RequestConfiguration.testDeviceIds`)를 넣지 않습니다. 기기 식별자를 공개 저장소에 둬야 하고, 필요한 경우는 debug의 테스트 단위, staging의 모의 광고 대체, 콘솔 테스트 기기 등록으로 이미 덮입니다. 테스트 단위로 바꾸면 보상형 SSV 콜백이 오지 않는 점(#741)도 그대로입니다.
 * **시나리오:** fake 모드의 시작 상태입니다. `SCENARIO`를 생략하면 `new-user`입니다.
 
   | id | 상태 |
@@ -262,7 +268,7 @@ uv run --with jsonschema --with pyyaml --with referencing --with rfc3339-validat
 
 * **갱신(로컬):** `tool/goldens_linux.sh`. Docker(linux/amd64)에서 기준 이미지를 만들어 `test/goldens/`에 되돌려 놓습니다. 반복 중에는 바꾼 golden 테스트 파일만 줍니다(`tool/goldens_linux.sh test/design/saju_golden_test.dart`). 이때는 다른 기준 이미지를 지우지 않으므로, golden을 지운 변경은 대상 없이 전체로 돌립니다.
 * **갱신(CI):** Actions에서 `app` workflow를 수동 실행하고(`workflow_dispatch`) `update_goldens`를 켭니다. `update-goldens` job이 `goldens` artifact로 올리면 받아서 `test/goldens/`에 덮어 commit합니다.
-* **Flutter 버전:** CI와 golden이 쓰는 버전은 `tool/golden_flutter_version` 한 곳(현재 3.47.7)에서 정합니다. `goldens_linux.sh`와 CI의 `checks`, `e2e-android`, `goldens`, `update-goldens` job이 모두 이 값을 읽습니다(A144). stable 최신을 받으면 SDK에 묶인 패키지가 바뀌어 `pubspec.lock` 생성 코드 차이 검사가 깨지기 때문입니다. Flutter를 올릴 때는 이 값과 로컬 Flutter를 함께 올리고, 같은 PR에서 `pubspec.lock`과 golden을 다시 만듭니다.
+* **Flutter 버전:** CI와 golden이 쓰는 버전은 `tool/golden_flutter_version` 한 곳(현재 3.47.7)에서 정합니다. `goldens_linux.sh`와 CI의 `checks`, `tests`, `e2e-android`, `goldens`, `update-goldens` job이 모두 이 값을 읽습니다(A144). stable 최신을 받으면 SDK에 묶인 패키지가 바뀌어 `pubspec.lock` 생성 코드 차이 검사가 깨지기 때문입니다. Flutter를 올릴 때는 이 값과 로컬 Flutter를 함께 올리고, 같은 PR에서 `pubspec.lock`과 golden을 다시 만듭니다.
 
 ### 화면 스크린샷 (#336)
 화면별·상태별 스크린샷을 golden과 같은 Linux 렌더(Docker)로 그려 `docs/artifacts/`에 등록합니다. 제품 지도가 `index.json`의 `screens`로 화면 카드 그림을 고릅니다.
@@ -329,7 +335,8 @@ tool/patrol_staging.sh patrol_test/diary_test.dart   # 흐름 하나
 ## CI (`.github/workflows/app.yml`)
 | job | 언제 | 하는 일 |
 | --- | --- | --- |
-| `checks` | `ci-gate` 호출(PR, `staging`과 `main` push), 수동 | `own`: format, 생성 코드 차이, ARB 검사(`mlw check-arb`), fixture 검증, analyze, 커버리지 ratchet, Widgetbook analyze·테스트, 테스트(golden 제외), Android debug 빌드(NDK·CMake 캐시). `drift`·`gate`: 생성 코드 차이, ARB 검사, fixture 검증, 커버리지 ratchet, `contract` 태그 테스트만 |
+| `checks` | `ci-gate` 호출(PR, `staging`과 `main` push), 수동 | `own`: format, 생성 코드 차이, ARB 검사(`mlw check-arb`), fixture 검증, analyze, 커버리지 ratchet, Widgetbook analyze·테스트, Android debug 빌드(NDK·CMake 캐시). `drift`·`gate`: 생성 코드 차이, ARB 검사, fixture 검증, 커버리지 ratchet, `contract` 태그 테스트만 |
+| `tests` | `ci-gate` 호출 중 `own`, 수동 | 테스트(golden 제외)를 `--total-shards 3`으로 나눠 job 3개가 동시에 돕니다. 한 job에서 13분쯤 걸려 `checks`가 시간 상한 30분에 가까워졌기 때문입니다(2026-11-26) |
 | `goldens` | `ci-gate` 호출 중 `own`, 수동 | `golden_flutter_version`의 Flutter로 golden 비교 |
 | `update-goldens` | 수동(`update_goldens`) | golden을 Linux에서 다시 만들어 artifact로 올림 |
 | `e2e-android` | `staging` push, 매일 03:00 KST, 수동 | Android 에뮬레이터에서 Patrol 실행, 스크린샷 artifact. PR에서는 돌지 않고 `ci-gate` 판정에도 넣지 않습니다 |

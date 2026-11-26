@@ -45,6 +45,26 @@ for (const lang of LANGS) {
   });
 }
 
+test("파비콘과 홈 화면 아이콘 링크가 열리고, 아이콘 요청에 404가 없음", async ({ page, request }) => {
+  const missing: string[] = [];
+  page.on("response", (response) => {
+    if (response.status() >= 400) missing.push(response.url());
+  });
+  await page.goto("/ko/");
+  for (const [selector, contentType] of [
+    ['link[rel="icon"][href="/favicon.ico"]', "image/"],
+    ['link[rel="icon"][type="image/png"]', "image/png"],
+    ['link[rel="apple-touch-icon"]', "image/png"],
+  ] as const) {
+    const href = await page.locator(selector).getAttribute("href");
+    expect(href, selector).not.toBeNull();
+    const response = await request.get(href ?? "");
+    expect(response.status(), href ?? "").toBe(200);
+    expect(response.headers()["content-type"]).toContain(contentType);
+  }
+  expect(missing).toEqual([]);
+});
+
 test("/app-ads.txt는 리다이렉트 없이 text/plain 200", async ({ request }) => {
   const response = await request.get("/app-ads.txt", { maxRedirects: 0 });
   expect(response.status()).toBe(200);

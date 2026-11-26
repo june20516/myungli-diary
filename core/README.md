@@ -47,9 +47,9 @@ KASI 골든은 저장된 fixture(`tests/golden/fixtures/`)만 읽고 네트워�
 property 테스트(`tests/properties/`)는 기본으로 `quick` profile(예제 50개)이고, 정기 실행은 `full`(300개)입니다(`tests/properties/conftest.py`).
 
 CI(`.github/workflows/core.yml`)는 PR과 main push에서 ci-gate가 부릅니다(D81, `docs/workflow.md` §6.2).
-* `mode: own`(core 코드를 바꿈): lint·mypy·기본 테스트, 이미지 검사, proto 검사, 그리고 바뀐 경로에 맞는 slow 묶음. 묶음별 경로는 `tools/slow_scope.py`에 있고, 묶음이 실제로 import하는 엔진 패키지와 맞는지 `tests/unit/test_slow_scope.py`가 검사합니다.
+* `mode: own`(core 코드를 바꿈): lint·mypy·기본 테스트, 이미지 검사, proto 검사, 그리고 바뀐 경로에 맞는 slow 묶음. `Dockerfile`, `pyproject.toml`, `uv.lock`이 바뀌면 이미지 취약점 스캔(`core-image-scan`, Grype, 고친 판이 있는 High 이상이면 실패, C46)도 돕니다. 묶음별 경로는 `tools/slow_scope.py`에 있고, 묶음이 실제로 import하는 엔진 패키지와 맞는지 `tests/unit/test_slow_scope.py`가 검사합니다.
 * `mode: gate`(`ci-gate.yml`만 바뀜): 계약 검사만(`pytest -m contract`, proto 검사).
-* 매주 한 번(schedule)과 수동 실행: slow 테스트 전체와 property 테스트 전체 예제 수.
+* 매주 한 번(schedule)과 수동 실행: slow 테스트 전체, property 테스트 전체 예제 수, 이미지 취약점 스캔.
 * PR의 비교 기준은 merge ref의 first parent(검사 시점의 main)입니다. buf breaking 비교도 같은 커밋과 비교합니다.
 
 ## proto 코드 생성
@@ -133,3 +133,14 @@ uv run python tools/fetch_kasi.py --years 2000-2028
    ```
 4. [`docs/contracts/README.md`](../docs/contracts/README.md)의 "엔진 버전 표기" 행에서 버전 값을 같은 PR에서 고칩니다(`docs/workflow.md` §5.1). `engine_version`을 올릴 때도 같습니다.
 5. 서버가 일기 태그와 캐시에 `ruleset_version`을 쓰므로(D31), 값이 바뀌었음을 GitHub Issue로 알립니다. 라벨은 `from:core`·`to:server`이고, server가 대응해야 하면(하위 호환을 깨는 변경 등) `kind:request`, 알리기만 하면 `kind:notice`입니다(D78 ①).
+
+## engine 버전
+
+엔진 응답 표면(gRPC 메시지 정의, `message_keys.json`, `message_params.json`, `evidence_rules.json`)이 바뀌면 `engine_version`을 올립니다(spec §12, D147 ③, C45). 배포된 엔진끼리 `GetInfo`로 구별되게 하기 위해서입니다. proto 주석이나 JSON 서식만 바뀐 변경은 해당하지 않습니다.
+
+1. `pyproject.toml`의 `version`을 올리고(1.0 전에는 MINOR) `uv lock`을 돌립니다.
+2. 표면 해시 기록을 갱신합니다. 표면이 바뀌었는데 버전이 그대로면 갱신이 거부되고, 기록과 어긋난 채면 `pytest -m contract`가 실패합니다.
+   ```bash
+   UPDATE_ENGINE_SURFACE_HASH=1 uv run pytest tests/unit/test_engine_version.py
+   ```
+3. 계약 표 "엔진 버전 표기" 행과 CHANGELOG를 같은 PR에서 고칩니다(위 4번과 같음).

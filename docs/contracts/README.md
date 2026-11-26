@@ -9,7 +9,7 @@
 | 엔진 gRPC API | `proto/myungli/engine/v1/engine.proto` | core | server, writing (검사기 생성 코드, #144) | v1 | **구현 완료** | 엔진 spec §9, D41 |
 | 메시지 키 목록 | `core/message_keys.json` | core | server (콘텐츠 시드 검사), writing (W1 콘텐츠 작성) | - | **구현 완료** | 엔진 spec §10 |
 | 근거 참조 형식 (`source_ref`) | 엔진 spec §11 | core | server, app (`evidence` 단계) | - | **구현 완료** | 엔진 spec §11 |
-| 엔진 버전 표기 (`engine_version`, `ruleset_version`) | 엔진 spec §12 | core | server (일기 태그 기록, 캐시 키) | ruleset `2026.11.9`, engine `0.1.0` | **구현 완료** | 엔진 spec §12, D31 |
+| 엔진 버전 표기 (`engine_version`, `ruleset_version`) | 엔진 spec §12 | core | server (일기 태그 기록, 캐시 키) | ruleset `2026.11.9`, engine `0.2.0` | **구현 완료** | 엔진 spec §12, D31 |
 | REST API (앱 ↔ 서버) | `server/api/openapi.yaml` (OpenAPI 3.1, 규칙은 `info.description`) | server | app | 1.13.3 | **freeze** | server spec `server/docs/specs/2026-10-11-server-mvp-design.md`, D26·D59·D60, Issue #63 |
 | 디자인 토큰 (색·오행 팔레트·타이포·간격·반경·그라데이션·모션·그림자) | `docs/identity/design/tokens/` (읽는 문서 `tokens/README.md`) | design | app, web (WB1) | 1.11.0 | **freeze** | 브랜드 기반 spec §9, design 결정 V1~V13·V42·V57·V58·V67·V74·V84·V86·V93·V98·V102·V111·V115·V121·V136, V1 spec, 같은 날 여러 편 spec, DS1 규칙 spec, DS1 화면 spec |
 | 컴포넌트 명세 | `docs/identity/design/components/` (읽는 문서 `components/README.md`, 파일마다 JSON 사실 + MD 설명) | design | app | 9.1.0 | **확정** | V2 spec, 근거 잠금 spec, design 결정 V13~V138, 구현 대응 spec, 로그인 수단·계정 합치기 spec, 같은 날 여러 편 spec, 계정 합치기·구매 내역 spec, 십성 라벨·피드백 spec, W51 상한·시간 칩 spec, 문의 화면 spec, DS1 규칙 spec, DS1 화면 spec |
@@ -27,7 +27,9 @@
 | 법적 문서 원문 (이용약관·개인정보 처리방침) | `docs/legal/<언어>/{terms,privacy}.md` (읽는 문서 `docs/legal/README.md`) | 지휘 | server (`/legal/*` 정적 페이지), app (`getAppConfig`의 주소로 엶) | - | **원문 있음** (시행일은 출시 때 적음. 원문이 바뀌면 `ci-gate` server drift로 알림, #341) | D80, D64, D74 |
 | 글자 수 상한 표 | `docs/identity/design/lengths.md` | design | writing (슬롯 `max_length` 대조 테스트) | - | **사용 중** | design `lengths.md`, writing W26 |
 | 스토어 이미지 명세 (장면, 틀, 스크린샷 글 상한, Play 그래픽) | `docs/identity/design/store/store.json` (읽는 문서 `store/README.md`) | design | app (스토어 이미지 생성, #1203), writing (스크린샷 위 글 상한, #1201) | 1.0.0 | **확정** | store 스크린샷 spec, D133, design 결정 V133 |
+| 로고와 앱 아이콘 원본 (워드마크, 록업, 앱 아이콘 PNG, Android 적응형 아이콘 층) | `docs/identity/design/logo/` (명세 `app-icon.json`) | design | app (`tool/gen_app_icons.dart`), web (워드마크, 파비콘과 홈 화면 아이콘) | - | **확정** | design 결정 V7, V99 |
 | 웹 화면 명세와 화면 사진 (랜딩) | `docs/identity/design/web/` (읽는 문서 `web/README.md`, 사진 `web/landing/shots/`) | design | web (WB1 #1331) | - | **확정** | design 결정 V137, D144 |
+| 앱 화면 문구 생성물 (ui ARB) | `docs/identity/writing/generated/arb/app_<언어>.arb` (원고 `content/<언어>/ui.yaml`, 슬롯 `slots/ui/`) | writing | app (`tool/import_writing_arb.dart`로 `lib/core/l10n/arb/`에 합침, #128) | - | **사용 중** (원고가 바뀌면 app drift) | writing 결정 W1~, IA `screens.json` |
 | 스토어 등록정보 문구 (앱 이름, 부제, 설명, 키워드, 스크린샷 위 글) | `docs/identity/writing/generated/store/listing.json` (원고 `content/<언어>/store.yaml`, 슬롯 `slots/store/`) | writing | app (스크린샷 위 글, #1203), 지휘 (콘솔 업로드), web (랜딩 앱 이름, WB1 #1342) | - | **사용 중** | writing 결정 W80, 라운드 R49, D133 |
 | 웹 페이지 문구 (랜딩) | `docs/identity/writing/generated/web/<언어>.json` (슬롯 → 키 → 글, 원고 `content/<언어>/web.yaml`, 슬롯 `slots/web/`) | writing | web (WB1 랜딩, #1329) | 1.1.0 | **초안** (404 페이지 en, ja는 원어민 검수 전) | writing 결정 W83, IA `site.json`, D146 |
 

@@ -1210,6 +1210,14 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 3));
     });
 
+    testWidgets('문의 번호는 두 줄까지입니다(design V138, #1362)', (tester) async {
+      await tester.pumpWidget(
+        _app(ErrorState(error: _problem, onRetry: () {})),
+      );
+      final label = tester.widget<Text>(find.text('문의 번호 trace-abc'));
+      expect(label.maxLines, 2);
+    });
+
     testWidgets('traceId가 비어 있으면 문의 번호를 보이지 않습니다', (tester) async {
       await tester.pumpWidget(
         _app(
