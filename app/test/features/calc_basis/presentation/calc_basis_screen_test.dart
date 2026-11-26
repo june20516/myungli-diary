@@ -245,7 +245,10 @@ void main() {
           60,
         ),
       );
-      expect(calcBasisLongitudeText(en, basis), contains('subtract 60 minutes for daylight saving'));
+      expect(
+        calcBasisLongitudeText(en, basis),
+        contains('subtract 60 minutes for daylight saving'),
+      );
 
       // DstAdd: 보정 분(4)과 서머타임 분(60)이 서로 다른 자리에 들어갑니다.
       const add = TimeBasis(
