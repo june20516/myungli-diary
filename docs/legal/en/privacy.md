@@ -10,10 +10,10 @@ The Company processes personal information only for the purposes below. If a pur
 
 1. **Sign-up and account management:** confirming the intent to sign up, identifying the user, keeping the user signed in, linking multiple sign-in methods and merging accounts, and processing account deletion
 2. **Providing the Service:** calculating the user's saju (Four Pillars) and the fortune of each day, saving diary entries and schedules, providing today's question and sentences, and sending morning notifications
-3. **Providing paid services:** verifying ad-free pass purchases, managing the period of use, and handling purchase restoration and refunds
+3. **Providing paid services:** verifying ad-free pass purchases, managing the period of use, handling purchase restoration and refunds, and resolving payment errors
 4. **Advertising:** showing ads to free users, and unlocking the basis view in return for watching a rewarded ad
 5. **Responding to inquiries:** reviewing inquiries, replying, and keeping records of handling
-6. **Service stability and abuse prevention:** analyzing the causes of crashes, managing request limits, preventing repeated use of the first reading and fraudulent receipt of rewards, and responding to security incidents
+6. **Service stability and abuse prevention:** analyzing the causes of crashes, managing request limits, preventing repeated use of the first reading and fraudulent receipt of rewards, responding to security incidents, responding to service outages and data incidents, checking and acting on violations of the Terms of Service and operating policies, and responding to requests under applicable law
 
 ## 2. Personal Information Processed
 
@@ -64,6 +64,7 @@ The Company destroys personal information as soon as its purpose has been achiev
 | First reading installation id (transformed value) | 1 year |
 | Rewarded ad viewing records | 1 year (regardless of account deletion, to prevent fraudulent receipt) |
 | Inquiry emails | 3 years after handling is complete |
+| Operator handling records (account id, what was handled and when) | 2 years (regardless of account deletion) |
 | Server backups | 7 days (destroyed information also remains in backup copies for this period before being erased) |
 
 **Information kept as required by law**
@@ -138,6 +139,7 @@ The Company takes the following measures to keep personal information secure.
 
 * All communication between the app and the servers is encrypted (HTTPS), and databases and backups are stored in encrypted form.
 * The service program has only permission to read and write data; changes to the database structure and operational settings can be made only with separately held permissions. Changes to operational settings are logged.
+* Under an internal management plan, the people and permissions that can access personal information are kept to a minimum, and records of access are kept.
 * Identifiers that do not need to be kept for long, such as IP addresses and installation ids, are stored as values that cannot be restored.
 * Server request records keep only the path format of each request, not its content, and crash reports do not include diary text, saju information, or name.
 
