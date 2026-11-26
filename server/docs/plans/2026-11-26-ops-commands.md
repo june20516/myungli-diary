@@ -214,7 +214,7 @@
 
 **Interfaces:**
 - Produces:
-  * `type ContentTarget struct { AccountID uuid.UUID; Date *civil.Date 또는 기존 날짜 타입; ID *uuid.UUID }` (Date와 ID 중 정확히 하나, 아니면 `ErrContentTarget`). 날짜 타입은 `internal/diary`가 쓰는 것과 같은 것을 씁니다.
+  * `type ContentTarget struct { AccountID uuid.UUID; Date *profile.LocalDate; ID *uuid.UUID }` (Date와 ID 중 정확히 하나, 아니면 `ErrContentTarget`, `internal/diary`와 같은 날짜 타입)
   * `type ViewRequest struct { Target ContentTarget; Purpose Purpose; Reason string }`
   * `func (s *Service) ViewDiary(ctx context.Context, actor Actor, req ViewRequest) (DiaryView, error)`; `DiaryView{Entries []DiaryEntry; DeletedCount int; Tags []string}`, `DiaryEntry{ID uuid.UUID; Date profile.LocalDate; Body string; CreatedAt, UpdatedAt time.Time}`
   * `func (s *Service) ViewSchedule(ctx, actor, req ViewRequest) (ScheduleView, error)`; `ScheduleView{Entries []ScheduleEntry; DeletedCount int}`, `ScheduleEntry{ID uuid.UUID; Date profile.LocalDate; AllDay bool; Time *string; Title string; Memo *string}`
