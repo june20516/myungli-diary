@@ -4,8 +4,8 @@
 
 | 경로 | 내용 |
 | --- | --- |
-| `firebase/firebase.json` | Hosting 설정(사이트 target `landing`, `app-ads.txt` 헤더, 캐시), 로컬 에뮬레이터 포트 |
-| `firebase/.firebaserc` | 프로젝트별 target → 사이트 id |
+| `../firebase.json` (`web/`) | Hosting 설정(사이트 target `landing`, `app-ads.txt` 헤더, 캐시, 언어별 404), 로컬 에뮬레이터 포트. Firebase 프로젝트 폴더가 `web/`이고 `public`(`site/dist`)은 그 안이어야 합니다. 밖이면 에뮬레이터는 받아도 `firebase deploy`가 거절합니다(#1379, `site/test/hosting.test.ts`가 미리 잡음) |
+| `../.firebaserc` (`web/`) | 프로젝트별 target → 사이트 id |
 | `terraform/` | 사이트, 커스텀 도메인, 배포 계정 `web-deployer`, WIF 연결. 사용자가 로컬에서 apply합니다 |
 | `.github/workflows/deploy-web.yml` | staging push는 staging, main(승격)은 prod 배포 |
 
@@ -52,4 +52,4 @@ server bootstrap(`server/deploy/terraform/README.md`)을 이미 apply한 두 프
 
 ## 로컬에서 보기
 
-`web/`에서 `pnpm e2e`가 빌드 뒤 Hosting 에뮬레이터(포트 47291)로 Playwright를 돌립니다. 눈으로 보려면 빌드한 뒤 `cd deploy/firebase && pnpm exec firebase emulators:start --only hosting --project demo-myungli-web`.
+`web/`에서 `pnpm e2e`가 빌드 뒤 Hosting 에뮬레이터(포트 47291)로 Playwright를 돌립니다. 눈으로 보려면 빌드한 뒤 `web/`에서 `pnpm exec firebase emulators:start --only hosting --project demo-myungli-web`.
