@@ -30,6 +30,8 @@
 
 ## 컴포넌트 명세
 
+**9.1.0:** (2026-11-26, #1362, V138, 추가와 값) `error-state` 부품 `traceId`(문의 번호: `type.caption.md` 가운데, 두 줄까지, 이름 뒤 띄어쓰기에서만 줄바꿈, 번호는 끊거나 줄이지 않음, 길게 눌러 복사). `account-choice` `saju`에 `dateFormat`(기기 locale 짧은 서식 `yMd`, 긴 서식 `yMMMMd` 쓰지 않음)과 `lines` 1. 토큰 계약 1.11.0 이상을 기대. IA 컴포넌트 56개, 상호작용 패턴 15개, 요소 21개.
+
 **9.0.1:** (2026-11-23, #1294, V136, 문구만) 길흉 톤 좋음과 귀인 설명을 coral에서 gold로, 반짝임 `unlock.glint` 띠를 "금빛 띠"에서 열림 그라데이션(세이지 → 자색 → 산호)으로 고침. 이름, 구성, 토큰 참조는 그대로. 토큰 계약 1.11.0 이상을 기대. IA 컴포넌트 56개, 상호작용 패턴 15개, 요소 21개.
 
 **9.0.0:** (2026-11-17, #1266, V135, 하위 호환이 깨짐) 광고 제거권 사용 중 강조와 자동 결제 없음 강조. `offer-card` 부품 `period`, `status`, `remaining`을 지우고 `terms`(가격 아래 확인 두 줄: 기간 `ad-free.offer.period`, 자동 결제 없음 IA 밖 `ui.ad-free.renewal`)와 `owned`(이용 중 표시, `unlock.mark` 모양: 사용 중 글자 `gradient.unlocked`, 끝나는 날 `type.title`, 혜택 한 줄 IA 밖 `ui.ad-free.benefit`)를 더함. `active`는 가격과 확인 두 줄을 그리지 않고, 이 화면에서 산 직후만 head에 `unlock.glint` 한 번(`justPurchased`, 반복 없음, 동작 줄이기면 없음). `purchase-row` 사용 중은 채운 sage 알약 + `seal-check` Fill(전에는 `tag.status`), 구분선은 카드 좌우 안쪽 16 안에서 더 들이지 않아 글자 폭과 같음(`insetX` 0). IA 컴포넌트 56개, 상호작용 패턴 15개, 요소 21개.
@@ -95,6 +97,8 @@
 **2026-11-14까지 이력:** **사용 중** (design 측정 근거는 R1~R8 고정, PR #261)
 
 ## 글자 수 상한 표
+
+**2026-11-26:** (#1362, V138) 숫자와 app 값이 든 줄을 실측 상한으로: `ui.account-merge.saju` ko 23 → 28, ja 18 → 22, `ui.purchase.meta` ko 26 → 27, 키별 상한 ja `ui.app.trace` `traceIdLabel` 41.
 
 **2026-11-14까지 이력:** **사용 중** (W26, #191)
 

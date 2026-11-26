@@ -34,7 +34,7 @@
 ## 현재 상태
 진행 중인 일만 적고, 병합하면 지웁니다(`docs/workflow.md` §3 마무리 2번). 병합된 일의 경과는 PR 본문, 결정 행([`decisions.md`](decisions.md)), git에 있습니다.
 
-* **WB1 랜딩 A안 #1330** (브랜치 `design/landing-1330`, PR #1356, D105, 결정 V137): 사용자가 A안 "오늘의 바탕"을 고름. 구현 명세 `web/README.md`, 화면 사진 `web/landing/shots/`(도구 `tools/landing_shots.py`). 병합 대기.
+* **숫자와 app 값이 든 줄의 상한 #1362** (브랜치 `design/limits-1362`, 결정 V138, 컴포넌트 9.1.0): 사주 줄, 구매 기간, 문의 번호를 실측 상한으로. 병합 대기.
 
 ## 기준 문서와 도구
 * 시각 정체성: [`visual-identity.md`](visual-identity.md)(시각에 관해서는 비공개 기록 06을 대체). 색 값의 출처는 [`tools/palette.py`](tools/palette.py)(`--check`로 대비 검사).
@@ -57,11 +57,10 @@
 * 워드마크를 바꾸면 `uv run --with fonttools==4.54.1 python docs/identity/design/tools/wordmark.py --font .suberpowers/fonts/GowunDodum-Regular.ttf --out-dir docs/identity/design/logo` 뒤 위 `app_icon.py`로 가로 조합 PNG를 다시 만듭니다.
 
 ## 다음 할 일
-1. **#1356 병합 뒤:** "현재 상태"에서 지웁니다. web이 `web/README.md`로 구현하다 막히면 `to:design` Issue로 받습니다.
-   * app이 스토어 이미지를 다시 만들면 `tools/landing_shots.py`로 랜딩 화면 사진도 다시 만듭니다.
+1. **#1362 병합 뒤:** "현재 상태"에서 지웁니다. writing은 슬롯 상한과 `key_max_length`를, app은 사주 줄 날짜를 짧은 서식으로 맞춥니다(#1362에 알림).
 
 그 밖에는 대기합니다. 아래 일이 생기면 엽니다.
 2. **app 대응 지원:** app이 명세로 만들 수 없는 곳이나 저사양 Android 성능 결과를 `to:design` Issue로 보내면 컴포넌트 계약 버전 규칙대로 고칩니다.
 3. W1 원어민 검수 문장이 나오면 일본어 줄 간격(1.75 / 1.7)을 다시 확인합니다.
 4. app이 토큰 형식 변경을 요청하면 계약 버전 규칙(`tokens/README.md`)대로 대응합니다.
-5. app이 스토어 이미지를 다시 만들면 명세(`store/`)대로인지 봅니다: 장면 순서, 틀 수치, 글 넘침, 근거 장면 한자.
+5. app이 스토어 이미지를 다시 만들면 명세(`store/`)대로인지 봅니다: 장면 순서, 틀 수치, 글 넘침, 근거 장면 한자. 랜딩 화면 사진도 `tools/landing_shots.py`로 다시 만듭니다. web이 `web/README.md`로 구현하다 막히면 `to:design` Issue로 받습니다.

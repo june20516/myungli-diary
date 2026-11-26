@@ -12,7 +12,7 @@
 | 엔진 버전 표기 (`engine_version`, `ruleset_version`) | 엔진 spec §12 | core | server (일기 태그 기록, 캐시 키) | ruleset `2026.11.9`, engine `0.1.0` | **구현 완료** | 엔진 spec §12, D31 |
 | REST API (앱 ↔ 서버) | `server/api/openapi.yaml` (OpenAPI 3.1, 규칙은 `info.description`) | server | app | 1.13.3 | **freeze** | server spec `server/docs/specs/2026-10-11-server-mvp-design.md`, D26·D59·D60, Issue #63 |
 | 디자인 토큰 (색·오행 팔레트·타이포·간격·반경·그라데이션·모션·그림자) | `docs/identity/design/tokens/` (읽는 문서 `tokens/README.md`) | design | app, web (WB1) | 1.11.0 | **freeze** | 브랜드 기반 spec §9, design 결정 V1~V13·V42·V57·V58·V67·V74·V84·V86·V93·V98·V102·V111·V115·V121·V136, V1 spec, 같은 날 여러 편 spec, DS1 규칙 spec, DS1 화면 spec |
-| 컴포넌트 명세 | `docs/identity/design/components/` (읽는 문서 `components/README.md`, 파일마다 JSON 사실 + MD 설명) | design | app | 9.0.1 | **확정** | V2 spec, 근거 잠금 spec, design 결정 V13~V136, 구현 대응 spec, 로그인 수단·계정 합치기 spec, 같은 날 여러 편 spec, 계정 합치기·구매 내역 spec, 십성 라벨·피드백 spec, W51 상한·시간 칩 spec, 문의 화면 spec, DS1 규칙 spec, DS1 화면 spec |
+| 컴포넌트 명세 | `docs/identity/design/components/` (읽는 문서 `components/README.md`, 파일마다 JSON 사실 + MD 설명) | design | app | 9.1.0 | **확정** | V2 spec, 근거 잠금 spec, design 결정 V13~V138, 구현 대응 spec, 로그인 수단·계정 합치기 spec, 같은 날 여러 편 spec, 계정 합치기·구매 내역 spec, 십성 라벨·피드백 spec, W51 상한·시간 칩 spec, 문의 화면 spec, DS1 규칙 spec, DS1 화면 spec |
 | 브랜드 기반 | `docs/identity/README.md` | 지휘 | writing, design | - | 확정 (B0) | 브랜드 기반 spec, D38 |
 | MVP 화면 목록 (IA) | `docs/ia/screens.json` (읽는 문서 `docs/ia/README.md`) | 지휘 | app, writing, design, server | 5 | **확정** | IA spec, D39·D51·D53·D58·D60·D62·D66·D67·D68·D71·D77, app A6 |
 | 웹 화면 목록 (IA, 랜딩과 social) | `docs/ia/site.json` (읽는 문서 `docs/ia/README.md` "표면별 IA 파일") | 지휘 | web, writing | 1 | **초안** (WB1 `web-landing`) | D144, D146, WB1 준비 메모 |

@@ -59,12 +59,12 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | `account-merge.choice.label` | account-choice 묶음 이름 (본문 폭) | 320px | 1 | - | 31 | **31** | **25** | **58** |
 | `account-merge.overlap.notice` | account-merge 겹치는 날 안내 (아이콘 16 + 간격 8) | 296px | 2 | - | 58 | **58** | **42** | **100** |
 | `ui.account-merge.choice` | account-choice 현재·가져올 계정 알약 (카드 안 256의 절반, 좌우 8 + 테두리 1) | 110px | 1 | - | 11 | **11** | **9** | **19** |
-| `ui.account-merge.saju` | account-choice 사주 요약 (카드 안 폭, 고름 표시 22 + 간격 10) | 256px | 1 | - | 23 | **23** | **18** | **43** |
+| `ui.account-merge.saju` | account-choice 사주 요약 (카드 안 폭, 고름 표시 22 + 간격 10) | 256px | 1 | - | 23 | **28** | **22** | **43** |
 | `account-merge.auth.body` | account-merge 인증 단계 안내 (본문 폭) | 320px | 3 | - | 90 | **90** | **63** | **150** |
 | `ui.account-merge.summary` | account-merge 가져올 기록·구매 상자 줄 이름 (상자 안쪽 16, 값 자리 56) | 232px | 1 | - | 19 | **19** | **15** | **35** |
 | `purchase-history.missing.notice` | purchase-history 문의 안내 (본문 폭, 좌우 4) | 312px | 2 | - | 62 | **62** | **46** | **106** |
 | `ui.purchase.status` | purchase-row 상태 낱말 (바탕 없는 글자, 최대 100) | 100px | 1 | - | 9 | **9** | **6** | **14** |
-| `ui.purchase.meta` | purchase-row 구매일 줄, 사용 기간 줄 (키마다 한 줄, 카드 안쪽 16) | 288px | 1 | - | 26 | **26** | **21** | **48** |
+| `ui.purchase.meta` | purchase-row 구매일 줄, 사용 기간 줄 (키마다 한 줄, 카드 안쪽 16) | 288px | 1 | - | 26 | **27** | **21** | **48** |
 | `ad-free.buy.cta`<br>`ad-free.history.cta` | offer-card 안 primary-button (카드 안쪽 20, 버튼 좌우 20) | 240px | 1 | - | 20 | **20** | **16** | **35** |
 | `ad-free.offer.period` | offer-card 확인 첫 줄 기간 (카드 안쪽 20, check 16 + 간격 8, type.body.ui) | 256px | 1 | - | 21 | **21** | **17** | **39** |
 | `ui.ad-free.renewal` | offer-card 확인 둘째 줄 자동 결제 없음 (카드 안쪽 20, check 16 + 간격 8, type.body.ui, 두 줄) | 256px | 2 | - | 48 | **48** | **34** | **78** |
@@ -104,6 +104,7 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
 | ja | `ui.login.provider` | `loginKakaoLabel` | **34** | en 상한을 씀: ja 원고가 영문(카카오 가이드에 일본어 문구 없음, #143). 실측 106px로 칸 232px에 들어감 |
 | en | `ui.saju.header` | `manseRowHiddenStems` | **12** | 실측: 낱말마다 행 머리 44px 한 줄(Hidden 37.8px, stems 32.1px)이라 두 줄 안, 결정 V53 |
 | ja | `contact.email.field` | `contactEmailFieldHint` | **16** | 실측: ja 원고도 라틴 주소 예시 name@example.com. 실측 158.6px로 칸 260px 한 줄 안, 결정 V55 |
+| ja | `ui.app.trace` | `traceIdLabel` | **41** | 실측: 이름과 32자리 번호. 이름 88.1px, 번호 231.9px(가장 넓은 hex 4)가 각각 272px 한 줄이라 두 줄 안, 결정 V138 |
 | ko | `ui.purchase.status` | `purchaseStatusActive` | **5** | 따로 잼: purchase-row 사용 중 채운 알약 (최대 100, 좌우 8, 아이콘 16 + 간격 4, 600) |
 | ja | `ui.purchase.status` | `purchaseStatusActive` | **3** | 따로 잼: purchase-row 사용 중 채운 알약 (최대 100, 좌우 8, 아이콘 16 + 간격 4, 600) |
 | en | `ui.purchase.status` | `purchaseStatusActive` | **8** | 따로 잼: purchase-row 사용 중 채운 알약 (최대 100, 좌우 8, 아이콘 16 + 간격 4, 600) |
@@ -208,6 +209,10 @@ writing 슬롯 명세의 `max_length`에 넣을 값입니다(Issue #54, #131). �
   * D130 오행 관계 문장(2026-11-13, #1154, writing W78, 라운드 R48): `daily.color_relation`, `daily.direction_relation`, `daily.number_relation`은 바탕 오행과 다른 오행을 고른 날 `daily.color` 등과 같은 본문 자리(`today.lucky-color.body` 등)를 바꿔 쓰는 문장이라 칸은 같고 줄 수만 네 줄로 잽니다. 子, 妻, 鬼 색 문장이 두 문장이기 때문입니다. 문장 칸은 자르지 않고 시트가 늘어나므로 컴포넌트 명세는 그대로입니다.
     * 지금 원고를 writing 검사기와 같은 가장 긴 값(숫자는 두 자리)으로 채워 칸에 줄바꿈하면 가장 긴 문장이 ko 3줄(62자), ja 3줄(51자), en 4줄(156자)입니다. 방위와 숫자 관계 문장은 ko, ja 2줄, en 숫자 3줄입니다.
     * ko 92, ja 76은 네 줄 계산값입니다. en은 추정식(줄당 32자, 네 줄 128자)이 실제 줄바꿈(줄당 45자 안팎)보다 훨씬 좁아 지금 원고를 넘기므로, 네 줄 안에 든 가장 긴 en 문장 글자 수 156을 실측 상한으로 씁니다(`lengths.py` `Target.measured`).
+  * 숫자와 app 값이 든 줄(2026-11-26, #1362, writing W85, 결정 V138): writing 검사기가 날짜, 시각, 문의 번호를 실제 값으로 채워 재자 이름 자리 추정(띄어쓰기 없는 한글로 칸을 채운 글자 수)을 넘는 슬롯이 셋 나왔습니다. 고정폭 숫자와 라틴 hex는 한글보다 좁아 추정이 맞지 않으므로, 가장 긴 렌더를 실제 글꼴(Pretendard, 숫자는 `tnum`)로 재 실측 상한을 씁니다.
+    * `ui.account-merge.saju`: 날짜는 기기 locale 짧은 서식(`yMd`), 시각은 기기 locale 시각입니다(`account-choice` `saju`). 12월 31일, 12시 59분, 윤달로 채운 가장 긴 렌더가 ko 28자 188.7px, ja 22자 160.6px(가장 넓은 것은 時刻不明 21자 174.4px), en 41자 254.4px로 모두 256px 한 줄입니다. ko 23 → 28, ja 18 → 22, en 43 그대로. 긴 서식(`yMMMMd`)은 en "September 30, 2026"이 275.8px로 넘치므로 쓰지 않습니다.
+    * `ui.purchase.meta`: 사용 기간 줄 ko "2026. 12. 31.~2026. 12. 31."(27자) 161.8px로 288px 한 줄 안이라 ko 26 → 27입니다. ja 21자, en 24자는 그대로 들어갑니다.
+    * `ui.app.trace` `traceIdLabel`: 오류 화면 문의 번호(`error-state` `traceId`)는 토스트 행이 아니라 `type.caption.md` 가운데 정렬이고, 이름 뒤에서만 줄을 바꾸는 두 줄입니다. 가장 좁은 자리(시트 안 312에서 상태 화면 좌우 20을 뺀 272px)에서도 32자리 번호는 가장 넓은 hex(4)로 채워 231.9px라 한 줄에 들어가고, ja 이름 "お問い合わせ番号"는 88.1px입니다. ja는 키별 실측 상한 41(지금 원고 글자 수), ko 38자와 en 42자는 행 상한(48, 78) 안입니다.
   * `daily.tag_label`은 `lucky-card` `tag` 칩이 지워져(V78) 이름이 놓이는 가장 좁은 자리인 카드 안 `hanja-tag` 이름 칸(246px)으로 다시 잽니다. 확정값(10, 10, 18)은 그대로입니다.
 * **키별 상한(#446):** 한 행의 상한과 다른 값을 받는 키는 "키별 상한" 표에 적고, writing은 `key_max_length`로 담습니다. `ui.login.provider`의 ja `loginKakaoLabel`은 카카오 가이드에 일본어 문구가 없어 영문 "Login with Kakao"(16자, #143)를 쓰므로, 전각 기준 ja 상한(15) 대신 en 상한으로 잽니다(실측 106px, 칸 232px). 행의 ja 상한은 그대로라 일본어 라벨은 계속 15자 안입니다.
 * **원고와 견준 결과(2026-10-22, writing 라운드 R11 원고, #388·W36):** 확인 창 제목 키에 질문과 설명이 한 문장으로 들어 있어 `loginMethodsUnlinkConfirm`(ko 40·ja 42·en 70자)이 제목 상한(34·28·60)을 넘고, `accountMergeMergeConfirm` ja(29자)가 28을 넘습니다. `accountChoiceCurrent` ja(11자)는 알약 상한 9를 넘습니다. 상한은 레이아웃 값이라 그대로 두고 writing에 줄이기를 요청했습니다.
