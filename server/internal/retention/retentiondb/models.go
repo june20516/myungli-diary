@@ -207,6 +207,20 @@ type NotificationLog struct {
 	SentAt    *time.Time
 }
 
+type OpsAudit struct {
+	ID        uuid.UUID
+	At        time.Time
+	Actor     string
+	Channel   string
+	Action    string
+	AccountID uuid.NullUUID
+	Purpose   pgtype.Text
+	Reason    string
+	Target    []byte
+	Before    []byte
+	After     []byte
+}
+
 type PreviewUsage struct {
 	DeviceHash []byte
 	UsedAt     time.Time

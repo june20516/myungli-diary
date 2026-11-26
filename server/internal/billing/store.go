@@ -32,6 +32,8 @@ const (
 	SourceSubscription Source = "subscription"
 	// SourceTestGrant는 staging에서 결제 없이 준 광고 제거 기간입니다(S125). 쓰는 코드는 staging 빌드에만 있습니다.
 	SourceTestGrant Source = "test_grant"
+	// SourceOperator는 운영자가 ops 명령으로 준 권한입니다(#1321).
+	SourceOperator Source = "operator"
 )
 
 // Grant는 권한 한 건입니다. entitlement_grants의 한 행에 대응합니다.

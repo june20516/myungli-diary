@@ -83,6 +83,32 @@ func TestGetMe_TestGrantSourceSentAsAdFreePass(t *testing.T) {
 	assert.Equal(t, gen.AdFreePass, *got.Insight.Source)
 }
 
+// 운영자 부여(operator)는 계약 enum 밖이라 광고 제거가 켜져 있으면 ad_free_pass, 아니면 rewarded_ad로 보냅니다(#1321).
+func TestContractSource_OperatorMapping(t *testing.T) {
+	cases := map[string]struct {
+		adFreeActive bool
+		want         gen.InsightSource
+	}{
+		"광고 제거가 켜져 있음": {adFreeActive: true, want: gen.AdFreePass},
+		"근거 열람만 있음":    {adFreeActive: false, want: gen.RewardedAd},
+	}
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			status, _ := activeStatus()
+			status.AdFree.Active = tc.adFreeActive
+			status.Insight.Source = billing.SourceOperator
+			rec, req, check := getJSON(t, meAPI(fakeEntitlements{status: status}), "/v1/me")
+
+			require.Equal(t, http.StatusOK, rec.Code, rec.Body.String())
+			check(rec, req)
+			var got gen.Me
+			require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &got))
+			require.NotNil(t, got.Insight.Source)
+			assert.Equal(t, tc.want, *got.Insight.Source)
+		})
+	}
+}
+
 func TestGetMe_InactiveEntitlementsOmitExpiryAndSource(t *testing.T) {
 	rec, req, check := getJSON(t, meAPI(fakeEntitlements{}), "/v1/me")
 
