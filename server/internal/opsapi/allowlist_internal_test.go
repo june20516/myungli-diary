@@ -62,3 +62,47 @@ func TestFileOperators_SingleRefresh(t *testing.T) {
 	}
 	assert.Equal(t, int32(1), reads.Load())
 }
+
+// 다른 요청이 느리게 다시 읽는 동안 기다리던 요청은 ctx가 취소되면 곧바로 ErrOperatorsUnavailable로 돌아옵니다.
+// 그 취소는 캐시를 무효화하지 않아, 읽기가 끝나면 그 결과가 캐시에 남습니다.
+func TestFileOperators_WaiterFollowsContext(t *testing.T) {
+	started := make(chan struct{})
+	gate := make(chan struct{})
+	var reads atomic.Int32
+	source := NewFileOperators("unused", clocktest.New(time.Date(2026, 11, 26, 3, 0, 0, 0, time.UTC)))
+	source.read = func(string) (string, error) {
+		if reads.Add(1) == 1 {
+			close(started)
+		}
+		<-gate
+		return "op@example.com", nil
+	}
+
+	readerDone := make(chan error, 1)
+	go func() {
+		_, err := source.Operators(context.Background())
+		readerDone <- err
+	}()
+	<-started
+
+	ctx, cancel := context.WithCancel(context.Background())
+	waiterDone := make(chan error, 1)
+	go func() {
+		_, err := source.Operators(ctx)
+		waiterDone <- err
+	}()
+	cancel()
+	select {
+	case err := <-waiterDone:
+		assert.ErrorIs(t, err, ErrOperatorsUnavailable)
+	case <-time.After(time.Second):
+		t.Fatal("취소된 대기 요청이 돌아오지 않았습니다")
+	}
+
+	close(gate)
+	require.NoError(t, <-readerDone)
+	list, err := source.Operators(context.Background())
+	require.NoError(t, err)
+	assert.True(t, list.Allows("op@example.com"), "대기 요청의 취소가 캐시를 무효화하지 않음")
+	assert.Equal(t, int32(1), reads.Load())
+}

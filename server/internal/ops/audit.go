@@ -80,7 +80,7 @@ var dotDatePattern = regexp.MustCompile(`[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}`)
 
 // hasLongDigitRun은 숫자와 그 사이를 잇는 문자(공백류 전부, -, ., /, _, 괄호, +)로만 이어진 구간에 숫자가 7개 이상 있는지
 // 알려 줍니다(010-1234-5678, 010.1234.5678, (02) 123 4567, +82 10 ...). 숫자는 전각 숫자도 셉니다.
-// #과 글자는 구간을 끊으므로 "문의 #1234 #5678"은 통과합니다. 앞뒤에 숫자가 붙지 않은 점 날짜(2026.11.26)만 예외로
+// #과 글자는 구간을 끊으므로 "문의 #1234 #5678"은 통과합니다. 더 긴 숫자열의 일부가 아닌 점 날짜(2026.11.26)만 예외로
 // 구간을 끊고, 하이픈으로 이은 날짜(2026-11-26)는 8자리 숫자열이라 거절합니다.
 func hasLongDigitRun(s string) bool {
 	s = maskDotDates(s)
@@ -105,7 +105,8 @@ func isDigitJoiner(r rune) bool {
 	return unicode.IsSpace(r) || strings.ContainsRune("-./_()+", r)
 }
 
-// maskDotDates는 앞뒤가 숫자가 아닌 점 날짜를 #으로 바꿔 숫자열을 끊습니다. 앞뒤에 숫자가 붙은 경우(12026.11.26)는 날짜로 보지 않습니다.
+// maskDotDates는 더 긴 숫자열의 일부가 아닌 점 날짜를 #으로 바꿔 숫자열을 끊습니다.
+// 앞이나 뒤가 숫자이거나(12026.11.26), 숫자를 잇는 문자 너머에 숫자가 있으면(010.2026.11.26, 2026.11.26-123) 날짜로 보지 않습니다.
 func maskDotDates(s string) string {
 	matches := dotDatePattern.FindAllStringIndex(s, -1)
 	if len(matches) == 0 {
@@ -114,9 +115,7 @@ func maskDotDates(s string) string {
 	var b strings.Builder
 	last := 0
 	for _, m := range matches {
-		before, _ := utf8.DecodeLastRuneInString(s[:m[0]])
-		after, _ := utf8.DecodeRuneInString(s[m[1]:])
-		if unicode.IsDigit(before) || unicode.IsDigit(after) {
+		if digitBefore(s[:m[0]]) || digitAfter(s[m[1]:]) {
 			continue
 		}
 		b.WriteString(s[last:m[0]])
@@ -125,6 +124,38 @@ func maskDotDates(s string) string {
 	}
 	b.WriteString(s[last:])
 	return b.String()
+}
+
+// digitBefore는 s 끝에서 숫자를 잇는 문자를 건너뛴 뒤 숫자가 나오는지 알려 줍니다.
+func digitBefore(s string) bool {
+	for len(s) > 0 {
+		r, size := utf8.DecodeLastRuneInString(s)
+		switch {
+		case unicode.IsDigit(r):
+			return true
+		case isDigitJoiner(r):
+			s = s[:len(s)-size]
+		default:
+			return false
+		}
+	}
+	return false
+}
+
+// digitAfter는 s 앞에서 숫자를 잇는 문자를 건너뛴 뒤 숫자가 나오는지 알려 줍니다.
+func digitAfter(s string) bool {
+	for len(s) > 0 {
+		r, size := utf8.DecodeRuneInString(s)
+		switch {
+		case unicode.IsDigit(r):
+			return true
+		case isDigitJoiner(r):
+			s = s[size:]
+		default:
+			return false
+		}
+	}
+	return false
 }
 
 // Action은 감사 표에 남기는 운영 행위입니다.
