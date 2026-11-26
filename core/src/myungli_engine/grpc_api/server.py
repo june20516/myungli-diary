@@ -24,6 +24,9 @@ from myungli_engine.version import ENGINE_VERSION, RULESET_VERSION
 
 DEFAULT_PORT: Final = 50051
 MAX_WORKERS: Final = 8
+# 처리 중(MAX_WORKERS)과 대기 RPC를 합친 상한. 넘으면 grpc가 RESOURCE_EXHAUSTED로 바로 거절해
+# 대기열이 끝없이 쌓이지 않는다(Q1 CORE-2). Cloud Run 동시성(8)이 같은 값이라 평소에는 닿지 않는다.
+MAX_CONCURRENT_RPCS: Final = MAX_WORKERS * 2
 ENGINE_SERVICE_NAME: Final = pb.DESCRIPTOR.services_by_name["MyungliEngine"].full_name
 
 
@@ -133,7 +136,9 @@ def start(port: int = DEFAULT_PORT) -> RunningEngine:
     """
     loader.validate_refs(loader.all_refs())
     lunar_adapter.warm_up()
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=MAX_WORKERS))
+    server = grpc.server(
+        futures.ThreadPoolExecutor(max_workers=MAX_WORKERS), maximum_concurrent_rpcs=MAX_CONCURRENT_RPCS
+    )
     pb_grpc.add_MyungliEngineServicer_to_server(MyungliEngineServicer(), server)
     health_servicer = health.HealthServicer()
     health_pb2_grpc.add_HealthServicer_to_server(health_servicer, server)

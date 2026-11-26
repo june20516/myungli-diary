@@ -32,6 +32,7 @@ from myungli_engine.version import ENGINE_VERSION, RULESET_VERSION
 
 MIN_LONGITUDE = -180.0
 MAX_LONGITUDE = 180.0
+MAX_TIMEZONE_LENGTH = 64  # IANA 이름은 가장 긴 것도 40자를 넘지 않는다
 
 # 도메인 enum 이름 → proto enum 접두어
 _PREFIX_ELEMENT = "ELEMENT"
@@ -95,9 +96,14 @@ def date_from_proto(msg: pb.LocalDate) -> date:
 
 
 def timezone_from_proto(name: str) -> str:
-    """빈 문자열만 여기서 막는다. 알 수 없는 IANA 이름은 calendar_core가 InvalidInputError로 막는다."""
+    """빈 문자열과 IANA 이름이 될 수 없는 긴 문자열만 여기서 막는다.
+
+    알 수 없는 IANA 이름은 calendar_core가 InvalidInputError로 막는다.
+    """
     if not name:
         raise InvalidInputError("시간대가 비어 있습니다.")
+    if len(name) > MAX_TIMEZONE_LENGTH:
+        raise InvalidInputError(f"시간대 이름은 {MAX_TIMEZONE_LENGTH}자 이하여야 합니다.")
     return name
 
 

@@ -115,8 +115,11 @@ class _TraceId extends StatelessWidget {
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onLongPress: () => _copy(context),
+            // 두 줄까지입니다. 32자리 번호는 띄어쓰기가 없어 이름 뒤에서만 줄이 바뀌고,
+            // 가장 좁은 자리에서도 번호만으로 한 줄에 들어갑니다(design V138, #1362).
             child: Text(
               label,
+              maxLines: 2,
               textAlign: TextAlign.center,
               style: tokens.typography.captionMd.copyWith(
                 color: tokens.colors.textSecondary,
