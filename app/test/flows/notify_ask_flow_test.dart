@@ -352,6 +352,9 @@ class _NoTokenPush extends _NoPermissionPush {
 /// 권한을 요청하면 실패하는 대역(건너뛰기가 권한을 묻지 않는지 확인).
 class _NoPermissionPush implements PushMessaging {
   @override
+  Future<void> deleteToken() async {}
+
+  @override
   Future<bool> requestPermission() => throw StateError('권한을 요청하면 안 됩니다');
 
   @override

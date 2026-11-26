@@ -22,6 +22,9 @@ abstract interface class MessagingApi {
   /// FCM 토큰이 바뀔 때마다.
   Stream<String> get onTokenRefresh;
 
+  /// 지금의 FCM 토큰을 버립니다.
+  Future<void> deleteToken();
+
   /// 실행 중 알림을 눌러 열릴 때마다 그 메시지의 `data`.
   Stream<Map<String, Object?>> get onMessageOpenedApp;
 
@@ -57,6 +60,9 @@ final class SdkMessagingApi implements MessagingApi {
   @override
   Stream<String> get onTokenRefresh =>
       FirebaseMessaging.instance.onTokenRefresh;
+
+  @override
+  Future<void> deleteToken() => FirebaseMessaging.instance.deleteToken();
 
   @override
   Stream<Map<String, Object?>> get onMessageOpenedApp =>
@@ -102,6 +108,15 @@ final class FirebasePushMessaging implements PushMessaging {
       return await api.getToken();
     } on Object {
       return null;
+    }
+  }
+
+  @override
+  Future<void> deleteToken() async {
+    try {
+      await api.deleteToken();
+    } on Object {
+      // 지우지 못하면 server 기기 행만 남고, 다음 계정이 같은 토큰을 등록할 때 옮겨집니다(S119).
     }
   }
 

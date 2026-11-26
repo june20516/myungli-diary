@@ -29,7 +29,8 @@ val dartDefines: Map<String, String> =
 fun envValue(key: String): String = dartDefines[key]?.trim().orEmpty()
 
 // release 업로드 키(결정 A94). 저장소 밖 보관 폴더(D98, docs/local-values.md K1)에서 읽습니다.
-// 파일이 없으면 release도 debug 키로 서명합니다(로컬 확인용, Play에 올릴 수 없음).
+// 파일이 없으면 release 빌드는 실패합니다(app-Q1-9). debug 키로 서명한 release가 debug 지문을
+// 등록한 환경의 App Link를 받지 않게 하려는 것이고, debug 빌드에는 영향이 없습니다.
 val localValuesDir =
     System.getenv("MYUNGLI_LOCAL_DIR")?.takeIf { it.isNotBlank() }
         ?: "${System.getProperty("user.home")}/.config/myungli"
@@ -96,14 +97,22 @@ android {
 
     buildTypes {
         release {
-            signingConfig =
-                if (uploadKey != null) {
-                    signingConfigs.getByName("upload")
-                } else {
-                    logger.warn("업로드 키가 없어 release를 debug 키로 서명합니다: $uploadKeyFile")
-                    signingConfigs.getByName("debug")
-                }
+            signingConfig = signingConfigs.findByName("upload")
         }
+    }
+}
+
+// 설정 단계가 아니라 release 산출물을 만드는 작업이 실제로 불릴 때만 멈춥니다(debug 빌드, 분석은 그대로).
+gradle.taskGraph.whenReady {
+    val buildsRelease =
+        allTasks.any { task ->
+            task.project == project &&
+                (task.name == "assembleRelease" || task.name == "bundleRelease")
+        }
+    if (uploadKey == null && buildsRelease) {
+        throw GradleException(
+            "업로드 키가 없어 release를 만들지 않습니다: $uploadKeyFile (README \"staging 빌드\", app-Q1-9)",
+        )
     }
 }
 
@@ -127,6 +136,16 @@ configurations.configureEach {
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
     androidTestUtil("androidx.test:orchestrator:1.5.1")
+
+    // SDK가 끌어오는 낡은 라이브러리를 알려진 취약점을 고친 버전으로 올립니다(#1254). SDK를 올려
+    // 함께 해소되면 이 줄을 지웁니다(LINE SDK Android 5.13.0까지 Picasso 2.8 그대로).
+    constraints {
+        // LINE SDK(Picasso 2.8) → OkHttp 3.10.0, CVE-2021-0341(고친 버전 4.9.2, app-Q1-10).
+        implementation("com.squareup.okhttp3:okhttp:4.12.0")
+        // 광고 SDK(androidx ads-adservices-java) → Guava 31.1, CVE-2020-8908, CVE-2023-2976,
+        // CVE-2026-102554(고친 버전 33.7.2, app-Q1-11).
+        implementation("com.google.guava:guava:33.8.0-android")
+    }
 }
 
 // Crashlytics mapping file id(#739, 결정 A105). Android Crashlytics는 이 리소스(build ID)가 없으면

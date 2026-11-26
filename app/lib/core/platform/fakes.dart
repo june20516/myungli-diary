@@ -231,6 +231,12 @@ final class FakePushMessaging implements PushMessaging {
   @override
   Future<String?> token() async => tokenValue;
 
+  /// [deleteToken]을 부른 횟수.
+  int deletedTokens = 0;
+
+  @override
+  Future<void> deleteToken() async => deletedTokens++;
+
   @override
   Future<PushOpen?> initialOpen() async => initial;
 
