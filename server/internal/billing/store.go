@@ -47,14 +47,15 @@ type Grant struct {
 
 // State는 권한 하나의 현재 상태입니다. Active가 false면 ExpiresAt은 nil이고 Source는 비어 있습니다.
 type State struct {
-	Active    bool
-	ExpiresAt *time.Time
-	Source    Source
+	Active    bool       `json:"active"`
+	ExpiresAt *time.Time `json:"expiresAt"`
+	Source    Source     `json:"source"`
 }
 
 // Status는 계정의 권한 상태입니다.
 type Status struct {
-	AdFree, Insight State
+	AdFree  State `json:"adFree"`
+	Insight State `json:"insight"`
 }
 
 // Store는 권한 기록을 읽어 판정합니다.

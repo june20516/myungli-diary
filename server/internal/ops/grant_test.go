@@ -3,10 +3,12 @@ package ops
 import (
 	"context"
 	"encoding/json"
+	"strconv"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -49,9 +51,18 @@ func TestGrant_SourceRefIsAuditID(t *testing.T) {
 	assert.Equal(t, id, accountID)
 	assert.JSONEq(t, `{"kind":"ad_free","expiresAt":"2026-12-26T03:00:00Z"}`, target)
 	assert.True(t, beforeNull)
-	var rows []billing.GrantRow
+	var rows []map[string]any
 	require.NoError(t, json.Unmarshal([]byte(after), &rows))
-	assert.Len(t, rows, 2)
+	require.Len(t, rows, 2)
+	for i, row := range rows {
+		assert.ElementsMatch(t, []string{"id", "entitlement", "source", "sourceRef", "startsAt", "expiresAt", "revokedAt"}, mapKeys(row))
+		assert.Equal(t, res.AuditID.String(), row["sourceRef"])
+		assert.Equal(t, "operator", row["source"])
+		assert.Equal(t, string(res.Grants[i].Entitlement), row["entitlement"])
+		assert.Equal(t, "2026-12-26T03:00:00Z", row["expiresAt"])
+		assert.Equal(t, "2026-11-26T03:00:00Z", row["startsAt"])
+		assert.Nil(t, row["revokedAt"])
+	}
 }
 
 func TestGrant_PeriodBounds(t *testing.T) {
@@ -118,14 +129,27 @@ func TestRevoke_AdFreeBundleRevokesBoth(t *testing.T) {
 	var beforeJSON, afterJSON []byte
 	require.NoError(t, pool.QueryRow(ctx, `SELECT action, target::text, before, after FROM ops_audit WHERE id = $1`, res.AuditID).Scan(&action, &target, &beforeJSON, &afterJSON))
 	assert.Equal(t, "revoke", action)
-	assert.JSONEq(t, `{"grantId":`+jsonInt(granted.Grants[0].ID)+`}`, target)
-	assert.NotEmpty(t, beforeJSON)
-	assert.NotEmpty(t, afterJSON)
+	assert.JSONEq(t, `{"grantId":`+strconv.FormatInt(granted.Grants[0].ID, 10)+`}`, target)
+	var beforeRows, afterRows []map[string]any
+	require.NoError(t, json.Unmarshal(beforeJSON, &beforeRows))
+	require.NoError(t, json.Unmarshal(afterJSON, &afterRows))
+	require.Len(t, beforeRows, 2)
+	require.Len(t, afterRows, 2)
+	for i := range afterRows {
+		assert.Contains(t, beforeRows[i], "revokedAt")
+		assert.Nil(t, beforeRows[i]["revokedAt"])
+		assert.Equal(t, "2026-11-26T03:00:00Z", afterRows[i]["revokedAt"])
+		assert.Equal(t, granted.Grants[i].SourceRef, afterRows[i]["sourceRef"])
+		assert.EqualValues(t, granted.Grants[i].ID, afterRows[i]["id"])
+	}
 }
 
-func jsonInt(n int64) string {
-	b, _ := json.Marshal(n)
-	return string(b)
+func mapKeys(m map[string]any) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	return keys
 }
 
 func TestRevoke_PassGrantRejectedNoAudit(t *testing.T) {
@@ -168,7 +192,10 @@ func TestGrant_AuditFailureRollsBackGrant(t *testing.T) {
 
 	res, err := svc.Grant(context.Background(), testActor, GrantRequest{AccountID: id, Kind: billing.OperatorAdFree, ExpiresAt: testNow.Add(time.Hour), Reason: "r"})
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "permission denied")
+	var pgErr *pgconn.PgError
+	require.ErrorAs(t, err, &pgErr)
+	assert.Equal(t, "42501", pgErr.Code)
+	assert.Contains(t, pgErr.Message, "ops_audit", "권한 행 INSERT 뒤 감사 INSERT가 실패해야 합니다")
 	assert.Equal(t, GrantResult{}, res)
 	assert.Zero(t, grantCount(t, pool, id))
 	assert.Empty(t, auditRows(t, pool))

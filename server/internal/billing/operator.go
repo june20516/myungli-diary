@@ -39,12 +39,13 @@ var (
 
 // GrantRow는 entitlement_grants 한 행입니다. 취소와 만료된 행도 담습니다.
 type GrantRow struct {
-	ID                  int64
-	Entitlement         Entitlement
-	Source              Source
-	SourceRef           string
-	StartsAt, ExpiresAt time.Time
-	RevokedAt           *time.Time
+	ID          int64       `json:"id"`
+	Entitlement Entitlement `json:"entitlement"`
+	Source      Source      `json:"source"`
+	SourceRef   string      `json:"sourceRef"`
+	StartsAt    time.Time   `json:"startsAt"`
+	ExpiresAt   time.Time   `json:"expiresAt"`
+	RevokedAt   *time.Time  `json:"revokedAt"`
 }
 
 // operatorEntitlements는 부여 종류별로 만들 권한 행입니다.
@@ -144,9 +145,15 @@ func ListGrantsTx(ctx context.Context, q billingdb.DBTX, accountID uuid.UUID) ([
 }
 
 func toGrantRow(row billingdb.EntitlementGrant) GrantRow {
+	// 감사 기록과 JSON 출력에서 시각이 DB 연결의 시간대와 무관하게 UTC로 남도록 맞춥니다.
+	var revokedAt *time.Time
+	if row.RevokedAt != nil {
+		t := row.RevokedAt.UTC()
+		revokedAt = &t
+	}
 	return GrantRow{
 		ID: row.ID, Entitlement: Entitlement(row.Entitlement), Source: Source(row.Source), SourceRef: row.SourceRef,
-		StartsAt: row.StartsAt, ExpiresAt: row.ExpiresAt, RevokedAt: row.RevokedAt,
+		StartsAt: row.StartsAt.UTC(), ExpiresAt: row.ExpiresAt.UTC(), RevokedAt: revokedAt,
 	}
 }
 

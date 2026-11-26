@@ -52,7 +52,7 @@ type RevokeResult struct {
 // grantTarget은 부여 감사 행의 target입니다. 만료는 RFC 3339 UTC 문자열입니다.
 type grantTarget struct {
 	Kind      billing.OperatorKind `json:"kind"`
-	ExpiresAt string               `json:"expiresAt"`
+	ExpiresAt time.Time            `json:"expiresAt"`
 }
 
 // revokeTarget은 회수 감사 행의 target입니다.
@@ -91,7 +91,7 @@ func (s *Service) Grant(ctx context.Context, actor Actor, req GrantRequest) (Gra
 		accountID := req.AccountID
 		return recordTx(ctx, tx, auditID, now, Entry{
 			Actor: actor, Action: ActionGrant, AccountID: &accountID, Reason: reason,
-			Target: grantTarget{Kind: req.Kind, ExpiresAt: expiresAt.Format(time.RFC3339)},
+			Target: grantTarget{Kind: req.Kind, ExpiresAt: expiresAt},
 			After:  rows,
 		})
 	})

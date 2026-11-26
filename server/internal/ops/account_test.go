@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -229,7 +230,10 @@ func TestAccountSummary_AuditFailureReturnsNothing(t *testing.T) {
 	svc := newNoAuditService(t, pool)
 	got, err := svc.AccountSummary(ctx, testActor, AccountKey{AccountID: id}, "문의")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "permission denied", "감사 INSERT 권한 때문에 실패해야 합니다")
+	var pgErr *pgconn.PgError
+	require.ErrorAs(t, err, &pgErr)
+	assert.Equal(t, "42501", pgErr.Code)
+	assert.Contains(t, pgErr.Message, "ops_audit", "감사 INSERT 권한 때문에 실패해야 합니다")
 	assert.Equal(t, AccountSummary{}, got)
 	assert.Empty(t, auditRows(t, pool))
 }
@@ -245,6 +249,7 @@ func newNoAuditService(t *testing.T, pool *pgxpool.Pool) *Service {
 		"GRANT USAGE ON SCHEMA public TO " + role,
 		"GRANT SELECT ON ALL TABLES IN SCHEMA public TO " + role,
 		"GRANT INSERT ON entitlement_grants TO " + role,
+		"GRANT UPDATE (updated_at) ON accounts TO " + role, // 계정 행 FOR SHARE에 필요하며 myungli_ops와 같습니다.
 		"GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO " + role,
 	} {
 		_, err := pool.Exec(ctx, stmt)
