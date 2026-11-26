@@ -12,7 +12,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/june20516/myungli-diary/server/internal/billing"
-	"github.com/june20516/myungli-diary/server/internal/billing/billingdb"
 	"github.com/june20516/myungli-diary/server/internal/platform/clock/clocktest"
 	"github.com/june20516/myungli-diary/server/internal/platform/dbtest"
 	"github.com/june20516/myungli-diary/server/internal/platform/postgres"
@@ -210,4 +209,80 @@ func TestListGrants_AllRowsNewestStartFirst(t *testing.T) {
 	assert.Equal(t, "a", rows[1].SourceRef)
 }
 
-var _ billingdb.DBTX = (*pgxpool.Pool)(nil)
+// 묶음 일부만 끝났으면 활성 행만 취소하고, 이미 끝난 행은 그대로 둡니다.
+func TestRevokeGroup_PartiallyEndedBundleRevokesOnlyLive(t *testing.T) {
+	pool := dbtest.New(t)
+	accountID := newAccount(t, pool)
+	granted, err := grantOperator(t, pool, accountID, billing.OperatorAdFree)
+	require.NoError(t, err)
+	earlier := now.Add(-time.Hour)
+	_, err = pool.Exec(context.Background(),
+		"UPDATE entitlement_grants SET revoked_at = $1 WHERE id = $2", earlier, grantIDOf(t, granted, billing.Insight))
+	require.NoError(t, err)
+
+	before, after, err := revokeGroup(t, pool, accountID, grantIDOf(t, granted, billing.AdFree))
+	require.NoError(t, err)
+
+	require.Len(t, before, 2)
+	require.Len(t, after, 2)
+	for _, r := range before {
+		if r.Entitlement == billing.Insight {
+			require.NotNil(t, r.RevokedAt)
+		} else {
+			assert.Nil(t, r.RevokedAt)
+		}
+	}
+	for _, r := range after {
+		require.NotNil(t, r.RevokedAt)
+		if r.Entitlement == billing.Insight {
+			assert.True(t, earlier.Equal(*r.RevokedAt), "이미 취소된 행의 시각은 그대로")
+		} else {
+			assert.True(t, now.Equal(*r.RevokedAt))
+		}
+	}
+}
+
+// 만료된 운영자 묶음은 이미 끝난 것입니다.
+func TestRevokeGroup_ExpiredOperatorBundleAlreadyEnded(t *testing.T) {
+	pool := dbtest.New(t)
+	accountID := newAccount(t, pool)
+	var rows []billing.GrantRow
+	err := postgres.InTx(context.Background(), pool, func(tx pgx.Tx) error {
+		var err error
+		rows, err = billing.GrantOperatorTx(context.Background(), tx, accountID, billing.OperatorAdFree, "old",
+			now.Add(-48*time.Hour), now.Add(-24*time.Hour))
+		return err
+	})
+	require.NoError(t, err)
+
+	_, _, err = revokeGroup(t, pool, accountID, rows[0].ID)
+
+	require.ErrorIs(t, err, billing.ErrGrantAlreadyEnded)
+}
+
+// 같은 source_ref 문자열이어도 다른 계정의 묶음은 건드리지 않습니다.
+// (entitlement, source, source_ref) 유일 제약 때문에 권한 종류를 달리해 같은 문자열을 둡니다.
+func TestRevokeGroup_SameSourceRefOtherAccountUntouched(t *testing.T) {
+	pool := dbtest.New(t)
+	owner, other := newAccount(t, pool), newAccount(t, pool)
+	ownerRows, err := grantOperator(t, pool, owner, billing.OperatorInsight)
+	require.NoError(t, err)
+	insertGrant(t, pool, other, grant(billing.AdFree, billing.SourceOperator, "ref-1", now, now.Add(time.Hour)))
+
+	_, after, err := revokeGroup(t, pool, owner, ownerRows[0].ID)
+	require.NoError(t, err)
+
+	require.Len(t, after, 1)
+	assert.Equal(t, owner.String(), accountOf(t, pool, after[0].ID))
+	otherRows := listGrants(t, pool, other)
+	require.Len(t, otherRows, 1)
+	assert.Equal(t, "ref-1", otherRows[0].SourceRef)
+	assert.Nil(t, otherRows[0].RevokedAt)
+}
+
+func accountOf(t *testing.T, pool *pgxpool.Pool, grantID int64) string {
+	t.Helper()
+	var id uuid.UUID
+	require.NoError(t, pool.QueryRow(context.Background(), "SELECT account_id FROM entitlement_grants WHERE id = $1", grantID).Scan(&id))
+	return id.String()
+}
