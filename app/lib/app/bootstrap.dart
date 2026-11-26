@@ -14,6 +14,7 @@ import 'package:myungli_diary/app/profile_language.dart';
 import 'package:myungli_diary/app/profile_timezone.dart';
 import 'package:myungli_diary/app/router/app_router.dart';
 import 'package:myungli_diary/core/api/api_providers.dart';
+import 'package:myungli_diary/core/api/app_error.dart';
 import 'package:myungli_diary/core/api/fake/fake_server.dart';
 import 'package:myungli_diary/core/api/fake/scenario.dart';
 import 'package:myungli_diary/core/api/http_client.dart';
@@ -184,9 +185,11 @@ Future<ProviderContainer> bootstrap({
 @visibleForTesting
 Ads realAds(Ref ref) {
   final reporter = ref.watch(crashReporterProvider);
+  final platform = ref.watch(targetPlatformProvider);
   final adMob = AdMobAds(
-    platform: ref.watch(targetPlatformProvider),
-    onLoadFailure: (failure) => reportAdLoadFailure(reporter, failure),
+    platform: platform,
+    onLoadFailure: (failure) =>
+        reportAdLoadFailure(reporter, failure, platform: platform),
   );
   if (!stagingAdsBuild) return adMob;
   return StagingAds(
@@ -197,20 +200,26 @@ Ads realAds(Ref ref) {
   );
 }
 
-/// 광고 불러오기 실패를 원인(도메인, 코드)을 가릴 수 있게 남깁니다(#741). debug는 콘솔에,
-/// staging([staging])은 비치명 오류 요약으로 남깁니다. prod는 "광고 없음"이 흔해 기록하지 않습니다.
+/// 광고 불러오기 실패를 원인(도메인, 코드)을 가릴 수 있게 남깁니다(#741).
+///
+/// * 콘솔(logcat 등)에는 빌드와 상관없이 한 줄 남깁니다. 기기를 연결해 원인을 볼 때 씁니다(#1345).
+///   SDK 메시지에는 사용자 데이터가 없습니다.
+/// * staging([staging])은 모든 실패를 비치명 오류 요약으로 남깁니다.
+/// * prod는 흔한 "광고 없음"과 연결 오류를 빼고, 앱이나 설정 문제일 수 있는 실패(응답 없음 포함)만
+///   남깁니다.
 @visibleForTesting
 void reportAdLoadFailure(
   CrashReporter reporter,
   AdMobLoadFailure failure, {
+  required TargetPlatform platform,
   bool staging = stagingAdsBuild,
 }) {
-  if (kDebugMode) {
-    debugPrint(
-      'AdMob 불러오기 실패 ${failure.domain} ${failure.code}: ${failure.message}',
-    );
-  }
-  if (staging) {
+  debugPrint(
+    'AdMob 불러오기 실패 ${failure.domain} ${failure.code}: ${failure.message}',
+  );
+  final unexpected =
+      adMobLoadError(failure.code, platform: platform) is UnexpectedError;
+  if (staging || unexpected) {
     reporter.record(CrashSummary.from(failure), StackTrace.current);
   }
 }

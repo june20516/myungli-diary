@@ -70,6 +70,7 @@ The Company may temporarily suspend the Service when there is an unavoidable rea
 
 1. Rights to the diary entries and schedules the user writes belong to the user. The Company stores and processes them only to the extent necessary to provide the Service and does not disclose them to others.
 2. Rights to the Service's readings, sentences, designs, and the app belong to the Company.
+3. The Company may check the user's records to the extent necessary to recover from service outages, confirm violations of these Terms, and respond to requests under applicable law.
 
 ## Article 12 (Account Deletion and Restriction of Use)
 

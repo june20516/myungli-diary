@@ -10,6 +10,7 @@ import 'package:myungli_diary/core/api/gen/model/schedule_input.dart';
 import 'package:myungli_diary/core/api/token_store.dart';
 import 'package:myungli_diary/core/clock/calendar_date.dart';
 import 'package:myungli_diary/core/clock/clock.dart';
+import 'package:myungli_diary/core/storage/cache_store.dart';
 import 'package:myungli_diary/features/schedule/data/schedule_repository.dart';
 import 'package:myungli_diary/features/schedule/model/schedule_draft.dart';
 import 'package:myungli_diary/features/schedule/model/schedule_gone.dart';
@@ -19,9 +20,12 @@ import 'package:myungli_diary/features/schedule/model/today_schedule_summary.dar
 import 'package:uuid/uuid.dart';
 
 /// 일정 저장소. 로그인한 계정에서만 읽을 수 있습니다.
-final scheduleRepositoryProvider = Provider<ScheduleRepository>(
-  (ref) => ScheduleRepository(ref.watch(restClientProvider)),
-);
+///
+/// 계정이 바뀌면 다시 만들어집니다([signedInAccountIdProvider], #1345).
+final scheduleRepositoryProvider = Provider<ScheduleRepository>((ref) {
+  ref.watch(signedInAccountIdProvider);
+  return ScheduleRepository(ref.watch(restClientProvider));
+});
 
 /// 지금 메모리에 들고 있는 일정 범위들. 저장 뒤 어느 범위를 다시 받을지 고를 때 씁니다.
 final class _HeldRanges {
