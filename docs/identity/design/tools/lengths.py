@@ -244,8 +244,12 @@ TARGETS = (
            "ui-400", 13, -0.26, CONTENT_WIDTH - 16 - 8, 2, True, None),
     Target(("ui.account-merge.choice",), "account-choice 현재·가져올 계정 알약 (카드 안 256의 절반, 좌우 8 + 테두리 1)",
            "ui-500", 11, -0.22, (CONTENT_WIDTH - 2 * 16 - 32) / 2 - 2 * 8 - 2, 1, False, None),
+    # 고정폭 숫자 날짜와 시각이 대부분이라 한글 이름 자리 추정이 폭을 크게 넘겨 잼. 기기 locale 짧은 서식(yMd)과
+    # 시각으로 채운 가장 긴 렌더(12월 31일, 12시 59분, 윤달)를 tnum 숫자로 잰 글자 수를 씀 (#1362, 결정 V138)
     Target(("ui.account-merge.saju",), "account-choice 사주 요약 (카드 안 폭, 고름 표시 22 + 간격 10)",
-           "ui-400", 13, -0.26, CONTENT_WIDTH - 2 * 16 - 22 - 10, 1, False, None),
+           "ui-400", 13, -0.26, CONTENT_WIDTH - 2 * 16 - 22 - 10, 1, False, None,
+           measured=(("ko", 28, "음력 윤달 2026. 12. 31. 오후 12:59 실측 188.7px"),
+                     ("ja", 22, "旧暦 閏月 2026/12/31 23:59 실측 160.6px, 가장 넓은 時刻不明 21자 174.4px"))),
     # D85 계정 합치기 두 단계·D88 구매 내역 (#480·#483·#494, spec 2026-10-23 §8)
     Target(("account-merge.auth.body",), "account-merge 인증 단계 안내 (본문 폭)", "ui-400", 14, -0.28, CONTENT_WIDTH, 3, True, None),
     # 값 자리 56: 고정폭 숫자 값("30일")보다 넉넉한 폭
@@ -257,8 +261,10 @@ TARGETS = (
     # 사용 중 채운 알약(좌우 8, seal-check 16 + 간격 4, 600)은 키별 상한 purchaseStatusActive
     Target(("ui.purchase.status",), "purchase-row 상태 낱말 (바탕 없는 글자, 최대 100)", "ui-500", 13, -0.26, 100, 1, False, None),
     # meta는 구매일 줄과 사용 기간 줄 두 줄이고(W44, 결정 V47), 줄마다 상품 이름 아래 카드 안 폭 전체를 씀(안쪽 16 양쪽)
+    # 사용 기간 줄은 짧은 날짜 둘이라 ko yMd 끝 마침표까지 27자. tnum 실측 161.8px로 288 한 줄 안 (#1362, 결정 V138)
     Target(("ui.purchase.meta",), "purchase-row 구매일 줄, 사용 기간 줄 (키마다 한 줄, 카드 안쪽 16)",
-           "ui-400", 13, -0.26, CONTENT_WIDTH - 2 * 16, 1, False, None),
+           "ui-400", 13, -0.26, CONTENT_WIDTH - 2 * 16, 1, False, None,
+           measured=(("ko", 27, "2026. 12. 31.~2026. 12. 31. 실측 161.8px"),)),
     # offer-card 안 버튼: 카드 안쪽 20 안에서 primary-button 좌우 20 (#548, 구매 내역 버튼은 화면 폭 행에서 옮김)
     Target(("ad-free.buy.cta", "ad-free.history.cta"), "offer-card 안 primary-button (카드 안쪽 20, 버튼 좌우 20)",
            "ui-600", 14, -0.28, CONTENT_WIDTH - 2 * 20 - 2 * 20, 1, False, None),
@@ -376,6 +382,9 @@ KEY_MEASURED_LIMITS = {
     # ja도 라틴 주소 예시라 전각 1em 추정(14)이 맞지 않음 (#763)
     ("contact.email.field", "contactEmailFieldHint", "ja"): (
         16, "ja 원고도 라틴 주소 예시 name@example.com. 실측 158.6px로 칸 260px 한 줄 안, 결정 V55"),
+    # 오류 화면 문의 번호: 이름 뒤에서만 줄을 바꾸는 두 줄(error-state traceId). 가장 좁은 자리는 시트 안 272px (#1362)
+    ("ui.app.trace", "traceIdLabel", "ja"): (
+        41, "이름과 32자리 번호. 이름 88.1px, 번호 231.9px(가장 넓은 hex 4)가 각각 272px 한 줄이라 두 줄 안, 결정 V138"),
 }
 
 # 글자 수 대신 칸 폭으로 확인한 한 글자 자리: 슬롯 → (놓이는 칸, 칸 폭 px, 세 언어 상한, 실측 근거)

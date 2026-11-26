@@ -1,5 +1,5 @@
 {
-  "version": "9.0.1",
+  "version": "9.1.0",
   "group": "input",
   "components": [
     {
@@ -229,7 +229,7 @@
         "name": { "type": "{type.subtitle}", "fg": "{color.text.primary}", "source": "호칭" },
         "current": { "type": "{type.caption.sm}", "fg": "{color.text.secondary}", "border": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } }, "radius": "{radius.full}", "paddingX": "{space.8}", "gap": "{space.8}", "slot": "ui.account-merge.choice", "key": "accountChoiceCurrent", "onlyWhen": "A 카드", "position": "호칭 뒤 같은 줄" },
         "other": { "type": "{type.caption.sm}", "fg": "{color.text.secondary}", "border": { "color": "{color.line}", "width": { "value": 1, "unit": "px" } }, "radius": "{radius.full}", "paddingX": "{space.8}", "gap": "{space.8}", "slot": "ui.account-merge.choice", "key": "accountChoiceOther", "onlyWhen": "B 카드", "position": "호칭 뒤 같은 줄" },
-        "saju": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "numerals": "tabular", "slot": "ui.account-merge.saju", "content": "달력 종류 → (윤달) → 생년월일 → 출생 시각", "leapMonth": { "source": "MergeProfileSummary.birth.isLeapMonth", "position": "달력 종류 바로 뒤, 날짜 앞", "word": "윤달 낱말(day-cell dayCellLeapMonth와 같은 낱말, 예 음력 윤달 1990. 6. 15. 08:30)", "note": "날짜 형식(기기 언어)은 건드리지 않는다. 글자는 writing 틀이 잇고 app은 붙이지 않는다(#546)" }, "timeUnknown": "시각 자리에 '시간 모름'", "noSaju": "사주를 저장하지 않은 계정이면 줄 전체가 '사주 정보 없음'" },
+        "saju": { "type": "{type.caption.lg}", "fg": "{color.text.secondary}", "numerals": "tabular", "slot": "ui.account-merge.saju", "content": "달력 종류 → (윤달) → 생년월일 → 출생 시각", "leapMonth": { "source": "MergeProfileSummary.birth.isLeapMonth", "position": "달력 종류 바로 뒤, 날짜 앞", "word": "윤달 낱말(day-cell dayCellLeapMonth와 같은 낱말, 예 음력 윤달 1990. 6. 15. 08:30)", "note": "날짜 형식(기기 언어)은 건드리지 않는다. 글자는 writing 틀이 잇고 app은 붙이지 않는다(#546)" }, "dateFormat": "날짜는 기기 locale 짧은 서식(intl yMd, 예 ko 1990. 6. 15., en 6/15/1990), 시각은 기기 locale 시각 서식. 긴 서식(yMMMMd)은 en이 한 줄 256px를 넘어 쓰지 않는다(#1362, V138)", "lines": 1, "timeUnknown": "시각 자리에 '시간 모름'", "noSaju": "사주를 저장하지 않은 계정이면 줄 전체가 '사주 정보 없음'" },
         "mark": { "size": { "value": 22, "unit": "px" }, "border": { "color": "{color.line}", "width": { "value": 1.5, "unit": "px" } }, "radius": "{radius.full}", "position": "top-end", "inset": "{space.16}" }
       },
       "states": {
