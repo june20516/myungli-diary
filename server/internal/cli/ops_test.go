@@ -451,3 +451,25 @@ func TestOps_TextStripsTerminalControlCharacters(t *testing.T) {
 	assert.NotContains(t, stdout, "\x1b")
 	assert.Contains(t, stdout, `\u001b[31m`)
 }
+
+func TestOps_TextStripsControlCharactersInProfileAndAudit(t *testing.T) {
+	env, pool := opsEnv(t)
+	id := opsAccount(t, pool)
+	_, err := pool.Exec(context.Background(), `INSERT INTO profiles (account_id, honorific, language, current_timezone, calendar, is_leap_month,
+		birth_year, birth_month, birth_day, birth_time_status, birth_time, gender, birth_timezone, birth_place_status, birth_city_id, longitude, notify_status, birth_hash)
+		VALUES ($1, $2, 'ko', 'Asia/Seoul', 'solar', false, 1990, 5, 17, 'known', '07:30', 'female', 'Asia/Seoul', 'city', 'seoul', 126.978, 'not_asked', decode(repeat('ab', 32), 'hex'))`, id, "수아\x1b[2J")
+	require.NoError(t, err)
+
+	code, stdout, stderr := runCLIWithEnv(t, env, "ops", "content", "profile", "--account", id.String(), "--purpose", "inquiry", "--reason", opsReason)
+	require.Equal(t, 0, code, "stderr = %q", stderr)
+	assert.NotContains(t, stdout, "\x1b")
+	assert.Contains(t, stdout, "수아\ufffd[2J")
+
+	// 감사 reason의 제어문자도 text 표에서는 지워집니다(탭 아닌 C0는 --reason으로도 들어옵니다).
+	code, _, stderr = runCLIWithEnv(t, env, "ops", "account", "show", "--account", id.String(), "--reason", "색\x1b[31m사유")
+	require.Equal(t, 0, code, "stderr = %q", stderr)
+	code, stdout, stderr = runCLIWithEnv(t, env, "ops", "audit", "list", "--account", id.String(), "--reason", opsReason)
+	require.Equal(t, 0, code, "stderr = %q", stderr)
+	assert.NotContains(t, stdout, "\x1b")
+	assert.Contains(t, stdout, "색\ufffd[31m사유")
+}

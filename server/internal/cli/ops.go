@@ -31,7 +31,7 @@ commands:
   revoke --account <uuid> --grant <id> --reason <s> [--json]
   content diary|schedule --account <uuid> (--date YYYY-MM-DD | --id <uuid>) --purpose <p> --reason <s> [--json]
   content profile --account <uuid> --purpose <p> --reason <s> [--json]
-  audit list (--account <uuid> and/or --since YYYY-MM-DD, 함께 주면 AND) [--limit n] --reason <s> [--json]`
+  audit list (--account <uuid> 또는 --since YYYY-MM-DD, 둘 다 주면 AND) [--limit n] --reason <s> [--json]`
 
 // 감사 기록 조회 --limit의 범위입니다. ops.AuditFilter의 한도와 같습니다.
 const (

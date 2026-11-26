@@ -93,7 +93,7 @@ func printAccountSummary(w io.Writer, summary ops.AccountSummary) error {
 	_, _ = fmt.Fprint(w, "[계정]\n")
 	table := newOpsTable(w)
 	_, _ = fmt.Fprintf(table, "ID\t%s\n상태\t%s\n가입\t%s\n삭제 요청\t%s\n최근 활동\t%s\n",
-		account.ID, account.Status, formatTime(account.CreatedAt), formatTimePtr(account.DeletedAt), formatTime(account.LastActiveAt))
+		account.ID, cell(account.Status), formatTime(account.CreatedAt), formatTimePtr(account.DeletedAt), formatTime(account.LastActiveAt))
 	if err := table.Flush(); err != nil {
 		return err
 	}
@@ -125,7 +125,7 @@ func printAccountSummary(w io.Writer, summary ops.AccountSummary) error {
 		name  string
 		state billing.State
 	}{{"ad_free", summary.Status.AdFree}, {"insight", summary.Status.Insight}} {
-		source := string(row.state.Source)
+		source := cell(string(row.state.Source))
 		if source == "" {
 			source = opsEmpty
 		}
@@ -161,7 +161,7 @@ func printGrantRows(w io.Writer, rows []billing.GrantRow) error {
 	_, _ = fmt.Fprint(table, "행 id\t종류\t출처\t시작\t만료\t취소\n")
 	for _, row := range rows {
 		_, _ = fmt.Fprintf(table, "%d\t%s\t%s\t%s\t%s\t%s\n",
-			row.ID, row.Entitlement, row.Source, formatTime(row.StartsAt), formatTime(row.ExpiresAt), formatTimePtr(row.RevokedAt))
+			row.ID, cell(string(row.Entitlement)), cell(string(row.Source)), formatTime(row.StartsAt), formatTime(row.ExpiresAt), formatTimePtr(row.RevokedAt))
 	}
 	return table.Flush()
 }
