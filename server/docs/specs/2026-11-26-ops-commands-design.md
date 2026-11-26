@@ -23,7 +23,13 @@
 | 켤 때 IAP 서비스 에이전트 `service-<프로젝트 번호>@gcp-sa-iap.iam.gserviceaccount.com`에 `roles/run.invoker`가 필요합니다. 사용자 접근은 `roles/iap.httpsResourceAccessor`이고 문서의 바인딩 예시는 서비스 단위(`gcloud iap web add-iam-policy-binding ... --resource-type=cloud-run --service=<서비스>`)입니다. | 같은 문서 |
 | 같은 서비스에 로드밸런서 IAP와 서비스 IAP를 함께 둘 수 없습니다. | 같은 문서 Known limitations |
 | IAP는 앱에 서명된 헤더 `x-goog-iap-jwt-assertion`을 넘깁니다. ES256, 공개키 `https://www.gstatic.com/iap/verify/public_key-jwk`(키 교체가 있어 캐시 갱신), `iss`는 `https://cloud.google.com/iap`, Cloud Run 직접 IAP의 `aud`는 `/projects/<프로젝트 번호>/locations/<리전>/services/<서비스 이름>`, 사용자는 `email`과 `sub` 클레임입니다. `x-goog-authenticated-user-email` 헤더 대신 이 JWT를 검증하라고 권합니다. | IAP 문서 "Securing your app with signed headers" |
-| 사람 계정으로 프로그램에서 IAP 뒤를 부르려면 데스크톱 OAuth 클라이언트로 받은 OAuth ID token을 `Authorization: Bearer`(앱이 Authorization을 쓰면 `Proxy-Authorization`)로 보냅니다. 그 클라이언트는 IAP 설정 `programmatic_clients`에 넣어야 하고(`gcloud iap settings set`), Google 관리 기본 클라이언트로는 안 됩니다. **이 방식이 Cloud Run 직접 IAP에서 사람 계정으로 되는지는 문서에 명시가 없습니다.** | IAP 문서 "Programmatic authentication" |
+| 사람 계정으로 프로그램에서 IAP 뒤를 부르려면 데스크톱 OAuth 클라이언트로 받은 OAuth ID token을 `Authorization: Bearer`(앱이 Authorization을 쓰면 `Proxy-Authorization`)로 보냅니다. 그 클라이언트는 IAP 설정 `programmatic_clients`에 넣어야 하고(`gcloud iap settings set`), Google 관리 기본 클라이언트로는 안 됩니다. 이 방식이 Cloud Run 직접 IAP에서 사람 계정으로 되는지는 문서에 명시가 없어 staging spike(Task 0)로 확인했습니다(아래 행). | IAP 문서 "Programmatic authentication" |
+| **spike 결과(staging, 2026-11-26):** Cloud Run 직접 IAP에서 사람 계정의 CLI 접근이 됩니다. 데스크톱 OAuth 클라이언트로 루프백 로그인(PKCE)해 받은 OAuth ID token(`aud`는 그 데스크톱 클라이언트 id, `email_verified` 참)을 `Authorization: Bearer`와 `Proxy-Authorization: Bearer` 어느 쪽으로 보내도 200입니다. 조건은 그 클라이언트가 `programmatic_clients`에 있는 것입니다. refresh token으로 다시 로그인하지 않고 ID token을 받습니다. | #1321 spike 기록 |
+| 운영자 계정이 프로젝트의 조직 밖(gmail)이면 IAP의 Google 관리 OAuth 클라이언트로는 브라우저 로그인이 거절됩니다. 조직 밖 사용자를 넣으려면 OAuth 동의 화면을 외부(External)로 두고 맞춤 OAuth 클라이언트를 IAP 설정 `access_settings.oauth_settings.client_id`, `client_secret`에 지정해야 합니다. staging은 spike 때 이렇게 해서 브라우저 로그인을 확인했습니다. | Cloud Run 문서 "Configure IAP for Cloud Run" https://docs.cloud.google.com/run/docs/securing/identity-aware-proxy-cloud-run, #1321 spike 기록 |
+| IAP 서비스 에이전트가 프로젝트에 없으면 `gcloud services identity create --service=iap.googleapis.com --project=<프로젝트>`로 만듭니다. | IAP 문서 "Enable IAP for Cloud Run" https://docs.cloud.google.com/iap/docs/enabling-cloud-run |
+| 서비스 계정 토큰 발급(`iamcredentials.googleapis.com`의 `GenerateAccessToken`, `GenerateIdToken`, `SignBlob`, `SignJwt`)은 **데이터 접근 감사 로그**(`DATA_READ`)이고 관리 활동 로그가 아닙니다. 이 서비스만 따로 켤 수 없고 IAM API(`iam.googleapis.com`)나 모든 서비스의 데이터 접근 로그를 켜야 남습니다. 데이터 접근 로그는 BigQuery 일부 말고는 기본으로 꺼져 있습니다. | IAM 문서 "Service Account Credentials audit logging" https://docs.cloud.google.com/iam/docs/audit-logging/audit-logging-iamcreds, Logging 문서 "Enable Data Access audit logs" https://docs.cloud.google.com/logging/docs/audit/configure-data-access |
+| 서비스 계정 키 만들기(`CreateServiceAccountKey`, `UploadServiceAccountKey`)와 IAM 정책 바꾸기는 관리 활동 로그(항상 켜짐)입니다. Cloud SQL 연결(`cloudsql.instances.connect`)도 관리 활동이고, IAM DB 로그인(`cloudsql.instances.login`)과 Cloud SQL 사용자 만들기, 고치기, 지우기(`cloudsql.users.*`)는 데이터 접근(`DATA_WRITE`)입니다. | IAM 문서 "IAM audit logging" https://docs.cloud.google.com/iam/docs/audit-logging, Cloud SQL 문서 "Cloud SQL audit logging" https://docs.cloud.google.com/sql/docs/postgres/audit-logging |
+| IAP 데이터 접근 감사 로그(`iap.googleapis.com`)는 실행자 메일(`principalEmail`, 인증 안 된 요청은 없음), 요청 IP(`callerIp`), 요청 메서드와 URL(`requestMetadata.requestAttributes`), 대상 자원, 허용 여부(`authorizationInfo.granted`)를 남깁니다. 문서의 항목에 요청 본문과 헤더는 없습니다. URL의 query를 빼는지는 문서에 없으므로, 운영 API는 URL에 값을 두지 않는 규칙(§3.3)으로 막습니다. | IAP 문서 "IAP audit logging" https://docs.cloud.google.com/iap/docs/audit-log-howto |
 | Cloud Run 요청 로그(플랫폼이 남기는 `httpRequest`)는 요청 URL을 query까지 남깁니다. server `accessLog`는 등록 패턴(route)만 남깁니다. 그래서 사유, 목적, 날짜, 거래 id를 URL에 두면 Cloud Logging에 90일 남습니다(S164). | Cloud Run 요청 로그 형식, `internal/httpapi/middleware.go` |
 | 요청 로그(`accessLog`)에는 계정 id가 없어 계정별로 찾을 수 없고, 앱 버전은 저장하지 않습니다. 최근 접속 흔적은 `accounts.last_active_at`과 `devices.last_seen_at`(플랫폼 포함)뿐입니다. | `internal/httpapi/middleware.go`, `db/migrations/00002`, `00020` |
 | 런타임 계정은 `myungli_app` 역할의 구성원으로만 표에 닿고, migrate가 `DB_RUNTIME_USER`로 구성원을 지정합니다(S137). | `db/migrations/00024_app_role.sql`, `internal/cli/cli.go` |
@@ -52,7 +58,7 @@
 
 요청마다:
 * `x-goog-iap-jwt-assertion`을 검증합니다(ES256, 공개키 캐시와 `kid`, `iss`, 위 `aud`, `exp`, `iat`). `aud`의 프로젝트 번호, 리전, 서비스 이름은 Terraform이 env로 넘깁니다. 헤더가 없거나 검증에 실패하면 401입니다. `x-goog-authenticated-user-email` 헤더는 쓰지 않습니다.
-* 실행자(`Actor`)는 검증한 JWT의 `email`이고, 감사 기록에는 `email`을 남깁니다. `sub`는 감사 `target`에 함께 남깁니다(메일이 바뀌어도 같은 사람을 찾게).
+* 실행자(`Actor`)는 검증한 JWT의 `email`(소문자로 정규화)이고, 감사 기록 `actor`에 남깁니다. `sub`는 감사 칸 `actor_sub`에 따로 남깁니다(메일이 바뀌어도 같은 사람을 찾게).
 
 ### 3.3 API 모양
 
@@ -62,7 +68,7 @@
   * `POST /ops/v1/grants:revoke` `{accountId, grantId, reason}`
   * `POST /ops/v1/content:diary` `{accountId, date | id, purpose, reason}`, `content:schedule`, `content:profile`
   * `POST /ops/v1/audit:list` `{accountId | since, limit, reason}`
-* 응답은 Service 결과 타입의 JSON(첫 판의 camelCase 태그 그대로)입니다. 오류는 `{"code": "...", "message": "..."}`와 상태 코드(400 입력, 401 인증, 403 허용 목록, 404 계정이나 프로필 없음, 409 회수 불가와 이미 끝남, 500)입니다. 응답에 `Cache-Control: no-store`.
+* 응답은 Service 결과 타입의 JSON(첫 판의 camelCase 태그 그대로)입니다. 오류는 `{"code": "...", "message": "..."}`와 상태 코드(400 입력, 401 인증, 403 허용 목록과 CSRF 검사, 404 계정이나 프로필 없음, 405 POST 밖, 409 회수 불가, 이미 끝남, 지운 계정 부여, 모호한 거래 조회, 503 IAP 공개키를 구할 수 없음, 500)입니다. 응답에 `Cache-Control: no-store`.
 * 요청 본문 상한 64 KiB. 응답 본문과 요청 본문은 로그에 남기지 않습니다(`accessLog`는 route, status, latency만).
 * 운영 API 계약은 지금 server 안에 둡니다(어드민 웹이 생길 때 web과의 계약 파일로 올립니다).
 
@@ -70,7 +76,8 @@
 
 * `server ops <하위 명령>`은 이제 DB에 붙지 않고 운영 API를 부르는 클라이언트입니다. 인자, 출력(표와 `--json`, 터미널 제어문자 치환), 종료 코드는 첫 판 그대로입니다.
 * 인증: 데스크톱 OAuth 클라이언트로 브라우저 로그인(루프백 리디렉션) 한 번 뒤 받은 refresh token으로 ID token을 얻어 `Authorization: Bearer`로 보냅니다. 클라이언트 id와 secret, refresh token은 로컬 값(D98) `server/<환경>/ops-oauth.json`(600)에만 둡니다. 운영 API 주소도 같은 파일에 둡니다.
-* **먼저 확인할 것(spike):** Cloud Run 직접 IAP에서 사람 계정의 프로그램 접근이 되는지 문서에 없습니다(§2). 구현 전에 staging에 빈 IAP 서비스로 확인합니다. 안 되면 CLI는 미루고 운영 API는 브라우저(어드민 웹, 그 전에는 IAP 뒤 최소 HTML 폼)로만 부르는 안을 지휘에 올립니다.
+* **spike(Task 0) 결과:** 됩니다(§2). 그래서 CLI 경로로 구현했습니다. `server ops login --env <환경> --api-url <주소>`가 로컬 값 `ops-oauth-client.json`(Google 콘솔에서 내려받은 데스크톱 OAuth 클라이언트)을 읽어 로그인하고 `ops-oauth.json`(600, `apiUrl`, `clientId`, `clientSecret`, `refreshToken`)을 씁니다. 다른 명령은 `--env`로 그 파일을 쓰고, 호출마다 refresh token으로 ID token을 받습니다.
+* **브라우저 경로는 열지 않습니다.** 운영 API는 사용자 정의 헤더 `X-Myungli-Ops: 1`과 JSON `Content-Type`을 요구하고, `Origin` 헤더가 있거나 `Sec-Fetch-Site`가 `none`이 아니면 403으로 거절합니다(쿠키로 인증된 브라우저 요청을 막음, 지휘 검토 2). 어드민 웹을 만들 때 CSRF 방어를 다시 설계합니다.
 
 ## 4. 기능
 
@@ -111,13 +118,14 @@
 | --- | --- |
 | `id` uuid | 기록 id. 부여 행의 `source_ref`로도 씀 |
 | `at` timestamptz | 실행 시각. `BEFORE INSERT` trigger가 DB `now()`로 정함 |
-| `actor` text | 실행자. 운영 API가 검증한 IAP JWT의 `email` |
+| `actor` text | 실행자. 운영 API가 검증한 IAP JWT의 `email`(소문자) |
+| `actor_sub` text | 실행자의 IAP `sub`. 메일이 바뀌어도 같은 사람을 찾기 위해 따로 둠 |
 | `channel` text | `ops_api` 하나(CHECK). CLI와 어드민 웹 모두 이 API를 거침 |
 | `action` text | `account_show`, `grant`, `revoke`, `content_view`, `audit_list` |
 | `account_id` uuid | 대상 계정(못 찾으면 NULL) |
 | `purpose` text | 열람 목적(`content_view`만 필수) |
 | `reason` text | 사유 |
-| `target` jsonb | 무엇을. 열람은 `accountId`, 연 항목 id, 개수만. 실행자의 IAP `sub` |
+| `target` jsonb | 무엇을. 열람은 `accountId`, 연 항목 id, 개수만 |
 | `before`, `after` jsonb | 부여와 회수의 전후 값 |
 
 ### 5.2 기록 규칙
@@ -160,6 +168,7 @@ deploy/terraform/env/       server-ops 서비스, 서비스 계정, DB 사용자
 * IAP 헤더 없음이나 검증 실패: 401. 허용 목록 밖: 403. 둘 다 감사 없음(데이터에 닿지 않음), 로그에는 사유 코드만.
 * 계정 없음, 프로필 없음: 404, 감사 있음.
 * 회수 불가, 이미 끝남, 지운 계정 부여: 409, 감사 없음.
+* IAP 공개키를 구할 수 없음(받은 적이 없거나 마지막으로 받은 지 24시간이 넘음): 503, 감사 없음.
 * CLI는 상태 코드를 첫 판의 종료 코드로 바꿉니다(400은 2, 나머지 실패는 1).
 
 ## 9. 테스트
@@ -175,10 +184,10 @@ deploy/terraform/env/       server-ops 서비스, 서비스 계정, DB 사용자
 
 ## 10. 외부 준비(사용자)
 
-* 데스크톱 OAuth 클라이언트(staging, prod 각각)를 만들고 IAP `programmatic_clients`에 넣기. 클라이언트 id와 secret은 로컬 값.
+* 환경마다 OAuth 동의 화면 외부, IAP용 맞춤 웹 OAuth 클라이언트(IAP 설정 `client_id`, `client_secret`), 데스크톱 OAuth 클라이언트(IAP `programmatic_clients`). 클라이언트 secret은 로컬 값(D98 K20). staging은 spike 때 했습니다. 순서는 runbook "준비"입니다.
 * 운영자 계정의 IAP 접근 부여(runbook 명령).
 * Secret `OPS_OPERATORS` 값 넣기.
-* staging spike(§3.4)는 server가 준비한 빈 서비스로 사용자와 함께 확인합니다.
+* staging spike(§3.4)는 끝났습니다(2026-11-26, 확인용 서비스는 지움).
 
 ## 11. 문서와 보고
 

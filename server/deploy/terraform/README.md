@@ -42,11 +42,16 @@ bootstrap state의 원본은 그 프로젝트의 state bucket `<프로젝트>-tf
 printf '%s' "<값>" | gcloud secrets versions add JWT_SIGNING_KEY --project <프로젝트> --data-file=-
 ```
 
-Secret 목록: `JWT_SIGNING_KEY`, `TOKEN_ENCRYPTION_KEY`, `KAKAO_ADMIN_KEY`, `APPLE_PRIVATE_KEY`, `REVENUECAT_API_KEY`, `REVENUECAT_WEBHOOK_AUTH`, `RESEND_API_KEY`(문의 메일, S134), `LEGAL_BUSINESS_INFO`(법적 문서 사업자 정보, 아래 절, S157), staging만 `TEST_LOGIN_SECRET`. `RESEND_API_KEY`는 값을 넣은 뒤 env tfvars의 `support_mail_enabled`를 `true`로 바꿔야 server에 붙습니다(그 전에는 문의 접수만 503). 키 교체 때는 tfvars에 이전 키 id를 넣으면 `JWT_PREVIOUS_KEY`·`TOKEN_PREVIOUS_KEY` 틀이 생깁니다. staging은 `billing_enabled = false`인 동안 `REVENUECAT_API_KEY`, `REVENUECAT_WEBHOOK_AUTH` 값이 없어도 server를 배포합니다(결제만 꺼짐, S123). 값을 넣고 env tfvars의 결제 설정 둘을 채운 뒤 `true`로 바꿉니다.
+Secret 목록: `JWT_SIGNING_KEY`, `TOKEN_ENCRYPTION_KEY`, `KAKAO_ADMIN_KEY`, `APPLE_PRIVATE_KEY`, `REVENUECAT_API_KEY`, `REVENUECAT_WEBHOOK_AUTH`, `RESEND_API_KEY`(문의 메일, S134), `LEGAL_BUSINESS_INFO`(법적 문서 사업자 정보, 아래 절, S157), `OPS_OPERATORS`(운영 API 허용 목록, 아래 "운영 API", S170), staging만 `TEST_LOGIN_SECRET`. `RESEND_API_KEY`는 값을 넣은 뒤 env tfvars의 `support_mail_enabled`를 `true`로 바꿔야 server에 붙습니다(그 전에는 문의 접수만 503). 키 교체 때는 tfvars에 이전 키 id를 넣으면 `JWT_PREVIOUS_KEY`·`TOKEN_PREVIOUS_KEY` 틀이 생깁니다. staging은 `billing_enabled = false`인 동안 `REVENUECAT_API_KEY`, `REVENUECAT_WEBHOOK_AUTH` 값이 없어도 server를 배포합니다(결제만 꺼짐, S123). 값을 넣고 env tfvars의 결제 설정 둘을 채운 뒤 `true`로 바꿉니다.
 
-### 운영자 등록
+### 운영 API (`server-ops`, S170)
 
-운영 명령(`server ops`, S170)을 쓰는 사람은 Cloud SQL IAM 사용자로 등록합니다. 메일 주소는 개인정보라 tfvars에 두지 않고(D74) 프로젝트 관리자가 환경마다 `gcloud sql users create <메일> --instance=myungli-pg --type=cloud_iam_user --project <프로젝트>`로 추가합니다. 소유자가 아니면 `roles/cloudsql.client`, `roles/cloudsql.instanceUser`를 주고, `server-migrate` Job을 실행하면 사람 IAM 사용자가 `myungli_ops` 구성원이 됩니다. 절차와 빼기, 연결 값 파일(`ops.env`, `docs/local-values.md` K20)은 [`server/docs/runbook/ops.md`](../../docs/runbook/ops.md)를 따릅니다.
+env apply가 IAP를 켠 Cloud Run 서비스 `server-ops`, 서비스 계정 `server-ops`, 그 DB 사용자, IAP 서비스 에이전트의 `run.invoker`, Secret `OPS_OPERATORS` 틀을 만듭니다. 사람 DB 계정은 만들지 않습니다. 사람이 할 일은 [`server/docs/runbook/ops.md`](../../docs/runbook/ops.md) "준비" 순서를 따릅니다.
+
+* env apply 전에: bootstrap apply(IAP API, deployer의 `roles/iam.serviceAccountViewer`)와 IAP 서비스 에이전트 만들기(`gcloud services identity create --service=iap.googleapis.com --project=<프로젝트>`). 에이전트가 없으면 `server-ops`의 invoker 부여에서 apply가 실패합니다.
+* OAuth 동의 화면 외부, IAP용 맞춤 웹 OAuth 클라이언트, 데스크톱 OAuth 클라이언트(`programmatic_clients`)를 IAP 설정에 넣습니다(staging은 했음).
+* 운영자 메일은 개인정보라 tfvars에 두지 않습니다(D74). 운영자 IAP 접근(`roles/iap.httpsResourceAccessor`, 서비스 단위)과 `OPS_OPERATORS` 값은 runbook "운영자 등록과 빼기"의 명령으로 사람이 넣습니다. `OPS_OPERATORS`에 값이 없으면 `deploy-server`는 `server-ops` 갱신만 건너뜁니다.
+* 배포는 `server-ops` 갱신 전에 `server/deploy/check-ops-sa.sh`로 그 계정을 빌려 쓸 수 있는 주체를 검사하고, deployer 밖 주체가 있으면 멈춥니다. 고치는 법은 runbook "배포 검사가 멈췄을 때"입니다.
 
 ### 법적 문서 사업자 정보
 
@@ -100,8 +105,9 @@ terraform apply -var-file="$env.tfvars" -var-file="${MYUNGLI_LOCAL_DIR:-$HOME/.c
 | --- | --- | --- | --- |
 | `server-migrator@<프로젝트>.iam` | `server-migrator` | `cloudsqlsuperuser`, 표의 주인 | Job `server-migrate`, `server-seed` |
 | `server-runtime@<프로젝트>.iam` | `server-runtime` | `myungli_app` 구성원(읽기와 쓰기만) | serve, Job `server-retention`, `server-precompute`, `server-notify`, `server-smoke` |
+| `server-ops@<프로젝트>.iam` | `server-ops` | `myungli_ops` 유일한 구성원(운영 API 권한만, S170) | 서비스 `server-ops`(`ops-serve`) |
 
-`migrate up`은 `DB_RUNTIME_USER`를 `myungli_app` 구성원으로 두고, 그 사용자가 `cloudsqlsuperuser`에 속하면 실패합니다. 실패하면 런타임 DB 사용자를 지우고 다시 배포해 Terraform이 역할 없이 다시 만들게 합니다(`database_roles`는 provider가 다시 읽지 않아 목록 수정만으로는 거둬지지 않음).
+`migrate up`은 `DB_RUNTIME_USER`를 `myungli_app` 구성원으로, `DB_OPS_USER`를 `myungli_ops` 구성원으로 두고, 런타임 사용자가 `cloudsqlsuperuser`에 속하거나 두 사용자의 역할이 섞이거나 `myungli_ops`에 `DB_OPS_USER` 밖 구성원이 있으면 실패합니다. 실패하면 런타임 DB 사용자를 지우고 다시 배포해 Terraform이 역할 없이 다시 만들게 합니다(`database_roles`는 provider가 다시 읽지 않아 목록 수정만으로는 거둬지지 않음).
 
 ```sh
 gcloud sql users delete "server-runtime@${project}.iam" --instance myungli-pg --type cloud_iam_service_account --project "$project"
