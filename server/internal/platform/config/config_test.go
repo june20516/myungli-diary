@@ -703,3 +703,56 @@ func TestLoadLegalBusiness(t *testing.T) {
 		}
 	})
 }
+
+func TestLoadOps(t *testing.T) {
+	const audience = "/projects/1/locations/asia-northeast3/services/server-ops"
+	tests := []struct {
+		name    string
+		env     map[string]string
+		wantErr string // 비면 성공
+		wantDev string
+	}{
+		{name: "배포 환경", env: map[string]string{"APP_ENV": "staging", "IAP_AUDIENCE": audience, "OPS_OPERATORS": " a@x.com "}},
+		{name: "배포 환경 audience 없음", env: map[string]string{"APP_ENV": "prod"}, wantErr: "IAP_AUDIENCE"},
+		{name: "local 고정 신원", env: map[string]string{"OPS_DEV_IDENTITY": " Dev@X.com , sub-1 "}, wantDev: "dev@x.com"},
+		{name: "local 고정 신원도 없고 audience도 없음", env: map[string]string{}, wantErr: "IAP_AUDIENCE"},
+		{name: "local이 아닌데 고정 신원", env: map[string]string{"APP_ENV": "staging", "IAP_AUDIENCE": audience, "OPS_DEV_IDENTITY": "d@x.com,s"}, wantErr: "OPS_DEV_IDENTITY"},
+		{name: "쉼표 없음", env: map[string]string{"OPS_DEV_IDENTITY": "d@x.com"}, wantErr: "OPS_DEV_IDENTITY"},
+		{name: "sub 비어 있음", env: map[string]string{"OPS_DEV_IDENTITY": "d@x.com, "}, wantErr: "OPS_DEV_IDENTITY"},
+		{name: "메일 비어 있음", env: map[string]string{"OPS_DEV_IDENTITY": ",sub-9"}, wantErr: "OPS_DEV_IDENTITY"},
+		{name: "쉼표 둘", env: map[string]string{"OPS_DEV_IDENTITY": "d@x.com,s,t"}, wantErr: "OPS_DEV_IDENTITY"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cfg, err := LoadOps(fakeEnv(tt.env))
+			if tt.wantErr != "" {
+				if err == nil || !strings.Contains(err.Error(), tt.wantErr) {
+					t.Fatalf("LoadOps() error = %v, want %q 포함", err, tt.wantErr)
+				}
+				if v := tt.env["OPS_DEV_IDENTITY"]; v != "" && strings.Contains(err.Error(), v) {
+					t.Errorf("오류에 값이 들어 있습니다: %v", err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("LoadOps() error = %v", err)
+			}
+			if tt.wantDev == "" && cfg.DevIdentity != nil {
+				t.Errorf("DevIdentity = %+v, want nil", cfg.DevIdentity)
+			}
+			if tt.wantDev != "" && (cfg.DevIdentity == nil || cfg.DevIdentity.Email != tt.wantDev || cfg.DevIdentity.Subject != "sub-1") {
+				t.Errorf("DevIdentity = %+v, want email %q sub sub-1", cfg.DevIdentity, tt.wantDev)
+			}
+		})
+	}
+}
+
+func TestLoadOps_TrimsOperators(t *testing.T) {
+	cfg, err := LoadOps(fakeEnv(map[string]string{"IAP_AUDIENCE": "a", "OPS_OPERATORS": "  a@x.com,b@x.com\n"}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.Operators != "a@x.com,b@x.com" {
+		t.Errorf("Operators = %q", cfg.Operators)
+	}
+}

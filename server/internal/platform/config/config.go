@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/june20516/myungli-diary/server/internal/opsapi"
 	"github.com/june20516/myungli-diary/server/legal"
 )
 
@@ -527,4 +528,58 @@ func LoadSupport(getenv func(string) string) (SupportConfig, error) {
 		return SupportConfig{}, errors.New("SUPPORT_MAIL_FROM은 메일 주소여야 합니다(표시 이름 포함 가능)")
 	}
 	return cfg, nil
+}
+
+// OpsConfig는 운영 API 서버(ops-serve)의 설정입니다.
+type OpsConfig struct {
+	// Audience는 IAP 서명 헤더의 aud(/projects/<번호>/locations/<리전>/services/server-ops)입니다.
+	Audience string
+	// Operators는 운영자 허용 목록 원문(OPS_OPERATORS, Secret)입니다. 해석은 opsapi.ParseAllowlist가 합니다.
+	Operators string
+	// DevIdentity는 local 전용 고정 신원(OPS_DEV_IDENTITY)입니다. 있으면 IAP 검증을 대신합니다.
+	DevIdentity *opsapi.Identity
+}
+
+// LoadOps는 getenv로 운영 API 서버 설정을 읽습니다. 값은 앞뒤 공백을 지운 뒤 씁니다.
+// IAP_AUDIENCE는 필수입니다. 다만 APP_ENV가 local이고 OPS_DEV_IDENTITY가 있으면 IAP 검증을 하지 않으므로 비워 둘 수 있습니다.
+// OPS_DEV_IDENTITY는 `email,sub` 형식이고 APP_ENV가 local일 때만 허용합니다.
+// OPS_OPERATORS는 비어 있어도 읽힙니다(비면 모든 요청이 403). 오류에는 변수 이름만 담고 값은 담지 않습니다.
+func LoadOps(getenv func(string) string) (OpsConfig, error) {
+	getenv = trimmedEnv(getenv)
+	env := orDefault(getenv("APP_ENV"), defaultEnv)
+	cfg := OpsConfig{
+		Audience:  getenv("IAP_AUDIENCE"),
+		Operators: getenv("OPS_OPERATORS"),
+	}
+
+	var errs []error
+	rawDev := getenv("OPS_DEV_IDENTITY")
+	if rawDev != "" {
+		identity, err := parseDevIdentity(rawDev)
+		switch {
+		case env != defaultEnv:
+			errs = append(errs, errors.New("OPS_DEV_IDENTITY는 APP_ENV가 local일 때만 쓸 수 있습니다"))
+		case err != nil:
+			errs = append(errs, err)
+		default:
+			cfg.DevIdentity = &identity
+		}
+	}
+	if cfg.Audience == "" && rawDev == "" {
+		errs = append(errs, errors.New("IAP_AUDIENCE가 필요합니다(APP_ENV가 local이고 OPS_DEV_IDENTITY가 있을 때만 비워 둘 수 있습니다)"))
+	}
+	if err := errors.Join(errs...); err != nil {
+		return OpsConfig{}, err
+	}
+	return cfg, nil
+}
+
+// parseDevIdentity는 `email,sub`를 읽습니다. 쉼표는 정확히 하나이고 둘 다 비어 있지 않아야 합니다. 오류에는 값을 담지 않습니다.
+func parseDevIdentity(raw string) (opsapi.Identity, error) {
+	email, subject, ok := strings.Cut(raw, ",")
+	email, subject = strings.TrimSpace(email), strings.TrimSpace(subject)
+	if !ok || email == "" || subject == "" || strings.Contains(subject, ",") {
+		return opsapi.Identity{}, errors.New("OPS_DEV_IDENTITY는 `email,sub` 형식이어야 합니다")
+	}
+	return opsapi.Identity{Email: strings.ToLower(email), Subject: subject}, nil
 }

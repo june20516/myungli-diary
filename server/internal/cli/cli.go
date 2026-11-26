@@ -49,17 +49,19 @@ type Command func(ctx context.Context, args []string, getenv func(string) string
 
 // commands는 하위 명령 테이블입니다.
 var commands = map[string]Command{
-	"serve":   runServe,
-	"migrate": runMigrate,
-	"seed":    runSeed,
-	"job":     runJob,
-	"ops":     runOps,
+	"serve":     runServe,
+	"ops-serve": runOpsServe,
+	"migrate":   runMigrate,
+	"seed":      runSeed,
+	"job":       runJob,
+	"ops":       runOps,
 }
 
 const usageText = `usage: server <command>
 
 commands:
   serve                                   HTTP 서버를 시작합니다
+  ops-serve                               IAP 뒤의 운영 API 서버를 시작합니다
   migrate up|down|status                  DB 마이그레이션을 실행합니다
   seed                                    시드 데이터를 넣습니다
   job precompute|notify|retention|smoke   배치 작업을 실행합니다

@@ -58,6 +58,14 @@ type Identity struct {
 	Subject string
 }
 
+// Authenticator는 요청의 서명 헤더 값에서 운영자 신원을 확인합니다. *Verifier가 IAP 검증으로 이를 만족하고,
+// local 개발용 고정 신원도 같은 인터페이스로 끼워 CSRF 검사와 허용 목록을 그대로 거칩니다.
+type Authenticator interface {
+	Verify(ctx context.Context, assertion string) (Identity, error)
+}
+
+var _ Authenticator = (*Verifier)(nil)
+
 // KeySource는 kid별 IAP 공개키를 내줍니다.
 type KeySource interface {
 	Keys(ctx context.Context) (map[string]*ecdsa.PublicKey, error)

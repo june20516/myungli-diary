@@ -11,7 +11,7 @@ import (
 // Deps는 운영 API 핸들러가 쓰는 의존성입니다.
 type Deps struct {
 	Service   *ops.Service
-	Verifier  *Verifier
+	Verifier  Authenticator
 	Allowlist Allowlist
 	Logger    *slog.Logger
 }

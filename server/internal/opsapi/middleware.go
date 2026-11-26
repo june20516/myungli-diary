@@ -90,7 +90,7 @@ func requirePost(next http.Handler) http.Handler {
 }
 
 // authenticate는 IAP 서명 헤더를 검증해 실행자를 컨텍스트에 둡니다. 실패는 401, 공개키 없음은 503입니다.
-func authenticate(verifier *Verifier, next http.Handler) http.Handler {
+func authenticate(verifier Authenticator, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		identity, err := verifier.Verify(r.Context(), r.Header.Get(AssertionHeader))
 		switch {
