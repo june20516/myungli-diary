@@ -83,7 +83,7 @@ type PurchaseInfo struct {
 	MergedFrom      *uuid.UUID
 }
 
-// accountTarget은 계정 조회 감사 행의 target입니다. 조회에 쓴 열쇠만 남깁니다.
+// accountTarget은 계정 조회 감사 행의 target입니다. 조회에 쓴 열쇠와, 스토어 거래 id가 모호할 때 후보 계정 목록(candidates)을 남깁니다.
 type accountTarget struct {
 	AccountID        *uuid.UUID `json:"accountId,omitempty"`
 	StoreTransaction string     `json:"storeTransaction,omitempty"`

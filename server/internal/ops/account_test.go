@@ -226,12 +226,26 @@ func TestAccountSummary_AuditFailureReturnsNothing(t *testing.T) {
 	ctx := context.Background()
 	id := insertAccount(t, pool)
 
-	// ops_audit INSERT만 빠진 역할로 연결합니다.
+	svc := newNoAuditService(t, pool)
+	got, err := svc.AccountSummary(ctx, testActor, AccountKey{AccountID: id}, "문의")
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "permission denied", "감사 INSERT 권한 때문에 실패해야 합니다")
+	assert.Equal(t, AccountSummary{}, got)
+	assert.Empty(t, auditRows(t, pool))
+}
+
+// newNoAuditService는 ops_audit INSERT 권한만 없는 역할로 연결한 Service를 만듭니다.
+// 읽기 권한은 모두 있고 쓰기 권한은 어떤 표에도 없습니다. 역할은 테스트가 끝나면 지웁니다.
+func newNoAuditService(t *testing.T, pool *pgxpool.Pool) *Service {
+	t.Helper()
+	ctx := context.Background()
 	role := "ops_noaudit_" + strings.ReplaceAll(uuid.NewString(), "-", "")[:12]
 	for _, stmt := range []string{
 		"CREATE ROLE " + role + " NOLOGIN",
 		"GRANT USAGE ON SCHEMA public TO " + role,
 		"GRANT SELECT ON ALL TABLES IN SCHEMA public TO " + role,
+		"GRANT INSERT ON entitlement_grants TO " + role,
+		"GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO " + role,
 	} {
 		_, err := pool.Exec(ctx, stmt)
 		require.NoError(t, err, stmt)
@@ -252,11 +266,5 @@ func TestAccountSummary_AuditFailureReturnsNothing(t *testing.T) {
 	restricted, err := pgxpool.NewWithConfig(ctx, cfg)
 	require.NoError(t, err)
 	t.Cleanup(restricted.Close)
-
-	svc := NewService(restricted, clocktest.New(testNow))
-	got, err := svc.AccountSummary(ctx, testActor, AccountKey{AccountID: id}, "문의")
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), "permission denied", "감사 INSERT 권한 때문에 실패해야 합니다")
-	assert.Equal(t, AccountSummary{}, got)
-	assert.Empty(t, auditRows(t, pool))
+	return NewService(restricted, clocktest.New(testNow))
 }
