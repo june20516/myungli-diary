@@ -32,7 +32,7 @@ output "migrator_env" {
 }
 
 output "ops_env" {
-  description = "배포 workflow가 server-ops 서비스에 붙이는 비밀이 아닌 환경 변수(#1321). Secret OPS_OPERATORS는 따로 붙입니다"
+  description = "배포 workflow가 server-ops 서비스에 붙이는 비밀이 아닌 환경 변수(#1321). Secret OPS_OPERATORS는 OPS_OPERATORS_FILE 경로에 볼륨으로 따로 붙입니다"
   value       = local.ops_env
 }
 

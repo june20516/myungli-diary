@@ -129,7 +129,8 @@ resource "google_cloud_run_v2_service_iam_member" "server_public" {
 }
 
 # 내부 운영 API입니다(#1321). Cloud Run 직접 IAP가 Google 계정으로 막고, 앱은 IAP가 서명한 JWT를 다시 검증합니다.
-# server처럼 env와 Secret(OPS_OPERATORS)은 배포 workflow가 준비를 확인한 뒤 붙입니다(S121).
+# server처럼 env와 Secret(OPS_OPERATORS, 볼륨 마운트)은 배포 workflow가 준비를 확인한 뒤 붙입니다(S121).
+# Secret 볼륨은 workflow가 정하므로 Terraform이 지우지 않도록 volumes와 volume_mounts를 무시합니다.
 resource "google_cloud_run_v2_service" "server_ops" {
   name                = "server-ops"
   location            = var.region
@@ -170,7 +171,10 @@ resource "google_cloud_run_v2_service" "server_ops" {
   depends_on = [google_sql_database.main, google_sql_user.ops]
 
   lifecycle {
-    ignore_changes = [template[0].containers[0].image, template[0].containers[0].env, client, client_version]
+    ignore_changes = [
+      template[0].containers[0].image, template[0].containers[0].env, template[0].containers[0].volume_mounts, template[0].volumes,
+      client, client_version,
+    ]
   }
 }
 

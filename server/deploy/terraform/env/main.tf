@@ -68,7 +68,7 @@ locals {
     DB_OPS_USER     = local.ops_db_user
   })
 
-  # 운영 API 서비스(server-ops)의 env입니다. 앱 설정과 앱 Secret은 붙이지 않고, OPS_OPERATORS만 workflow가 Secret으로 붙입니다.
+  # 운영 API 서비스(server-ops)의 env입니다. 앱 설정과 앱 Secret은 붙이지 않고, OPS_OPERATORS만 workflow가 Secret 볼륨으로 붙입니다.
   # OPS_DEV_IDENTITY는 local 전용이라 여기에 두지 않습니다(배포 환경에서 있으면 기동 실패).
   # GOOGLE_CLOUD_PROJECT는 로그의 trace 연결에 씁니다(serve와 같음).
   ops_env = {
@@ -79,7 +79,18 @@ locals {
     # IAP가 서명한 JWT의 aud입니다. Cloud Run 직접 IAP는 프로젝트 번호, 리전, 서비스 이름으로 만듭니다.
     IAP_AUDIENCE = "/projects/${var.project_number}/locations/${var.region}/services/${google_cloud_run_v2_service.server_ops.name}"
     LOG_LEVEL    = lookup(var.server_settings, "LOG_LEVEL", "info")
+    # 운영자 허용 목록 Secret(OPS_OPERATORS, 버전 latest)을 workflow가 이 경로에 볼륨으로 마운트합니다. Cloud Run은 볼륨의 secret을
+    # 읽을 때마다 latest 값을 가져오고 ops-serve가 1분마다 다시 읽어, 운영자를 빼면 재배포 없이 반영됩니다(지휘 2차 감사 M1).
+    # 디렉터리(/secrets/ops)에는 이 파일 하나만 있습니다. Cloud Run은 /dev, /proc, /sys 아래 마운트를 받지 않습니다.
+    OPS_OPERATORS_FILE = local.ops_operators_file
+    # 기동 때 역할 분리와 예상 밖 로그인 role 검사에 쓰는 DB 사용자 이름입니다(migrate와 같은 검사, 지휘 2차 감사 L8).
+    DB_MIGRATOR_USER = local.migrator_db_user
+    DB_RUNTIME_USER  = local.db_user
+    DB_OPS_USER      = local.ops_db_user
   }
+
+  # server-ops에 운영자 목록 Secret을 마운트하는 파일 경로입니다. workflow가 terraform output ops_env에서 읽어 --set-secrets에 씁니다.
+  ops_operators_file = "/secrets/ops/operators"
 }
 
 resource "google_service_account" "server" {

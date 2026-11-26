@@ -122,7 +122,11 @@ jobs:
           terraform output -json ops_env | jq -r 'to_entries[] | "\(.key): \(.value | @json)"' > "$RUNNER_TEMP/ops-env.yaml"
           ops_version="$(gcloud secrets versions list OPS_OPERATORS --project "$PROJECT" --filter='state:ENABLED' --limit=1 --format='value(name)')"
           if [ -n "$ops_version" ]; then
-            echo "ops_ready=true" >> "$GITHUB_OUTPUT"
+            {
+              echo "ops_ready=true"
+              # 운영자 목록 Secret을 마운트할 파일 경로(Terraform의 OPS_OPERATORS_FILE)입니다.
+              echo "ops_operators_file=$(terraform output -json ops_env | jq -r '.OPS_OPERATORS_FILE')"
+            } >> "$GITHUB_OUTPUT"
           else
             echo "### server-ops 배포 건너뜀 (${{ inputs.environment }}): Secret OPS_OPERATORS에 값이 없습니다. 값을 넣은 뒤 다시 배포하세요." >> "$GITHUB_STEP_SUMMARY"
             echo "ops_ready=false" >> "$GITHUB_OUTPUT"
@@ -176,13 +180,14 @@ jobs:
             --env-vars-file "$RUNNER_TEMP/server-env.yaml" --set-secrets "${{ steps.ready.outputs.secrets }}"
 
       # 운영 API는 server와 같은 이미지를 ops-serve(Terraform args)로 돌립니다. migrate가 운영 DB 사용자의 권한 묶음을 둔 뒤에 갱신합니다.
-      # 앱 Secret은 붙이지 않고 허용 목록만 붙입니다.
+      # 앱 Secret은 붙이지 않고 허용 목록만 붙입니다. 환경 변수가 아니라 볼륨(버전 latest)으로 붙여, 새 버전을 넣으면
+      # 떠 있는 인스턴스도 다시 읽습니다(ops-serve가 1분 TTL). --set-secrets는 이전 매핑(예전의 환경 변수 OPS_OPERATORS)을 모두 바꿉니다.
       - name: server-ops 배포
         if: steps.ready.outputs.ready == 'true' && steps.ready.outputs.ops_ready == 'true'
         run: |
           gcloud run services update server-ops --region "$REGION" --project "$PROJECT" \
             --image "${{ steps.image.outputs.image }}" \
-            --env-vars-file "$RUNNER_TEMP/ops-env.yaml" --set-secrets "OPS_OPERATORS=OPS_OPERATORS:latest"
+            --env-vars-file "$RUNNER_TEMP/ops-env.yaml" --set-secrets "${{ steps.ready.outputs.ops_operators_file }}=OPS_OPERATORS:latest"
 
       # Scheduler는 scheduler_enabled(Terraform 출력)가 true일 때만 켭니다. 부하 환경은 false라 Job 이미지만 바꿉니다(D104).
       - name: 배치 Job과 Scheduler
