@@ -129,7 +129,7 @@ jobs:
           server_changed=$( { echo "$code_changed"; echo "$changed" | grep -E '^docs/legal/[^/]+/' || true; } | grep -v '^$' || true)
           unit server "$server_changed" '^server/' '^proto/|^core/(message_(keys|params)|evidence_(rules|sources))\.json$|^docs/identity/writing/(content|slots|rules|tools)/|^docs/ia/screens\.json$|^docs/legal/[^/]+/'
           # app이 쓰는 계약: REST, IA, 디자인 토큰·컴포넌트, 슬롯 명세와 ARB 검사기(#85).
-          unit app "$code_changed" '^app/' '^server/api/openapi\.yaml$|^docs/ia/screens\.json$|^docs/identity/design/(tokens|components|store|logo)/|^docs/identity/writing/(slots|tools|generated/store)/'
+          unit app "$code_changed" '^app/' '^server/api/openapi\.yaml$|^docs/ia/screens\.json$|^docs/identity/design/(tokens|components|store|logo)/|^docs/identity/writing/(slots|tools|generated/store|generated/arb)/'
           # writing 검사기가 읽는 계약: IA, 메시지 키·매개변수, proto(#144), design 글자 수 상한 표(슬롯 max_length 대조, W26).
           # 검사기가 읽지 않는 과정 문서(CLAUDE.md·결정·spec·계획·산출물)만 바뀐 것은 writing 검사를 고르지 않습니다(docs 검사만 돕니다).
           writing_changed=$(echo "$changed" | grep -vE '^docs/identity/writing/(CLAUDE\.md|decisions\.md|specs/|plans/|artifacts/)' || true)
