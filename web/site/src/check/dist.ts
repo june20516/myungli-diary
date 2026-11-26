@@ -16,6 +16,9 @@ function requiredFiles(): string[] {
     "index.html",
     "404.html",
     "app-ads.txt",
+    "favicon.ico",
+    "apple-touch-icon.png",
+    "icon-192.png",
     ...LANGS.flatMap((lang) => [`${lang}/index.html`, `${lang}/og.png`, localizedNotFoundFile(lang)]),
   ];
 }
