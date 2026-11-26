@@ -41,6 +41,35 @@ func TestAuditList_FiltersAndAuditsItself(t *testing.T) {
 	require.NotNil(t, last.AccountID)
 	assert.Equal(t, a, *last.AccountID)
 	assert.Contains(t, last.Target, a.String())
+	for _, record := range got {
+		assert.NotEqual(t, "audit_list", record.Action, "이번 조회의 감사 행은 결과에 들어가지 않습니다")
+	}
+}
+
+func TestAuditList_SinceAndAccountCombineWithAnd(t *testing.T) {
+	svc, _ := newTestService(t)
+	a, b := uuid.New(), uuid.New()
+	seedAudit(t, svc, a, testNow.Add(-5*time.Hour), "오래된 a")
+	seedAudit(t, svc, a, testNow.Add(-time.Hour), "최근 a")
+	seedAudit(t, svc, b, testNow.Add(-time.Hour), "최근 b")
+	since := testNow.Add(-2 * time.Hour)
+
+	got, err := svc.AuditList(context.Background(), testActor, AuditFilter{AccountID: &a, Since: &since}, "점검")
+	require.NoError(t, err)
+	require.Len(t, got, 1)
+	assert.Equal(t, "최근 a", got[0].Reason)
+}
+
+func TestAuditList_DefaultLimitIs100(t *testing.T) {
+	svc, _ := newTestService(t)
+	a := uuid.New()
+	for range 101 {
+		seedAudit(t, svc, a, testNow.Add(-time.Hour), "행")
+	}
+
+	got, err := svc.AuditList(context.Background(), testActor, AuditFilter{AccountID: &a}, "점검")
+	require.NoError(t, err)
+	assert.Len(t, got, 100)
 }
 
 func TestAuditList_SinceAndLimit(t *testing.T) {

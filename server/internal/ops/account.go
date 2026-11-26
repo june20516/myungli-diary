@@ -87,6 +87,8 @@ type PurchaseInfo struct {
 type accountTarget struct {
 	AccountID        *uuid.UUID `json:"accountId,omitempty"`
 	StoreTransaction string     `json:"storeTransaction,omitempty"`
+	// Candidates는 스토어 거래 id가 모호할 때 후보 계정 id입니다.
+	Candidates []uuid.UUID `json:"candidates,omitempty"`
 }
 
 // AccountSummary는 계정의 지원용 상태를 한 번에 돌려줍니다.
@@ -114,12 +116,10 @@ func (s *Service) AccountSummary(ctx context.Context, actor Actor, key AccountKe
 	err = s.inTx(ctx, func(tx pgx.Tx) error {
 		// 트랜잭션이 다시 실행될 수 있으므로 결과를 처음 상태로 돌립니다.
 		summary, notFound, ambiguous = AccountSummary{}, false, nil
-		q := opsdb.New(tx)
-		var accountID *uuid.UUID
-		if target.AccountID != nil {
-			accountID = target.AccountID
-		} else {
-			ids, err := q.ListOpsAccountsByStoreTransaction(ctx, pgtype.Text{String: target.StoreTransaction, Valid: true})
+		auditTarget := target
+		accountID := target.AccountID
+		if accountID == nil {
+			ids, err := opsdb.New(tx).ListOpsAccountsByStoreTransaction(ctx, pgtype.Text{String: target.StoreTransaction, Valid: true})
 			if err != nil {
 				return fmt.Errorf("스토어 거래 계정 조회: %w", err)
 			}
@@ -129,6 +129,7 @@ func (s *Service) AccountSummary(ctx context.Context, actor Actor, key AccountKe
 				accountID = &ids[0]
 			default:
 				ambiguous = ids
+				auditTarget.Candidates = ids
 			}
 		}
 
@@ -145,7 +146,7 @@ func (s *Service) AccountSummary(ctx context.Context, actor Actor, key AccountKe
 		notFound = accountID == nil && ambiguous == nil
 
 		return recordTx(ctx, tx, auditID, s.clk.Now(), Entry{
-			Actor: actor, Action: ActionAccountShow, AccountID: accountID, Reason: reason, Target: target,
+			Actor: actor, Action: ActionAccountShow, AccountID: accountID, Reason: reason, Target: auditTarget,
 		})
 	})
 	switch {

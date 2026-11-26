@@ -200,7 +200,7 @@ func TestAccountSummary_StoreTransactionAmbiguous(t *testing.T) {
 	rows := auditRows(t, pool)
 	require.Len(t, rows, 1)
 	assert.Nil(t, rows[0].AccountID)
-	assert.JSONEq(t, `{"storeTransaction":"tx-dup"}`, rows[0].Target)
+	assert.JSONEq(t, fmt.Sprintf(`{"storeTransaction":"tx-dup","candidates":[%q,%q]}`, min(a.String(), b.String()), max(a.String(), b.String())), rows[0].Target)
 }
 
 func TestAccountSummary_ValidatesInputBeforeDB(t *testing.T) {
