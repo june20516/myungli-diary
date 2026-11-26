@@ -1,4 +1,4 @@
-// IA(site.json)의 web-landing 슬롯과 writing 웹 원고(#1329)를 맞춰 읽습니다.
+// IA(site.json)의 랜딩 사이트 화면(web-landing, web-not-found) 슬롯과 writing 웹 원고(#1329)를 맞춰 읽습니다.
 // 원고 형식은 `{ "<슬롯 id>": { "<키>": "<문장>" } }`입니다(writing 생성물, #1349).
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -6,7 +6,8 @@ import { type Lang } from "../config/lang.ts";
 import { SITE_IA_PATH, STORE_LISTING_PATH, WRITING_WEB_DIR } from "../config/paths.ts";
 import { findD93 } from "../text/d93.ts";
 
-const LANDING_SCREEN_ID = "web-landing";
+/** 이 사이트가 내는 IA 화면. 원고 한 파일에 두 화면의 슬롯이 함께 들어 있습니다. */
+export const SITE_SCREEN_IDS = ["web-landing", "web-not-found"] as const;
 
 /** 슬롯 id → 키 → 문장. */
 type SlotTexts = ReadonlyMap<string, ReadonlyMap<string, string>>;
@@ -44,15 +45,17 @@ function asArray(value: unknown, what: string): unknown[] {
   return value;
 }
 
-/** IA의 web-landing 슬롯 id 목록. */
-export function landingSlotIds(iaPath: string = SITE_IA_PATH): string[] {
+/** IA에서 이 사이트 화면들의 슬롯 id 목록, 화면 순서대로. */
+export function siteSlotIds(iaPath: string = SITE_IA_PATH): string[] {
   const screens = asArray(readJsonObject(iaPath).screens, "screens");
-  const landing = screens.find((screen) => isObject(screen) && screen.id === LANDING_SCREEN_ID);
-  if (!isObject(landing)) throw new Error(`IA에 ${LANDING_SCREEN_ID} 화면이 없음: ${iaPath}`);
-  return asArray(landing.slots, "slots").map((slot) => {
-    const id = isObject(slot) ? slot.id : undefined;
-    if (typeof id !== "string") throw new Error("슬롯 id가 문자열이 아님");
-    return id;
+  return SITE_SCREEN_IDS.flatMap((screenId) => {
+    const screen = screens.find((candidate) => isObject(candidate) && candidate.id === screenId);
+    if (!isObject(screen)) throw new Error(`IA에 ${screenId} 화면이 없음: ${iaPath}`);
+    return asArray(screen.slots, "slots").map((slot) => {
+      const id = isObject(slot) ? slot.id : undefined;
+      if (typeof id !== "string") throw new Error("슬롯 id가 문자열이 아님");
+      return id;
+    });
   });
 }
 
@@ -97,7 +100,7 @@ function validate(entries: Record<string, unknown>, slotIds: readonly string[], 
 export function loadCopy(lang: Lang, options: LoadCopyOptions = {}): Copy {
   const file = join(options.writingDir ?? WRITING_WEB_DIR, `${lang}.json`);
   if (!existsSync(file)) throw new Error(`writing 웹 원고가 없음: ${file}`);
-  const slots = validate(readJsonObject(file), landingSlotIds(options.iaPath), file);
+  const slots = validate(readJsonObject(file), siteSlotIds(options.iaPath), file);
   const appName = readAppName(lang);
 
   const slotTexts = (slotId: string): ReadonlyMap<string, string> => {

@@ -16,6 +16,10 @@ function page(lang: string, body: string, ogImage = `${ORIGIN}/${lang}/og.png`, 
   return `<!doctype html><html lang="${lang}"><head><title>제목</title><meta property="og:image" content="${ogImage}"><link rel="canonical" href="${ORIGIN}/${lang}/"></head><body>${body}${shots}<a href="/ko/">ko</a><a href="https://example.com/x">밖</a></body></html>`;
 }
 
+function notFoundPage(lang: string): string {
+  return `<!doctype html><html lang="${lang}"><head><title>없음</title></head><body><h1>없음</h1><a href="/${lang}/">첫 화면</a></body></html>`;
+}
+
 function makeDist(overrides: Record<string, string | null> = {}): string {
   const dir = mkdtempSync(join(tmpdir(), "dist-"));
   const files: Record<string, string | null> = {
@@ -27,6 +31,10 @@ function makeDist(overrides: Record<string, string | null> = {}): string {
     "ko/og.png": "png",
     "en/og.png": "png",
     "ja/og.png": "png",
+    "404.html": notFoundPage("en"),
+    "i18n/ko_ALL/404.html": notFoundPage("ko"),
+    "i18n/en_ALL/404.html": notFoundPage("en"),
+    "i18n/ja_ALL/404.html": notFoundPage("ja"),
     ...overrides,
   };
   for (const [name, content] of Object.entries(files)) {
@@ -47,6 +55,10 @@ describe("checkDist", () => {
 
   test("언어 OG 이미지가 없으면 문제", () => {
     expect(checkDist(makeDist({ "ja/og.png": null }), ORIGIN)).toContain("파일 없음: ja/og.png");
+  });
+
+  test("언어별 404가 없으면 문제", () => {
+    expect(checkDist(makeDist({ "i18n/ja_ALL/404.html": null }), ORIGIN)).toContain("파일 없음: i18n/ja_ALL/404.html");
   });
 
   test("본문 가운뎃점은 D93 문제", () => {

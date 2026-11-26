@@ -7,6 +7,9 @@
     ],
     "cleanUrls": false,
     "appAssociation": "NONE",
+    "i18n": {
+      "root": "/i18n"
+    },
     "headers": [
       {
         "source": "/app-ads.txt",
