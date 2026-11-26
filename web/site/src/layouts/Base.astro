@@ -1,10 +1,11 @@
 ---
-// 모든 페이지의 <head>: 제목, 설명, canonical, hreflang, OG.
+// 모든 페이지의 <head>: 제목, 설명, 아이콘, canonical, hreflang, OG.
 import "@myungli/tokens/tokens.css";
 import { LANGS, type Lang } from "../config/lang.ts";
 import { siteConfig } from "../config/site.ts";
 import { landingFonts } from "../fonts/landing.ts";
 import { fontFaceCss } from "../fonts/web.ts";
+import { FAVICON_ICO_SIZES, PNG_ICONS } from "../icons/favicon.ts";
 
 interface Props {
   /** <html lang>와 웹 글꼴 언어. 언어 고르기 페이지(/)와 루트 404는 en. */
@@ -29,6 +30,9 @@ const fontCss = fontFaceCss(await landingFonts(htmlLang));
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="icon" href="/favicon.ico" sizes={FAVICON_ICO_SIZES.map((size) => `${size}x${size}`).join(" ")} />
+    <link rel="icon" type="image/png" href={PNG_ICONS.large.path} sizes={`${PNG_ICONS.large.size}x${PNG_ICONS.large.size}`} />
+    <link rel="apple-touch-icon" href={PNG_ICONS.touch.path} />
     {!siteConfig.indexable && <meta name="robots" content="noindex" />}
     {path !== undefined && <link rel="canonical" href={absolute(path)} />}
     {LANGS.map((lang) => <link rel="alternate" hreflang={lang} href={absolute(`/${lang}/`)} />)}

@@ -25,6 +25,9 @@ function makeDist(overrides: Record<string, string | null> = {}): string {
   const files: Record<string, string | null> = {
     "index.html": page("en", "<p>언어 고르기</p>"),
     "app-ads.txt": "google.com, pub-1, DIRECT, f08c47fec0942fa0\n",
+    "favicon.ico": "ico",
+    "apple-touch-icon.png": "png",
+    "icon-192.png": "png",
     "ko/index.html": page("ko", "<p>본문</p>"),
     "en/index.html": page("en", "<p>body</p>"),
     "ja/index.html": page("ja", "<p>本文</p>"),
@@ -55,6 +58,10 @@ describe("checkDist", () => {
 
   test("언어 OG 이미지가 없으면 문제", () => {
     expect(checkDist(makeDist({ "ja/og.png": null }), ORIGIN)).toContain("파일 없음: ja/og.png");
+  });
+
+  test("파비콘이 없으면 문제", () => {
+    expect(checkDist(makeDist({ "favicon.ico": null }), ORIGIN)).toContain("파일 없음: favicon.ico");
   });
 
   test("언어별 404가 없으면 문제", () => {
