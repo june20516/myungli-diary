@@ -147,6 +147,16 @@ func runMigrate(ctx context.Context, args []string, getenv func(string) string, 
 		}
 		logger.InfoContext(ctx, "런타임 DB 사용자를 권한 묶음 구성원으로 두었습니다", "role", postgres.AppRole)
 	}
+	// 사람 운영자(IAM 사용자)를 운영자 역할의 구성원으로 둡니다(#1321). 운영자 이름은 로그에 남기지 않고 수만 남깁니다.
+	// local에는 사람 IAM 사용자가 없어 부르지 않습니다.
+	if direction == "up" && (cfg.Env == "staging" || cfg.Env == "prod") {
+		granted, err := postgres.GrantOpsRole(ctx, pool)
+		if err != nil {
+			logger.ErrorContext(ctx, "운영자 역할 지정 실패", "error", err)
+			return &loggedError{err: err}
+		}
+		logger.InfoContext(ctx, "운영자 역할 구성원 추가", "count", len(granted))
+	}
 	return nil
 }
 

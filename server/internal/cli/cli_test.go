@@ -103,7 +103,7 @@ func TestRun_MigrateUnreachableDatabase_FailsFastWithCauseWithoutPassword(t *tes
 }
 
 // migrationFileCount는 migration 디렉터리의 파일 수입니다. migration을 더하면 함께 올립니다.
-const migrationFileCount = 28
+const migrationFileCount = 29
 
 func TestRun_MigrateDownUp_AppliesToDatabase(t *testing.T) {
 	ctx := context.Background()
@@ -157,6 +157,52 @@ func TestRun_MigrateUp_GrantsAppRoleToRuntimeUser(t *testing.T) {
 	env["DB_RUNTIME_USER"] = "no_such_user_" + strings.ReplaceAll(uuid.NewString()[:8], "-", "")
 	if code, _, _ := runCLIWithEnv(t, env, "migrate", "up"); code == 0 {
 		t.Error("없는 런타임 사용자에 migrate up이 성공했습니다")
+	}
+}
+
+// 배포 환경(staging, prod)의 migrate up은 사람 IAM 사용자를 운영자 역할(myungli_ops)에 넣고, local은 넣지 않습니다(#1321).
+func TestRunMigrate_GrantsOpsRoleOnlyInDeployedEnv(t *testing.T) {
+	ctx := context.Background()
+	pool := dbtest.New(t)
+	operator := "op-cli-" + strings.ReplaceAll(uuid.NewString()[:8], "-", "") + "@example.com"
+	if _, err := pool.Exec(ctx, "CREATE ROLE "+pgx.Identifier{operator}.Sanitize()+" LOGIN"); err != nil {
+		t.Fatalf("역할 만들기: %v", err)
+	}
+	t.Cleanup(func() {
+		_, _ = pool.Exec(context.Background(), "REVOKE "+postgres.OpsRole+" FROM "+pgx.Identifier{operator}.Sanitize())
+		_, _ = pool.Exec(context.Background(), "DROP ROLE IF EXISTS "+pgx.Identifier{operator}.Sanitize())
+	})
+	isMember := func() bool {
+		var member bool
+		if err := pool.QueryRow(ctx, `SELECT pg_has_role($1, $2, 'MEMBER')`, operator, postgres.OpsRole).Scan(&member); err != nil {
+			t.Fatalf("소속 확인: %v", err)
+		}
+		return member
+	}
+
+	for _, appEnv := range []string{"", "local"} {
+		env := map[string]string{"DATABASE_URL": pool.Config().ConnString(), "APP_ENV": appEnv}
+		if code, _, stderr := runCLIWithEnv(t, env, "migrate", "up"); code != 0 {
+			t.Fatalf("APP_ENV=%q migrate up 종료 코드 = %d, stderr = %q", appEnv, code, stderr)
+		}
+		if isMember() {
+			t.Fatalf("APP_ENV=%q에서 운영자 역할이 지정됐습니다", appEnv)
+		}
+	}
+
+	env := map[string]string{"DATABASE_URL": pool.Config().ConnString(), "APP_ENV": "staging"}
+	code, _, stderr := runCLIWithEnv(t, env, "migrate", "up")
+	if code != 0 {
+		t.Fatalf("staging migrate up 종료 코드 = %d, stderr = %q", code, stderr)
+	}
+	if !isMember() {
+		t.Errorf("staging에서 %s가 %s 구성원이 아닙니다", operator, postgres.OpsRole)
+	}
+	if !strings.Contains(stderr, "운영자 역할 구성원 추가") {
+		t.Errorf("구성원 추가 로그가 없습니다: %q", stderr)
+	}
+	if strings.Contains(stderr, operator) {
+		t.Errorf("로그에 운영자 이름이 남았습니다: %q", stderr)
 	}
 }
 
