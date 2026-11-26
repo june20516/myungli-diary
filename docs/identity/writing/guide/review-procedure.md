@@ -65,7 +65,10 @@ en, ja 원고는 원어민 감수자가 앱 없이 시트로 봅니다(D140, W84
    * 원고 파일이 새로 생겨 차수 표에 없으면 내보내기가 멈춥니다. `mlw.review.sheet.TIERS`에 넣습니다.
 2. **올리기(사용자):** Google Drive에 xlsx를 올리면 Sheets 문서로 바뀝니다(설정 "업로드한 파일 변환"이 꺼져 있으면 열 때 "Google Sheets로 열기"). 감수자에게 편집 권한으로 공유합니다.
 3. **받기(사용자):** 감수가 끝나면 "파일 > 다운로드 > Microsoft Excel(.xlsx)"로 받아 `${MYUNGLI_LOCAL_DIR:-$HOME/.config/myungli}/writing/review/`에 둡니다. 저장소에는 넣지 않습니다(감수자 정보).
-4. **writing 판정(선택):** 반영하지 않기로 한 줄은 받은 시트의 `writing 판정` 칸에 이유를 적습니다.
+4. **writing 판정:** 수정안을 그대로 받지 않고 한 줄씩 한국어 원문, 슬롯 설명, 같은 말을 쓰는 다른 줄과 대조합니다(W85 ③).
+   * 감수자가 적은 글자 수는 믿지 않고 다시 잽니다. 상한 판정은 검사기가 합니다.
+   * 고쳐서 받을 줄은 수정안 칸을 고치고, 받지 않을 줄은 `writing 판정` 칸에 이유를 적습니다. 같은 말을 쓰는 다른 줄도 함께 맞춥니다.
+   * 묶음 탭의 첫 줄(칸 머리)이 망가져 있으면 다시 읽기가 멈춥니다. 원래 머리로 고친 사본으로 읽습니다.
 5. **다시 읽기(writing):** 먼저 `--dry-run`으로 결과만 보고, 이어 실제로 반영합니다.
    ```
    uv run --project docs/identity/writing/tools mlw review-import docs/identity/writing/content <받은 시트.xlsx> --dry-run
