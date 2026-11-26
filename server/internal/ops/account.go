@@ -163,7 +163,8 @@ func (s *Service) AccountSummary(ctx context.Context, actor Actor, key AccountKe
 // newAccountTarget은 열쇠가 정확히 하나만 있는지 검사하고 감사 target으로 바꿉니다.
 func newAccountTarget(key AccountKey) (accountTarget, error) {
 	hasID := key.AccountID != uuid.Nil
-	if hasID == (strings.TrimSpace(key.StoreTransaction) != "") {
+	hasTransaction := strings.TrimSpace(key.StoreTransaction) != ""
+	if hasID == hasTransaction {
 		return accountTarget{}, ErrAccountKey
 	}
 	if hasID {

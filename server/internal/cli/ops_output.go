@@ -256,10 +256,10 @@ func printProfileView(w io.Writer, view ops.ProfileView) error {
 
 func printAuditRecords(w io.Writer, records []ops.AuditRecord) error {
 	table := newOpsTable(w)
-	_, _ = fmt.Fprint(table, "시각\t실행자\t경로\t동작\t계정\t목적\t사유\t대상\tID\n")
+	_, _ = fmt.Fprint(table, "시각\t실행자\t실행자 sub\t경로\t동작\t계정\t목적\t사유\t대상\tID\n")
 	for _, record := range records {
 		// 대상(target JSON)은 길어도 자르지 않고 한 칸에 그대로 둡니다. 전후 값(before, after)은 --json으로 봅니다.
-		_, _ = fmt.Fprintf(table, "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", formatTime(record.At), cell(record.Actor), cell(record.Channel),
+		_, _ = fmt.Fprintf(table, "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", formatTime(record.At), cell(record.Actor), cell(record.ActorSub), cell(record.Channel),
 			cell(record.Action), formatUUIDPtr(record.AccountID), formatStringPtr(record.Purpose), cell(record.Reason), cell(string(record.Target)), record.ID)
 	}
 	return table.Flush()

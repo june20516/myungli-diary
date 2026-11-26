@@ -2,6 +2,7 @@ package ops
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 	"time"
 
@@ -107,4 +108,33 @@ func TestAuditList_RequiresFilter(t *testing.T) {
 	_, err = svc.AuditList(ctx, testActor, AuditFilter{AccountID: &a}, "")
 	assert.ErrorIs(t, err, ErrReason)
 	assert.Empty(t, auditRows(t, pool))
+}
+
+// TestService_EmptyResultsAreJSONArrays는 빈 목록이 JSON null이 아니라 []로 나가는지 확인합니다.
+func TestService_EmptyResultsAreJSONArrays(t *testing.T) {
+	svc, pool := newTestService(t)
+	ctx := context.Background()
+	id := insertAccount(t, pool)
+
+	summary, err := svc.AccountSummary(ctx, testActor, AccountKey{AccountID: id}, "문의")
+	require.NoError(t, err)
+	raw, err := json.Marshal(summary)
+	require.NoError(t, err)
+	for _, key := range []string{"identities", "devices", "grants", "purchases"} {
+		assert.Contains(t, string(raw), `"`+key+`":[]`)
+	}
+
+	diary, err := svc.ViewDiary(ctx, testActor, byDate(id, viewDate))
+	require.NoError(t, err)
+	raw, err = json.Marshal(diary)
+	require.NoError(t, err)
+	assert.Contains(t, string(raw), `"entries":[]`)
+	assert.Contains(t, string(raw), `"tags":[]`)
+
+	since := time.Date(2999, 1, 1, 0, 0, 0, 0, time.UTC)
+	records, err := svc.AuditList(ctx, testActor, AuditFilter{Since: &since}, "점검")
+	require.NoError(t, err)
+	raw, err = json.Marshal(records)
+	require.NoError(t, err)
+	assert.Equal(t, "[]", string(raw))
 }

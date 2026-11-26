@@ -1,11 +1,20 @@
 package cli
 
 import (
+	"bytes"
+	"encoding/json"
+	"io"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"github.com/june20516/myungli-diary/server/internal/billing"
+	"github.com/june20516/myungli-diary/server/internal/ops"
+	"github.com/june20516/myungli-diary/server/internal/profile"
 )
 
 const opsReason = "문의 대응"
@@ -74,4 +83,129 @@ func TestSanitizeTerminal_ReplacesBidiControls(t *testing.T) {
 	}
 	// 범위 바로 바깥 글자(U+061B, U+061D, U+200D, U+2070)와 보통 글자, 탭, 줄바꿈은 그대로입니다.
 	assert.Equal(t, "\u061b\u061da\u200db\u2070c 한글\t\n", sanitizeTerminal("\u061b\u061da\u200db\u2070c 한글\t\n"))
+}
+
+// 출력 함수는 DB 없이 구조체로 만들어 확인합니다.
+
+var opsAt = time.Date(2026, 11, 20, 3, 4, 5, 0, time.UTC)
+
+func renderOps(t *testing.T, print func(w io.Writer) error) string {
+	t.Helper()
+	var out bytes.Buffer
+	require.NoError(t, print(&out))
+	return out.String()
+}
+
+func TestOps_JSONEmptyListsAreArrays(t *testing.T) {
+	summary := ops.AccountSummary{
+		Identities: []ops.IdentityInfo{}, Devices: []ops.DeviceInfo{}, Grants: []billing.GrantRow{}, Purchases: []ops.PurchaseInfo{},
+	}
+	out := renderOps(t, func(w io.Writer) error { return writeOpsJSON(w, summary) })
+	for _, key := range []string{"identities", "devices", "grants", "purchases"} {
+		assert.Contains(t, out, `"`+key+`": []`, out)
+	}
+	assert.Contains(t, out, `"adFree"`)
+	assert.Contains(t, out, `"insight"`)
+
+	out = renderOps(t, func(w io.Writer) error {
+		return writeOpsJSON(w, ops.DiaryView{Entries: []ops.DiaryEntry{}, Tags: []string{}})
+	})
+	assert.Contains(t, out, `"entries": []`)
+	assert.Contains(t, out, `"tags": []`)
+
+	out = renderOps(t, func(w io.Writer) error { return writeOpsJSON(w, []ops.AuditRecord{}) })
+	assert.Equal(t, "[]", strings.TrimSpace(out))
+}
+
+func TestOps_JSONKeysAreCamelCaseAndDatesAreStrings(t *testing.T) {
+	revoked := opsAt.Add(time.Hour)
+	result := ops.GrantResult{AuditID: uuid.New(), Grants: []billing.GrantRow{{
+		ID: 7, Entitlement: billing.AdFree, Source: billing.SourceOperator, SourceRef: "grp-1", StartsAt: opsAt, ExpiresAt: opsAt.Add(24 * time.Hour), RevokedAt: &revoked,
+	}}}
+	out := renderOps(t, func(w io.Writer) error { return writeOpsJSON(w, result) })
+	for _, want := range []string{`"auditId"`, `"sourceRef": "grp-1"`, `"expiresAt": "2026-11-21T03:04:05Z"`, `"startsAt"`, `"revokedAt"`, `"entitlement": "ad_free"`} {
+		assert.Contains(t, out, want, out)
+	}
+
+	out = renderOps(t, func(w io.Writer) error {
+		return writeOpsJSON(w, ops.ProfileView{BirthDate: &profile.LocalDate{Year: 1990, Month: 5, Day: 7}})
+	})
+	assert.Contains(t, out, `"birthDate": "1990-05-07"`)
+}
+
+func TestOps_TextStripsTerminalControlCharacters(t *testing.T) {
+	body := "빨강\x1b[31m글자\u009b끝\n둘째 줄\t탭"
+	view := ops.DiaryView{Entries: []ops.DiaryEntry{{ID: uuid.New(), Date: profile.LocalDate{Year: 2026, Month: 11, Day: 20}, Body: body, CreatedAt: opsAt, UpdatedAt: opsAt}}}
+
+	out := renderOps(t, func(w io.Writer) error { return printDiaryView(w, view) })
+	assert.NotContains(t, out, "\x1b")
+	assert.NotContains(t, out, "\u009b")
+	assert.Contains(t, out, "빨강�[31m글자�끝\n둘째 줄\t탭")
+
+	// JSON은 이스케이프되어 그대로입니다.
+	out = renderOps(t, func(w io.Writer) error { return writeOpsJSON(w, view) })
+	assert.NotContains(t, out, "\x1b")
+	assert.Contains(t, out, `\u001b[31m`)
+}
+
+func TestOps_TextStripsControlCharactersInProfileAndAudit(t *testing.T) {
+	honorific := "수아\x1b[2J"
+	out := renderOps(t, func(w io.Writer) error {
+		return printProfileView(w, ops.ProfileView{Honorific: &honorific, Language: "ko"})
+	})
+	assert.NotContains(t, out, "\x1b")
+	assert.Contains(t, out, "수아�[2J")
+
+	out = renderOps(t, func(w io.Writer) error {
+		return printAuditRecords(w, []ops.AuditRecord{{
+			ID: uuid.New(), At: opsAt, Actor: "op@example.com", ActorSub: "sub\x1b[1", Channel: "ops_api", Action: "account_show",
+			Reason: "색\x1b[31m사유", Target: json.RawMessage(`{}`),
+		}})
+	})
+	assert.NotContains(t, out, "\x1b")
+	assert.Contains(t, out, "색�[31m사유")
+	assert.Contains(t, out, "sub�[1")
+}
+
+func TestOps_AuditRecordsShowActorSubAndTarget(t *testing.T) {
+	account := uuid.New()
+	record := ops.AuditRecord{
+		ID: uuid.New(), At: opsAt, Actor: "op@example.com", ActorSub: "accounts.google.com:123", Channel: "ops_api", Action: "account_show",
+		AccountID: &account, Reason: "문의", Target: json.RawMessage(`{"accountId": "` + account.String() + `"}`),
+	}
+	out := renderOps(t, func(w io.Writer) error { return printAuditRecords(w, []ops.AuditRecord{record}) })
+	header, row, _ := strings.Cut(out, "\n")
+	assert.Contains(t, header, "실행자 sub")
+	assert.Less(t, strings.Index(header, "실행자 sub"), strings.Index(header, "경로"), "sub 열은 actor 옆입니다")
+	assert.Contains(t, header, "대상")
+	assert.Contains(t, row, "op@example.com")
+	assert.Contains(t, row, "accounts.google.com:123")
+	assert.Contains(t, row, `{"accountId": "`+account.String()+`"}`, "target JSON이 자르지 않고 한 칸에 나옵니다")
+
+	out = renderOps(t, func(w io.Writer) error { return writeOpsJSON(w, []ops.AuditRecord{record}) })
+	assert.Contains(t, out, `"actor": "op@example.com"`)
+	assert.Contains(t, out, `"actorSub": "accounts.google.com:123"`)
+}
+
+func TestOps_GrantAndRevokeTextEndWithAuditLine(t *testing.T) {
+	auditID := uuid.New()
+	rows := []billing.GrantRow{{ID: 1, Entitlement: billing.AdFree, Source: billing.SourceOperator, StartsAt: opsAt, ExpiresAt: opsAt.Add(time.Hour)}}
+	out := renderOps(t, func(w io.Writer) error { return printGrantResult(w, ops.GrantResult{AuditID: auditID, Grants: rows}) })
+	assert.True(t, strings.HasSuffix(out, "감사 기록 "+auditID.String()+"\n"), out)
+
+	out = renderOps(t, func(w io.Writer) error {
+		return printRevokeResult(w, ops.RevokeResult{AuditID: auditID, Before: rows, After: rows})
+	})
+	assert.Contains(t, out, "[회수 전]")
+	assert.Contains(t, out, "[회수 뒤]")
+	assert.True(t, strings.HasSuffix(out, "감사 기록 "+auditID.String()+"\n"), out)
+}
+
+func TestOps_AccountSummaryTextShowsSections(t *testing.T) {
+	out := renderOps(t, func(w io.Writer) error {
+		return printAccountSummary(w, ops.AccountSummary{Account: ops.AccountInfo{ID: uuid.New(), Status: "active", CreatedAt: opsAt, LastActiveAt: opsAt}})
+	})
+	for _, section := range []string{"[계정]", "[로그인 수단]", "[기기]", "[권한 상태]", "[권한 행]", "[구매]"} {
+		assert.Contains(t, out, section)
+	}
 }
