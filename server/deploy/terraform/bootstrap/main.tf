@@ -32,6 +32,9 @@ locals {
     "roles/firebasehosting.admin",
     "roles/iam.serviceAccountAdmin",
     "roles/iam.serviceAccountUser",
+    # check-ops-sa.sh가 server-ops의 사용자 관리 키 목록(iam.serviceAccountKeys.list)을 읽는 데 씁니다(#1321).
+    # serviceAccountAdmin에는 이 권한이 없고, 이 역할은 계정과 키 메타데이터 읽기만 줍니다(IAM 역할 문서 "View Service Accounts").
+    "roles/iam.serviceAccountViewer",
     # 알림 정책과 uptime check는 env가 만들고, 받는 곳(channel)은 bootstrap이 만든 것을 읽기만 합니다(S133).
     "roles/monitoring.alertPolicyEditor",
     "roles/monitoring.notificationChannelViewer",
