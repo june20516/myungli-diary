@@ -190,6 +190,37 @@ func (q *Queries) DeleteNotificationLogClaimedBefore(ctx context.Context, cutoff
 	return result.RowsAffected(), nil
 }
 
+const deleteOperatorGrantsEndedBefore = `-- name: DeleteOperatorGrantsEndedBefore :execrows
+DELETE FROM entitlement_grants
+WHERE source = 'operator'
+  AND COALESCE(revoked_at, expires_at) < $1::timestamptz
+`
+
+// 운영자가 부여한 권한 행은 끝나거나 회수된 뒤 2년이 지나면 지웁니다. 회수한 행은 회수 시각으로 셉니다.
+func (q *Queries) DeleteOperatorGrantsEndedBefore(ctx context.Context, before time.Time) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteOperatorGrantsEndedBefore, before)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const deleteOpsAuditBefore = `-- name: DeleteOpsAuditBefore :execrows
+DELETE FROM ops_audit
+WHERE at < $1
+  AND at < now() - interval '2 years'
+`
+
+// 운영 감사 기록은 2년이 지나면 지웁니다. ops_audit trigger(00029)가 DB 시각 기준 2년 안의 행 삭제를 예외로 막으므로,
+// 같은 경계를 한 번 더 걸어 앱 시계가 DB보다 앞서도 job 전체가 실패하지 않게 합니다.
+func (q *Queries) DeleteOpsAuditBefore(ctx context.Context, before time.Time) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteOpsAuditBefore, before)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const deletePaidGrantsEndedBefore = `-- name: DeletePaidGrantsEndedBefore :execrows
 DELETE FROM entitlement_grants WHERE source IN ('ad_free_pass', 'subscription') AND expires_at < $1
 `
