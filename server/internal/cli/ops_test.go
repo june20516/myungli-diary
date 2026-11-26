@@ -293,10 +293,10 @@ func TestOps_ContentScheduleAndProfileJSON(t *testing.T) {
 	assert.Equal(t, "2026-11-21", schedule.Entries[0].Date)
 	assert.True(t, schedule.Entries[0].AllDay)
 
-	// 프로필 행이 없으면 계정 없음과 같이 종료 코드 1입니다.
+	// 계정은 있고 프로필 행만 없으면 계정 없음과 구분한 안내로 종료 코드 1입니다.
 	code, _, stderr = runCLIWithEnv(t, env, "ops", "content", "profile", "--account", id.String(), "--purpose", "legal", "--reason", opsReason)
 	assert.Equal(t, 1, code)
-	assert.Equal(t, "ops: 계정을 찾을 수 없습니다\n", stderr)
+	assert.Equal(t, "ops: 프로필이 없습니다\n", stderr)
 }
 
 func TestOps_AuditListJSON(t *testing.T) {
@@ -390,9 +390,9 @@ func TestOps_UntilOffsetIsStoredAsUTC(t *testing.T) {
 func TestOps_AuditSinceIsUTCMidnightBoundary(t *testing.T) {
 	env, pool := opsEnv(t)
 	for _, at := range []string{"2026-10-31T23:59:59Z", "2026-11-01T00:00:00Z"} {
-		_, err := pool.Exec(context.Background(), `INSERT INTO ops_audit (id, at, actor, channel, action, reason, target)
+		// trigger(ops_audit_stamp)가 at을 now()로 덮으므로 끄고 넣습니다.
+		dbtest.ExecWithoutTriggers(t, pool, `INSERT INTO ops_audit (id, at, actor, channel, action, reason, target)
 			VALUES (gen_random_uuid(), $1, 'seed', 'cli', 'account_show', $2, '{}')`, at, "경계 "+at)
-		require.NoError(t, err)
 	}
 
 	code, stdout, stderr := runCLIWithEnv(t, env, "ops", "audit", "list", "--since", "2026-11-01", "--reason", opsReason, "--json")
@@ -472,4 +472,25 @@ func TestOps_TextStripsControlCharactersInProfileAndAudit(t *testing.T) {
 	require.Equal(t, 0, code, "stderr = %q", stderr)
 	assert.NotContains(t, stdout, "\x1b")
 	assert.Contains(t, stdout, "색\ufffd[31m사유")
+}
+
+func TestSanitizeTerminal_ReplacesBidiControls(t *testing.T) {
+	for _, r := range []rune{'\u200E', '\u200F', '\u202A', '\u202B', '\u202C', '\u202D', '\u202E', '\u2066', '\u2067', '\u2068', '\u2069'} {
+		assert.Equal(t, "가\ufffd나", sanitizeTerminal("가"+string(r)+"나"), "U+%04X", r)
+	}
+	// 범위 바로 바깥 글자(U+200D, U+2070)와 보통 글자, 탭, 줄바꿈은 그대로입니다.
+	assert.Equal(t, "a\u200db\u2070c 한글\t\n", sanitizeTerminal("a\u200db\u2070c 한글\t\n"))
+}
+
+func TestOps_AuditListTextShowsTarget(t *testing.T) {
+	env, pool := opsEnv(t)
+	id := opsAccount(t, pool)
+	code, _, stderr := runCLIWithEnv(t, env, "ops", "account", "show", "--account", id.String(), "--reason", opsReason)
+	require.Equal(t, 0, code, "stderr = %q", stderr)
+
+	code, stdout, stderr := runCLIWithEnv(t, env, "ops", "audit", "list", "--account", id.String(), "--reason", opsReason)
+	require.Equal(t, 0, code, "stderr = %q", stderr)
+	header, _, _ := strings.Cut(stdout, "\n")
+	assert.Contains(t, header, "대상")
+	assert.Contains(t, stdout, `{"accountId": "`+id.String()+`"}`, "target JSON이 자르지 않고 한 칸에 나옵니다")
 }
