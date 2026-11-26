@@ -15,6 +15,14 @@
 #      roles/iam.serviceAccountAdmin(서비스 계정 IAM 정책을 바꿔 server-ops 빌려 쓰기를 스스로 줌),
 #      roles/resourcemanager.projectIamAdmin(프로젝트 IAM 정책을 바꿔 위 역할을 스스로 줌),
 #      roles/cloudsql.admin(cloudsqlsuperuser 사용자를 만들어 myungli_ops 없이 표를 읽음, migrate 검사에 걸리지 않음)
+#    아래 둘도 예외 없이 실패입니다(지휘 2차 감사 L1). deployer에게 주지 않는 역할입니다.
+#      roles/iam.securityAdmin(프로젝트와 서비스 계정 IAM 정책을 바꿔 위 역할을 스스로 줌),
+#      roles/iam.roleAdmin(커스텀 역할을 만들거나 고쳐 같은 권한을 담음)
+#    roles/cloudsql.editor는 넣지 않습니다. gcloud iam roles describe로 본 사용자 관련 권한이 cloudsql.users.get,
+#    cloudsql.users.list뿐이라 DB 사용자를 만들 수 없습니다.
+#    커스텀 역할(projects/<p>/roles/..., organizations/<o>/roles/...) 바인딩은 주체와 상관없이 하나라도 있으면 실패입니다.
+#    deployer는 역할 정의(권한 목록)를 읽을 권한이 없어 그 안에 빌려 쓰기 권한이 있는지 알 수 없으므로 바인딩이 있다는 것만으로 멈춥니다.
+#    2026-11-26 세 프로젝트 모두 커스텀 역할이 없습니다. 정당한 커스텀 역할이 생기면 이 검사를 고쳐야 합니다.
 #    roles/owner는 넣지 않습니다. 소유자(사람)만 가지며 owner는 IAM 정책 자체를 바꿀 수 있어 이 검사로 막을 수 없습니다(runbook "남는 위험").
 #    예외(deployer만): 프로젝트 단위 roles/iam.serviceAccountUser, roles/iam.serviceAccountAdmin,
 #    roles/resourcemanager.projectIamAdmin, roles/cloudsql.admin. 모두 bootstrap deployer_roles가 주는 것입니다.
@@ -22,7 +30,8 @@
 #    서비스 계정과 그 IAM 정책(server-ops 포함)을 만드는 데, projectIamAdmin은 env의 프로젝트 IAM 부여에, cloudsql.admin은
 #    Cloud SQL 인스턴스, DB, IAM 사용자를 만드는 데 씁니다. deployer가 이것으로 할 수 있는 일은 브랜치 보호, PR 리뷰,
 #    prod 승인이 막습니다(runbook "남는 위험"). 서비스 계정 단위로 좁히는 것은 bootstrap 변경(사용자 apply)이라 #1321에 제안으로 남깁니다.
-#    검사 범위는 프로젝트 IAM 정책뿐입니다. 폴더와 조직 단위에서 상속되는 부여는 보지 않습니다(runbook 5, 6절).
+#    검사 범위는 프로젝트 IAM 정책뿐입니다. 폴더와 조직 단위에서 상속되는 부여는 보지 않습니다. deployer에게 조직 정책을 읽는
+#    권한을 넓히지 않으려는 것이고, 사람이 돌리는 확인 명령(gcloud projects get-ancestors-iam-policy)은 runbook에 있습니다.
 # ③ server-ops 계정의 사용자 관리 키: 하나라도 있으면 실패합니다. 키가 있으면 IAM 정책과 상관없이 그 계정으로 로그인할 수 있습니다.
 #    출력에는 키 개수만 적고 키 id는 적지 않습니다.
 #
@@ -107,16 +116,23 @@ sa_violations="$(jq -r --arg deployer "$deployer" "$jq_mask"'
 project_violations="$(jq -r --arg deployer "$deployer" "$jq_mask"'
   ["roles/iam.serviceAccountUser", "roles/iam.serviceAccountTokenCreator", "roles/iam.workloadIdentityUser",
    "roles/iam.serviceAccountKeyAdmin", "roles/editor",
-   "roles/iam.serviceAccountAdmin", "roles/resourcemanager.projectIamAdmin", "roles/cloudsql.admin"] as $watched
+   "roles/iam.serviceAccountAdmin", "roles/resourcemanager.projectIamAdmin", "roles/cloudsql.admin",
+   "roles/iam.securityAdmin", "roles/iam.roleAdmin"] as $watched
   | ["roles/iam.serviceAccountUser", "roles/iam.serviceAccountAdmin",
      "roles/resourcemanager.projectIamAdmin", "roles/cloudsql.admin"] as $deployer_allowed
   | [.bindings[]? | select(.role as $r | $watched | index($r)) | .role as $role | .members[]?
     | select(((. == $deployer) and ($deployer_allowed | index($role))) | not)
     | "\($role) \(mask)"] | .[]' <<< "$project_json")"
 
+# 커스텀 역할 바인딩은 주체와 상관없이 모두 위반입니다(역할 정의를 읽지 못해 담긴 권한을 알 수 없음).
+# shellcheck disable=SC2016
+custom_role_violations="$(jq -r "$jq_mask"'
+  [.bindings[]? | select(.role | test("^(projects|organizations)/[^/]+/roles/")) | .role as $role | .members[]?
+    | "\($role) \(mask)"] | .[]' <<< "$project_json")"
+
 user_key_count="$(jq 'length' <<< "$keys_json")"
 
-if [ -z "$sa_violations" ] && [ -z "$project_violations" ] && [ "$user_key_count" -eq 0 ]; then
+if [ -z "$sa_violations" ] && [ -z "$project_violations" ] && [ -z "$custom_role_violations" ] && [ "$user_key_count" -eq 0 ]; then
   echo "server-ops 계정 검사 통과 (${project}): 빌려 쓸 수 있는 주체는 deployer뿐이고 사용자 관리 키가 없습니다."
   exit 0
 fi
@@ -130,6 +146,10 @@ report() {
   if [ -n "$project_violations" ]; then
     echo "프로젝트 IAM 정책에 서비스 계정을 빌려 쓰게 하거나 그 권한을 스스로 줄 수 있거나 DB를 직접 여는 부여가 있습니다:"
     while IFS= read -r line; do echo "* $line"; done <<< "$project_violations"
+  fi
+  if [ -n "$custom_role_violations" ]; then
+    echo "프로젝트 IAM 정책에 커스텀 역할 바인딩이 있습니다(담긴 권한을 배포 계정이 확인할 수 없어 멈춥니다):"
+    while IFS= read -r line; do echo "* $line"; done <<< "$custom_role_violations"
   fi
   if [ "$user_key_count" -ne 0 ]; then
     echo "server-ops 계정에 사용자 관리 키가 ${user_key_count}개 있습니다. 키를 지워야 합니다."

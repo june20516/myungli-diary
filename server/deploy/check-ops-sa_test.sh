@@ -92,6 +92,16 @@ run_case "키 목록이 배열 아님" 1 sa-ok.json project-ok.json sa-empty.jso
 run_case "프로젝트 단위 workloadIdentityUser는 deployer도 예외 아님" 1 sa-ok.json project-deployer-wif.json keys-none.json \
   "roles/iam.workloadIdentityUser serviceAccount:deployer@test-project.iam.gserviceaccount.com" \
   "roles/iam.workloadIdentityUser deleted:user:(가림)"
+run_case "securityAdmin과 roleAdmin은 deployer도 예외 아님" 1 sa-ok.json project-iam-security-roles.json keys-none.json \
+  "roles/iam.securityAdmin serviceAccount:deployer@test-project.iam.gserviceaccount.com" \
+  "roles/iam.securityAdmin user:(가림)" \
+  "roles/iam.roleAdmin group:(가림)"
+run_case "커스텀 역할 바인딩은 주체와 상관없이 실패" 1 sa-ok.json project-custom-roles.json keys-none.json \
+  "projects/test-project/roles/opsReader serviceAccount:deployer@test-project.iam.gserviceaccount.com" \
+  "organizations/123456789/roles/auditor user:(가림)" \
+  "커스텀 역할"
+# cloudsql.editor는 사용자 생성 권한(cloudsql.users.create)이 없어 감시하지 않습니다.
+run_case "cloudsql.editor는 감시 밖" 0 sa-ok.json project-cloudsql-editor.json keys-none.json "검사 통과"
 
 # 인자가 없으면 사용법 오류(2)입니다.
 code=0

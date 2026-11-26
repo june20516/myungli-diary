@@ -1,0 +1,4 @@
+{"bindings":[
+ {"role":"roles/iam.serviceAccountUser","members":["serviceAccount:deployer@test-project.iam.gserviceaccount.com"]},
+ {"role":"roles/cloudsql.editor","members":["user:someone@example.com"]}
+],"etag":"BwX","version":1}
