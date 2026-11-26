@@ -97,6 +97,8 @@ func CheckRoleSeparation(ctx context.Context, pool *pgxpool.Pool, runtimeUser, o
 }
 
 // canUseRole은 member가 role의 권한을 쓸 수 있는지(상속 또는 SET ROLE) 묻습니다. ADMIN 전용 구성원은 false입니다.
+// 한계: 홉마다 INHERIT와 SET이 갈린 중첩 경로(예 A에서 B는 inherit f, set t이고 B에서 ops는 inherit t, set f)는
+// USAGE와 SET이 모두 거짓이라 잡지 못합니다. 이 검사는 배포 안전장치이고 그런 구성은 만들지 않는다는 전제입니다.
 func canUseRole(ctx context.Context, pool *pgxpool.Pool, member, role string) (bool, error) {
 	var usable bool
 	err := pool.QueryRow(ctx, `SELECT pg_has_role($1, $2, 'USAGE') OR pg_has_role($1, $2, 'SET')`, member, role).Scan(&usable)
@@ -106,13 +108,13 @@ func canUseRole(ctx context.Context, pool *pgxpool.Pool, member, role string) (b
 	return usable, nil
 }
 
-// isSuperuser는 member가 superuser이거나 cloudsqlsuperuser의 구성원인지 묻습니다.
+// isSuperuser는 member가 superuser이거나 cloudsqlsuperuser의 권한을 쓸 수 있는지(ADMIN 전용 구성원 제외) 묻습니다.
 func isSuperuser(ctx context.Context, pool *pgxpool.Pool, member string) (bool, error) {
 	var superuser bool
 	err := pool.QueryRow(ctx, `
 		SELECT COALESCE((SELECT rolsuper FROM pg_roles WHERE rolname = $1), false)
 		    OR CASE WHEN EXISTS (SELECT 1 FROM pg_roles WHERE rolname = $2)
-		            THEN pg_has_role($1, $2, 'MEMBER') ELSE false END`, member, cloudSQLSuperuser).Scan(&superuser)
+		            THEN pg_has_role($1, $2, 'USAGE') OR pg_has_role($1, $2, 'SET') ELSE false END`, member, cloudSQLSuperuser).Scan(&superuser)
 	if err != nil {
 		return false, fmt.Errorf("superuser 확인: %w", withoutRoleName(err))
 	}
