@@ -32,8 +32,8 @@ type GrantRequest struct {
 
 // GrantResult는 부여 결과입니다. 만든 권한 행의 source_ref는 AuditID 문자열입니다.
 type GrantResult struct {
-	AuditID uuid.UUID
-	Grants  []billing.GrantRow
+	AuditID uuid.UUID          `json:"auditId"`
+	Grants  []billing.GrantRow `json:"grants"`
 }
 
 // RevokeRequest는 권한 회수 요청입니다. GrantID는 묶음에 속한 행 아무거나 가리켜도 됩니다.
@@ -45,8 +45,9 @@ type RevokeRequest struct {
 
 // RevokeResult는 회수 결과입니다. Before는 회수 전, After는 회수 뒤 묶음입니다.
 type RevokeResult struct {
-	AuditID       uuid.UUID
-	Before, After []billing.GrantRow
+	AuditID uuid.UUID          `json:"auditId"`
+	Before  []billing.GrantRow `json:"before"`
+	After   []billing.GrantRow `json:"after"`
 }
 
 // grantTarget은 부여 감사 행의 target입니다. 만료는 UTC 시각(time.Time)이고 JSON에서는 RFC 3339로 직렬화됩니다.

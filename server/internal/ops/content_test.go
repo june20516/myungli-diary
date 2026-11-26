@@ -2,6 +2,7 @@ package ops
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"testing"
 	"time"
@@ -471,4 +472,27 @@ func TestService_AllCommandsWorkAsOpsRole(t *testing.T) {
 	records, err := svc.AuditList(ctx, testActor, AuditFilter{AccountID: &account}, "점검")
 	require.NoError(t, err, "AuditList")
 	assert.Len(t, records, 6)
+}
+
+func TestViewJSON_DatesAreStringsAndKeysAreCamelCase(t *testing.T) {
+	birth := profile.LocalDate{Year: 1990, Month: 5, Day: 7}
+	honorific := "수아"
+	raw, err := json.Marshal(ProfileView{Honorific: &honorific, Language: "ko", BirthDate: &birth})
+	require.NoError(t, err)
+	assert.JSONEq(t, `{"honorific":"수아","language":"ko","currentTimezone":"","calendar":null,"isLeapMonth":null,"birthDate":"1990-05-07",
+		"birthTimeStatus":null,"birthTime":null,"gender":null,"birthTimezone":null,"birthPlaceStatus":null,"birthCityId":null,"longitude":null}`, string(raw))
+
+	raw, err = json.Marshal(ProfileView{})
+	require.NoError(t, err)
+	assert.Contains(t, string(raw), `"birthDate":null`)
+
+	raw, err = json.Marshal(ScheduleEntry{Date: viewDate, Title: "병원"})
+	require.NoError(t, err)
+	assert.Contains(t, string(raw), `"date":"2026-11-20"`)
+	assert.Contains(t, string(raw), `"allDay":false`)
+
+	raw, err = json.Marshal(DiaryEntry{Date: viewDate, Body: "본문"})
+	require.NoError(t, err)
+	assert.Contains(t, string(raw), `"date":"2026-11-20"`)
+	assert.Contains(t, string(raw), `"createdAt"`)
 }

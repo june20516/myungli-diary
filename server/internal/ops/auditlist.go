@@ -32,17 +32,17 @@ type AuditFilter struct {
 
 // AuditRecord는 감사 행 한 건입니다. 표 칸 그대로입니다.
 type AuditRecord struct {
-	ID        uuid.UUID
-	At        time.Time
-	Actor     string
-	Channel   string
-	Action    string
-	AccountID *uuid.UUID
-	Purpose   *string
-	Reason    string
-	Target    json.RawMessage
-	Before    json.RawMessage
-	After     json.RawMessage
+	ID        uuid.UUID       `json:"id"`
+	At        time.Time       `json:"at"`
+	Actor     string          `json:"actor"`
+	Channel   string          `json:"channel"`
+	Action    string          `json:"action"`
+	AccountID *uuid.UUID      `json:"accountId"`
+	Purpose   *string         `json:"purpose"`
+	Reason    string          `json:"reason"`
+	Target    json.RawMessage `json:"target"`
+	Before    json.RawMessage `json:"before"`
+	After     json.RawMessage `json:"after"`
 }
 
 // auditListTarget은 감사 기록 조회 행의 target입니다. 조회에 쓴 조건을 남깁니다. 칸은 AuditFilter와 같아야 합니다(형 변환).

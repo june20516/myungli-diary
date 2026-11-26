@@ -2,6 +2,7 @@ package ops
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
@@ -42,52 +43,89 @@ type ViewRequest struct {
 // DiaryView는 일기 열람 결과입니다. DeletedCount는 지웠거나 본문을 비운 일기 개수이고 본문은 담지 않습니다.
 // Tags는 그날 기록(날짜 기록)의 태그입니다. 날짜 기록이 없거나 연 일기가 없으면 빈 목록입니다.
 type DiaryView struct {
-	Entries      []DiaryEntry
-	DeletedCount int
-	Tags         []string
+	Entries      []DiaryEntry `json:"entries"`
+	DeletedCount int          `json:"deletedCount"`
+	Tags         []string     `json:"tags"`
 }
 
 // DiaryEntry는 열람한 일기 한 편입니다.
 type DiaryEntry struct {
-	ID        uuid.UUID
-	Date      profile.LocalDate
-	Body      string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID        uuid.UUID         `json:"id"`
+	Date      profile.LocalDate `json:"date"` // JSON에서는 MarshalJSON이 "YYYY-MM-DD" 문자열로 바꿉니다.
+	Body      string            `json:"body"`
+	CreatedAt time.Time         `json:"createdAt"`
+	UpdatedAt time.Time         `json:"updatedAt"`
+}
+
+// MarshalJSON은 날짜를 "YYYY-MM-DD" 문자열로 내보냅니다.
+func (e DiaryEntry) MarshalJSON() ([]byte, error) {
+	type plain DiaryEntry
+	return json.Marshal(struct {
+		plain
+		Date string `json:"date"`
+	}{plain: plain(e), Date: formatDate(e.Date)})
 }
 
 // ScheduleView는 일정 열람 결과입니다. DeletedCount는 지웠거나 본문을 비운 일정 개수입니다.
 type ScheduleView struct {
-	Entries      []ScheduleEntry
-	DeletedCount int
+	Entries      []ScheduleEntry `json:"entries"`
+	DeletedCount int             `json:"deletedCount"`
 }
 
 // ScheduleEntry는 열람한 일정 한 건입니다. Time은 "HH:MM"이고 종일 일정이면 nil입니다.
 type ScheduleEntry struct {
-	ID     uuid.UUID
-	Date   profile.LocalDate
-	AllDay bool
-	Time   *string
-	Title  string
-	Memo   *string
+	ID     uuid.UUID         `json:"id"`
+	Date   profile.LocalDate `json:"date"` // JSON에서는 MarshalJSON이 "YYYY-MM-DD" 문자열로 바꿉니다.
+	AllDay bool              `json:"allDay"`
+	Time   *string           `json:"time"`
+	Title  string            `json:"title"`
+	Memo   *string           `json:"memo"`
+}
+
+// MarshalJSON은 날짜를 "YYYY-MM-DD" 문자열로 내보냅니다.
+func (e ScheduleEntry) MarshalJSON() ([]byte, error) {
+	type plain ScheduleEntry
+	return json.Marshal(struct {
+		plain
+		Date string `json:"date"`
+	}{plain: plain(e), Date: formatDate(e.Date)})
+}
+
+// formatDate는 날짜를 "YYYY-MM-DD"로 씁니다.
+func formatDate(d profile.LocalDate) string {
+	return fmt.Sprintf("%04d-%02d-%02d", d.Year, d.Month, d.Day)
 }
 
 // ProfileView는 계산 오류 문의 확인용 프로필입니다. 값이 없는 칸은 nil입니다.
 // BirthTime은 "HH:MM"입니다. 알림 설정, 출생 정보 해시, 익명화 시각은 담지 않습니다.
 type ProfileView struct {
-	Honorific        *string
-	Language         string
-	CurrentTimezone  string
-	Calendar         *string
-	IsLeapMonth      *bool
-	BirthDate        *profile.LocalDate
-	BirthTimeStatus  *string
-	BirthTime        *string
-	Gender           *string
-	BirthTimezone    *string
-	BirthPlaceStatus *string
-	BirthCityID      *string
-	Longitude        *float64
+	Honorific        *string            `json:"honorific"`
+	Language         string             `json:"language"`
+	CurrentTimezone  string             `json:"currentTimezone"`
+	Calendar         *string            `json:"calendar"`
+	IsLeapMonth      *bool              `json:"isLeapMonth"`
+	BirthDate        *profile.LocalDate `json:"birthDate"` // JSON에서는 MarshalJSON이 "YYYY-MM-DD" 문자열로 바꿉니다.
+	BirthTimeStatus  *string            `json:"birthTimeStatus"`
+	BirthTime        *string            `json:"birthTime"`
+	Gender           *string            `json:"gender"`
+	BirthTimezone    *string            `json:"birthTimezone"`
+	BirthPlaceStatus *string            `json:"birthPlaceStatus"`
+	BirthCityID      *string            `json:"birthCityId"`
+	Longitude        *float64           `json:"longitude"`
+}
+
+// MarshalJSON은 출생 날짜를 "YYYY-MM-DD" 문자열로 내보냅니다.
+func (v ProfileView) MarshalJSON() ([]byte, error) {
+	type plain ProfileView
+	var birthDate *string
+	if v.BirthDate != nil {
+		text := formatDate(*v.BirthDate)
+		birthDate = &text
+	}
+	return json.Marshal(struct {
+		plain
+		BirthDate *string `json:"birthDate"`
+	}{plain: plain(v), BirthDate: birthDate})
 }
 
 // listTarget은 일기와 일정 열람 감사 행의 target입니다. 연 항목의 id와 개수만 남기고 본문은 남기지 않습니다.
@@ -167,7 +205,9 @@ func loadDiaries(ctx context.Context, q *opsdb.Queries, target ContentTarget) ([
 			for _, row := range rows {
 				entries = append(entries, toDiaryEntry(row.ID, row.Date.Time, row.Body, row.CreatedAt, row.UpdatedAt))
 			}
-			deleted, err = q.CountOpsDeletedDiariesByDate(ctx, opsdb.CountOpsDeletedDiariesByDateParams{AccountID: target.AccountID, Date: date})
+			if deleted, err = q.CountOpsDeletedDiariesByDate(ctx, opsdb.CountOpsDeletedDiariesByDateParams{AccountID: target.AccountID, Date: date}); err != nil {
+				return nil, 0, fmt.Errorf("지운 일기 수 조회: %w", err)
+			}
 		}
 	} else {
 		params := opsdb.ListOpsDiariesByIDParams{AccountID: target.AccountID, ID: *target.ID}
@@ -176,7 +216,9 @@ func loadDiaries(ctx context.Context, q *opsdb.Queries, target ContentTarget) ([
 			for _, row := range rows {
 				entries = append(entries, toDiaryEntry(row.ID, row.Date.Time, row.Body, row.CreatedAt, row.UpdatedAt))
 			}
-			deleted, err = q.CountOpsDeletedDiariesByID(ctx, opsdb.CountOpsDeletedDiariesByIDParams(params))
+			if deleted, err = q.CountOpsDeletedDiariesByID(ctx, opsdb.CountOpsDeletedDiariesByIDParams{AccountID: target.AccountID, ID: *target.ID}); err != nil {
+				return nil, 0, fmt.Errorf("지운 일기 수 조회: %w", err)
+			}
 		}
 	}
 	if err != nil {
@@ -233,7 +275,9 @@ func loadSchedules(ctx context.Context, q *opsdb.Queries, target ContentTarget) 
 			for _, row := range rows {
 				entries = append(entries, toScheduleEntry(row.ID, row.Date, row.AllDay, row.Time, row.Title, row.Memo))
 			}
-			deleted, err = q.CountOpsDeletedSchedulesByDate(ctx, opsdb.CountOpsDeletedSchedulesByDateParams{AccountID: target.AccountID, Date: date})
+			if deleted, err = q.CountOpsDeletedSchedulesByDate(ctx, opsdb.CountOpsDeletedSchedulesByDateParams{AccountID: target.AccountID, Date: date}); err != nil {
+				return nil, 0, fmt.Errorf("지운 일정 수 조회: %w", err)
+			}
 		}
 	} else {
 		params := opsdb.ListOpsSchedulesByIDParams{AccountID: target.AccountID, ID: *target.ID}
@@ -242,7 +286,9 @@ func loadSchedules(ctx context.Context, q *opsdb.Queries, target ContentTarget) 
 			for _, row := range rows {
 				entries = append(entries, toScheduleEntry(row.ID, row.Date, row.AllDay, row.Time, row.Title, row.Memo))
 			}
-			deleted, err = q.CountOpsDeletedSchedulesByID(ctx, opsdb.CountOpsDeletedSchedulesByIDParams(params))
+			if deleted, err = q.CountOpsDeletedSchedulesByID(ctx, opsdb.CountOpsDeletedSchedulesByIDParams{AccountID: target.AccountID, ID: *target.ID}); err != nil {
+				return nil, 0, fmt.Errorf("지운 일정 수 조회: %w", err)
+			}
 		}
 	}
 	if err != nil {

@@ -41,46 +41,46 @@ type AccountKey struct {
 
 // AccountSummary는 문의 대응용 계정 상태입니다. 호칭, 출생 정보, 일기와 일정 본문, 제공자 subject, 알림 token은 담지 않습니다.
 type AccountSummary struct {
-	Account    AccountInfo
-	Identities []IdentityInfo
-	Devices    []DeviceInfo
-	Status     billing.Status
-	Grants     []billing.GrantRow
-	Purchases  []PurchaseInfo
+	Account    AccountInfo        `json:"account"`
+	Identities []IdentityInfo     `json:"identities"`
+	Devices    []DeviceInfo       `json:"devices"`
+	Status     billing.Status     `json:"status"`
+	Grants     []billing.GrantRow `json:"grants"`
+	Purchases  []PurchaseInfo     `json:"purchases"`
 }
 
 // AccountInfo는 계정 행의 지원용 칸입니다. 계정 상태는 active, deleted 둘뿐입니다.
 type AccountInfo struct {
-	ID           uuid.UUID
-	Status       string
-	CreatedAt    time.Time
-	DeletedAt    *time.Time
-	LastActiveAt time.Time
+	ID           uuid.UUID  `json:"id"`
+	Status       string     `json:"status"`
+	CreatedAt    time.Time  `json:"createdAt"`
+	DeletedAt    *time.Time `json:"deletedAt"`
+	LastActiveAt time.Time  `json:"lastActiveAt"`
 }
 
 // IdentityInfo는 로그인 수단입니다. 연결을 떼면 행이 지워지므로 연결 해제 칸은 없습니다.
 type IdentityInfo struct {
-	Provider string
-	LinkedAt time.Time
+	Provider string    `json:"provider"`
+	LinkedAt time.Time `json:"linkedAt"`
 }
 
 // DeviceInfo는 알림 기기입니다.
 type DeviceInfo struct {
-	Platform   string
-	Active     bool
-	CreatedAt  time.Time
-	LastSeenAt time.Time
+	Platform   string    `json:"platform"`
+	Active     bool      `json:"active"`
+	CreatedAt  time.Time `json:"createdAt"`
+	LastSeenAt time.Time `json:"lastSeenAt"`
 }
 
 // PurchaseInfo는 구매 장부 한 건입니다. MergedFrom은 원래 구매한 계정이 조회 계정과 다를 때(계정 합치기로 옮겨 온 구매) 그 계정입니다.
 type PurchaseInfo struct {
-	ProductID       string
-	Store           string
-	StorePurchaseID *string
-	PurchasedAt     time.Time
-	RefundedAt      *time.Time
-	Production      bool
-	MergedFrom      *uuid.UUID
+	ProductID       string     `json:"productId"`
+	Store           string     `json:"store"`
+	StorePurchaseID *string    `json:"storePurchaseId"`
+	PurchasedAt     time.Time  `json:"purchasedAt"`
+	RefundedAt      *time.Time `json:"refundedAt"`
+	Production      bool       `json:"production"`
+	MergedFrom      *uuid.UUID `json:"mergedFrom"`
 }
 
 // accountTarget은 계정 조회 감사 행의 target입니다. 조회에 쓴 열쇠와, 스토어 거래 id가 모호할 때 후보 계정 목록(candidates)을 남깁니다.
