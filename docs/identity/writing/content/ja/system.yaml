@@ -5,7 +5,7 @@
 - {slot: system.apple_return, key: apple_return.install, text: "アプリをインストール"}
 - {slot: system.support, key: support.title, text: "命理日記 お問い合わせとサポート"}
 - {slot: system.support, key: support.contact.head, text: "お問い合わせ"}
-- {slot: system.support, key: support.contact.body, text: "アプリのマイページ > 設定 > お問い合わせから送信できます。返信先のメールアドレスをご入力いただければ、そのアドレスにお答えします。"}
+- {slot: system.support, key: support.contact.body, text: "アプリのマイページ > 設定 > お問い合わせから送信できます。返信先のメールアドレスをご入力いただければ、そのアドレス宛てにお返事をお送りします。"}
 - {slot: system.support, key: support.email.body, text: "アプリを開けない、またはログインできないときは、{email} へメールをお送りください。"}
 - {slot: system.support, key: support.delete.head, text: "アカウント削除"}
 - {slot: system.support, key: support.delete.body, text: "アプリのマイページ > 設定 > アカウント削除から削除できます。削除したアカウントは元に戻せません。"}
@@ -14,9 +14,9 @@
 - {slot: system.support, key: support.legal.privacy, text: "プライバシーポリシー"}
 - {slot: system.support, key: support.legal.terms, text: "利用規約"}
 - {slot: system.notice, key: notice.ambiguous_local_time, text: "時刻の基準が変わり同じ時刻が二度あったため、早いほうで計算しました。"}
-- {slot: system.notice, key: notice.nonexistent_local_time, text: "時刻の基準が変わり飛ばされた時刻のため、切り替え後で計算しました。"}
+- {slot: system.notice, key: notice.nonexistent_local_time, text: "時刻の基準が変わって存在しない時刻のため、切り替え後の時刻で計算しました。"}
 - {slot: system.notice, key: notice.zi_hour_next_day, text: "経度で補正した生まれの時刻が子の刻のため、翌日の始まりとして計算しました。"}
 - {slot: system.notice, key: notice.time_unknown, text: "生まれた時刻が不明のため、時柱を除いて計算しました。入力するとより正確です。"}
 - {slot: system.notice, key: notice.near_solar_term, text: "節入りの近くに生まれたため、時刻によって月柱や年柱が変わることがあります。"}
-- {slot: system.notice, key: notice.dayun_start_approximate, text: "大運が始まる年齢は、生まれた時刻がわからないため概算で計算しました。"}
+- {slot: system.notice, key: notice.dayun_start_approximate, text: "大運が始まる年齢は、生まれた時刻がわからないため目安として計算しました。"}
 - {slot: system.notice, key: notice.focus_time_fallback, text: "今日は候補の時間がすべて命式とぶつかるため、暦の吉時から選びました。"}
