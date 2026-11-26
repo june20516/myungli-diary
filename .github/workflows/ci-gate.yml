@@ -139,7 +139,7 @@ jobs:
           design_changed=$(echo "$changed" | grep -vE '^docs/identity/design/(CLAUDE\.md|decisions\.md|specs/|plans/|artifacts/)' || true)
           unit design "$design_changed" '^docs/identity/design/' '^docs/ia/screens\.json$|^docs/identity/writing/artifacts/[^/]*-round-R[0-9]+\.md$|^docs/identity/writing/content/[^/]+/ui\.yaml$|^docs/identity/writing/content/hanja\.yaml$|^docs/identity/writing/content/[^/]+/source\.yaml$'
           # web이 쓰는 계약: 디자인 토큰, 웹 IA(site.json, D146), writing 웹 원고와 스토어 등록정보 생성물(랜딩 앱 이름, #1342).
-          unit web "$code_changed" '^web/' '^docs/identity/design/tokens/|^docs/ia/site\.json$|^docs/identity/writing/generated/(web|store)/'
+          unit web "$code_changed" '^web/' '^docs/identity/design/(tokens|web)/|^docs/ia/site\.json$|^docs/identity/writing/generated/(web|store)/'
           # drift Issue 본문에 적을 계약 파일 목록입니다.
           contracts=$(echo "$changed" | grep -E '^server/api/openapi\.yaml$|^docs/ia/screens\.json$|^docs/identity/design/(tokens|components|store)/|^docs/identity/writing/(content|slots|rules|tools|generated/store)/|^docs/identity/writing/artifacts/[^/]*-round-R[0-9]+\.md$|^core/(message_(keys|params)|evidence_(rules|sources))\.json$|^proto/|^docs/identity/design/lengths\.md$|^docs/legal/[^/]+/' | head -20 | tr '\n' ' ')
           echo "contracts=$contracts" >> "$GITHUB_OUTPUT"
